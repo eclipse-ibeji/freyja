@@ -1,0 +1,23 @@
+@startuml
+participant "Cloud Digital Twin"
+participant "Freyja Cartographer"
+participant "Freyja Emitter"
+participant "DT Adapter"
+participant "Ibeji"
+participant "Provider"
+
+autonumber
+
+== Digital Twin Adapter Pushing Data to Emitter ==
+
+"Freyja Cartographer"->"Freyja Emitter": Send mapping info
+"Freyja Emitter"->"DT Adapter": Request DTDL for the specified providers
+"DT Adapter"->"Ibeji": Send find_by_id request(s)
+"Ibeji"->"DT Adapter": Respond with corresponding DTDL
+"DT Adapter"->"Provider": Send get/subscribe request based on the DTDL
+"Provider"->"DT Adapter": Send signal values asynchronously
+"DT Adapter"->"Freyja Emitter": Update local provider value cache
+"Freyja Emitter"->"Cloud Digital Twin": Emit signals
+
+== Digital Twin Adapter Pushing Data to Emitter ==
+@enduml
