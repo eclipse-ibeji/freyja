@@ -11,11 +11,12 @@ package "Vehicle" {
         [Emitter]
     }
 
-    frame "Vehicle Digital Twin" {
-        [Chariott]
-        [Ibeji]
-        node "Providers" {
-            [Provider]
+    [Chariott]
+
+    frame "Ibeji" {
+        [In-Vehicle Digital Twin Service] as ivdts
+        node "Digital Twin Providers" {
+            [Digital Twin Provider] as provider
         }
     }
 
@@ -27,9 +28,9 @@ package "Vehicle" {
 [Cartographer] <-u-> [Mapping Service] : Get Mapping
 [Cloud Connector] -u-> [Cloud Digital Twin]
 [Emitter] .d.> [Chariott] : Discover Ibeji?
-[Emitter] -d-> [Ibeji] : Discover Provider
-[Emitter] <-d-> [Provider] : Collect Data via Get/Subscribe
-[Chariott] <-r-> [Ibeji]
-[Ibeji] <-r-> [Provider]
+[Emitter] -d-> [ivdts] : Discover Providers
+[Emitter] <-d-> [provider] : Collect Data via Get/Subscribe
+[Chariott] <-r-> [ivdts]
+[ivdts] <-r-> [provider]
 
 @enduml
