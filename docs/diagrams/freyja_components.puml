@@ -1,0 +1,36 @@
+@startuml
+
+cloud {
+    [Cloud Digital Twin]
+    [Mapping Service]
+}
+
+package "Vehicle" {
+    frame "Freyja" {
+        [Cartographer]
+        [Emitter]
+    }
+
+    [Chariott]
+
+    frame "Ibeji" {
+        [In-Vehicle Digital Twin Service] as ivdts
+        node "Digital Twin Providers" {
+            [Digital Twin Provider] as provider
+        }
+    }
+
+    [Cloud Connector]
+}
+
+[Cartographer] <-l-> [Emitter]
+[Emitter] -u-> [Cloud Connector] : Emit Data
+[Cartographer] <-u-> [Mapping Service] : Get Mapping
+[Cloud Connector] -u-> [Cloud Digital Twin]
+[Emitter] .d.> [Chariott] : Discover Ibeji?
+[Emitter] -d-> [ivdts] : Discover Providers
+[Emitter] <-d-> [provider] : Collect Data via Get/Subscribe
+[Chariott] <-r-> [ivdts]
+[ivdts] <-r-> [provider]
+
+@enduml

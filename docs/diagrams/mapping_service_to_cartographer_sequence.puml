@@ -1,0 +1,24 @@
+@startuml
+participant "Freyja Cartographer"
+participant "Mapping Service"
+autonumber
+
+== Freyja Communication with Mapping Info Provider ==
+
+
+"Freyja Cartographer"->"Mapping Service": Query for mapping metadata
+"Mapping Service"->"Freyja Cartographer": Respond with metadata
+
+alt #LightPink Metadata specifies inventory update
+    "Freyja Cartographer"->"Mapping Service": Send requested inventory
+    "Mapping Service"->"Mapping Service": Record inventory and regenerate mapping
+end
+
+alt #LightBlue Metadata specifies a new mapping is available
+    "Freyja Cartographer"->"Mapping Service": Query for mapping
+    "Mapping Service"->"Freyja Cartographer" : Respond with mapping
+end
+
+== Freyja Communication with Mapping Info Provider==
+@enduml
+

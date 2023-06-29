@@ -1,0 +1,20 @@
+name: Check Spelling
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check_spelling:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install spell
+        run: sudo apt-get install -y spell
+      - name: Check spelling
+        run: |
+          find . -name "README.md" -exec ./tools/check_spelling.sh {} \;
+        shell: bash
