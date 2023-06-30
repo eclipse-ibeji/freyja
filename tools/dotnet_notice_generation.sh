@@ -3,13 +3,13 @@
 cd "$(dirname "$0")/.."
 
 
-# Check if the correct number of arguments are provided
+# Check if only one argument is provided
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 path_to_notice_file"
     exit 1
 fi
 
-# Assign arguments to variables
+# Assign notice_file_path to argument
 notice_file_path="$1"
 
 # Check if the notice file exists
