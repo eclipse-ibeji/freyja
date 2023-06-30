@@ -1,0 +1,27 @@
+{
+    "interval_between_signal_generation_ms": 1000,
+    "entity_configs": [
+        {
+            "entity_id": "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1",
+            "values": {
+                "Static": 42.0
+            }
+        },
+        {
+            "entity_id": "dtmi:sdv:Vehicle:Cabin:HVAC:IsAirConditioningActive;1",
+            "values": {
+                "Static": 0.0
+            }
+        },
+        {
+            "entity_id": "dtmi:sdv:Vehicle:OBD:HybridBatteryRemaining;1",
+            "values": {
+                "Stepwise": {
+                    "start": 77.7,
+                    "end": 0.0,
+                    "delta": -0.125
+                }
+            }
+        }
+    ]
+}
