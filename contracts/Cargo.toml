@@ -1,0 +1,19 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "dts-contracts"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+proc-macros = { path = "../proc_macros" }
+async-trait = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+crossbeam = { workspace = true }
+strum = { workspace = true }
+strum_macros = { workspace = true }
