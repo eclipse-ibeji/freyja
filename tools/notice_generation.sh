@@ -36,7 +36,7 @@ NOTICE_FILENAME="NOTICE"
 echo "Running cargo-about for NOTICE file generation..."
 cargo about generate --workspace tools/cg/about.hbs --config tools/cg/about.toml > $NOTICE_FILENAME
 
-./tools/dotnet_notice_generation.sh
+./tools/dotnet_notice_generation.sh $NOTICE_FILENAME
 
 if [ -z "$(git diff --name-only $NOTICE_FILENAME)" ]
 then
