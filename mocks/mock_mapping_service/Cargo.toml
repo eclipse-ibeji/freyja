@@ -1,0 +1,19 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "mock-mapping-service"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dts-contracts = { path = "../../contracts" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
+axum = { workspace = true }
+tokio = { workspace = true }
