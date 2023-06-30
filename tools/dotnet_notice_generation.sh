@@ -14,7 +14,7 @@ notice_file_path="$1"
 
 # Check if the notice file exists
 if [ ! -f "$notice_file_path" ]; then
-    echo "Error: JSON file '$notice_file_path' not found"
+    echo "Error: Notice file '$notice_file_path' not found"
     exit 1
 fi
 
