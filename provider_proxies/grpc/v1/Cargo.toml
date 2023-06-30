@@ -1,0 +1,23 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "grpc-provider-proxy-v1"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+samples-protobuf-data-access  = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true }
+tonic = { workspace = true }
+dts-contracts = { path = "../../../contracts"}
+proc-macros = { path = "../../../proc_macros" }
+async-trait = { workspace = true }
+crossbeam = { workspace = true }
+tower = { workspace = true }
+tokio-stream = { workspace = true }
+tempfile = { workspace = true }
+futures = { workspace = true }
