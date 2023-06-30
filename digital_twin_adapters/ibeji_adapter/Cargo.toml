@@ -1,0 +1,25 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "ibeji-adapter"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+async-trait = { workspace = true }
+strum = { workspace = true }
+strum_macros = { workspace = true }
+core-protobuf-data-access  = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true }
+tonic = { workspace = true }
+dts-contracts = { path = "../../contracts"}
+proc-macros = { path = "../../proc_macros" }
+provider-proxy-selector = {path = "../../provider_proxy_selector" }
+tempfile = { workspace = true }
+tower = { workspace = true }
+tokio-stream = { workspace = true }
+futures = { workspace = true }
