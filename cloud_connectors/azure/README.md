@@ -2,7 +2,7 @@
 
 The role of the Cloud Connector is to take the data emitted by Freyja, and update the data of your cloud digital twin which could be hosted in Azure, AWS, etc.
 
-The [MQTT Connector](./mqtt_connector/README.md) and [Digital Twins Connector](./digital_twins_connector/README.md) are two Azure example implementations of a Cloud Connector.
+The [Digital Twins Connector](./digital_twins_connector/README.md) is an Azure example implementations of a Cloud Connector.
 
 These two examples integrates Freyja with Azure Digital Twins.
 
