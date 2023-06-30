@@ -1,0 +1,33 @@
+name: .NET CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  static_code_analysis:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v3
+      - name: Install .NET 6.0.408
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.408
+          global-json-file: cloud_connector/azure/digital_twins_connector/global.json
+      - name: Cache NuGet dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          # Look to see if there is a cache hit for the corresponding requirements file
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget
+      - name: Build
+        run: ./cloud_connector/azure/digital_twins_connector/build.sh
+      - name: Test
+        run: dotnet test cloud_connector/azure/digital_twins_connector/tests/**/*.csproj
