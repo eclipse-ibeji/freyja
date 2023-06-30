@@ -17,8 +17,7 @@ members = [
   "mocks/mock_mapping_service",
   "proc_macros",
   "provider_proxy_selector",
-  "cloud_connector/azure/mqtt_connector",
-  "cloud_connector/azure/proto-build"
+  "cloud_connectors/azure/proto-build"
 ]
 
 [workspace.dependencies]
