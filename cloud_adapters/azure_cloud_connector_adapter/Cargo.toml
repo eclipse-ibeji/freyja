@@ -10,7 +10,7 @@ license = "MIT"
 
 [dependencies]
 dts-contracts = { path = "../../contracts" }
-azure-cloud-connector-proto = { path = "../../cloud_connector/azure/proto-build/" }
+azure-cloud-connector-proto = { path = "../../cloud_connectors/azure/proto-build/" }
 tonic = { workspace = true }
 async-trait = { workspace = true }
 log = { workspace = true }

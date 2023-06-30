@@ -8,18 +8,15 @@ The adapter supports three methods of configuration:
 
 ### Default Config File
 
-This is the default method of configuration and is the one that will be used in most cases. The default adapter can be created by calling the `InMemoryMockDigitalTwinAdapter::create_new()` method and inspecting the returned `Result`. The mock config is located at `res/config.json` and it will be copied to the build output automatically. This file is a list of `ProviderConfig` objects with the following properties:
+This is the default method of configuration and is the one that will be used in most cases. The default adapter can be created by calling the `InMemoryMockDigitalTwinAdapter::create_new()` method and inspecting the returned `Result`. The mock config is located at `res/config.json` and it will be copied to the build output automatically. This file is a list of `EntityConfig` objects with the following properties:
 
-- `dtdl`: the provider's dtdl that contains the following information:
-  - `url`: the url that can be used to "call" this provider. This is a stand-in for whatever the provider contact info is from Ibeji. This is used as the key when calling `subscribe` and `get`.
+- `entity`: the entity that contains the following information:
   - `id`: this is used as the key when calling `find_by_id`.
-  - `description` and `name`: these are currently unused by the Freyja application and are included for human readability and/or potential future use.
-  - `operations`: operations that the provider supports, such as `Get`, `Subscribe`, and `Invoke`.
-- `values`: configuration for how the mocks provider's values should change. There are two options:
-  - `Static`: a value that doesn't change.
-  - `Stepwise`: a value which increases or decreases at a set interval between starting and ending values. Acts like a static value upon reaching the end of the range.
-
-For non-`Static` value configurations, the value returned for a certain signal will be a function of the number of times the method has been previously called for that signal. For example, when getting the value of a `Stepwise`-configured signal before reaching `end`, the value returned will be `start + delta * n`, where `n` is the number of times the method has been called before.
+  - `name`: these are currently unused by the Freyja application and are included for human readability and/or potential future use.
+  - `uri`: the uri that is used to mock the "call" to this provider. This is a stand-in for whatever the provider contact info is from Ibeji. This is used as the key when calling `subscribe` and `get` in our [In-Memory Provider Proxy](../../provider_proxies/in_memory_mock_provider_proxy/).
+  - `description`: description of the provider.
+  - `operation`: operation that this in-memory provider supports, such as `Get`, and `Subscribe`.
+  - `protocol`: should always be `in-memory`
 
 ### Custom Config File
 

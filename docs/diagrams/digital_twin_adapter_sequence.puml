@@ -1,0 +1,27 @@
+@startuml
+participant "Freyja"
+participant "Digital Twin Adapter"
+participant "In-Vehicle Digital Twin"
+participant "Provider Proxy Selector"
+
+
+
+
+autonumber
+
+== Received New Mapping Entry ==
+
+"Freyja"->"Digital Twin Adapter": Get values for this signal
+
+alt #LightPink Metadata Required to Retrieve Signal Values
+    "Digital Twin Adapter"->"In-Vehicle Digital Twin": Requests additional info for signal
+    note left
+    Ex of Metadata:
+    Endpoint, supported operations, etc.
+    end note
+end
+
+"Digital Twin Adapter"->"Provider Proxy Selector": CreateOrUpdateProviderProxy(entity_id, provider_uri, protocol, operation)
+
+== Received New Mapping Entry ==
+@enduml
