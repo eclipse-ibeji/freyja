@@ -14,11 +14,11 @@ jobs:
     steps:
       - name: Checkout repository and submodules
         uses: actions/checkout@v3
-      - name: Install .NET 6.0.408
+      - name: Install .NET 6.0.119
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 6.0.408
-          global-json-file: cloud_connector/azure/digital_twins_connector/global.json
+          dotnet-version: 6.0.119
+          global-json-file: cloud_connectors/azure/digital_twins_connector/global.json
       - name: Cache NuGet dependencies
         uses: actions/cache@v3
         with:
@@ -28,6 +28,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget
       - name: Build
-        run: ./cloud_connector/azure/digital_twins_connector/build.sh
+        run: ./cloud_connectors/azure/digital_twins_connector/build.sh
       - name: Test
-        run: dotnet test cloud_connector/azure/digital_twins_connector/tests/**/*.csproj
+        run: dotnet test cloud_connectors/azure/digital_twins_connector/tests/**/*.csproj
