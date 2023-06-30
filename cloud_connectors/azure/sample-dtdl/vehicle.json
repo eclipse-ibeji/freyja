@@ -1,0 +1,22 @@
+{
+    "@context": [
+     "dtmi:dtdl:context;2"
+    ],
+    "@type": "Interface",
+    "@id": "dtmi:sdv:Cloud:Vehicle;1",
+    "description": "Vehicle",
+    "contents": [
+     {
+      "@type": "Relationship",
+      "@id": "dtmi:sdv:Cloud:Vehicle:rel_has_hvac;1",
+      "name": "rel_has_hvac",
+      "target": "dtmi:sdv:Cloud:Vehicle:Cabin:HVAC;1"
+     },
+     {
+      "@type": "Relationship",
+      "@id": "dtmi:sdv:Cloud:Vehicle:rel_has_obd;1",
+      "name": "rel_has_obd",
+      "target": "dtmi:sdv:Cloud:Vehicle:OBD;1"
+     }
+    ]
+}
