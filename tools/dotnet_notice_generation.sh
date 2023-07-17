@@ -4,7 +4,6 @@ set -e
 
 cd "$(dirname "$0")/.."
 
-
 # Check if only one argument is provided
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 path_to_notice_file"
@@ -22,8 +21,12 @@ fi
 
 DOTNET_DIRECTORY="cloud_connectors/azure/digital_twins_connector"
 
-dotnet tool install --global dotnet-project-licenses
+if ! dotnet tool list --global | grep -q 'dotnet-project-licenses'; then
+    dotnet tool install --global dotnet-project-licenses
+fi
+
 mkdir -p "$DOTNET_DIRECTORY/dotnet_licenses_output"
+echo "Getting the .NET Third Party licenses"
 dotnet-project-licenses -i $DOTNET_DIRECTORY -o -f "$DOTNET_DIRECTORY/dotnet_licenses_output" -u --json -e -c \
 --licenseurl-to-license-mappings "$DOTNET_DIRECTORY/license_url_to_type.json"
 ./tools/dotnet_get_licenses.sh "$DOTNET_DIRECTORY/dotnet_licenses_output/licenses.json" "$DOTNET_DIRECTORY/dotnet_licenses_output"
