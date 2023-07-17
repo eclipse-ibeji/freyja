@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 cd "$(dirname "$0")/.."
 
 
@@ -27,3 +29,5 @@ dotnet-project-licenses -i $DOTNET_DIRECTORY -o -f "$DOTNET_DIRECTORY/dotnet_lic
 ./tools/dotnet_get_licenses.sh "$DOTNET_DIRECTORY/dotnet_licenses_output/licenses.json" "$DOTNET_DIRECTORY/dotnet_licenses_output"
 ./tools/dotnet_append_to_notice.sh "$notice_file_path" "$DOTNET_DIRECTORY/dotnet_licenses_output/licenses.json"
 rm -rf "$DOTNET_DIRECTORY/dotnet_licenses_output"
+
+exit 0

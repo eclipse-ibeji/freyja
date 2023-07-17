@@ -25,6 +25,10 @@ jobs:
       fail-fast: false
       matrix:
         language: [ 'csharp' ]
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     steps:
       - name: Checkout repository and submodules
         uses: actions/checkout@v3

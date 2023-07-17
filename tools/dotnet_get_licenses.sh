@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Check if the correct number of arguments are provided
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 path_to_json_file path_to_text_files_directory"
@@ -53,3 +55,5 @@ jq -s '.' "$temp_file" > "$json_file"
 
 # Remove temporary file
 rm "$temp_file"
+
+exit 0
