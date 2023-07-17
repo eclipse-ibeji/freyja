@@ -31,6 +31,6 @@ dotnet-project-licenses -i $DOTNET_DIRECTORY -o -f "$DOTNET_DIRECTORY/dotnet_lic
 --licenseurl-to-license-mappings "$DOTNET_DIRECTORY/license_url_to_type.json"
 ./tools/dotnet_get_licenses.sh "$DOTNET_DIRECTORY/dotnet_licenses_output/licenses.json" "$DOTNET_DIRECTORY/dotnet_licenses_output"
 ./tools/dotnet_append_to_notice.sh "$notice_file_path" "$DOTNET_DIRECTORY/dotnet_licenses_output/licenses.json"
-rm -rf "$DOTNET_DIRECTORY/dotnet_licenses_output"
+rm -r "$DOTNET_DIRECTORY/dotnet_licenses_output"
 
 exit 0
