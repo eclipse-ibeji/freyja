@@ -1,7 +1,8 @@
 #!/bin/bash
 
-cd "$(dirname "$0")/.."
+set -e
 
+cd "$(dirname "$0")/.."
 
 # Check if only one argument is provided
 if [ "$#" -ne 1 ]; then
@@ -20,10 +21,16 @@ fi
 
 DOTNET_DIRECTORY="cloud_connectors/azure/digital_twins_connector"
 
-dotnet tool install --global dotnet-project-licenses
+if ! dotnet tool list --global | grep -q 'dotnet-project-licenses'; then
+    dotnet tool install --global dotnet-project-licenses
+fi
+
 mkdir -p "$DOTNET_DIRECTORY/dotnet_licenses_output"
+echo "Getting the .NET Third Party licenses"
 dotnet-project-licenses -i $DOTNET_DIRECTORY -o -f "$DOTNET_DIRECTORY/dotnet_licenses_output" -u --json -e -c \
 --licenseurl-to-license-mappings "$DOTNET_DIRECTORY/license_url_to_type.json"
 ./tools/dotnet_get_licenses.sh "$DOTNET_DIRECTORY/dotnet_licenses_output/licenses.json" "$DOTNET_DIRECTORY/dotnet_licenses_output"
 ./tools/dotnet_append_to_notice.sh "$notice_file_path" "$DOTNET_DIRECTORY/dotnet_licenses_output/licenses.json"
-rm -rf "$DOTNET_DIRECTORY/dotnet_licenses_output"
+rm -r "$DOTNET_DIRECTORY/dotnet_licenses_output"
+
+exit 0

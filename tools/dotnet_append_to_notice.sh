@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Check if the correct number of arguments are provided
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 path_to_markdown_file path_to_json_file"
@@ -48,3 +50,5 @@ echo -e "\n## Disclaimer" >> "$markdown_file"
 echo -e "
 This .NET Third Party Licenses list has been generated with [nuget-license](https://github.com/tomchavakis/nuget-license), \
 licensed under [Apache License 2.0](https://github.com/tomchavakis/nuget-license/blob/master/LICENSE)" >> "$markdown_file"
+
+exit 0
