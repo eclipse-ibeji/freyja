@@ -16,3 +16,9 @@ pub struct Settings {
     /// Chariott's Service Discovery uri
     pub chariott_service_discovery_uri: Option<String>,
 }
+
+pub(crate) mod chariott_ibeji_config {
+    pub const DIGITAL_TWIN_SERVICE_NAME: &str = "digital_twin";
+    pub const DIGITAL_TWIN_SERVICE_VERSION: &str = "1.0";
+    pub const CHARIOTT_NAMESPACE_FOR_IBEJI: &str = "sdv.ibeji";
+}
