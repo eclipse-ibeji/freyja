@@ -4,9 +4,11 @@
 
 use std::{
     collections::HashMap,
+    fs,
     str::FromStr,
     sync::{Arc, Mutex},
     time::Duration,
+    path::Path
 };
 
 use async_trait::async_trait;
@@ -27,10 +29,10 @@ use dts_contracts::{
         ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
     },
 };
+use crate::config::{CONFIG_FILE, Settings};
 
 const GET_OPERATION: &str = "Get";
 const SUBSCRIBE_OPERATION: &str = "Subscribe";
-const IN_VEHICLE_DIGITAL_TWIN_SERVICE_URI: &str = "http://0.0.0.0:5010"; // Devskim: ignore DS137138
 
 /// Contacts the In-Vehicle Digital Twin Service in Ibeji
 pub struct IbejiAdapter {
@@ -99,8 +101,14 @@ impl IbejiAdapter {
 impl DigitalTwinAdapter for IbejiAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
     fn create_new() -> Result<Box<dyn DigitalTwinAdapter + Send + Sync>, DigitalTwinAdapterError> {
+
+        let settings_content = fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
+        let settings: Settings = serde_json::from_str(settings_content.as_str()).unwrap();
+
+        let invehicle_digital_twin_service_uri = settings.invehicle_digital_twin_service_uri.unwrap();
+
         let client = futures::executor::block_on(async {
-            DigitalTwinClient::connect(IN_VEHICLE_DIGITAL_TWIN_SERVICE_URI)
+            DigitalTwinClient::connect(invehicle_digital_twin_service_uri)
                 .await
                 .map_err(DigitalTwinAdapterError::communication)
         })
