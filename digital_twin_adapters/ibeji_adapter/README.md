@@ -6,9 +6,11 @@ The Ibeji Adapter is used to integrate with [Eclipse-Ibeji's In-vehicle Digital 
 
 The adapter shares an `entity_map` map with Freyja's emitter that maps `entity_id`s to its entity info. When the emitter receives new mappings from the cartographer, it will update this shared state and insert `None` values for the corresponding ID. The adapter will detect empty entries for each `entity_id` in our `entity_map` then call `find_by_id` to send a request to [Ibeji's In-vehicle Digital Twin Service](https://github.com/eclipse-ibeji/ibeji), to populate the entity info.
 
-### Chariott Enabled with Ibeji
+### Ibeji Registered as a Chariott Provider
 
-If [Chariott's Service Discovery system](https://github.com/eclipse-chariott/chariott/tree/main/service_discovery) is enabled with Ibeji, then please set the `invehicle_digital_twin_service_uri` field to `null` in the `res/config.json` file.
+If Ibeji is registered in [Chariott's Service Discovery system](https://github.com/eclipse-chariott/chariott/tree/main/service_discovery), then please set the `invehicle_digital_twin_service_uri` field to `null` in the `res/config.json` file and set the `chariott_service_discovery_uri` field.
+
+Ibeji Adapter will discover Ibeji's In-Vehicle Digital Twin Service URI through Chariott.
 
 Example of config.json:
 
