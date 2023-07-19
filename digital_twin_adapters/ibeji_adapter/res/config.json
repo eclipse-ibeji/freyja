@@ -1,4 +1,9 @@
 {
-    "invehicle_digital_twin_service_uri": "http://0.0.0.0:5010",
-    "chariott_service_discovery_uri": "http://0.0.0.0:50000"
+    "service_type": "ChariottDiscoveryService",
+    "uri": "http://0.0.0.0:50000",
+    "metadata": {
+        "namespace": "sdv.ibeji",
+        "name": "digital_twin",
+        "version": "1.0"
+    }
 }
