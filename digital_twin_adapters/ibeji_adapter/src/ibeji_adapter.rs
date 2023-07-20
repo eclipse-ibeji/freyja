@@ -4,6 +4,8 @@
 
 use std::{
     collections::HashMap,
+    fs,
+    path::Path,
     str::FromStr,
     sync::{Arc, Mutex},
     time::Duration,
@@ -13,9 +15,12 @@ use async_trait::async_trait;
 use core_protobuf_data_access::digital_twin::v1::{
     digital_twin_client::DigitalTwinClient, EndpointInfo, FindByIdRequest,
 };
-use log::{error, warn};
-use tonic::transport::Channel;
+use log::{debug, error, warn};
+use service_discovery_proto::service_registry::v1::service_registry_client::ServiceRegistryClient;
+use service_discovery_proto::service_registry::v1::DiscoverRequest;
+use tonic::{transport::Channel, Request};
 
+use crate::config::{IbejiDiscoveryMetadata, Settings, CONFIG_FILE};
 use dts_contracts::{
     digital_twin_adapter::{
         DigitalTwinAdapter, DigitalTwinAdapterError, GetDigitalTwinProviderRequest,
@@ -30,7 +35,6 @@ use dts_contracts::{
 
 const GET_OPERATION: &str = "Get";
 const SUBSCRIBE_OPERATION: &str = "Subscribe";
-const IN_VEHICLE_DIGITAL_TWIN_SERVICE_URI: &str = "http://0.0.0.0:5010"; // Devskim: ignore DS137138
 
 /// Contacts the In-Vehicle Digital Twin Service in Ibeji
 pub struct IbejiAdapter {
@@ -93,14 +97,65 @@ impl IbejiAdapter {
 
         Ok(())
     }
+
+    /// Retrieves Ibeji's In-Vehicle Digital Twin URI from Chariott
+    ///
+    /// # Arguments
+    /// - `chariott_service_discovery_uri`: the uri for Chariott's service discovery
+    /// - `metadata`: optional configuration metadata for discovering Ibeji using Chariott
+    async fn retrieve_ibeji_invehicle_digital_twin_uri_from_chariott(
+        chariott_service_discovery_uri: &str,
+        chariott_ibeji_config: IbejiDiscoveryMetadata,
+    ) -> Result<String, DigitalTwinAdapterError> {
+        let mut service_registry_client =
+            ServiceRegistryClient::connect(String::from(chariott_service_discovery_uri))
+                .await
+                .map_err(DigitalTwinAdapterError::communication)?;
+
+        let discover_request = Request::new(DiscoverRequest {
+            namespace: chariott_ibeji_config.namespace,
+            name: chariott_ibeji_config.name,
+            version: chariott_ibeji_config.version,
+        });
+
+        let service = service_registry_client
+            .discover(discover_request)
+            .await
+            .map_err(DigitalTwinAdapterError::communication)?
+            .into_inner()
+            .service
+            .ok_or_else(|| {
+                DigitalTwinAdapterError::communication(
+                    "Cannot discover the uri of Ibeji's In-Vehicle Digital Twin Service",
+                )
+            })?;
+
+        Ok(service.uri)
+    }
 }
 
 #[async_trait]
 impl DigitalTwinAdapter for IbejiAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
     fn create_new() -> Result<Box<dyn DigitalTwinAdapter + Send + Sync>, DigitalTwinAdapterError> {
+        let settings_content =
+            fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
+        let settings: Settings = serde_json::from_str(settings_content.as_str()).unwrap();
+
+        let invehicle_digital_twin_service_uri = match settings {
+            Settings::InVehicleDigitalTwinService { uri } => uri,
+            Settings::ChariottDiscoveryService { uri, metadata } => {
+                futures::executor::block_on(async {
+                    Self::retrieve_ibeji_invehicle_digital_twin_uri_from_chariott(&uri, metadata)
+                        .await
+                })
+                .unwrap()
+            }
+        };
+        debug!("Discovered the uri of the In-Vehicle Digital Twin Service via Chariott: {invehicle_digital_twin_service_uri}");
+
         let client = futures::executor::block_on(async {
-            DigitalTwinClient::connect(IN_VEHICLE_DIGITAL_TWIN_SERVICE_URI)
+            DigitalTwinClient::connect(invehicle_digital_twin_service_uri)
                 .await
                 .map_err(DigitalTwinAdapterError::communication)
         })

@@ -1,0 +1,9 @@
+{
+    "service_type": "ChariottDiscoveryService",
+    "uri": "http://0.0.0.0:5010",
+    "metadata": {
+        "namespace": "sdv.ibeji",
+        "name": "digital_twin",
+        "version": "1.0"
+    }
+}
