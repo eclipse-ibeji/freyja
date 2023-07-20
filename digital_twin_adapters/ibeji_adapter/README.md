@@ -21,28 +21,11 @@ Example of config.json:
 
 ### Ibeji With Chariott
 
-If Ibeji is registered in [Chariott's Service Discovery system](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/README.md)and you wish to discover Ibeji through Chariott, then please set the `service type` field to `ChariottDiscoveryService` in the `res/config.json` file and set the value for the `uri` field.
+If Ibeji is registered in [Chariott's Service Discovery system](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/README.md)and you wish to discover Ibeji through Chariott, then please set the `service type` field to `ChariottDiscoveryService` in the `res/config.json` file, value for the `uri` field, and the metadata for Ibeji.
 
 The Ibeji Adapter will discover Ibeji's In-Vehicle Digital Twin Service URI through Chariott.
 
 Example of config.json:
-
-```json
-{
-    "service_type": "ChariottDiscoveryService",
-    "uri": "http://0.0.0.0:50000"
-}
-```
-
-The example above will use a default namespace, name and version to discover Ibeji through Chariott.
-
-Default values in`config.rs` for sending a service discovery request to Chariott:
-
-- namespace = "sdv.ibeji",
-- name = "digital_twin",
-- version = "1.0"
-
-However, you can include an optional metadata field to specify the namespace, name and version for sending a service discovery request to Chariott:
 
 ```json
 {

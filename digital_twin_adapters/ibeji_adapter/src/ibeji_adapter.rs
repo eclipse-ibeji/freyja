@@ -105,15 +105,13 @@ impl IbejiAdapter {
     /// - `metadata`: optional configuration metadata for discovering Ibeji using Chariott
     async fn retrieve_ibeji_invehicle_digital_twin_uri_from_chariott(
         chariott_service_discovery_uri: &str,
-        metadata: Option<IbejiDiscoveryMetadata>,
+        chariott_ibeji_config: IbejiDiscoveryMetadata,
     ) -> Result<String, DigitalTwinAdapterError> {
         let mut service_registry_client =
             ServiceRegistryClient::connect(String::from(chariott_service_discovery_uri))
                 .await
                 .map_err(DigitalTwinAdapterError::communication)?;
 
-        // If the metadata is None then the default function for IbejiDiscoveryMetadata is called.
-        let chariott_ibeji_config = metadata.unwrap_or_default();
         let discover_request = Request::new(DiscoverRequest {
             namespace: chariott_ibeji_config.namespace,
             name: chariott_ibeji_config.name,

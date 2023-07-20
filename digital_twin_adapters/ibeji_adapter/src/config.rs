@@ -17,7 +17,7 @@ pub enum Settings {
     /// Chariott's Service Discovery to discover Ibeji
     ChariottDiscoveryService {
         uri: String,
-        metadata: Option<IbejiDiscoveryMetadata>,
+        metadata: IbejiDiscoveryMetadata,
     },
 }
 
@@ -27,18 +27,4 @@ pub struct IbejiDiscoveryMetadata {
     pub namespace: String,
     pub name: String,
     pub version: String,
-}
-
-impl Default for IbejiDiscoveryMetadata {
-    fn default() -> Self {
-        const CHARIOTT_NAMESPACE_FOR_IBEJI: &str = "sdv.ibeji";
-        const DIGITAL_TWIN_SERVICE_NAME: &str = "digital_twin";
-        const DIGITAL_TWIN_SERVICE_VERSION: &str = "1.0";
-
-        Self {
-            namespace: String::from(CHARIOTT_NAMESPACE_FOR_IBEJI),
-            name: String::from(DIGITAL_TWIN_SERVICE_NAME),
-            version: String::from(DIGITAL_TWIN_SERVICE_VERSION),
-        }
-    }
 }
