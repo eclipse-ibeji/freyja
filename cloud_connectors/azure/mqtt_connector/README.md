@@ -45,7 +45,7 @@ In addition, you must have an X.509 self-signed certificate created. To obtain t
 ```shell
 cd {freyja-root-dir}/cloud_connectors/azure/scripts
 chmod +x mqtt_connector_setup.sh
-./mqtt_connector_script.sh --resource-group <RESOURCE_GROUP_NAME> --subscription-id <SUBSCRIPTION_ID> --digital-twins-name <DIGITAL_TWINS_RESOURCE_NAME> --cert-thumbprint <THUMBPRINT_OF_CERT_IN_DER_FORMAT>
+./mqtt_connector_setup.sh --resource-group <RESOURCE_GROUP_NAME> --subscription-id <SUBSCRIPTION_ID> --digital-twins-name <DIGITAL_TWINS_RESOURCE_NAME> --cert-thumbprint <THUMBPRINT_OF_CERT_IN_DER_FORMAT>
 ```
 
 The script will prompt you for input for naming each Azure resource deployed by the script.

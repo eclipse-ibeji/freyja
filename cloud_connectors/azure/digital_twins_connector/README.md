@@ -34,7 +34,7 @@ You will need at least the Owner or Contributor RBAC for your Azure resource gro
 az login --use-device-code
 ```
 
-1. Run the `digital_twins_setup.sh` in the `{freyja-root-dir}/cloud_connectors/azure/scripts` directory to deploy the Azure Digital Twins resource to your resource group. This script will also create digital twin instances from the "{freyja-root-dir}/cloud_connectors/azure/sample-dtdl" dtdl models.
+1. Run the `digital_twins_setup.sh` in the `{freyja-root-dir}/cloud_connectors/azure/scripts` directory to deploy the Azure Digital Twins resource to your resource group. This script will also create digital twin instances from the `{freyja-root-dir}/cloud_connectors/azure/sample-dtdl` dtdl models.
 
 ```shell
 cd {freyja-root-dir}/cloud_connectors/azure/scripts
