@@ -1,0 +1,8 @@
+{
+    "cert_path": "{PATH_TO_YOUR_CERT_FILE}",
+    "private_key_path": "{PATH_TO_YOUR_PRIVATE_KEY_FILE}",
+    "mqtt_client_id": "mqtt_connector",
+    "mqtt_client_authentication_name": "{YOUR_EVENT_GRID_MQTT_CLIENT_AUTHENTICATION_NAME}",
+    "mqtt_event_grid_topic": "{YOUR_EVENT_GRID_MQTT_TOPIC}",
+    "mqtt_event_grid_host_name": "{YOUR_EVENT_GRID_HOST_NAME}"
+}

@@ -17,6 +17,7 @@ members = [
   "mocks/mock_mapping_service",
   "proc_macros",
   "provider_proxy_selector",
+  "cloud_connectors/azure/mqtt_connector",
   "cloud_connectors/azure/proto-build"
 ]
 
@@ -48,3 +49,4 @@ tempfile = "3.5.0"
 futures = "0.3.28"
 prost = "0.11.9"
 service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott", branch = "main" }
+paho-mqtt = "0.12"
