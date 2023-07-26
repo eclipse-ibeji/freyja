@@ -8,7 +8,7 @@ Freyja is not tightly coupled with Azure and can synchronize data with any cloud
 
 The Azure Digital Twins Cloud Connector updates an Azure Digital Twin instance directly with the data emitted by Freyja.
 
-Below is a high-level diagram that illustrates Freyja communicating with the Azure Digital Twins Cloud Connector.
+Below is a high-level diagram that illustrates Freyja communicating with the Azure Digital Twins Cloud Connector:
 
 ![Component Diagram](../../../docs/diagrams/azure_digital_twins_cloud_connector.svg)
 
@@ -22,15 +22,7 @@ Install .NET 6.0
 sudo apt install dotnet-sdk-6.0
 ```
 
-### Automated Azure Digital Twins Setup<a name="automated azure digital twins setup"></a>
-
-You must first have these installed:
-
-* [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
-
-* [Azure IoT CLI Extension](https://github.com/Azure/azure-iot-cli-extension)
-
-You will need to be an Owner or a Contributor for your Azure resource group to deploy Azure resources using the `{freyja-root-dir}/cloud_connectors/azure/scripts`. Please see [Azure built-in roles](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles) for more details.
+### Automated Azure Digital Twins Setup
 
 1. Sign in with Azure CLI. Follow the prompts after entering the following command.
 
@@ -45,12 +37,6 @@ cd {freyja-root-dir}/cloud_connectors/azure/scripts
 chmod +x digital_twins_setup.sh
 ./digital_twins_setup.sh --resource-group {YOUR_RESOURCE_GROUP} --location westus2
 ```
-
-### Troubleshooting
-
-If at any point you run into permission or deployment errors, try running the script again. The script will not create additional copies of Azure Digital Twins if you use the same Azure Digital Twins name.
-
-Additionally, you may follow the section below for manually deploying the Azure Digital Twins resource.
 
 ### Manual Azure Digital Twins Setup
 

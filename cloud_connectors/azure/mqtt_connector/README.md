@@ -4,13 +4,13 @@ This is an example implementation of an Azure Cloud Connector.
 
 Freyja is not tightly coupled with Azure and can synchronize data with any cloud solution, provided an appropriate Cloud Connector and adapter are written.
 
-In this Azure MQTT Cloud Connector example, you will need to have access to Azure, as you will be deploying an Azure Key Vault, an Event Grid with MQTT v5, and a Function App.
+For this Cloud Connector sample, you will use Azure to deploy an Azure Key Vault, an Event Grid with MQTT v5, and a Function App.
 
 ## Architecture
 
-When signals are propagated from Freyja, the Azure MQTT Cloud Connector will publish these signals to an Azure Event Grid topic using the MQTT protocol. When signals are published to a topic, an Azure Function gets triggered and updates an Azure Digital Twin instance with the data emitted by Freyja.
+When signals are propagated from Freyja, the Azure MQTT Cloud Connector will publish these signals to an Azure Event Grid topic using the MQTT protocol. When signals are published to a topic on the Event Grid, an Azure Function gets triggered and updates an Azure Digital Twin instance with the data emitted by Freyja.
 
-Below is a high-level diagram that illustrates Freyja communicating with the Azure MQTT Cloud Connector.
+Below is a high-level diagram that illustrates Freyja communicating with the Azure MQTT Cloud Connector:
 
 ![Component Diagram](../../../docs/diagrams/azure_mqtt_cloud_connector.svg)
 
@@ -18,23 +18,15 @@ Below is a high-level diagram that illustrates Freyja communicating with the Azu
 
 ### Azure Digital Twins Deployed
 
-In your Azure Digital Twins resource, you will also need to have Digital Twin instances created that are based on the DTDL models in the `{freyja-root-dir}/cloud_connectors/azure/sample-dtdl` directory.
+In your Azure Digital Twins resource, you will also need to create digital twin instances. Sample DTDL models are located in the `{freyja-root-dir}/cloud_connectors/azure/sample-dtdl` directory.
 
 Please see [Automated Azure Digital Twins Setup](../digital_twins_connector/README.md#automated-azure-digital-twins-setup) or [Manual Azure Digital Twins Setup](../digital_twins_connector/README.md#manual-azure-digital-twins-setup) for additional info on setting up Azure Digital Twins.
 
 ### Self-Signed X.509 Certificate
 
-A generated X.509 self-signed certificate and its DER format thumbprint. Please see steps 1-3 in [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt) for additional info on generating an X.509 self-signed certificate and getting its thumbprint.
+Please see steps 1-3 in [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt) for additional info on generating an X.509 self-signed certificate and getting its thumbprint.
 
 ## Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App
-
-You must first have these installed:
-
-* [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
-
-* [Azure IoT CLI Extension](https://github.com/Azure/azure-iot-cli-extension)
-
-You will need to be an Owner or a Contributor for your Azure resource group to deploy Azure resources using the `{freyja-root-dir}/cloud_connectors/azure/scripts`. Please see [Azure built-in roles](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles) for more details.
 
 1. Sign in with Azure CLI. Follow the prompts after entering the following command.
 
@@ -49,12 +41,6 @@ cd {freyja-root-dir}/cloud_connectors/azure/scripts
 chmod +x mqtt_connector_setup.sh
 ./mqtt_connector_setup.sh --resource-group <RESOURCE_GROUP_NAME> --subscription-id <SUBSCRIPTION_ID> --digital-twins-name <DIGITAL_TWINS_RESOURCE_NAME> --cert-thumbprint <THUMBPRINT_OF_CERT_IN_DER_FORMAT>
 ```
-
-### Troubleshooting
-
-If you experience permission or deployment errors, try running the script again as sometimes it takes a while for some dependencies to be fully deployed. If you use the same name/identifier for the script prompts, the script will not create additional copies of Azure resources.
-
-Additionally, you may follow the section below to manually deploy the respective Azure resource that's failing to deploy by the script.
 
 ## Manual Deployment of Azure Key Vault, Event Grid, and Azure Function App
 
@@ -170,7 +156,7 @@ Whether you followed the [Automated Deployment of Azure Key Vault, Event Grid, a
     cd {freyja-root-dir}/target/debug
     ```
 
-1. After building the MQTT Connector, you should see a `mqtt_config.json` file in your `{freyja-root-dir}/target/debug`. If you do not see the `mqtt_config.json` file in `{freyja-root-dir}/target/debug`, you can create one manually by copying the `res/mqtt_config.sample.json` file and pasting it into `{freyja-root-dir}/target/debug`.
+1. After building the MQTT Connector, you should see a `mqtt_config.json` file in your `{freyja-root-dir}/target/debug`. If you do not see the `mqtt_config.json` file in `{freyja-root-dir}/target/debug`, you can create one manually by copying the `res/mqtt_config.template.json` file and pasting it into `{freyja-root-dir}/target/debug`.
 
 1. Replace the placeholders in your `mqtt_config.json` with their respective values.
 

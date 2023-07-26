@@ -43,7 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // Start a gRPC server and MQTT client
     let mqtt_connector =
-        MQTTConnector::new(mqtt_config).expect("Please make sure you have edited the target/debug/mqtt_config.json");
+        MQTTConnector::new(mqtt_config).expect("Unable to read MQTT config");
     Server::builder()
         .add_service(AzureCloudConnectorServer::new(mqtt_connector))
         .serve(grpc_server_authority.parse()?)
