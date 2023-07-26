@@ -1,4 +1,5 @@
 {
+    "grpc_server_authority": "{GRPC_SERVER_AUTHORITY}",
     "cert_path": "{PATH_TO_YOUR_CERT_FILE}",
     "private_key_path": "{PATH_TO_YOUR_PRIVATE_KEY_FILE}",
     "mqtt_client_id": "mqtt_connector",

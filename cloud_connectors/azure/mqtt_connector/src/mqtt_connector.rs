@@ -7,7 +7,7 @@ use paho_mqtt::{self as mqtt, MQTT_VERSION_5};
 use serde::{Deserialize, Serialize};
 use tonic::{Request, Response, Status};
 
-use crate::mqtt_connector_config::MQTTConfigItem;
+use crate::mqtt_connector_config::Config;
 use azure_cloud_connector_proto::azure_cloud_connector::azure_cloud_connector_server::AzureCloudConnector;
 use azure_cloud_connector_proto::azure_cloud_connector::{
     UpdateDigitalTwinRequest, UpdateDigitalTwinResponse,
@@ -33,10 +33,10 @@ impl MQTTConnector {
     ///
     /// # Arguments
     /// - `config`: the config file
-    pub fn new(config: MQTTConfigItem) -> Result<Self, MQTTConnectorError> {
+    pub fn new(config: Config) -> Result<Self, MQTTConnectorError> {
         let event_grid_mqtt_uri = format!("mqtts://{}:8883", config.mqtt_event_grid_host_name);
 
-        let mqtt_client_event_grid = mqtt::CreateOptionsBuilder::new()
+        let mqtt_event_grid_client = mqtt::CreateOptionsBuilder::new()
             .server_uri(event_grid_mqtt_uri)
             .client_id(config.mqtt_client_id)
             .mqtt_version(MQTT_VERSION_5)
@@ -58,14 +58,14 @@ impl MQTTConnector {
             .finalize();
 
         futures::executor::block_on(async {
-            mqtt_client_event_grid
+            mqtt_event_grid_client
                 .connect(conn_opts)
                 .await
                 .map_err(MQTTConnectorError::communication)
         })?;
 
         Ok(MQTTConnector {
-            mqtt_event_grid_client: mqtt_client_event_grid,
+            mqtt_event_grid_client,
             mqtt_event_grid_topic: config.mqtt_event_grid_topic,
         })
     }
@@ -113,9 +113,8 @@ impl AzureCloudConnector for MQTTConnector {
         );
 
         info!("{reply}");
-        let response = UpdateDigitalTwinResponse { reply };
 
-        Ok(Response::new(response))
+        Ok(Response::new(UpdateDigitalTwinResponse { reply }))
     }
 }
 

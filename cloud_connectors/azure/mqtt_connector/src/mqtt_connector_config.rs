@@ -4,13 +4,15 @@
 
 use serde::{Deserialize, Serialize};
 
-pub(crate) const CLOUD_CONNECTOR_CONFIG_FILENAME: &str = "config.json";
 pub(crate) const OUTPUT_DIR_PATH: &str = env!("OUT_DIR");
 pub(crate) const MQTT_FILE_RELATIVE_TO_OUTPUT_DIR: &str = "../../../mqtt_config.json";
 
-/// A config entry for the MQTT settings for the MQTT Connector
+/// Configuration for the MQTT Connector
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct MQTTConfigItem {
+pub struct Config {
+    /// gRPC Server Authority
+    pub grpc_server_authority: String,
+
     /// Absolute path to certificate
     pub cert_path: String,
 
@@ -30,11 +32,4 @@ pub struct MQTTConfigItem {
 
     /// The mqtt event grid hostname. Obtained
     pub mqtt_event_grid_host_name: String,
-}
-
-/// A config entry for the gRPC settings for the MQTT Connector's gRPC server
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct GRPCConfigItem {
-    /// gRPC Server Authority
-    pub grpc_server_authority: String,
 }

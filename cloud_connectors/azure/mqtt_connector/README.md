@@ -44,8 +44,6 @@ chmod +x mqtt_connector_setup.sh
 
 ## Manual Deployment of Azure Key Vault, Event Grid, and Azure Function App
 
-This section requires deployment of the Azure Digital Twins resource to your resource group with Digital Twins instances created that are based on the `{freyja-root-dir}/cloud_connectors/azure/sample-dtdl` DTDL models. Please see [Automated Azure Digital Twins Setup](../digital_twins_connector/README.md#automated-azure-digital-twins-setup) or [Manual Azure Digital Twins Setup](../digital_twins_connector/README.md#manual-azure-digital-twins-setup) for additional info on setting up Azure Digital Twins.
-
 ### 1. Azure Key Vault
 
 1. Follow the *Open instance in Azure Digital Twins Explorer* section under [Set up Azure Digital Twins](https://learn.microsoft.com/en-us/azure/digital-twins/quickstart-azure-digital-twins-explorer#set-up-azure-digital-twins) to get the Azure Digital Twin URL of your Azure Digital Twin instance.
@@ -86,11 +84,11 @@ You have successfully deployed your Key Vault if you see an `ADT-ISTANCE-URL` se
 
 1. Follow the [Quickstart: Publish and subscribe to MQTT messages on Event Grid Namespace with Azure portal](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal) guide for creating an Azure Event Grid, topic namespace, and client. You can skip the *Generate sample client certificate and thumbprint* section as you have generated a self-signed certificate in steps 1-3.
 
-1. Once you have successfully deployed an Event Grid namespace, navigate to it then copy the `MQTT Hostname` field. You will need it later for the `mqtt_event_grid_host_name` field in the configuration file that is described in the [MQTT Configuration](#mqtt-configuration) section.
+1. Once you have successfully deployed an Event Grid namespace, navigate to it then copy the `MQTT Hostname` field. You will need it later for the `mqtt_event_grid_host_name` field in the configuration file that is described in the [Configuration](#configuration) section.
 
-1. In the [Create clients](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal#create-clients) section, use the thumbprint you obtained in step 4 for thumbprint match authentication. Also keep note of what you set for the **Client Authentication Name**. You will need it later for the `mqtt_client_authentication_name` field in the configuration file that is described in the [MQTT Configuration](#mqtt-configuration) section.
+1. In the [Create clients](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal#create-clients) section, use the thumbprint you obtained in step 4 for thumbprint match authentication. Also keep note of what you set for the **Client Authentication Name**. You will need it later for the `mqtt_client_authentication_name` field in the configuration file that is described in the [Configuration](#configuration) section.
 
-1. When you [create a topic space](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal#create-topic-spaces), keep note of the name you used for the **topic template**. You will need it later for the `mqtt_event_grid_topic` field in the configuration file that is described in the [MQTT Configuration](#mqtt-configuration) section.
+1. When you [create a topic space](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal#create-topic-spaces), keep note of the name you used for the **topic template**. You will need it later for the `mqtt_event_grid_topic` field in the configuration file that is described in the [Configuration](#configuration) section.
 
 You have successfully deployed your Event Grid Namespace if you have a publisher permission binding, a client and a client group, and a topic space.
 Navigate to the client that you have created in your Event Grid Namespace, and validate that the `Client Certificate Authentication Validation Scheme` is set to `Thumbprint Match`, and the thumbprint matches to your self-signed certificate obtained in [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt).
@@ -148,8 +146,6 @@ cargo build
 
 Whether you followed the [Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App](#automated-deployment-of-azure-key-vault-event-grid-and-azure-function-app), or the [Manual Deployment of Azure Key Vault, Event Grid, and Azure Function App](#manual-deployment-of-azure-key-vault-event-grid-and-azure-function-app), you will still need to follow the configuration steps below.
 
-### MQTT Configuration
-
 1. Change directory to the directory with the build artifacts `{freyja-root-dir}/target/debug`. Replace `{freyja-root-dir}` with the repository's root directory.
 
     ```shell
@@ -160,7 +156,9 @@ Whether you followed the [Automated Deployment of Azure Key Vault, Event Grid, a
 
 1. Replace the placeholders in your `mqtt_config.json` with their respective values.
 
-    Field description:
+    Field descriptions:
+
+    * `grpc_server_authority`: The gRPC server authority you wish to use to host the MQTT Connector's gRPC server. Example `"grpc_server_authority": [::1]:8890`
 
     * `cert_path`: The absolute path to the self-signed certificate generated in step 3 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt). This file ends in *.cer.
 
@@ -173,10 +171,6 @@ Whether you followed the [Automated Deployment of Azure Key Vault, Event Grid, a
     * `mqtt_event_grid_topic`: The topic that you created using the `mqtt_connector_setup.sh` script or step 7 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt)
 
     * `mqtt_event_grid_host_name`: The event grid namespace hostname. You can find the hostname by clicking on your event grid namespace, then copy the MQTT hostname.
-
-### gRPC Configuration
-
-You can configure the server authority that your gRPC Server uses by editing the `config.json` in `res/config.json`.
 
 ## Run
 
