@@ -38,7 +38,7 @@ az login --use-device-code
 
 1. Run the `mqtt_connector_setup.sh` in the `{freyja-root-dir}/cloud_connectors/azure/scripts` directory to deploy an Azure Key Vault, Event Grid, and an Azure Function app to your resource group.
 
-This script requires deployment of the Azure Digital Twins resource to your resource group with Digital Twins instances created that are based on the `{freyja-root-dir}/cloud_connectors/azure/sample-dtdl` DTDL models. Please see [Automated Azure Digital Twins Setup](../digital_twins_connector/README.md/#automated-azure-digital-twins-setup) or [Manual Azure Digital Twins Setup](../digital_twins_connector/README.md/#manual-azure-digital-twins-setup) for additional info on setting up Azure Digital Twins.
+This script requires deployment of the Azure Digital Twins resource to your resource group with Digital Twins instances created that are based on the `{freyja-root-dir}/cloud_connectors/azure/sample-dtdl` DTDL models. Please see [Automated Azure Digital Twins Setup](../digital_twins_connector/README.md) or [Manual Azure Digital Twins Setup](../digital_twins_connector/README.md) for additional info on setting up Azure Digital Twins.
 
 In addition, you must have an X.509 self-signed certificate created. To obtain the thumbprint of your X.509 self-signed certificate in DER format, then please see steps 1-3 in [Azure Event Grid with MQTT](#azure-event-grid-with-mqtt).
 
@@ -58,7 +58,7 @@ Additionally, you may follow the section below to manually deploy the respective
 
 ## Manual Deployment of Azure Key Vault, Event Grid, and Azure Function App
 
-This section requires deployment of the Azure Digital Twins resource to your resource group with Digital Twins instances created that are based on the `{freyja-root-dir}/cloud_connectors/azure/sample-dtdl` DTDL models. Please see [Automated Azure Digital Twins Setup](../digital_twins_connector/README.md/#automated-azure-digital-twins-setup) or [Manual Azure Digital Twins Setup](../digital_twins_connector/README.md/#manual-azure-digital-twins-setup) for additional info on setting up Azure Digital Twins.
+This section requires deployment of the Azure Digital Twins resource to your resource group with Digital Twins instances created that are based on the `{freyja-root-dir}/cloud_connectors/azure/sample-dtdl` DTDL models. Please see [Automated Azure Digital Twins Setup](../digital_twins_connector/README.md) or [Manual Azure Digital Twins Setup](../digital_twins_connector/README.md) for additional info on setting up Azure Digital Twins.
 
 ### Azure Key Vault
 
