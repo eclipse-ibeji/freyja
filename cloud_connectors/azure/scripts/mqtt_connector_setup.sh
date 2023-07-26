@@ -232,9 +232,27 @@ az webapp identity assign --name $azure_function_app_name --resource-group "$res
 
 azureFunctionAppObjectID=$(az functionapp identity show --name "$azure_function_app_name" --resource-group "$resource_group" --query "principalId" -o tsv)
 echo -e "\nAssigning Key Vault Reader role to $azure_function_app_name"
-az role assignment create --assignee "$azureFunctionAppObjectID" \
-    --role "Key Vault Reader" \
-    --scope "$azure_providers_id_path/Microsoft.KeyVault/vaults/$keyvault_name"
+
+# When you create an Azure Function App for the first time, it takes some time to deploy fully.
+# Retry assigning the Key Vault Reader to your Azure Function App
+max_attempts=10
+attempt=0
+success=false
+while [ $attempt -lt $max_attempts ] && ! $success; do
+    if az role assignment create --assignee "$azureFunctionAppObjectID" \
+        --role "Key Vault Reader" \
+        --scope "$azure_providers_id_path/Microsoft.KeyVault/vaults/$keyvault_name"; then
+
+        success=true
+    else
+        echo "Retrying assigning the Key Vault Reader role to $azure_function_app_name"
+    fi
+done
+if ! $success; then
+    echo "Failed to assign the Key Vault Reader role to $azure_function_app_name after $max_attempts attempts"
+    echo "Please try running this script again."
+    exit 1
+fi
 
 # Assigns your Key Vault Access Policies for your Azure Function App.
 # Also set the Key Vault setting for access to the ADT-INSTANCE-URL secret in Azure Function App by using the secret identifier.
