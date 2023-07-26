@@ -18,10 +18,10 @@ use mqtt_connector_config::{
     MQTT_FILE_RELATIVE_TO_OUTPUT_DIR,
 };
 
+const OUTPUT_DIR_PATH: &str = env!("OUT_DIR");
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    const OUTPUT_DIR_PATH: &str = env!("OUT_DIR");
-
     // Load the MQTT config
     let mqtt_config_file =
         fs::read_to_string(Path::new(OUTPUT_DIR_PATH).join(MQTT_FILE_RELATIVE_TO_OUTPUT_DIR))
@@ -41,7 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .target(Target::Stdout)
         .init();
 
-    info!("Started the Azure MQTT Cloud Connector.");
+    info!("Starting the Azure MQTT Cloud Connector.");
 
     // Start a gRPC server and MQTT client
     let mqtt_connector =
