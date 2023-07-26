@@ -39,7 +39,7 @@ az login --use-device-code
 ```shell
 cd {freyja-root-dir}/cloud_connectors/azure/scripts
 chmod +x digital_twins_setup.sh
-./digital-twins-setup.sh --resource-group {YOUR_RESOURCE_GROUP} --location westus2
+./digital_twins_setup.sh --resource-group {YOUR_RESOURCE_GROUP} --location westus2
 ```
 
 ### Troubleshooting
