@@ -42,33 +42,34 @@ namespace MQTTConnector {
 
             foreach (Type type in dataTypes)
             {
+                var jsonPatchDocument = new JsonPatchDocument();
+                DigitalTwinsInstance instance = cloudEvent.Data.ToObjectFromJson<DigitalTwinsInstance>();
                 try
                 {
-                    DigitalTwinsInstance instance = cloudEvent.Data.ToObjectFromJson<DigitalTwinsInstance>();
                     dynamic value = TypeDescriptor.GetConverter(type).ConvertFromInvariantString(instance.data);
-
-                    var jsonPatchDocument = new JsonPatchDocument();
                     jsonPatchDocument.AppendAdd(instance.instance_property_path, value);
-
-                    var credential = new DefaultAzureCredential();
-                    var adt_instance_url = Environment.GetEnvironmentVariable("KEYVAULT_SETTINGS", EnvironmentVariableTarget.Process);
-                    var client = new DigitalTwinsClient(new Uri(adt_instance_url), credential);
-
-                    await client.UpdateDigitalTwinAsync(instance.instance_id, jsonPatchDocument);
-
-                    logger.LogInformation("Successfully set instance: {instance_id}{instance_property_path} based on model {model} to {data}", instance.instance_id, instance.instance_property_path, instance.model_id, instance.data);
-                    return;
                 }
                 // Try to parse string data with the next type if we're unsuccessful.
                 catch (Exception ex) when (ex is NotSupportedException || ex is ArgumentException || ex is FormatException)
                 {
                     continue;
                 }
+
+                try
+                {
+                    var credential = new DefaultAzureCredential();
+                    var adt_instance_url = Environment.GetEnvironmentVariable("KEYVAULT_SETTINGS", EnvironmentVariableTarget.Process);
+                    var client = new DigitalTwinsClient(new Uri(adt_instance_url), credential);
+                    await client.UpdateDigitalTwinAsync(instance.instance_id, jsonPatchDocument);
+                }
                 catch(Exception ex)
                 {
                     logger.LogError($"Cannot set instance due to {ex.Message}");
                     break;
                 }
+
+                logger.LogInformation("Successfully set instance: {instance_id}{instance_property_path} based on model {model} to {data}", instance.instance_id, instance.instance_property_path, instance.model_id, instance.data);
+                return;
             }
 
             string errorMessage = $"Failed to parse {cloudEvent.Data.ToString()}";
