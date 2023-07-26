@@ -18,7 +18,7 @@ Below is a high-level diagram that illustrates Freyja communicating with the Azu
 
 ### Azure Digital Twins Deployed
 
-Please see [Automated Azure Digital Twins Setup](../digital_twins_connector/README.md/#automated-azure-digital-twins-setup) or [Manual Azure Digital Twins Setup](../digital_twins_connector/README.md/#manual-azure-digital-twins-setup) for additional info on setting up Azure Digital Twins.
+Please see [Automated Azure Digital Twins Setup](../digital_twins_connector/README.md) or [Manual Azure Digital Twins Setup](../digital_twins_connector/README.md) for additional info on setting up Azure Digital Twins.
 
 ### Self-Signed X.509 certificate
 
