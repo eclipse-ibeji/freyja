@@ -4,7 +4,7 @@ This is an example implementation of an Azure Cloud Connector.
 
 Freyja is not tightly coupled with Azure and can synchronize data with any cloud solution, provided an appropriate Cloud Connector and adapter are written.
 
-In this Azure MQTT Cloud Connector example, you will need to have access to Azure. You will be deploying an Azure Event Grid with MQTT v5, and Azure Function App.
+In this Azure MQTT Cloud Connector example, you will need to have access to Azure, as you will be deploying an Azure Key Vault, an Event Grid with MQTT v5, and a Function App.
 
 ## Architecture
 
@@ -18,17 +18,23 @@ Below is a high-level diagram that illustrates Freyja communicating with the Azu
 
 ### Azure Digital Twins Deployed
 
-Please see [Automated Azure Digital Twins Setup](../digital_twins_connector/README.md) or [Manual Azure Digital Twins Setup](../digital_twins_connector/README.md) for additional info on setting up Azure Digital Twins.
+In your Azure Digital Twins resource, you will also need to have Digital Twin instances created that are based on the DTDL models in the `{freyja-root-dir}/cloud_connectors/azure/sample-dtdl` directory.
 
-### Self-Signed X.509 certificate
+Please see [Automated Azure Digital Twins Setup](../digital_twins_connector/README.md#automated-azure-digital-twins-setup) or [Manual Azure Digital Twins Setup](../digital_twins_connector/README.md#manual-azure-digital-twins-setup) for additional info on setting up Azure Digital Twins.
 
-A generated X.509 self-signed certificate and its DER format thumbprint. Please see steps 1-3 in [Azure Event Grid with MQTT](#azure-event-grid-with-mqtt) for additional info on generating an X.509 self-signed certificate.
+### Self-Signed X.509 Certificate
+
+A generated X.509 self-signed certificate and its DER format thumbprint. Please see steps 1-3 in [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt) for additional info on generating an X.509 self-signed certificate and getting its thumbprint.
 
 ## Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App
 
-You must install have the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed, and the [Azure IoT CLI Extension](https://github.com/Azure/azure-iot-cli-extension).
+You must first have these installed:
 
-You will need at least the Owner or Contributor RBAC for your Azure resource group to deploy Azure resources using the `{freyja-root-dir}/cloud_connectors/azure/scripts`. Please see [Azure built-in roles](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles) for more details.
+* [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
+
+* [Azure IoT CLI Extension](https://github.com/Azure/azure-iot-cli-extension)
+
+You will need to be an Owner or a Contributor for your Azure resource group to deploy Azure resources using the `{freyja-root-dir}/cloud_connectors/azure/scripts`. Please see [Azure built-in roles](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles) for more details.
 
 1. Sign in with Azure CLI. Follow the prompts after entering the following command.
 
@@ -36,11 +42,7 @@ You will need at least the Owner or Contributor RBAC for your Azure resource gro
 az login --use-device-code
 ```
 
-1. Run the `mqtt_connector_setup.sh` in the `{freyja-root-dir}/cloud_connectors/azure/scripts` directory to deploy an Azure Key Vault, Event Grid, and an Azure Function app to your resource group.
-
-This script requires deployment of the Azure Digital Twins resource to your resource group with Digital Twins instances created that are based on the `{freyja-root-dir}/cloud_connectors/azure/sample-dtdl` DTDL models. Please see [Automated Azure Digital Twins Setup](../digital_twins_connector/README.md) or [Manual Azure Digital Twins Setup](../digital_twins_connector/README.md) for additional info on setting up Azure Digital Twins.
-
-In addition, you must have an X.509 self-signed certificate created. To obtain the thumbprint of your X.509 self-signed certificate in DER format, then please see steps 1-3 in [Azure Event Grid with MQTT](#azure-event-grid-with-mqtt).
+1. Run the set of commands. The `mqtt_connector_setup.sh` script will prompt you for input for naming each Azure resource deployed by the script.
 
 ```shell
 cd {freyja-root-dir}/cloud_connectors/azure/scripts
@@ -48,19 +50,17 @@ chmod +x mqtt_connector_setup.sh
 ./mqtt_connector_setup.sh --resource-group <RESOURCE_GROUP_NAME> --subscription-id <SUBSCRIPTION_ID> --digital-twins-name <DIGITAL_TWINS_RESOURCE_NAME> --cert-thumbprint <THUMBPRINT_OF_CERT_IN_DER_FORMAT>
 ```
 
-The script will prompt you for input for naming each Azure resource deployed by the script.
-
 ### Troubleshooting
 
-If at any point you run into permission or deployment errors, try running the script again as sometimes it takes a while for some dependencies to be fully deployed. If you use the same name/identifier for the script prompts, the script will not create additional copies of Azure resources.
+If you experience permission or deployment errors, try running the script again as sometimes it takes a while for some dependencies to be fully deployed. If you use the same name/identifier for the script prompts, the script will not create additional copies of Azure resources.
 
 Additionally, you may follow the section below to manually deploy the respective Azure resource that's failing to deploy by the script.
 
 ## Manual Deployment of Azure Key Vault, Event Grid, and Azure Function App
 
-This section requires deployment of the Azure Digital Twins resource to your resource group with Digital Twins instances created that are based on the `{freyja-root-dir}/cloud_connectors/azure/sample-dtdl` DTDL models. Please see [Automated Azure Digital Twins Setup](../digital_twins_connector/README.md) or [Manual Azure Digital Twins Setup](../digital_twins_connector/README.md) for additional info on setting up Azure Digital Twins.
+This section requires deployment of the Azure Digital Twins resource to your resource group with Digital Twins instances created that are based on the `{freyja-root-dir}/cloud_connectors/azure/sample-dtdl` DTDL models. Please see [Automated Azure Digital Twins Setup](../digital_twins_connector/README.md#automated-azure-digital-twins-setup) or [Manual Azure Digital Twins Setup](../digital_twins_connector/README.md#manual-azure-digital-twins-setup) for additional info on setting up Azure Digital Twins.
 
-### Azure Key Vault
+### 1. Azure Key Vault
 
 1. Follow the *Open instance in Azure Digital Twins Explorer* section under [Set up Azure Digital Twins](https://learn.microsoft.com/en-us/azure/digital-twins/quickstart-azure-digital-twins-explorer#set-up-azure-digital-twins) to get the Azure Digital Twin URL of your Azure Digital Twin instance.
 
@@ -68,9 +68,7 @@ This section requires deployment of the Azure Digital Twins resource to your res
 
 1. Create a secret with `ADT-INSTANCE-URL` as the name, and the value should be the **Azure Digital Twin URL** that you obtained in step 1.
 
-### Azure Event Grid with MQTT
-
-> **Note**: We will be generating a self-signed X.509 certificate using OpenSSL.
+### 2. Azure Event Grid with MQTT
 
 1. Create a private key. Replace the `{PrivateKeyName}` placeholder with the name you wish to use.
 
@@ -98,25 +96,15 @@ This section requires deployment of the Azure Digital Twins resource to your res
     rm {CertificateName}.crt
     ```
 
-1. Follow the [Quickstart: Publish and subscribe to MQTT messages on Event Grid Namespace with Azure portal](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal) guide for creating an Azure Event Grid, topic namespace, and client. You can skip the *Generate sample client certificate and thumbprint* section as we've generated a self-signed certificate in steps 1-3.
+1. Follow the [Quickstart: Publish and subscribe to MQTT messages on Event Grid Namespace with Azure portal](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal) guide for creating an Azure Event Grid, topic namespace, and client. You can skip the *Generate sample client certificate and thumbprint* section as you have generated a self-signed certificate in steps 1-3.
 
-1. In the [Create clients](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal#create-clients) section, use the thumbprint you obtained in step 4 for thumbprint match authentication. Also keep note of what you set for the **Client Authentication Name**. You will need it later for configuring this Cloud Connector.The [Quickstart](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal) guide from above for Event Grid uses a self-signed SSL certificate, and this Cloud Connector is configured to only use a self-signed SSL certificate.
+1. Once you have successfully deployed an Event Grid namespace, navigate to it then copy the `MQTT Hostname` field. You will need it later for the `mqtt_event_grid_host_name` field in the configuration file that is described in the [MQTT Configuration](#mqtt-configuration) section.
 
-1. When you [create a topic space](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal#create-topic-spaces), keep note of the **topic template** you created. You will need it later for configuring this Cloud Connector.
+1. In the [Create clients](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal#create-clients) section, use the thumbprint you obtained in step 4 for thumbprint match authentication. Also keep note of what you set for the **Client Authentication Name**. You will need it later for the `mqtt_client_authentication_name` field in the configuration file that is described in the [MQTT Configuration](#mqtt-configuration) section.
 
-1. Export the MQTT hostname to your Event Grid Namespace.
+1. When you [create a topic space](https://learn.microsoft.com/en-us/azure/event-grid/mqtt-publish-and-subscribe-portal#create-topic-spaces), keep note of the name you used for the **topic template**. You will need it later for the `mqtt_event_grid_topic` field in the configuration file that is described in the [MQTT Configuration](#mqtt-configuration) section.
 
-    ```shell
-    export "EVENT_GRID_MQTT_HOSTNAME"="{YOUR_EVENT_GRID_MQTT_HOSTNAME}"
-    ```
-
-1. Export the client authentication name obtained from step 6.
-
-    ```shell
-    export "EVENT_GRID_MQTT_CLIENT_AUTHENTICATION_NAME"="{YOUR_EVENT_GRID_MQTT_CLIENT_AUTHENTICATION_NAME}"
-    ```
-
-### Azure Function App
+### 3. Azure Function App
 
 1. [Create an Azure Function app](https://learn.microsoft.com/en-us/azure/event-grid/custom-event-to-function#create-azure-function-app) that triggers your Azure Event Grid.
 
@@ -130,12 +118,12 @@ This section requires deployment of the Azure Digital Twins resource to your res
 
 1. Set the name to `KEYVAULT_SETTINGS`, and the value to `@Microsoft.KeyVault(SecretUri={YOUR_ADT_INSTANCE_URI_SECRET_IN_KEY_VAULT})`
 
-1. Replace the placeholder `{YOUR_ADT_INSTANCE_URI_SECRET_IN_KEY_VAULT}` with the secret URI to your `ADT-INSTANCE-URL` secret in Key Vault obtained from step 3 of [Azure Key Vault](#azure-key-vault). To find the URI to your `ADT-INSTANCE-URL` secret, click on your Key Vault then Secrets. Click on ADT-INSTANCE-URL -> Current version, and copy the secret identifier.
+1. Replace the placeholder `{YOUR_ADT_INSTANCE_URI_SECRET_IN_KEY_VAULT}` with the secret URI to your `ADT-INSTANCE-URL` secret in Key Vault obtained from step 3 of [Azure Key Vault](#1-azure-key-vault). To find the URI to your `ADT-INSTANCE-URL` secret, click on your Key Vault then Secrets. Click on ADT-INSTANCE-URL -> Current version, and copy the secret identifier.
 
-### Enable Managed System Identity in Azure Function App
+### 4. Enable Managed System Identity in Azure Function App
 
 Your Azure Function App will need the Azure Digital Twins Data Owner role to read/write to your Azure Digital Twin instances.
-Also your Function App will need the Key Vault Reader role to read the `ADT-INSTANCE-URL` secret you had set up in step 3 of [Azure Key Vault](#azure-key-vault).
+Also your Function App will need the Key Vault Reader role to read the `ADT-INSTANCE-URL` secret you had set up in step 3 of [Azure Key Vault](#1-azure-key-vault).
 
 1. Navigate to the homepage of your Azure Function App.
 
@@ -169,16 +157,16 @@ Whether you followed the [Automated Deployment of Azure Key Vault, Event Grid, a
     cd {freyja-root-dir}/target/debug
     ```
 
-1. After [building](#build) the MQTT Connector, you should see a `mqtt_config.json` file in your `{freyja-root-dir}/target/debug`. If you don't see the `mqtt_config.json` file in `{freyja-root-dir}/target/debug`, you can create one manually by copying the `res/mqtt_config.sample.json` file and pasting it into
+1. After [building](#build) the MQTT Connector, you should see a `mqtt_config.json` file in your `{freyja-root-dir}/target/debug`. If you do not see the `mqtt_config.json` file in `{freyja-root-dir}/target/debug`, you can create one manually by copying the `res/mqtt_config.sample.json` file and pasting it into
 `{freyja-root-dir}/target/debug`.
 
 1. Replace the placeholders of your `mqtt_config.json` with their respective values. The following fields are described below.
 
-    * `cert_path`: The absolute path to the self-signed certificate generated in step 3 of [Azure Event Grid with MQTT](#azure-event-grid-with-mqtt). This file ends in *.cer.
-    * `private_key_path`: The absolute path to the private key generated in step 1 of [Azure Event Grid with MQTT](#azure-event-grid-with-mqtt). This file ends in *.key.
+    * `cert_path`: The absolute path to the self-signed certificate generated in step 3 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt). This file ends in *.cer.
+    * `private_key_path`: The absolute path to the private key generated in step 1 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt). This file ends in *.key.
     * `mqtt_client_id`: The client ID for identifying the MQTT client used in this Cloud Connector. You can keep the default value or change it. The client ID can be any unique value, as long as it's not the same client ID of another client that's publishing to your Azure Event Grid.
-    * `mqtt_client_authentication_name`: The client authentication name you created using the `mqtt_connector_setup.sh` script or step 6 of [Azure Event Grid with MQTT](#azure-event-grid-with-mqtt)
-    * `mqtt_event_grid_topic`: The topic that you created using the `mqtt_connector_setup.sh` script or step 7 of [Azure Event Grid with MQTT](#azure-event-grid-with-mqtt)
+    * `mqtt_client_authentication_name`: The client authentication name you created using the `mqtt_connector_setup.sh` script or step 6 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt)
+    * `mqtt_event_grid_topic`: The topic that you created using the `mqtt_connector_setup.sh` script or step 7 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt)
     * `mqtt_event_grid_host_name`: The event grid namespace hostname. You can find the hostname by clicking on your event grid namespace, then copy the MQTT hostname.
 
 ### gRPC Configuration

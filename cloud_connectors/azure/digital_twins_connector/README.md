@@ -22,11 +22,15 @@ Install .NET 6.0
 sudo apt install dotnet-sdk-6.0
 ```
 
-### Automated Azure Digital Twins Setup
+### Automated Azure Digital Twins Setup<a name="automated azure digital twins setup"></a>
 
-You must install have the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed, and the [Azure IoT CLI Extension](https://github.com/Azure/azure-iot-cli-extension).
+You must first have these installed:
 
-You will need at least the Owner or Contributor RBAC for your Azure resource group to deploy Azure resources using the `{freyja-root-dir}/cloud_connectors/azure/scripts`. Please see [Azure built-in roles](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles) for more details.
+* [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
+
+* [Azure IoT CLI Extension](https://github.com/Azure/azure-iot-cli-extension)
+
+You will need to be an Owner or a Contributor for your Azure resource group to deploy Azure resources using the `{freyja-root-dir}/cloud_connectors/azure/scripts`. Please see [Azure built-in roles](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles) for more details.
 
 1. Sign in with Azure CLI. Follow the prompts after entering the following command.
 
@@ -34,7 +38,7 @@ You will need at least the Owner or Contributor RBAC for your Azure resource gro
 az login --use-device-code
 ```
 
-1. Run the `digital_twins_setup.sh` in the `{freyja-root-dir}/cloud_connectors/azure/scripts` directory to deploy the Azure Digital Twins resource to your resource group. This script will also create digital twin instances from the `{freyja-root-dir}/cloud_connectors/azure/sample-dtdl` dtdl models.
+1. Deploy Azure Digital Twins to your resource group.
 
 ```shell
 cd {freyja-root-dir}/cloud_connectors/azure/scripts
@@ -50,7 +54,7 @@ Additionally, you may follow the section below for manually deploying the Azure 
 
 ### Manual Azure Digital Twins Setup
 
-If you've successfully ran the `digital_twins_setup.sh`, you don't need to follow this section.
+If you have successfully ran the `digital_twins_setup.sh`, you do not need to follow this section.
 
 The steps below will guide you on manually deploying the Azure Digital Twins resource to your resource group, and creating your Azure Digital Twins instances.
 
@@ -70,9 +74,9 @@ The steps below will guide you on manually deploying the Azure Digital Twins res
 
 1. Follow the *Open instance in Azure Digital Twins Explorer* section under [Set up Azure Digital Twins](https://learn.microsoft.com/en-us/azure/digital-twins/quickstart-azure-digital-twins-explorer#set-up-azure-digital-twins) to get the Azure Digital Twin URL of your Azure Digital Twin instance.
 
-1. After [building](#build) the Digital Twins Connector, you should see an `adt_instance_config.json` file in your `src/core/bin/Debug/net6.0/config`. If you don't see the `adt_instance_config.json` file in `src/core/bin/Debug/net6.0/config`, you can create one manually by copying the `src/core/adt_instance_config.json` file and pasting it into `src/core/bin/Debug/net6.0/config`.
+1. After [building](#build) the Digital Twins Connector, you should see an `adt_instance_config.json` file in your `src/core/bin/Debug/net6.0/config` directory. If you do not see the `adt_instance_config.json` file in `src/core/bin/Debug/net6.0/config`, you can create one manually by copying the `src/core/adt_instance_config.json` file and pasting it into the `src/core/bin/Debug/net6.0/config` directory.
 
-1. Replace the `AzureDigitalTwinsInstanceUrl` field in `src/core/bin/net6.0/config/adt_instance_config.json` with the URL to your Azure Digital Twin instance that you've obtained in step 2.
+1. Replace the `AzureDigitalTwinsInstanceUrl` field in `src/core/bin/net6.0/config/adt_instance_config.json` with the URL to your Azure Digital Twin instance that you have obtained in step 2.
 
 1. Ensure that you have [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
 
