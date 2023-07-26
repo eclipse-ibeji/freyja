@@ -5,7 +5,7 @@
 mod mqtt_connector;
 mod mqtt_connector_config;
 
-use std::{env, fs, path::Path};
+use std::{fs, path::Path};
 
 use env_logger::{Builder, Target};
 use log::{info, LevelFilter};
@@ -15,10 +15,8 @@ use azure_cloud_connector_proto::azure_cloud_connector::azure_cloud_connector_se
 use mqtt_connector::MQTTConnector;
 use mqtt_connector_config::{
     GRPCConfigItem, MQTTConfigItem, CLOUD_CONNECTOR_CONFIG_FILENAME,
-    MQTT_FILE_RELATIVE_TO_OUTPUT_DIR,
+    MQTT_FILE_RELATIVE_TO_OUTPUT_DIR, OUTPUT_DIR_PATH,
 };
-
-const OUTPUT_DIR_PATH: &str = env!("OUT_DIR");
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -45,7 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // Start a gRPC server and MQTT client
     let mqtt_connector =
-        MQTTConnector::new(mqtt_config).expect("Please make sure you edited the mqtt_config.json");
+        MQTTConnector::new(mqtt_config).expect("Please make sure you have edited the target/debug/mqtt_config.json");
     Server::builder()
         .add_service(AzureCloudConnectorServer::new(mqtt_connector))
         .serve(grpc_server_authority.parse()?)

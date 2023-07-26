@@ -5,6 +5,7 @@
 use serde::{Deserialize, Serialize};
 
 pub(crate) const CLOUD_CONNECTOR_CONFIG_FILENAME: &str = "config.json";
+pub(crate) const OUTPUT_DIR_PATH: &str = env!("OUT_DIR");
 pub(crate) const MQTT_FILE_RELATIVE_TO_OUTPUT_DIR: &str = "../../../mqtt_config.json";
 
 /// A config entry for the MQTT settings for the MQTT Connector
