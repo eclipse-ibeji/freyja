@@ -243,7 +243,7 @@ fi
 
 # When you create an Azure Function App for the first time, it takes some time to deploy fully.
 # Retry publishing the MQTT Connector Function to your Azure Function App.
-cd "../mqtt_connector/res/azure_function"
+cd "../mqtt_connector/res/azure_function/src"
 echo -e "\nDeploying Freyja's MQTT Connector Azure Function to $function_app_name"
 max_attempts=10
 attempt=0

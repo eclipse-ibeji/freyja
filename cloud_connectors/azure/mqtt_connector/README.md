@@ -136,9 +136,9 @@ Navigate to the client that you have created in your Event Grid Namespace, and v
 
 1. [Create an Azure Function app](https://learn.microsoft.com/en-us/azure/event-grid/custom-event-to-function#create-azure-function-app) that triggers your Azure Event Grid. Ensure you set the Runtime stack to .NET and version 6.0.
 
-1. Replace the code in your Azure Function `run.cs` with the code in the `res/azure_function/run.cs` folder of this repo.
+1. Replace the code in your Azure Function with the code in the `{freyja-root-dir}/cloud_connectors/azure/mqtt_connector/res/azure_function/src/MQTTConnector.cs` file.
 
-1. Add the following files `res/azure_function/function.json` and `res/azure_function/function.csproj` to your Azure Function.
+1. Add the following files `{freyja-root-dir}/cloud_connectors/azure/mqtt_connector/res/azure_function/res/function.json` and `{freyja-root-dir}/cloud_connectors/azure/mqtt_connector/res/azure_function/MQTTConnector.csproj` to your Azure Function.
 
 1. Go back to your Azure Function App homepage, and click on **Configuration** on the side-panel.
 
