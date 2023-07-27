@@ -8,7 +8,7 @@ Freyja is not tightly coupled with Azure and can synchronize data with any cloud
 
 The Azure Digital Twins Cloud Connector updates an Azure Digital Twin instance directly with the data emitted by Freyja.
 
-Below is a high-level diagram that illustrates Freyja communicating with the Azure Digital Twins Cloud Connector.
+Below is a high-level diagram that illustrates Freyja communicating with the Azure Digital Twins Cloud Connector:
 
 ![Component Diagram](../../../docs/diagrams/azure_digital_twins_cloud_connector.svg)
 
@@ -22,7 +22,29 @@ Install .NET 6.0
 sudo apt install dotnet-sdk-6.0
 ```
 
-### Azure Setup
+### Automated Azure Digital Twins Setup
+
+Before starting this section, please view [Prerequisites for Automated Deployment of Azure Resources](../README.md#prerequisites-for-automated-deployment-of-azure-resources).
+
+1. Sign in with Azure CLI. Follow the prompts after entering the following command.
+
+```shell
+az login --use-device-code
+```
+
+1. Deploy Azure Digital Twins to your resource group.
+
+```shell
+cd {freyja-root-dir}/cloud_connectors/azure/scripts
+chmod +x digital_twins_setup.sh
+./digital_twins_setup.sh -r myRG -l westus2 -d myADT
+```
+
+### Manual Azure Digital Twins Setup
+
+If you have successfully ran the `digital_twins_setup.sh`, you do not need to follow this section.
+
+The steps below will guide you on manually deploying the Azure Digital Twins resource to your resource group, and creating your Azure Digital Twins instances.
 
 1. Set up your [Azure Digital Twin Instance](https://learn.microsoft.com/en-us/azure/digital-twins/quickstart-azure-digital-twins-explorer#set-up-azure-digital-twins).
 
@@ -40,9 +62,9 @@ sudo apt install dotnet-sdk-6.0
 
 1. Follow the *Open instance in Azure Digital Twins Explorer* section under [Set up Azure Digital Twins](https://learn.microsoft.com/en-us/azure/digital-twins/quickstart-azure-digital-twins-explorer#set-up-azure-digital-twins) to get the Azure Digital Twin URL of your Azure Digital Twin instance.
 
-1. After [building](#build) the MQTT Connector, you should see an `adt_instance_config.json` file in your `src/core/bin/Debug/net6.0/config`. If you don't see the `adt_instance_config.json` file in `src/core/bin/Debug/net6.0/config`, you can create one manually by copying the `src/core/adt_instance_config.json` file and pasting it into `src/core/bin/Debug/net6.0/config`.
+1. After [building](#build) the Digital Twins Connector, you should see an `adt_instance_config.json` file in your `src/core/bin/Debug/net6.0/config` directory. If you do not see the `adt_instance_config.json` file in `src/core/bin/Debug/net6.0/config`, you can create one manually by copying the `src/core/adt_instance_config.json` file and pasting it into the `src/core/bin/Debug/net6.0/config` directory.
 
-1. Replace the `AzureDigitalTwinsInstanceUrl` field in `src/core/bin/net6.0/config/adt_instance_config.json` with the URL to your Azure Digital Twin instance that you've obtained in step 2.
+1. Replace the `AzureDigitalTwinsInstanceUrl` field in `src/core/bin/net6.0/config/adt_instance_config.json` with the URL to your Azure Digital Twin instance that you have obtained in step 2.
 
 1. Ensure that you have [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) installed.
 
