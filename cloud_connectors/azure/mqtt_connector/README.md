@@ -30,7 +30,15 @@ Please see steps 1-3 in [Azure Event Grid with MQTT](#2-azure-event-grid-with-mq
 
 Before starting this section, please view [Prerequisites for Automated Deployment of Azure Resources](../README.md#prerequisites-for-automated-deployment-of-azure-resources).
 
-1. Copy the `mqtt_connector_setup.template.json` in the `{freyja-root-dir}/cloud_connectors/azure/mqtt_connector/res` directory, and fill in the placeholders.
+1. Sign in with Azure CLI. Follow the prompts after entering the following command.
+
+```shell
+az login --use-device-code
+```
+
+1. You can either pass in a config or arguments to the `mqtt_connector_setup.sh` script.
+
+If you wish to pass a config, then please copy the `mqtt_connector_setup.template.json` in the `{freyja-root-dir}/cloud_connectors/azure/scripts` directory, and fill in the placeholders.
 
     Field descriptions:
 
@@ -56,18 +64,21 @@ Before starting this section, please view [Prerequisites for Automated Deploymen
 
     * `mqtt_client_authentication_name`: The desired name for the Event Grid Client Authentication you want to use to authenticate.
 
-1. Sign in with Azure CLI. Follow the prompts after entering the following command.
-
-```shell
-az login --use-device-code
-```
-
-1. Run the set of commands. The `mqtt_connector_setup.sh` scripts requires the path to your `mqtt_connector_setup.json`, which you created in step 1, as an argument.
-
 ```shell
 cd {freyja-root-dir}/cloud_connectors/azure/scripts
 chmod +x mqtt_connector_setup.sh
 ./mqtt_connector_setup.sh -c <MQTT_CONFIG_JSON_PATH>
+```
+
+If you wish to pass in arguments, then please do the following:
+
+```shell
+cd {freyja-root-dir}/cloud_connectors/azure/scripts
+chmod +x mqtt_connector_setup.sh
+./mqtt_connector_setup.sh -r myResourceGroup -s mySubscriptionId -dt-n myDigitalTwinsName \
+     -t myThumbprint -st-a-n myStorageAccountName -f-a-n myFunctionAppName \
+     -k-v-n myKeyVaultName -e-g-t myEventGridTopic -e-g-s-n myEventGridSubscriptionName \
+     -e-g-n myEventgridNamespace -m-c-a-n myMqttClientAuthenticationName
 ```
 
 ## Manual Deployment of Azure Key Vault, Event Grid, and Azure Function App
