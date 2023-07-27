@@ -40,35 +40,35 @@ az login --use-device-code
 
 If you wish to pass a config, then please copy the `mqtt_connector_setup.template.json` in the `{freyja-root-dir}/cloud_connectors/azure/scripts` directory, and fill in the placeholders.
 
-    Field descriptions:
-
-    * `resource_group`: The name of your resource group.
-
-    * `subscription_id`: The subscription ID that your resource group is under.
-
-    * `digital_twins_name`: The name of your Digital Twins resource.
-
-    * `thumbprint_of_cert_in_der_format`: The thumbprint of your X.509 certificate in DER format.
-
-    * `storage_account_name`: The desired name for the Storage Account you want to create.
-
-    * `function_app_name`: The desired name for the Azure Function App you want to create.
-
-    * `key_vault_name`: The desired name for the Key Vault you want to create.
-
-    * `event_grid_topic`: The desired name for the Event Grid Topic you want to create.
-
-    * `event_grid_subscription_name`: The desired name for the Event Grid Subscription you want to create.
-
-    * `event_grid_namespace`: The desired name for the Event Grid Namespace you want to create.
-
-    * `mqtt_client_authentication_name`: The desired name for the Event Grid Client Authentication you want to use to authenticate.
-
 ```shell
 cd {freyja-root-dir}/cloud_connectors/azure/scripts
 chmod +x mqtt_connector_setup.sh
 ./mqtt_connector_setup.sh -c <MQTT_CONFIG_JSON_PATH>
 ```
+
+Field descriptions:
+
+* `resource_group`: The name of your resource group.
+
+* `subscription_id`: The subscription ID that your resource group is under.
+
+* `digital_twins_name`: The name of your Digital Twins resource.
+
+* `thumbprint_of_cert_in_der_format`: The thumbprint of your X.509 certificate in DER format.
+
+* `storage_account_name`: The desired name for the Storage Account you want to create.
+
+* `function_app_name`: The desired name for the Azure Function App you want to create.
+
+* `key_vault_name`: The desired name for the Key Vault you want to create.
+
+* `event_grid_topic`: The desired name for the Event Grid Topic you want to create.
+
+* `event_grid_subscription_name`: The desired name for the Event Grid Subscription you want to create.
+
+* `event_grid_namespace`: The desired name for the Event Grid Namespace you want to create.
+
+* `mqtt_client_authentication_name`: The desired name for the Event Grid Client Authentication you want to use to authenticate.
 
 If you wish to pass in arguments, then please do the following:
 
