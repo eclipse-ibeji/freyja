@@ -196,7 +196,7 @@ Whether you followed the [Automated Deployment of Azure Key Vault, Event Grid, a
 1. Replace the placeholders in your `mqtt_config.json` with their respective values.
 
     Field descriptions:
-
+    <!--alex ignore host-hostess-->
     * `grpc_server_authority`: The gRPC server authority you wish to use to host the MQTT Connector's gRPC server. Example `"grpc_server_authority": "[::1]:8890"`
 
     * `cert_path`: The absolute path to the self-signed certificate generated in step 3 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt). This file ends in *.cer.
