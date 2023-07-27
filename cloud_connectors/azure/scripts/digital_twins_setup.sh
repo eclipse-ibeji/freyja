@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT license.
-# SPDX-License-Identifier: MIT
-
 set -e
 
 # Set the current directory to where the script lives.
@@ -11,9 +7,9 @@ cd "$(dirname "$0")"
 
 # Function to display usage information
 usage() {
-    echo "Usage: $0 --resource-group <resource-group-name> --location <deployment-location>"
+    echo "Usage: $0 [-r|--resource-group] <RESOURCE_GROUP_NAME> [-l|--location] <DEPLOYMENT_LOCATION> [-n|--name] <DIGITAL_TWINS_NAME>"
     echo "Example:"
-    echo "  $0 --resource-group myRG --location westus2"
+    echo "  $0 -r myRG -l westus2 -n myADT"
 }
 
 # Parse command line arguments
@@ -22,17 +18,22 @@ do
 key="$1"
 
 case $key in
-    --resource-group)
+    -r|--resource-group)
     resource_group="$2"
     shift # past argument
     shift # past value
     ;;
-    --location)
+    -l|--location)
     location="$2"
     shift # past argument
     shift # past value
     ;;
-    --help)
+    -n|--name)
+    digital_twin_name="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -h|--help)
     usage
     exit 0
     ;;
@@ -40,16 +41,15 @@ esac
 done
 
 # Check if all required arguments have been set
-if [[ -z "${resource_group}" || -z "${location}" ]]; then
+if [[ -z "${resource_group}" || -z "${location}" || -z "${digital_twin_name}" ]]; then
     echo "Error: Missing required arguments:"
-    [[ -z "${resource_group}" ]] && echo "  --resource-group"
-    [[ -z "${location}" ]] && echo "  --location"
+    [[ -z "${resource_group}" ]] && echo "  -r|--resource-group"
+    [[ -z "${location}" ]] && echo "  -l|--location"
+    [[ -z "${digital_twin_name}" ]] && echo "  -n|--name"
     echo -e "\n"
     usage
     exit 1
 fi
-
-read -p "Enter the Azure Digital Twins name to use: " digital_twin_name
 
 # Check if the Digital Twins instance exists
 if az dt show -n "$digital_twin_name" > /dev/null 2>&1; then

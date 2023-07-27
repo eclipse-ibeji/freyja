@@ -27,9 +27,9 @@ pub struct Config {
     /// is used for authentication purposes.
     pub mqtt_client_authentication_name: String,
 
-    /// The mqtt topic to use for updating an Azure Digital Twin instance.
-    pub mqtt_event_grid_topic: String,
+    /// The Event Grid topic to use for updating an Azure Digital Twin instance.
+    pub event_grid_topic: String,
 
-    /// The mqtt event grid hostname. Obtained
-    pub mqtt_event_grid_host_name: String,
+    /// The Event Grid Namespace hostname.
+    pub event_grid_namespace_host_name: String,
 }

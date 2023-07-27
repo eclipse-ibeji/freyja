@@ -35,7 +35,7 @@ az login --use-device-code
 ```shell
 cd {freyja-root-dir}/cloud_connectors/azure/scripts
 chmod +x digital_twins_setup.sh
-./digital_twins_setup.sh --resource-group {YOUR_RESOURCE_GROUP} --location westus2
+./digital_twins_setup.sh --resource-group <RESOURCE_GROUP_NAME> --location westus2 --name <DIGITAL_TWINS_NAME>
 ```
 
 ### Manual Azure Digital Twins Setup

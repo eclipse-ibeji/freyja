@@ -28,18 +28,44 @@ Please see steps 1-3 in [Azure Event Grid with MQTT](#2-azure-event-grid-with-mq
 
 ## Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App
 
+1. Copy the `mqtt_connector_setup.template.json` in the `{freyja-root-dir}/cloud_connectors/azure/mqtt_connector/res` directory, and fill in the placeholders.
+
+    Field descriptions:
+
+    * `resource_group`: The name of your resource group.
+
+    * `subscription_id`: The subscription ID that your resource group is under.
+
+    * `digital_twins_name`: The name of your Digital Twins resource.
+
+    * `thumbprint_of_cert_in_der_format`: The thumbprint of your X.509 certificate in DER format.
+
+    * `storage_account_name`: The desired name for the Storage Account you want to create.
+
+    * `function_app_name`: The desired name for the Azure Function App you want to create.
+
+    * `key_vault_name`: The desired name for the Key Vault you want to create.
+
+    * `event_grid_topic`: The desired name for the Event Grid Topic you want to create.
+
+    * `event_grid_subscription_name`: The desired name for the Event Grid Subscription you want to create.
+
+    * `event_grid_namespace`: The desired name for the Event Grid Namespace you want to create.
+
+    * `mqtt_client_authentication_name`: The desired name for the Event Grid Client Authentication you want to use to authenticate.
+
 1. Sign in with Azure CLI. Follow the prompts after entering the following command.
 
 ```shell
 az login --use-device-code
 ```
 
-1. Run the set of commands. The `mqtt_connector_setup.sh` script will prompt you for input for naming each Azure resource deployed by the script.
+1. Run the set of commands. The `mqtt_connector_setup.sh` scripts requires the path to your `mqtt_connector_setup.json`, which you created in step 1, as an argument.
 
 ```shell
 cd {freyja-root-dir}/cloud_connectors/azure/scripts
 chmod +x mqtt_connector_setup.sh
-./mqtt_connector_setup.sh --resource-group <RESOURCE_GROUP_NAME> --subscription-id <SUBSCRIPTION_ID> --digital-twins-name <DIGITAL_TWINS_RESOURCE_NAME> --cert-thumbprint <THUMBPRINT_OF_CERT_IN_DER_FORMAT>
+./mqtt_connector_setup.sh -c <MQTT_CONFIG_JSON_PATH>
 ```
 
 ## Manual Deployment of Azure Key Vault, Event Grid, and Azure Function App
@@ -166,11 +192,11 @@ Whether you followed the [Automated Deployment of Azure Key Vault, Event Grid, a
 
     * `mqtt_client_id`: The client ID for identifying the MQTT client used in this Cloud Connector. You can keep the default value or change it. The client ID can be any unique value, as long as it's not the same client ID of another client that's publishing to your Azure Event Grid.
 
-    * `mqtt_client_authentication_name`: The client authentication name you created using the `mqtt_connector_setup.sh` script or step 6 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt)
+    * `mqtt_client_authentication_name`: The client authentication name that you specified in step 1 of [Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App](#automated-deployment-of-azure-key-vault-event-grid-and-azure-function-app), or step 6 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt) for manual deployment.
 
-    * `mqtt_event_grid_topic`: The topic that you created using the `mqtt_connector_setup.sh` script or step 7 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt)
+    * `event_grid_topic`: The topic that you specified in step 1 of [Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App](#automated-deployment-of-azure-key-vault-event-grid-and-azure-function-app), or step 7 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt) for manual deployment.
 
-    * `mqtt_event_grid_host_name`: The event grid namespace hostname. You can find the hostname by clicking on your event grid namespace, then copy the MQTT hostname.
+    * `event_grid_namespace_host_name`: The Event Grid Namespace MQTT hostname. You can find the hostname by clicking on your event grid namespace, then copy the MQTT hostname.
 
 ## Run
 

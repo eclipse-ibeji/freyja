@@ -11,7 +11,9 @@ cd "$(dirname "$0")"
 
 # Function to display usage information
 usage() {
-    echo "Usage: $0 --resource-group <RESOURCE_GROUP_NAME> --subscription-id <SUBSCRIPTION_ID> --digital-twins-name <DIGITAL_TWINS_RESOURCE_NAME> --cert-thumbprint <THUMBPRINT_OF_CERT_IN_DER_FORMAT>"
+    echo "Usage: $0 [-c|--config-file] <MQTT_CONNECTOR_SETUP_CONFIG_FILE_PATH>"
+    echo "Example:"
+    echo "  $0 -c mqtt_connector_setup.json"
 }
 
 # Parse command line arguments
@@ -20,23 +22,8 @@ do
 key="$1"
 
 case $key in
-    --resource-group)
-    resource_group="$2"
-    shift # past argument
-    shift # past value
-    ;;
-    --subscription-id)
-    subscription_id="$2"
-    shift # past argument
-    shift # past value
-    ;;
-    --digital-twins-name)
-    digital_twins_name="$2"
-    shift # past argument
-    shift # past value
-    ;;
-    --cert-thumbprint)
-    thumbprint_of_cert_in_der_format="$2"
+    -c|--config-file)
+    config_file="$2"
     shift # past argument
     shift # past value
     ;;
@@ -48,21 +35,68 @@ esac
 done
 
 # Check if all required arguments have been set
-if [[ -z "${resource_group}" || -z "${subscription_id}" || -z "${digital_twins_name}" || -z "${thumbprint_of_cert_in_der_format}" ]]; then
+if [[ -z "${config_file}" ]]; then
     echo "Error: Missing required arguments:"
-    [[ -z "${resource_group}" ]] && echo "  --resource-group"
-    [[ -z "${subscription_id}" ]] && echo "  --subscription-id"
-    [[ -z "${digital_twins_name}" ]] && echo "  --digital-twins-name"
-    [[ -z "${thumbprint_of_cert_in_der_format}" ]] && echo "  --cert-thumbprint"
+    [[ -z "${config_file}" ]] && echo "  -c|--config-file"
     echo -e "\n"
     usage
+    exit 1
+fi
+
+# Parse the configuration file using only built-in Bash commands
+while read -r line; do
+  key=$(echo "$line" | sed -e 's/[{}"]//g' | awk -F: '{print $1}')
+  value=$(echo "$line" | sed -e 's/[{}"]//g' | awk -F: '{print $2}'| xargs)
+  case "$key" in
+    resource_group) resource_group="$value" ;;
+    subscription_id) subscription_id="$value" ;;
+    digital_twins_name) digital_twins_name="$value" ;;
+    thumbprint_of_cert_in_der_format) thumbprint_of_cert_in_der_format="$value" ;;
+    storage_account_name) storage_account_name="$value" ;;
+    function_app_name) function_app_name="$value" ;;
+    key_vault_name) key_vault_name="$value" ;;
+    event_grid_topic) event_grid_topic="$value" ;;
+    event_grid_subscription_name) event_grid_subscription_name="$value" ;;
+    event_grid_namespace) event_grid_namespace="$value" ;;
+    mqtt_client_authentication_name) mqtt_client_authentication_name="$value" ;;
+  esac
+done < <(cat "$config_file" | grep -Eo '"[^"]*"\s*:\s*"[^"]*"')
+
+# Array of required variables
+required_vars=(
+    "resource_group"
+    "subscription_id"
+    "digital_twins_name"
+    "thumbprint_of_cert_in_der_format"
+    "storage_account_name"
+    "function_app_name"
+    "key_vault_name"
+    "event_grid_topic"
+    "event_grid_subscription_name"
+    "event_grid_namespace"
+    "mqtt_client_authentication_name"
+)
+
+# Check if all required variables have been set
+missing_vars=()
+for var in "${required_vars[@]}"; do
+    if [[ -z "${!var}" ]]; then
+        missing_vars+=("$var")
+    fi
+done
+
+# If we have missing key-value pairs, then print all the pairs that are missing from the config file.
+if [[ ${#missing_vars[@]} -gt 0 ]]; then
+    echo "Error: Missing required values in config file:"
+    for var in "${missing_vars[@]}"; do
+        echo "  $var"
+    done
     exit 1
 fi
 
 az account set --subscription "$subscription_id"
 azure_providers_id_path="/subscriptions/$subscription_id/resourceGroups/$resource_group/providers"
 
-read -p "Enter the Azure Storage Account name to use: " storage_account_name
 storage_account_query=$(az storage account list --query "[?name=='$storage_account_name']")
 if [ "$storage_account_query" == "[]" ]; then
     echo -e "\nCreating an Azure Storage Account"
@@ -73,32 +107,31 @@ else
     echo "Storage Account $storage_account_name already exists."
 fi
 
-read -p "Enter the Azure Function App name to use: " azure_function_app_name
-function_app_query=$(az functionapp list --query "[?name=='$azure_function_app_name']")
+function_app_query=$(az functionapp list --query "[?name=='$function_app_name']")
 if [ "$function_app_query" == "[]" ]; then
     echo -e "\nCreating an Azure Function App"
     az functionapp create --resource-group "$resource_group" \
         --consumption-plan-location westus \
         --runtime dotnet \
         --functions-version 4 \
-        --name "$azure_function_app_name" \
+        --name "$function_app_name" \
         --storage-account "$storage_account_name"
 else
-    echo "Azure Function App $azure_function_app_name already exists."
+    echo "Azure Function App $function_app_name already exists."
 fi
 
 # When you create an Azure Function App for the first time, it takes some time to deploy fully.
 # Retry publishing the MQTT Connector Function to your Azure Function App.
 cd "../mqtt_connector/res/azure_function"
-echo -e "\nDeploying Freyja's MQTT Connector Azure Function to $azure_function_app_name"
+echo -e "\nDeploying Freyja's MQTT Connector Azure Function to $function_app_name"
 max_attempts=10
 attempt=0
 success=false
 while [ $attempt -lt $max_attempts ] && ! $success; do
-    if func azure functionapp publish "$azure_function_app_name" --csharp; then
+    if func azure functionapp publish "$function_app_name" --csharp; then
         success=true
     else
-        echo "Retrying deployment of Freyja's MQTT Connector Azure Function to $azure_function_app_name"
+        echo "Retrying deployment of Freyja's MQTT Connector Azure Function to $function_app_name"
     fi
 done
 if ! $success; then
@@ -109,20 +142,18 @@ fi
 cd "$(dirname "$0")"
 
 # Key Vault
-read -p "Enter the Azure Key Vault name to use: " keyvault_name
-keyvault_query=$(az keyvault list --query "[?name=='$keyvault_name']")
+keyvault_query=$(az keyvault list --query "[?name=='$key_vault_name']")
 if [ "$keyvault_query" == "[]" ]; then
     echo -e "\nCreating an Azure Key Vault"
-    az keyvault create --name "$keyvault_name" --resource-group "$resource_group" --location "westus2"
+    az keyvault create --name "$key_vault_name" --resource-group "$resource_group" --location "westus2"
 else
-    echo "Key Vault $keyvault_name already exists."
+    echo "Key Vault $key_vault_name already exists."
 fi
 echo -e "\nSetting a secret for ADT-INSTANCE-URL in your Azure Key Vault"
 adt_instance_url=$(az dt show --dt-name "$digital_twins_name" -g "$resource_group" --query hostName -o tsv)
-az keyvault secret set --name ADT-INSTANCE-URL --vault-name "$keyvault_name" --value "https://$adt_instance_url"
+az keyvault secret set --name ADT-INSTANCE-URL --vault-name "$key_vault_name" --value "https://$adt_instance_url"
 
 # Event Grid
-read -p "Enter the Event Grid Topic name to use: " event_grid_topic
 event_grid_topic_query=$(az eventgrid topic list --resource-group "$resource_group" --query "[?name=='$event_grid_topic']")
 if [ "$event_grid_topic_query" == "[]" ]; then
     echo -e "\nCreating the event grid topic '$event_grid_topic'"
@@ -137,21 +168,19 @@ userObjectID=$(az ad signed-in-user show --query id -o tsv)
 az role assignment create --assignee "$userObjectID" --role "EventGrid Data Sender" \
     --scope "$azure_providers_id_path/Microsoft.EventGrid/topics/$event_grid_topic"
 
-read -p "Enter the Event Grid Subscription name to use: " event_grid_subscription
-event_grid_subscription_query=$(az eventgrid event-subscription list \
+event_grid_subscription_name_query=$(az eventgrid event-subscription list \
     --source-resource-id "$azure_providers_id_path/Microsoft.EventGrid/topics/$event_grid_topic" \
-    --query "[?name=='$event_grid_subscription']")
-if [ "$event_grid_subscription_query" == "[]" ]; then
+    --query "[?name=='$event_grid_subscription_name']")
+if [ "$event_grid_subscription_name_query" == "[]" ]; then
     echo -e "\nCreating Event Grid Subscription"
-    az eventgrid event-subscription create --name $event_grid_subscription \
+    az eventgrid event-subscription create --name $event_grid_subscription_name \
         --source-resource-id "$azure_providers_id_path/Microsoft.EventGrid/topics/$event_grid_topic" \
-        --endpoint "$azure_providers_id_path/Microsoft.Web/sites/$azure_function_app_name/functions/MQTTConnectorAzureFn" \
+        --endpoint "$azure_providers_id_path/Microsoft.Web/sites/$function_app_name/functions/MQTTConnectorAzureFn" \
         --endpoint-type "azurefunction"
 else
-    echo "Event Grid Subscription $event_grid_subscription already exists."
+    echo "Event Grid Subscription $event_grid_subscription_name already exists."
 fi
 
-read -p "Enter the Event Grid Namespace name to use: " event_grid_namespace
 event_grid_namespace_query=$(az resource list --resource-group "$resource_group" \
     --resource-type "Microsoft.EventGrid/namespaces" \
     --query "[?name=='$event_grid_namespace']")
@@ -181,11 +210,10 @@ else
 fi
 
 echo -e "\nCreating an Event Grid Client"
-read -p "Enter the Event Grid Client Authentication name to use: " client_authentication_name
 client_properties=$(cat <<EOF
 {
     "state": "Enabled",
-    "authenticationName": "$client_authentication_name",
+    "authenticationName": "$mqtt_client_authentication_name",
     "clientCertificateAuthentication": {
         "validationScheme": "ThumbprintMatch",
         "allowedThumbprints": [
@@ -227,11 +255,11 @@ az resource create --resource-type Microsoft.EventGrid/namespaces/permissionBind
     --properties "$permission_binding_properties"
 
 # Assigns your Azure Function App's managed system identity permissions
-echo -e "\nAssigning a System Managed Identity for $azure_function_app_name"
-az webapp identity assign --name $azure_function_app_name --resource-group "$resource_group"
+echo -e "\nAssigning a System Managed Identity for $function_app_name"
+az webapp identity assign --name $function_app_name --resource-group "$resource_group"
 
-azureFunctionAppObjectID=$(az functionapp identity show --name "$azure_function_app_name" --resource-group "$resource_group" --query "principalId" -o tsv)
-echo -e "\nAssigning Key Vault Reader role to $azure_function_app_name"
+azureFunctionAppObjectID=$(az functionapp identity show --name "$function_app_name" --resource-group "$resource_group" --query "principalId" -o tsv)
+echo -e "\nAssigning Key Vault Reader role to $function_app_name"
 
 # When you create an Azure Function App for the first time, it takes some time to deploy fully.
 # Retry assigning the Key Vault Reader to your Azure Function App
@@ -241,30 +269,30 @@ success=false
 while [ $attempt -lt $max_attempts ] && ! $success; do
     if az role assignment create --assignee "$azureFunctionAppObjectID" \
         --role "Key Vault Reader" \
-        --scope "$azure_providers_id_path/Microsoft.KeyVault/vaults/$keyvault_name"; then
+        --scope "$azure_providers_id_path/Microsoft.KeyVault/vaults/$key_vault_name"; then
 
         success=true
     else
-        echo "Retrying assigning the Key Vault Reader role to $azure_function_app_name"
+        echo "Retrying assigning the Key Vault Reader role to $function_app_name"
     fi
 done
 if ! $success; then
-    echo "Failed to assign the Key Vault Reader role to $azure_function_app_name after $max_attempts attempts"
+    echo "Failed to assign the Key Vault Reader role to $function_app_name after $max_attempts attempts"
     echo "Please try running this script again."
     exit 1
 fi
 
 # Assigns your Key Vault Access Policies for your Azure Function App.
 # Also set the Key Vault setting for access to the ADT-INSTANCE-URL secret in Azure Function App by using the secret identifier.
-echo -e "\nSetting KEYVAULT_SETTINGS for the configuration in $azure_function_app_name"
-keyVaultSecretURI=$(az keyvault secret show --name "ADT-INSTANCE-URL" --vault-name "$keyvault_name" --query id -o tsv)
-az functionapp config appsettings set --name $azure_function_app_name \
+echo -e "\nSetting KEYVAULT_SETTINGS for the configuration in $function_app_name"
+keyVaultSecretURI=$(az keyvault secret show --name "ADT-INSTANCE-URL" --vault-name "$key_vault_name" --query id -o tsv)
+az functionapp config appsettings set --name $function_app_name \
     --resource-group "$resource_group" \
     --settings KEYVAULT_SETTINGS="@Microsoft.KeyVault(SecretUri=$keyVaultSecretURI)"
-az keyvault set-policy -n $keyvault_name --secret-permissions get --object-id "$azureFunctionAppObjectID"
+az keyvault set-policy -n $key_vault_name --secret-permissions get --object-id "$azureFunctionAppObjectID"
 
 # Digital Twin system managed identity role assignment for your Azure Function App.
-echo -e "\nAssigning Azure Digital Twins Data Owner role to $azure_function_app_name"
+echo -e "\nAssigning Azure Digital Twins Data Owner role to $function_app_name"
 az role assignment create --assignee "$azureFunctionAppObjectID" \
     --role "Azure Digital Twins Data Owner" \
     --scope "$azure_providers_id_path/Microsoft.DigitalTwins/digitalTwinsInstances/$digital_twins_name"
@@ -274,6 +302,6 @@ echo -e "\nSetup finished for Freyja's Azure MQTT Connector"
 echo -e "\n"
 echo "Please set the values for mqtt_event_grid_topic and mqtt_client_authentication_name fields of your {freyja-root-dir}/target/debug/mqtt_config.json to the following:"
 echo "mqtt_event_grid_topic: $event_grid_topic"
-echo "mqtt_client_authentication_name: $client_authentication_name"
+echo "mqtt_client_authentication_name: $mqtt_client_authentication_name"
 
 exit 0

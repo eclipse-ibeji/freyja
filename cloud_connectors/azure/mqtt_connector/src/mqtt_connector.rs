@@ -34,7 +34,7 @@ impl MQTTConnector {
     /// # Arguments
     /// - `config`: the config file
     pub fn new(config: Config) -> Result<Self, MQTTConnectorError> {
-        let event_grid_mqtt_uri = format!("mqtts://{}:8883", config.mqtt_event_grid_host_name);
+        let event_grid_mqtt_uri = format!("mqtts://{}:8883", config.event_grid_namespace_host_name);
 
         let mqtt_event_grid_client = mqtt::CreateOptionsBuilder::new()
             .server_uri(event_grid_mqtt_uri)
@@ -66,7 +66,7 @@ impl MQTTConnector {
 
         Ok(MQTTConnector {
             mqtt_event_grid_client,
-            mqtt_event_grid_topic: config.mqtt_event_grid_topic,
+            mqtt_event_grid_topic: config.event_grid_topic,
         })
     }
 }
