@@ -34,4 +34,4 @@ jobs:
       - name: Digital Twins Connector Tests
         run: dotnet test cloud_connectors/azure/digital_twins_connector/tests/**/*.csproj
       - name: MQTT Connector's Azure Function Tests
-        run: dotnet test cloud_connectors/azure/digital_twins_connector/tests/**/*.csproj
+        run: dotnet test cloud_connectors/azure/mqtt_connector/tests/**/*.csproj

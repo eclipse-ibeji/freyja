@@ -25,8 +25,89 @@ class DigitalTwinsInstance {
     public string data { get; set; }
 }
 
-namespace MQTTConnector {
-    public static class MQTTConnectorAzureFn {
+namespace Microsoft.ESDV.CloudConnector.Azure {
+    public class MQTTConnector {
+
+        // The Azure Digital Twins Client.
+        private DigitalTwinsClient _client;
+
+        private ILogger _logger;
+
+        /// <summary>
+        /// Constructor for MQTTConnector
+        /// </summary>
+        /// <param name="client">A DigitalTwinsClient</param>
+        /// <param name="logger">An ILogger</param>
+        public MQTTConnector(DigitalTwinsClient client, ILogger logger)
+        {
+            _client = client;
+            _logger = logger;
+        }
+
+        /// <summary>
+        /// Checks if a path starts with a slash.
+        /// </summary>
+        /// <param name="path">the path.</param>
+        /// <returns>Returns true if the path starts with a slash, otherwise false.</returns>
+        private bool DoesPathStartsWithSlash(string path)
+        {
+            return path.StartsWith('/');
+        }
+
+        /// <summary>
+        /// Updates a digital twin's property.
+        /// </summary>
+        /// <example>
+        /// Invoking <code>UpdateDigitalTwinAsync("dtmi:sdv:Cloud:Vehicle:Cabin:HVAC:AmbientAirTemperature;1", "44")</code>
+        /// sets the dtmi "dtmi:sdv:Cloud:Vehicle:Cabin:HVAC:AmbientAirTemperature;1" to 44.
+        /// </example>
+        /// <param name="modelID">the model ID that a digital twin instance is based on.</param>
+        /// <param name="instanceID">the digital twin instance ID.</param>
+        /// <param name="instancePropertyPath">the property path of a digital twin instance to update.</param>
+        /// <param name="data">the data used to update a digital twin instance's property.</param>
+        /// <returns>Returns a task for updating a digital twin instance.</returns>
+        public async Task UpdateDigitalTwinAsync(string modelID, string instanceID, string instancePropertyPath, string data)
+        {
+            List<Type> dataTypes = new List<Type>() { typeof(Double), typeof(Boolean), typeof(Int32) };
+            var jsonPatchDocument = new JsonPatchDocument();
+
+            foreach (Type type in dataTypes)
+            {
+                try
+                {
+                    // Parse the data string to a type
+                    dynamic value = TypeDescriptor.GetConverter(type).ConvertFromInvariantString(data);
+
+                    if (!DoesPathStartsWithSlash(instancePropertyPath))
+                    {
+                        instancePropertyPath = "$/{instancePropertyPath}";
+                    }
+                    // Once we're able to parse the data string to a type
+                    // we append it to the jsonPatchDocument
+                    jsonPatchDocument.AppendAdd(instancePropertyPath, value);
+
+                    // First UpdateDigitalTwinAsync call may block due to initial authorization.
+                    await _client.UpdateDigitalTwinAsync(instanceID, jsonPatchDocument);
+                    _logger.LogInformation($"Successfully set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}");
+                    return;
+                }
+                catch (RequestFailedException ex)
+                {
+                    _logger.LogError($"Cannot set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data} due to {ex.Message}");
+                    throw ex;
+                }
+                // Try to parse string data with the next type if we're unsuccessful.
+                catch (Exception ex) when (ex is NotSupportedException || ex is ArgumentException || ex is FormatException)
+                {
+                    continue;
+                }
+            }
+
+            string errorMessage = $"Failed to parse {data}. Cannot set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}";
+            _logger.LogError(errorMessage);
+            throw new NotSupportedException(errorMessage);
+        }
+
         /// <summary>
         /// An Azure Function that updates an Azure Digital Twin based on the request.
         /// </summary>
@@ -35,45 +116,20 @@ namespace MQTTConnector {
         /// <exception>An exception is thrown if the digital twin client cannot perform an update.</exception>
         /// <returns></returns>
         [FunctionName("MQTTConnectorAzureFn")]
-        public static async Task Run([EventGridTrigger] CloudEvent cloudEvent, ILogger logger)
+        public async Task Run([EventGridTrigger] CloudEvent cloudEvent, ILogger logger)
         {
             List<Type> dataTypes = new List<Type>() { typeof(Double), typeof(Boolean), typeof(Int32) };
+            DigitalTwinsInstance instance = cloudEvent.Data.ToObjectFromJson<DigitalTwinsInstance>();
 
-            foreach (Type type in dataTypes)
+            try
             {
-                var jsonPatchDocument = new JsonPatchDocument();
-                DigitalTwinsInstance instance = cloudEvent.Data.ToObjectFromJson<DigitalTwinsInstance>();
-                try
-                {
-                    dynamic value = TypeDescriptor.GetConverter(type).ConvertFromInvariantString(instance.data);
-                    jsonPatchDocument.AppendAdd(instance.instance_property_path, value);
-                }
-                // Try to parse string data with the next type if we're unsuccessful.
-                catch (Exception ex) when (ex is NotSupportedException || ex is ArgumentException || ex is FormatException)
-                {
-                    continue;
-                }
-
-                try
-                {
-                    var credential = new DefaultAzureCredential();
-                    var adt_instance_url = Environment.GetEnvironmentVariable("KEYVAULT_SETTINGS", EnvironmentVariableTarget.Process);
-                    var client = new DigitalTwinsClient(new Uri(adt_instance_url), credential);
-                    await client.UpdateDigitalTwinAsync(instance.instance_id, jsonPatchDocument);
-                }
-                catch(Exception ex)
-                {
-                    logger.LogError($"Cannot set instance due to {ex.Message}");
-                    break;
-                }
-
-                logger.LogInformation("Successfully set instance: {instance_id}{instance_property_path} based on model {model} to {data}", instance.instance_id, instance.instance_property_path, instance.model_id, instance.data);
-                return;
+                await UpdateDigitalTwinAsync(instance.model_id, instance.instance_id, instance.instance_property_path, instance.data);
             }
-
-            string errorMessage = $"Failed to parse {cloudEvent.Data.ToString()}";
-            logger.LogError(errorMessage);
-            throw new NotSupportedException(errorMessage);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                throw;
+            }
         }
     }
 }
