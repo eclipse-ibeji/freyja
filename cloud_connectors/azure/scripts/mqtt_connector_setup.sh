@@ -43,7 +43,7 @@ if [[ -z "${config_file}" ]]; then
     exit 1
 fi
 
-# Parse the configuration file using only built-in Bash commands
+# Parse the configuration file
 while read -r line; do
   key=$(echo "$line" | sed -e 's/[{}"]//g' | awk -F: '{print $1}')
   value=$(echo "$line" | sed -e 's/[{}"]//g' | awk -F: '{print $2}'| xargs)
@@ -62,7 +62,7 @@ while read -r line; do
   esac
 done < <(cat "$config_file" | grep -Eo '"[^"]*"\s*:\s*"[^"]*"')
 
-# Array of required variables
+# Required values from the mqtt_config.json file
 required_vars=(
     "resource_group"
     "subscription_id"
