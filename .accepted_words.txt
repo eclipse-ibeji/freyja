@@ -17,6 +17,7 @@ Freyja
 freyja
 Freyr
 Hildisv
+host
 https
 Impl
 intellectualproperty
