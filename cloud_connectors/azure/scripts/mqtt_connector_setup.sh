@@ -68,24 +68,24 @@ cd "$(dirname "$0")"
 # Function to display usage information
 usage() {
     echo "Usage: $0 [-c|--config-file] <MQTT_CONNECTOR_SETUP_CONFIG_FILE_PATH>"
-    echo "       $0 [-r|--resource-group] <RESOURCE_GROUP>"
+    echo "       $0 [-r|--resource-group-name] <RESOURCE_GROUP>"
     echo "          [-s|--subscription-id] <SUBSCRIPTION_ID>"
-    echo "          [-dt-n|--digital-twins-name] <DIGITAL_TWINS_NAME>"
-    echo "          [-t|--thumbprint-of-cert-in-der-format] <THUMBPRINT_OF_CERT_IN_DER_FORMAT>"
-    echo "          [-st-a-n|--storage-account-name] <STORAGE_ACCOUNT_NAME>"
-    echo "          [-f-a-n|--function-app-name] <FUNCTION_APP_NAME>"
-    echo "          [-k-v-n|--key-vault-name] <KEY_VAULT_NAME>"
-    echo "          [-e-g-t|--event-grid-topic] <EVENT_GRID_TOPIC>"
-    echo "          [-e-g-s-n|--event-grid-subscription-name] <EVENT_GRID_SUBSCRIPTION_NAME>"
-    echo "          [-e-g-n|--event-grid-namespace] <EVENTGRID_NAMESPACE>"
-    echo "          [-m-c-a-n|--mqtt-client-authentication-name] <MQTT_CLIENT_AUTHENTICATION_NAME>"
+    echo "          [-d|--digital-twins-name] <DIGITAL_TWINS_NAME>"
+    echo "          [-t|--thumbprint] <THUMBPRINT_OF_CERT_IN_DER_FORMAT>"
+    echo "          [-S|--storage-account-name] <STORAGE_ACCOUNT_NAME>"
+    echo "          [-f|--function-app-name] <FUNCTION_APP_NAME>"
+    echo "          [-k|--key-vault-name] <KEY_VAULT_NAME>"
+    echo "          [-x|--event-grid-topic] <EVENT_GRID_TOPIC>"
+    echo "          [-y|--event-grid-subscription-name] <EVENT_GRID_SUBSCRIPTION_NAME>"
+    echo "          [-z|--event-grid-namespace] <EVENTGRID_NAMESPACE>"
+    echo "          [-m|--mqtt-client-auth-name] <MQTT_CLIENT_AUTHENTICATION_NAME>"
     echo ""
     echo "Example:"
     echo "  $0 -c mqtt_connector_setup.json"
-    echo "  $0 -r myResourceGroup -s mySubscriptionId -dt-n myDigitalTwinsName \\"
-    echo "     -t myThumbprint -st-a-n myStorageAccountName -f-a-n myFunctionAppName \\"
-    echo "     -k-v-n myKeyVaultName -e-g-t myEventGridTopic -e-g-s-n myEventGridSubscriptionName \\"
-    echo "     -e-g-n myEventgridNamespace -m-c-a-n myMqttClientAuthenticationName"
+    echo "  $0 -r myResourceGroup -s mySubscriptionId -d myDigitalTwinsName \\"
+    echo "     -t myThumbprint -S myStorageAccountName -f myFunctionAppName \\"
+    echo "     -k myKeyVaultName -x myEventGridTopic -y myEventGridSubscriptionName \\"
+    echo "     -z myEventgridNamespace -m myMqttClientAuthenticationName"
 }
 
 check_argument_value() {
@@ -135,7 +135,7 @@ case $key in
     shift # past value
     break # break out of case statement if config file is provided
     ;;
-    -r|--resource-group)
+    -r|--resource-group-name)
     check_argument_value "$@"
     resource_group="$2"
     shift # past argument
@@ -147,55 +147,55 @@ case $key in
     shift # past argument
     shift # past value
     ;;
-    -dt-n|--digital-twins-name)
+    -d|--digital-twins-name)
     check_argument_value "$@"
     digital_twins_name="$2"
     shift # past argument
     shift # past value
     ;;
-    -t|--thumbprint-of-cert-in-der-format)
+    -t|--thumbprint)
     check_argument_value "$@"
     thumbprint_of_cert_in_der_format="$2"
     shift # past argument
     shift # past value
     ;;
-    -st-a-n|--storage-account-name)
+    -S|--storage-account-name)
     check_argument_value "$@"
     storage_account_name="$2"
     shift # past argument
     shift # past value
     ;;
-    -f-a-n|--function-app-name)
+    -f|--function-app-name)
     check_argument_value "$@"
     function_app_name="$2"
     shift # past argument
     shift # past value
     ;;
-    -k-v-n|--key-vault-name)
+    -k|--key-vault-name)
     check_argument_value "$@"
     key_vault_name="$2"
     shift # past argument
     shift # past value
     ;;
-    -e-g-t|--event-grid-topic)
+    -x|--event-grid-topic)
     check_argument_value "$@"
     event_grid_topic="$2"
     shift # past argument
     shift # past value
     ;;
-    -e-g-s-n|--event-grid-subscription-name)
+    -y|--event-grid-subscription-name)
     check_argument_value "$@"
     event_grid_subscription_name="$2"
     shift # past argument
     shift # past value
     ;;
-    -e-g-n|--event-grid-namespace)
+    -z|--event-grid-namespace)
     check_argument_value "$@"
     event_grid_namespace="$2"
     shift # past argument
     shift # past value
     ;;
-    -m-c-a-n|--mqtt-client-authentication-name)
+    -m|--mqtt-client-auth-name)
     check_argument_value "$@"
     mqtt_client_authentication_name="$2"
     shift # past argument
@@ -206,8 +206,9 @@ case $key in
     exit 0
     ;;
     *)
-    shift # past argument
-    ;;
+    echo "Unknown argument: $key"
+    usage
+    exit 1
 esac
 done
 

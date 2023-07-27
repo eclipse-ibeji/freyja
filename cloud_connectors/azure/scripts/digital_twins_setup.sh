@@ -7,9 +7,9 @@ cd "$(dirname "$0")"
 
 # Function to display usage information
 usage() {
-    echo "Usage: $0 [-r|--resource-group] <RESOURCE_GROUP_NAME> [-l|--location] <DEPLOYMENT_LOCATION> [-n|--name] <DIGITAL_TWINS_NAME>"
+    echo "Usage: $0 [-r|--resource-group] <RESOURCE_GROUP_NAME> [-l|--location] <DEPLOYMENT_LOCATION> [-d|--digital-twins-name] <DIGITAL_TWINS_NAME>"
     echo "Example:"
-    echo "  $0 -r myRG -l westus2 -n myADT"
+    echo "  $0 -r myRG -l westus2 -d myADT"
 }
 
 # Parse command line arguments
@@ -28,7 +28,7 @@ case $key in
     shift # past argument
     shift # past value
     ;;
-    -n|--name)
+    -d|--digital-twins-name)
     digital_twin_name="$2"
     shift # past argument
     shift # past value
@@ -37,6 +37,10 @@ case $key in
     usage
     exit 0
     ;;
+    *)
+    echo "Unknown argument: $key"
+    usage
+    exit 1
 esac
 done
 
@@ -45,7 +49,7 @@ if [[ -z "${resource_group}" || -z "${location}" || -z "${digital_twin_name}" ]]
     echo "Error: Missing required arguments:"
     [[ -z "${resource_group}" ]] && echo "  -r|--resource-group"
     [[ -z "${location}" ]] && echo "  -l|--location"
-    [[ -z "${digital_twin_name}" ]] && echo "  -n|--name"
+    [[ -z "${digital_twin_name}" ]] && echo "  -d|--digital-twins-name"
     echo -e "\n"
     usage
     exit 1

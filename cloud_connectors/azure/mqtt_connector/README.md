@@ -38,7 +38,7 @@ az login --use-device-code
 
 1. You can either pass in a config or arguments to the `mqtt_connector_setup.sh` script.
 
-If you wish to pass a config, then please copy the `mqtt_connector_setup.template.json` in the `{freyja-root-dir}/cloud_connectors/azure/scripts` directory, and fill in the placeholders.
+If you wish to pass a config, then please copy the `mqtt_connector_setup.template.json` in the `{freyja-root-dir}/cloud_connectors/azure/scripts` directory and fill in the placeholders.
 
 ```shell
 cd {freyja-root-dir}/cloud_connectors/azure/scripts
@@ -75,10 +75,10 @@ If you wish to pass in arguments, then please do the following:
 ```shell
 cd {freyja-root-dir}/cloud_connectors/azure/scripts
 chmod +x mqtt_connector_setup.sh
-./mqtt_connector_setup.sh -r myResourceGroup -s mySubscriptionId -dt-n myDigitalTwinsName \
-     -t myThumbprint -st-a-n myStorageAccountName -f-a-n myFunctionAppName \
-     -k-v-n myKeyVaultName -e-g-t myEventGridTopic -e-g-s-n myEventGridSubscriptionName \
-     -e-g-n myEventgridNamespace -m-c-a-n myMqttClientAuthenticationName
+  ./mqtt_connector_setup.sh -r myResourceGroup -s mySubscriptionId -d myDigitalTwinsName \
+    -t myThumbprint -S myStorageAccountName -f myFunctionAppName \
+    -k myKeyVaultName -x myEventGridTopic -y myEventGridSubscriptionName \
+    -z myEventgridNamespace -m myMqttClientAuthenticationName
 ```
 
 ## Manual Deployment of Azure Key Vault, Event Grid, and Azure Function App
