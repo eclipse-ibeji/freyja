@@ -36,8 +36,6 @@ You will need to be an Owner or a Contributor for your Azure resource group to d
 
 Please see [Automated Azure Digital Twins Setup](./digital_twins_connector/README.md#automated-azure-digital-twins-setup) for the Digital Twins Connector sample, and [Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App](./mqtt_connector/README.md#automated-deployment-of-azure-key-vault-event-grid-and-azure-function-app) for the MQTT Connector sample.
 
-## Automated Deployment Troubleshooting
-
 If you experience permission or deployment errors, try running the script again as sometimes it takes a while for some dependencies to be fully deployed. If you use the same name or identifier for each Azure resource, the script will not create additional copies of that Azure resource.
 
 You may also follow the [Manual Azure Digital Twins Setup](./digital_twins_connector/README.md#manual-azure-digital-twins-setup) for the Digital Twins Connector sample, or the [Manual Deployment of Azure Key Vault, Event Grid, and Azure Function App](./mqtt_connector/README.md#manual-deployment-of-azure-key-vault-event-grid-and-azure-function-app) for the MQTT Connector sample sections to deploy the respective Azure resource that is failing to be deployed by the script.
