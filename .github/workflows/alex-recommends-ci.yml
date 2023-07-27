@@ -27,5 +27,3 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         message_id: 'alex'
         profanity_sureness: 2
-        pr_only: true
-        no_binary: false

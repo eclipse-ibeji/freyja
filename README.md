@@ -62,9 +62,11 @@ cd target/debug
 
 Note that certain choices for the build variables may require other applications to be started as well. In general, everything other than the in-memory libraries will require some kind of external endpoint to be set up.
 
+<!--alex disable he-she her-him brothers-sisters-->
 ## Why "Freyja"?
 
 The project takes it name from the Old Norse goddess Freyja. This name was chosen because she is a twin (her brother's name is Freyr) and is associated with *seiðr*, which is magic for seeing and influencing the future. She is also commonly associated with fertility and gold, and rules over the heavenly field of Fólkvangr. She has a necklace called Brísingamen, a cloak of falcon feathers, a boar named Hildisvíni, and rides a chariot pulled by two cats.
+<!--alex enable he-she her-him brothers-sisters-->
 
 ## Trademarks
 
