@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 
 # Function to display usage information
 usage() {
-    echo "Usage: $0 [-r|--resource-group] <RESOURCE_GROUP_NAME> [-l|--location] <DEPLOYMENT_LOCATION> [-d|--digital-twins-name] <DIGITAL_TWINS_NAME>"
+    echo "Usage: $0 [-r|--resource-group-name] <RESOURCE_GROUP_NAME> [-l|--location] <DEPLOYMENT_LOCATION> [-d|--digital-twins-name] <DIGITAL_TWINS_NAME>"
     echo "Example:"
     echo "  $0 -r myRG -l westus2 -d myADT"
 }
@@ -18,7 +18,7 @@ do
 key="$1"
 
 case $key in
-    -r|--resource-group)
+    -r|--resource-group-name)
     resource_group="$2"
     shift # past argument
     shift # past value
@@ -47,7 +47,7 @@ done
 # Check if all required arguments have been set
 if [[ -z "${resource_group}" || -z "${location}" || -z "${digital_twin_name}" ]]; then
     echo "Error: Missing required arguments:"
-    [[ -z "${resource_group}" ]] && echo "  -r|--resource-group"
+    [[ -z "${resource_group}" ]] && echo "  -r|--resource-group-name"
     [[ -z "${location}" ]] && echo "  -l|--location"
     [[ -z "${digital_twin_name}" ]] && echo "  -d|--digital-twins-name"
     echo -e "\n"
