@@ -28,7 +28,7 @@ Please see steps 1-3 in [Azure Event Grid with MQTT](#2-azure-event-grid-with-mq
 
 ## Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App
 
-Before starting this section, please view [Prerequisites for Automated Deployment of Azure Resources](../README.md/#prerequisites-for-automated-deployment-of-azure-resources).
+Before starting this section, please view [Prerequisites for Automated Deployment of Azure Resources](../README.md#prerequisites-for-automated-deployment-of-azure-resources).
 
 1. Copy the `mqtt_connector_setup.template.json` in the `{freyja-root-dir}/cloud_connectors/azure/mqtt_connector/res` directory, and fill in the placeholders.
 

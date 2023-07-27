@@ -24,7 +24,7 @@ sudo apt install dotnet-sdk-6.0
 
 ### Automated Azure Digital Twins Setup
 
-Before starting this section, please view [Prerequisites for Automated Deployment of Azure Resources](../README.md/#prerequisites-for-automated-deployment-of-azure-resources).
+Before starting this section, please view [Prerequisites for Automated Deployment of Azure Resources](../README.md#prerequisites-for-automated-deployment-of-azure-resources).
 
 1. Sign in with Azure CLI. Follow the prompts after entering the following command.
 
