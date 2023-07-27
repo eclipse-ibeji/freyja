@@ -5,7 +5,6 @@
 use std::{collections::HashMap, fs, path::Path, sync::Arc, sync::Mutex, time::Duration};
 
 use async_trait::async_trait;
-use log::error;
 
 use crate::config::EntityConfig;
 use dts_contracts::{
@@ -14,9 +13,7 @@ use dts_contracts::{
         GetDigitalTwinProviderRequest, GetDigitalTwinProviderResponse,
     },
     entity::{Entity, EntityID},
-    provider_proxy_request::{
-        ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
-    },
+    provider_proxy_request::ProviderProxySelectorRequestSender,
 };
 
 const CONFIG_FILE: &str = "config.json";
@@ -92,50 +89,7 @@ impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
         provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
     ) -> Result<(), DigitalTwinAdapterError> {
         loop {
-            let mut entity_map_update;
-            {
-                entity_map_update = entity_map.lock().unwrap().clone();
-            }
-
-            // Update the copy of entity map if it contains an entity that has no information
-            for (entity_id, entity) in entity_map_update.iter_mut() {
-                if entity.is_some() {
-                    continue;
-                }
-
-                // Update the copy of entity map if we're able to find the info of an entity after doing find_by_id
-                let request = GetDigitalTwinProviderRequest {
-                    entity_id: entity_id.clone(),
-                };
-
-                match self.find_by_id(request).await {
-                    Ok(response) => {
-                        let entity_info = response.entity.clone();
-                        let (id, uri, protocol, operation) = (
-                            entity_info.id,
-                            entity_info.uri,
-                            entity_info.protocol,
-                            entity_info.operation,
-                        );
-                        *entity = Some(response.entity);
-
-                        // Notify the provider proxy selector to start a proxy
-                        let request = ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy(
-                            id, uri, protocol, operation,
-                        );
-                        provider_proxy_selector_request_sender
-                            .send_request_to_provider_proxy_selector(request);
-                    }
-                    Err(err) => {
-                        error!("{err}");
-                        *entity = None
-                    }
-                };
-            }
-
-            {
-                *entity_map.lock().unwrap() = entity_map_update;
-            }
+            self.update_entity_map(entity_map.clone(), provider_proxy_selector_request_sender.clone()).await?;
             tokio::time::sleep(sleep_interval).await;
         }
     }
