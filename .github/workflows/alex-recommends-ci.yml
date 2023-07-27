@@ -28,4 +28,4 @@ jobs:
         message_id: 'alex'
         profanity_sureness: 2
         pr_only: true
-        no_binary: false
+        no_binary: true
