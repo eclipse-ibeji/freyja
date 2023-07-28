@@ -12,8 +12,8 @@ use std::{
 };
 
 use async_trait::async_trait;
-use core_protobuf_data_access::digital_twin::v1::{
-    digital_twin_client::DigitalTwinClient, EndpointInfo, FindByIdRequest,
+use core_protobuf_data_access::invehicle_digital_twin::v1::{
+    invehicle_digital_twin_client::InvehicleDigitalTwinClient, EndpointInfo, FindByIdRequest,
 };
 use log::{debug, error, warn};
 use service_discovery_proto::service_registry::v1::service_registry_client::ServiceRegistryClient;
@@ -38,7 +38,7 @@ const SUBSCRIBE_OPERATION: &str = "Subscribe";
 
 /// Contacts the In-Vehicle Digital Twin Service in Ibeji
 pub struct IbejiAdapter {
-    client: DigitalTwinClient<Channel>,
+    client: InvehicleDigitalTwinClient<Channel>,
 }
 
 impl IbejiAdapter {
@@ -155,7 +155,7 @@ impl DigitalTwinAdapter for IbejiAdapter {
         debug!("Discovered the uri of the In-Vehicle Digital Twin Service via Chariott: {invehicle_digital_twin_service_uri}");
 
         let client = futures::executor::block_on(async {
-            DigitalTwinClient::connect(invehicle_digital_twin_service_uri)
+            InvehicleDigitalTwinClient::connect(invehicle_digital_twin_service_uri)
                 .await
                 .map_err(DigitalTwinAdapterError::communication)
         })
@@ -261,9 +261,9 @@ impl DigitalTwinAdapter for IbejiAdapter {
 mod ibeji_digital_twin_adapter_tests {
     use super::*;
 
-    use core_protobuf_data_access::digital_twin::v1::{
-        digital_twin_server::DigitalTwin, EntityAccessInfo, FindByIdRequest, FindByIdResponse,
-        RegisterRequest, RegisterResponse,
+    use core_protobuf_data_access::invehicle_digital_twin::v1::{
+        invehicle_digital_twin_server::InvehicleDigitalTwin, EntityAccessInfo, FindByIdRequest,
+        FindByIdResponse, RegisterRequest, RegisterResponse,
     };
     use tonic::{Request, Response, Status};
 
@@ -272,7 +272,7 @@ mod ibeji_digital_twin_adapter_tests {
     pub struct MockInVehicleTwin {}
 
     #[tonic::async_trait]
-    impl DigitalTwin for MockInVehicleTwin {
+    impl InvehicleDigitalTwin for MockInVehicleTwin {
         async fn find_by_id(
             &self,
             request: Request<FindByIdRequest>,
@@ -323,7 +323,7 @@ mod ibeji_digital_twin_adapter_tests {
 
         use std::sync::Arc;
 
-        use core_protobuf_data_access::digital_twin::v1::digital_twin_server::DigitalTwinServer;
+        use core_protobuf_data_access::invehicle_digital_twin::v1::invehicle_digital_twin_server::InvehicleDigitalTwinServer;
         use tempfile::TempPath;
         use tokio::{
             net::{UnixListener, UnixStream},
@@ -333,7 +333,9 @@ mod ibeji_digital_twin_adapter_tests {
         use tonic::transport::{Channel, Endpoint, Server, Uri};
         use tower::service_fn;
 
-        async fn create_test_grpc_client(bind_path: Arc<TempPath>) -> DigitalTwinClient<Channel> {
+        async fn create_test_grpc_client(
+            bind_path: Arc<TempPath>,
+        ) -> InvehicleDigitalTwinClient<Channel> {
             let channel = Endpoint::try_from("http://URI_IGNORED") // Devskim: ignore DS137138
                 .unwrap()
                 .connect_with_connector(service_fn(move |_: Uri| {
@@ -343,13 +345,13 @@ mod ibeji_digital_twin_adapter_tests {
                 .await
                 .unwrap();
 
-            DigitalTwinClient::new(channel)
+            InvehicleDigitalTwinClient::new(channel)
         }
 
         async fn run_test_grpc_server(uds_stream: UnixListenerStream) {
             let mock_in_vehicle_twin = MockInVehicleTwin {};
             Server::builder()
-                .add_service(DigitalTwinServer::new(mock_in_vehicle_twin))
+                .add_service(InvehicleDigitalTwinServer::new(mock_in_vehicle_twin))
                 .serve_with_incoming(uds_stream)
                 .await
                 .unwrap();
