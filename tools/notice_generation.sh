@@ -36,11 +36,9 @@ NOTICE_FILENAME="NOTICE"
 echo "Running cargo-about for NOTICE file generation..."
 cargo about generate --workspace tools/cg/about.hbs --config tools/cg/about.toml > $NOTICE_FILENAME
 
-DIGITAL_TWINS_CONNECTOR_DOTNET_DIRECTORY="cloud_connectors/azure/digital_twins_connector"
-MQTT_CONNECTOR="cloud_connectors/azure/mqtt_connector"
-
-./tools/dotnet_notice_generation.sh $NOTICE_FILENAME $DIGITAL_TWINS_CONNECTOR_DOTNET_DIRECTORY
-./tools/dotnet_notice_generation.sh $NOTICE_FILENAME $MQTT_CONNECTOR
+CLOUD_CONNECTORS_AZURE_DIRECTORY="cloud_connectors/azure/"
+echo "Appending Azure Cloud Connectors' .NET Third Party licenses to $NOTICE_FILENAME" 
+./tools/dotnet_notice_generation.sh $NOTICE_FILENAME $CLOUD_CONNECTORS_AZURE_DIRECTORY
 
 if [ -z "$(git diff --name-only $NOTICE_FILENAME)" ]
 then
