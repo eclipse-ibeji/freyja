@@ -46,7 +46,7 @@ pub trait DigitalTwinAdapter {
         provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
     ) -> Result<(), DigitalTwinAdapterError>;
 
-    /// Updates a shared entity map to populate empty values with provider information.
+    /// Updates a shared entity map to populate empty values with provider information fetched from the digital twim service.
     /// This default implementation is shared for all providers.
     /// 
     /// # Arguments
@@ -60,6 +60,7 @@ pub trait DigitalTwinAdapter {
     where
         Self: Sized
     {
+        // Copy the shared map
         let mut updated_entities = { 
             let map = entity_map.lock().unwrap();
             map.clone()
@@ -148,39 +149,34 @@ proc_macros::error! {
 
 #[cfg(test)]
 mod digital_twin_adapter_tests {
+    use super::*;
+    
     use crate::provider_proxy::OperationKind;
 
-    use super::*;
+    use rstest::*;
+    use tokio::{sync::mpsc::{self}, task::JoinHandle};
 
-    use tokio::sync::mpsc;
-    
-    fn get_test_entity(id: &String) -> Entity
-    {
-        Entity { 
-            id: id.clone(), 
-            name: Some("name".to_string()), 
-            uri: "uri".to_string(), 
-            description: Some("description".to_string()), 
-            operation: OperationKind::Get,
-            protocol: "protocol".to_string(),
-        } 
+    struct TestDigitalTwinAdapter {
+        entity: Entity
     }
-
-    struct TestDigitalTwinAdapter {}
 
     #[async_trait]
     impl DigitalTwinAdapter for TestDigitalTwinAdapter {
         fn create_new() -> Result<Box<dyn DigitalTwinAdapter + Send + Sync>, DigitalTwinAdapterError> {
-            Ok(Box::new(Self {}))
+            Err(DigitalTwinAdapterError::unknown("not implemented"))
         }
 
         async fn find_by_id(
             &self,
             request: GetDigitalTwinProviderRequest,
         ) -> Result<GetDigitalTwinProviderResponse, DigitalTwinAdapterError> {
-            Ok(GetDigitalTwinProviderResponse { 
-                entity: get_test_entity(&request.entity_id),
-            })
+            if self.entity.id == request.entity_id {
+                Ok(GetDigitalTwinProviderResponse { 
+                    entity: self.entity.clone(),
+                })
+            } else {
+                Err(DigitalTwinAdapterError::entity_not_found("not found"))
+            }
         }
 
         async fn run(
@@ -193,91 +189,107 @@ mod digital_twin_adapter_tests {
         }
     }
 
-    #[tokio::test]
-    async fn update_entity_map_updates_none_value() {
-        // Setup
-        let id = String::from("id");
-        let mut entites: HashMap<EntityID, Option<Entity>> = HashMap::new();
-        entites.insert(id.clone(), None);
-        let shared_map = Arc::new(Mutex::new(entites));
+    struct TestFixture {
+        adapter: TestDigitalTwinAdapter,
+        entity_id: String,
+        entity: Entity,
+        map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>,
+        sender: Arc<ProviderProxySelectorRequestSender>,
+        listener_handler: JoinHandle<Option<ProviderProxySelectorRequestKind>>,
+    }
 
-        let (sender, mut receiver) =
+    #[fixture]
+    fn fixture(
+        #[default(
+            Entity {
+                id: "entity_id".to_string(),
+                name: Some("name".to_string()),
+                uri: "uri".to_string(),
+                description: Some("description".to_string()),
+                operation: OperationKind::Get,
+                protocol: "protocol".to_string(),
+            }
+        )]
+        entity: Entity,
+    ) -> TestFixture {
+        let (sender, mut receiver) = 
             mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-        let ppsrs = ProviderProxySelectorRequestSender::new(sender);
-
-        let data_received: Arc<Mutex<Option<ProviderProxySelectorRequestKind>>> = Arc::new(Mutex::new(None));
-        let data_received_clone = data_received.clone();
-
-        let listener = tokio::spawn(async move {
-            let value = receiver.recv().await;
-            let mut data = data_received_clone.lock().unwrap();
-            *data = value;
-        });
         
-        let uut = TestDigitalTwinAdapter {};
+        let listener_handler = tokio::spawn(async move {
+            receiver.recv().await
+        });
+
+        TestFixture {
+            adapter: TestDigitalTwinAdapter { entity: entity.clone() },
+            entity_id: entity.id.clone(),
+            entity,
+            map: Arc::new(Mutex::new(HashMap::new())),
+            sender: Arc::new(ProviderProxySelectorRequestSender::new(sender)),
+            listener_handler,
+        }
+    }
+
+    fn assert_entity_is_in_map(entity: Entity, map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>) {
+        let map = map.lock().unwrap();
+        let value = map.get(&entity.id);
+        assert!(value.is_some());
+        println!("{:?}", value.unwrap());
+        assert!(value.unwrap().is_some());
+        let entity = value.unwrap().as_ref().unwrap();
+        assert_eq!(entity.id, entity.id);
+    }
+
+    #[rstest]
+    #[tokio::test]
+    async fn update_entity_map_updates_none_value(
+        fixture: TestFixture,
+    ) {
+        // Setup
+        {
+            let mut map = fixture.map.lock().unwrap();
+            map.insert(fixture.entity_id.clone(), None);
+        }
 
         // Test
-        let update_result = uut.update_entity_map(shared_map.clone(), Arc::new(ppsrs)).await;
-        let join_result = listener.await;
+        let update_result = fixture.adapter.update_entity_map(fixture.map.clone(), fixture.sender).await;
+        let join_result = fixture.listener_handler.await;
 
         // Verify
         assert!(update_result.is_ok());
         assert!(join_result.is_ok());
 
-        let guard = shared_map.lock().unwrap();
-        let value = guard.get(&id);
-        assert!(value.is_some());
-        assert!(value.unwrap().is_some());
-        let entity = value.unwrap().as_ref().unwrap();
-        assert_eq!(entity.id, id);
+        assert_entity_is_in_map(fixture.entity, fixture.map.clone());
 
-        let data = data_received.lock().unwrap();
-        assert!(data.is_some());
-        match data.as_ref().unwrap() {
-            ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy(entity_id, _, _, _) => assert_eq!(*entity_id, id),
+        let proxy_request = join_result.unwrap();
+        assert!(proxy_request.is_some());
+        match proxy_request.as_ref().unwrap() {
+            ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy(entity_id, _, _, _) => assert_eq!(*entity_id, fixture.entity_id),
             _ => assert!(false),
         }
     }
 
+    #[rstest]
     #[tokio::test]
-    async fn update_entity_map_ignores_some_value() {
+    async fn update_entity_map_skips_existing_values(
+        fixture: TestFixture,
+    ) {
         // Setup
-        let id = String::from("id");
-        let mut entites: HashMap<EntityID, Option<Entity>> = HashMap::new();
-        entites.insert(id.clone(), Some(get_test_entity(&id)));
-        let shared_map = Arc::new(Mutex::new(entites));
-
-        let (sender, mut receiver) =
-            mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-        let ppsrs = ProviderProxySelectorRequestSender::new(sender);
-
-        let data_received: Arc<Mutex<Option<ProviderProxySelectorRequestKind>>> = Arc::new(Mutex::new(None));
-        let data_received_clone = data_received.clone();
-
-        let listener = tokio::spawn(async move {
-            let value = receiver.recv().await;
-            let mut data = data_received_clone.lock().unwrap();
-            *data = value;
-        });
-        
-        let uut = TestDigitalTwinAdapter {};
+        {
+            let mut map = fixture.map.lock().unwrap();
+            map.insert(fixture.entity_id, Some(fixture.entity.clone()));
+        }
 
         // Test
-        let update_result = uut.update_entity_map(shared_map.clone(), Arc::new(ppsrs)).await;
-        let join_result = listener.await;
+        let update_result = fixture.adapter.update_entity_map(fixture.map.clone(), fixture.sender).await;
+        let join_result = fixture.listener_handler.await;
 
         // Verify
         assert!(update_result.is_ok());
         assert!(join_result.is_ok());
 
-        let guard = shared_map.lock().unwrap();
-        let value = guard.get(&id);
-        assert!(value.is_some());
-        assert!(value.unwrap().is_some());
-        let entity = value.unwrap().as_ref().unwrap();
-        assert_eq!(entity.id, id);
-
-        let data = data_received.lock().unwrap();
-        assert!(data.is_none());
+        assert_entity_is_in_map(fixture.entity, fixture.map.clone());
+        
+        let proxy_request = join_result.unwrap();
+        assert!(proxy_request.is_none());
     }
 }
