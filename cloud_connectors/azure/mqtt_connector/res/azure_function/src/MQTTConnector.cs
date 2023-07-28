@@ -26,30 +26,13 @@ class DigitalTwinsInstance {
 }
 
 namespace Microsoft.ESDV.CloudConnector.Azure {
-    public class MQTTConnector {
-
-        // The Azure Digital Twins Client.
-        private DigitalTwinsClient _client;
-
-        private ILogger _logger;
-
-        /// <summary>
-        /// Constructor for MQTTConnector
-        /// </summary>
-        /// <param name="client">A DigitalTwinsClient</param>
-        /// <param name="logger">An ILogger</param>
-        public MQTTConnector(DigitalTwinsClient client, ILogger logger)
-        {
-            _client = client;
-            _logger = logger;
-        }
-
+    public static class MQTTConnectorAzureFunction {
         /// <summary>
         /// Checks if a path starts with a slash.
         /// </summary>
         /// <param name="path">the path.</param>
         /// <returns>Returns true if the path starts with a slash, otherwise false.</returns>
-        private bool DoesPathStartsWithSlash(string path)
+        public static bool DoesPathStartsWithSlash(string path)
         {
             return path.StartsWith('/');
         }
@@ -66,7 +49,7 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
         /// <param name="instancePropertyPath">the property path of a digital twin instance to update.</param>
         /// <param name="data">the data used to update a digital twin instance's property.</param>
         /// <returns>Returns a task for updating a digital twin instance.</returns>
-        public async Task UpdateDigitalTwinAsync(string modelID, string instanceID, string instancePropertyPath, string data)
+        public static async Task UpdateDigitalTwinAsync(DigitalTwinsClient client, ILogger logger, string modelID, string instanceID, string instancePropertyPath, string data)
         {
             List<Type> dataTypes = new List<Type>() { typeof(Double), typeof(Boolean), typeof(Int32) };
             var jsonPatchDocument = new JsonPatchDocument();
@@ -87,13 +70,13 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
                     jsonPatchDocument.AppendAdd(instancePropertyPath, value);
 
                     // First UpdateDigitalTwinAsync call may block due to initial authorization.
-                    await _client.UpdateDigitalTwinAsync(instanceID, jsonPatchDocument);
-                    _logger.LogInformation($"Successfully set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}");
+                    await client.UpdateDigitalTwinAsync(instanceID, jsonPatchDocument);
+                    logger.LogInformation($"Successfully set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}");
                     return;
                 }
                 catch (RequestFailedException ex)
                 {
-                    _logger.LogError($"Cannot set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data} due to {ex.Message}");
+                    logger.LogError($"Cannot set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data} due to {ex.Message}");
                     throw ex;
                 }
                 // Try to parse string data with the next type if we're unsuccessful.
@@ -104,7 +87,7 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
             }
 
             string errorMessage = $"Failed to parse {data}. Cannot set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}";
-            _logger.LogError(errorMessage);
+            logger.LogError(errorMessage);
             throw new NotSupportedException(errorMessage);
         }
 
@@ -115,7 +98,7 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
         /// <param name="logger">the logger</param>
         /// <exception>An exception is thrown if the digital twin client cannot perform an update.</exception>
         /// <returns></returns>
-        [FunctionName("MQTTConnectorAzureFn")]
+        [FunctionName("MQTTConnectorAzureFunction")]
         public async Task Run([EventGridTrigger] CloudEvent cloudEvent, ILogger logger)
         {
             List<Type> dataTypes = new List<Type>() { typeof(Double), typeof(Boolean), typeof(Int32) };
@@ -123,11 +106,14 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
 
             try
             {
-                await UpdateDigitalTwinAsync(instance.model_id, instance.instance_id, instance.instance_property_path, instance.data);
+                var credential = new DefaultAzureCredential();
+                var adt_instance_url = Environment.GetEnvironmentVariable("KEYVAULT_SETTINGS", EnvironmentVariableTarget.Process);
+                var client = new DigitalTwinsClient(new Uri(adt_instance_url), credential);
+                await UpdateDigitalTwinAsync(client, logger, instance.model_id, instance.instance_id, instance.instance_property_path, instance.data);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                logger.LogError(ex.Message);
                 throw;
             }
         }
