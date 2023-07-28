@@ -99,7 +99,7 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
         /// <exception>An exception is thrown if the digital twin client cannot perform an update.</exception>
         /// <returns></returns>
         [FunctionName("MQTTConnectorAzureFunction")]
-        public async Task Run([EventGridTrigger] CloudEvent cloudEvent, ILogger logger)
+        public static async Task Run([EventGridTrigger] CloudEvent cloudEvent, ILogger logger)
         {
             List<Type> dataTypes = new List<Type>() { typeof(Double), typeof(Boolean), typeof(Int32) };
             DigitalTwinsInstance instance = cloudEvent.Data.ToObjectFromJson<DigitalTwinsInstance>();
