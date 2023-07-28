@@ -5,15 +5,15 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
-using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
-using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Azure;
 using Azure.Messaging;
 using Azure.Identity;
 using Azure.DigitalTwins.Core;
-using System.ComponentModel;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Logging;
+using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 
 /// <summary>
 /// This class contains the info to target an Azure Digital Twin instance.
