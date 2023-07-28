@@ -4,28 +4,28 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 using Azure;
-using Azure.Messaging;
-using Azure.Identity;
 using Azure.DigitalTwins.Core;
+using Azure.Identity;
+using Azure.Messaging;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Microsoft.Extensions.Logging;
 
-/// <summary>
-/// This class contains the info to target an Azure Digital Twin instance.
-/// </summary>
-class DigitalTwinsInstance {
-    public string model_id { get; set; }
-    public string instance_id { get; set; }
-    public string instance_property_path { get; set; }
-    public string data { get; set; }
-}
-
 namespace Microsoft.ESDV.CloudConnector.Azure {
+    /// <summary>
+    /// This class contains the info to target an Azure Digital Twin instance.
+    /// </summary>
+    public class DigitalTwinsInstance {
+        public string model_id { get; set; }
+        public string instance_id { get; set; }
+        public string instance_property_path { get; set; }
+        public string data { get; set; }
+    }
+
     public static class MQTTConnectorAzureFunction {
         /// <summary>
         /// Checks if a path starts with a slash.
@@ -41,12 +41,9 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
         /// Updates a digital twin's property.
         /// </summary>
         /// <param name="client">the Azure Digital Twins client.</param>
-        /// <param name="modelID">the model ID that a digital twin instance is based on.</param>
-        /// <param name="instanceID">the digital twin instance ID.</param>
-        /// <param name="instancePropertyPath">the property path of a digital twin instance to update.</param>
-        /// <param name="data">the data used to update a digital twin instance's property.</param>
+        /// <param name="instance">the digital twin instance to update.</param>
         /// <returns>Returns a task for updating a digital twin instance.</returns>
-        public static async Task UpdateDigitalTwinAsync(DigitalTwinsClient client, string modelID, string instanceID, string instancePropertyPath, string data)
+        public static async Task UpdateDigitalTwinAsync(DigitalTwinsClient client, DigitalTwinsInstance instance)
         {
             List<Type> dataTypes = new List<Type>() { typeof(Double), typeof(Boolean), typeof(Int32) };
             var jsonPatchDocument = new JsonPatchDocument();
@@ -57,15 +54,15 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
                 try
                 {
                     // Parse the data to a type
-                    dynamic value = TypeDescriptor.GetConverter(type).ConvertFromInvariantString(data);
+                    dynamic value = TypeDescriptor.GetConverter(type).ConvertFromInvariantString(instance.data);
 
-                    if (!DoesPathStartsWithSlash(instancePropertyPath))
+                    if (!DoesPathStartsWithSlash(instance.instance_property_path))
                     {
-                        instancePropertyPath = "$/{instancePropertyPath}";
+                        instance.instance_property_path = $"/{instance.instance_property_path}";
                     }
                     // Once we're able to parse the data to a type
                     // we append it to the jsonPatchDocument
-                    jsonPatchDocument.AppendAdd(instancePropertyPath, value);
+                    jsonPatchDocument.AppendAdd(instance.instance_property_path, value);
                 }
                 // Try to parse the data using the next type
                 catch (Exception ex) when (ex is NotSupportedException || ex is ArgumentException || ex is FormatException)
@@ -76,13 +73,14 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
                 try
                 {
                     // Exit the function if the instance is successfully updated.
-                    await client.UpdateDigitalTwinAsync(instanceID, jsonPatchDocument);
+                    await client.UpdateDigitalTwinAsync(instance.instance_id, jsonPatchDocument);
                     return;
                 }
                 catch(RequestFailedException ex)
                 {
-                    errorMessage = @$"Failed to parse {data} due to {ex.Message}.
-                        Cannot set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}";
+                    errorMessage = @$"Failed to parse {instance.data} due to {ex.Message}.
+                        Cannot set instance {instance.instance_id}{instance.instance_property_path}
+                        based on model {instance.model_id} to {instance.data}";
                 }
             }
 
@@ -107,7 +105,7 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
                 var credential = new DefaultAzureCredential();
                 var adt_instance_url = Environment.GetEnvironmentVariable("KEYVAULT_SETTINGS", EnvironmentVariableTarget.Process);
                 var client = new DigitalTwinsClient(new Uri(adt_instance_url), credential);
-                await UpdateDigitalTwinAsync(client, instance.model_id, instance.instance_id, instance.instance_property_path, instance.data);
+                await UpdateDigitalTwinAsync(client, instance);
                 logger.LogInformation(@$"Successfully set instance {instance.instance_id}{instance.instance_property_path}
                     based on model {instance.model_id} to {instance.data}");
             }

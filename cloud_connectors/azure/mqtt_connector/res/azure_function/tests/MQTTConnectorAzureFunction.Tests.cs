@@ -4,7 +4,6 @@
 
 using Azure.DigitalTwins.Core;
 using Moq;
-using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 
 namespace Microsoft.ESDV.CloudConnector.Azure.Tests
@@ -13,32 +12,42 @@ namespace Microsoft.ESDV.CloudConnector.Azure.Tests
     public class MQTTConnectorAzureFunctionTests
     {
         private DigitalTwinsClient _client;
+        private DigitalTwinsInstance _instance;
 
         [SetUp]
         public void Setup()
         {
             _client = new Mock<DigitalTwinsClient>().Object;
+            _instance = new DigitalTwinsInstance
+            {
+                model_id = "some-model",
+                instance_id = "some-instance",
+                instance_property_path = "some-instance-property",
+                data = null
+            };
         }
 
         [Test]
         public async Task UpdateDigitalTwinAsync_ShouldSucceed()
         {
-            const string modelID = "some-model";
-            const string instanceID = "some-instance";
-            const string instancePropertyPath = "some-instance-property";
-            await MQTTConnectorAzureFunction.UpdateDigitalTwinAsync(_client, modelID, instanceID, instancePropertyPath, "44.5");
+            _instance.data = "44.5";
+            await MQTTConnectorAzureFunction.UpdateDigitalTwinAsync(_client, _instance);
             Assert.Pass();
         }
 
         [Test]
         public void UpdateDigitalTwinAsync_ThrowNotSupported()
         {
-            const string modelID = "some-model";
-            const string instanceID = "some-instance";
-            const string instancePropertyPath = "some-instance-property";
-            Assert.ThrowsAsync<NotSupportedException>(async () => await MQTTConnectorAzureFunction.UpdateDigitalTwinAsync(_client, modelID, instanceID, instancePropertyPath, "test1234"));
-            Assert.ThrowsAsync<NotSupportedException>(async () => await MQTTConnectorAzureFunction.UpdateDigitalTwinAsync(_client, modelID, instanceID, instancePropertyPath, "1234test"));
-            Assert.ThrowsAsync<NotSupportedException>(async () => await MQTTConnectorAzureFunction.UpdateDigitalTwinAsync(_client, modelID, instanceID, instancePropertyPath, ""));
+            Assert.ThrowsAsync<NotSupportedException>(async () => await MQTTConnectorAzureFunction.UpdateDigitalTwinAsync(_client, _instance));
+
+            _instance.data = "test1234";
+            Assert.ThrowsAsync<NotSupportedException>(async () => await MQTTConnectorAzureFunction.UpdateDigitalTwinAsync(_client, _instance));
+
+            _instance.data = "1234test";
+            Assert.ThrowsAsync<NotSupportedException>(async () => await MQTTConnectorAzureFunction.UpdateDigitalTwinAsync(_client, _instance));
+
+            _instance.data = "";
+            Assert.ThrowsAsync<NotSupportedException>(async () => await MQTTConnectorAzureFunction.UpdateDigitalTwinAsync(_client, _instance));
         }
     }
 }
