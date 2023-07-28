@@ -76,6 +76,11 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
                 }
             }
 
+            if (jsonPatchDocument.ToString() == "[]")
+            {
+                throw new NotSupportedException("The jsonPatchDocument is empty.");
+            }
+
             try
             {
                 await client.UpdateDigitalTwinAsync(instanceID, jsonPatchDocument);
