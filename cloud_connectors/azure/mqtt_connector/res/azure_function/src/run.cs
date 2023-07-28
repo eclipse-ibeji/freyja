@@ -53,7 +53,7 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
         {
             List<Type> dataTypes = new List<Type>() { typeof(Double), typeof(Boolean), typeof(Int32) };
             var jsonPatchDocument = new JsonPatchDocument();
-
+            string errorMessage = null;
             foreach (Type type in dataTypes)
             {
                 try
@@ -74,24 +74,21 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
                 {
                     continue;
                 }
+
+                try
+                {
+                    await client.UpdateDigitalTwinAsync(instanceID, jsonPatchDocument);
+                    logger.LogInformation($"Successfully set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}");
+                    return;
+                }
+                catch(RequestFailedException ex)
+                {                    
+                    errorMessage = @$"Failed to parse {data} due to {ex.Message}.
+                        Cannot set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}";
+                }
             }
 
-            if (jsonPatchDocument.ToString() == "[]")
-            {
-                throw new NotSupportedException("The jsonPatchDocument is empty.");
-            }
-
-            try
-            {
-                await client.UpdateDigitalTwinAsync(instanceID, jsonPatchDocument);
-            }
-            catch(Exception ex)
-            {
-                string errorMessage = @$"Failed to parse {data} due to {ex.Message}.
-                    Cannot set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}";
-                throw new NotSupportedException(errorMessage);
-            }
-            logger.LogInformation($"Successfully set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}");
+            throw new NotSupportedException(errorMessage);
         }
 
         /// <summary>
