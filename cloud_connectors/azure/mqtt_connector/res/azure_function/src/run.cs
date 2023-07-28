@@ -12,8 +12,8 @@ using Azure.Messaging;
 using Azure.Identity;
 using Azure.DigitalTwins.Core;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
+using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// This class contains the info to target an Azure Digital Twin instance.
