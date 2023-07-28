@@ -30,7 +30,7 @@ jobs:
       - name: Build Digital Twins Connector
         run: ./cloud_connectors/azure/digital_twins_connector/build.sh
       - name: Build MQTT Connector's Azure Function
-        run: dotnet build cloud_connectors/azure/mqtt_connector/res/azure_function/src/MQTTConnector.csproj
+        run: dotnet build cloud_connectors/azure/mqtt_connector/res/azure_function/src/function.csproj
       - name: Digital Twins Connector Tests
         run: dotnet test cloud_connectors/azure/digital_twins_connector/tests/**/*.csproj
       - name: MQTT Connector's Azure Function Tests

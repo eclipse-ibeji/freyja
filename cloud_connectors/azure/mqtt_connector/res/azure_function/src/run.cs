@@ -68,16 +68,6 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
                     // Once we're able to parse the data string to a type
                     // we append it to the jsonPatchDocument
                     jsonPatchDocument.AppendAdd(instancePropertyPath, value);
-
-                    // First UpdateDigitalTwinAsync call may block due to initial authorization.
-                    await client.UpdateDigitalTwinAsync(instanceID, jsonPatchDocument);
-                    logger.LogInformation($"Successfully set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}");
-                    return;
-                }
-                catch (RequestFailedException ex)
-                {
-                    logger.LogError($"Cannot set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data} due to {ex.Message}");
-                    throw ex;
                 }
                 // Try to parse string data with the next type if we're unsuccessful.
                 catch (Exception ex) when (ex is NotSupportedException || ex is ArgumentException || ex is FormatException)
@@ -86,9 +76,17 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
                 }
             }
 
-            string errorMessage = $"Failed to parse {data}. Cannot set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}";
-            logger.LogError(errorMessage);
-            throw new NotSupportedException(errorMessage);
+            try
+            {
+                await client.UpdateDigitalTwinAsync(instanceID, jsonPatchDocument);
+            }
+            catch(Exception ex)
+            {
+                string errorMessage = @$"Failed to parse {data} due to {ex.Message}.
+                    Cannot set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}";
+                throw new NotSupportedException(errorMessage);
+            }
+            logger.LogInformation($"Successfully set instance {instanceID}{instancePropertyPath} based on model {modelID} to {data}");
         }
 
         /// <summary>

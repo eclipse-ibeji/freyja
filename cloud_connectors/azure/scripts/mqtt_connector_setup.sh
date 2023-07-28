@@ -296,7 +296,7 @@ if [ "$event_grid_subscription_name_query" == "[]" ]; then
     echo -e "\nCreating Event Grid Subscription"
     az eventgrid event-subscription create --name $event_grid_subscription_name \
         --source-resource-id "$azure_providers_id_path/Microsoft.EventGrid/topics/$event_grid_topic" \
-        --endpoint "$azure_providers_id_path/Microsoft.Web/sites/$function_app_name/functions/MQTTConnectorAzureFn" \
+        --endpoint "$azure_providers_id_path/Microsoft.Web/sites/$function_app_name/functions/MQTTConnectorAzureFunction" \
         --endpoint-type "azurefunction"
 else
     echo "Event Grid Subscription $event_grid_subscription_name already exists."
