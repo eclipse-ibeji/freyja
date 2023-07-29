@@ -30,10 +30,27 @@ namespace Microsoft.ESDV.CloudConnector.Azure.Tests
         }
 
         [Test]
+        public void ConvertStringToDataType_ShouldSucceed()
+        {
+            Assert.That(_connector.ConvertStringToDataType("int"), Is.EqualTo("System.Int32"));
+            Assert.That(_connector.ConvertStringToDataType("double"), Is.EqualTo("System.Double"));
+            Assert.That(_connector.ConvertStringToDataType("boolean"), Is.EqualTo("System.Boolean"));
+            Assert.Throws<NotSupportedException>(() => _connector.ConvertStringToDataType("invalid-converter"));
+        }
+
+        [Test]
         public async Task UpdateDigitalTwinAsync_ShouldSucceed()
         {
             _instance.data = "44.5";
-            await _connector.UpdateDigitalTwinAsync(_client, _instance);
+            await _connector.UpdateDigitalTwinAsync(_client, _instance, "double");
+            Assert.Pass();
+
+            _instance.data = "44";
+            await _connector.UpdateDigitalTwinAsync(_client, _instance, "int");
+            Assert.Pass();
+
+            _instance.data = "true";
+            await _connector.UpdateDigitalTwinAsync(_client, _instance, "boolean");
             Assert.Pass();
         }
 
@@ -44,13 +61,10 @@ namespace Microsoft.ESDV.CloudConnector.Azure.Tests
             Assert.ThrowsAsync<NotSupportedException>(async () => await _connector.UpdateDigitalTwinAsync(_client, _instance));
 
             _instance.data = "test1234";
-            Assert.ThrowsAsync<NotSupportedException>(async () => await _connector.UpdateDigitalTwinAsync(_client, _instance));
-
-            _instance.data = "1234test";
-            Assert.ThrowsAsync<NotSupportedException>(async () => await _connector.UpdateDigitalTwinAsync(_client, _instance));
+            Assert.ThrowsAsync<NotSupportedException>(async () => await _connector.UpdateDigitalTwinAsync(_client, _instance, "invalid-converter"));
 
             _instance.data = "";
-            Assert.ThrowsAsync<NotSupportedException>(async () => await _connector.UpdateDigitalTwinAsync(_client, _instance));
+            Assert.ThrowsAsync<NotSupportedException>(async () => await _connector.UpdateDigitalTwinAsync(_client, _instance, "double"));
         }
     }
 }
