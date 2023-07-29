@@ -30,7 +30,7 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
 
         private readonly ILogger _logger;
 
-        public MQTTConnectorAzureFunction(ILogger logger) {
+        public MQTTConnectorAzureFunction(ILogger<MQTTConnectorAzureFunction> logger) {
             _logger = logger;
         }
 
@@ -103,7 +103,7 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
         /// <exception>An exception is thrown if the Azure Digital Twin client cannot update an instance.</exception>
         /// <returns></returns>
         [FunctionName("MQTTConnectorAzureFunction")]
-        public async Task Run([EventGridTrigger] CloudEvent cloudEvent, ILogger logger)
+        public async Task Run([EventGridTrigger] CloudEvent cloudEvent)
         {
             DigitalTwinsInstance instance = cloudEvent.Data.ToObjectFromJson<DigitalTwinsInstance>();
 
@@ -113,12 +113,12 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
                 var adt_instance_url = Environment.GetEnvironmentVariable("KEYVAULT_SETTINGS", EnvironmentVariableTarget.Process);
                 var client = new DigitalTwinsClient(new Uri(adt_instance_url), credential);
                 await UpdateDigitalTwinAsync(client, instance);
-                logger.LogInformation(@$"Successfully set instance {instance.instance_id}{instance.instance_property_path}
+                _logger.LogInformation(@$"Successfully set instance {instance.instance_id}{instance.instance_property_path}
                     based on model {instance.model_id} to {instance.data}");
             }
             catch (Exception ex)
             {
-                logger.LogError(ex.Message);
+                _logger.LogError(ex.Message);
                 throw;
             }
         }

@@ -19,7 +19,7 @@ namespace Microsoft.ESDV.CloudConnector.Azure.Tests
         public void Setup()
         {
             _client = new Mock<DigitalTwinsClient>().Object;
-            _connector = new MQTTConnectorAzureFunction(new Mock<ILogger>().Object);
+            _connector = new MQTTConnectorAzureFunction(new Mock<ILogger<MQTTConnectorAzureFunction>>().Object);
             _instance = new DigitalTwinsInstance
             {
                 model_id = "some-model",
