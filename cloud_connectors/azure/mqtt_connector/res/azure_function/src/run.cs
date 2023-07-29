@@ -75,7 +75,7 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
             JsonPatchDocument jsonPatchDocument = new JsonPatchDocument();
 
             try {
-                // Get the converter for the instance's data by using the dtdl data type name
+                // Get the converter for the instance's data by using the data type name
                 // then use that converter to change the instance's data type to the converter's type.
                 string dataTypeConverterName = ConvertStringToDataType(dataTypeName);
                 Type type = Type.GetType(dataTypeConverterName);
