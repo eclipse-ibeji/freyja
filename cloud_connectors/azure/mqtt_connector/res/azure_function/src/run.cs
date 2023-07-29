@@ -26,7 +26,14 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
         public string data { get; set; }
     }
 
-    public static class MQTTConnectorAzureFunction {
+    public class MQTTConnectorAzureFunction {
+
+        private readonly ILogger _logger;
+
+        public MQTTConnectorAzureFunction(ILogger logger) {
+            _logger = logger;
+        }
+
         /// <summary>
         /// Checks if a path starts with a slash.
         /// </summary>
@@ -43,18 +50,17 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
         /// <param name="client">the Azure Digital Twins client.</param>
         /// <param name="instance">the digital twin instance to update.</param>
         /// <returns>Returns a task for updating a digital twin instance.</returns>
-        public static async Task UpdateDigitalTwinAsync(DigitalTwinsClient client, DigitalTwinsInstance instance)
+        public async Task UpdateDigitalTwinAsync(DigitalTwinsClient client, DigitalTwinsInstance instance)
         {
             List<Type> dataTypes = new List<Type>() { typeof(Double), typeof(Boolean), typeof(Int32) };
             var jsonPatchDocument = new JsonPatchDocument();
-            string errorMessage = null;
 
             foreach (Type type in dataTypes)
             {
                 try
                 {
                     // Parse the data to a type
-                    dynamic value = TypeDescriptor.GetConverter(type).ConvertFromInvariantString(instance.data);
+                    dynamic convertedDataType = TypeDescriptor.GetConverter(type).ConvertFromInvariantString(instance.data);
 
                     if (!DoesPathStartsWithSlash(instance.instance_property_path))
                     {
@@ -62,7 +68,7 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
                     }
                     // Once we're able to parse the data to a type
                     // we append it to the jsonPatchDocument
-                    jsonPatchDocument.AppendAdd(instance.instance_property_path, value);
+                    jsonPatchDocument.AppendAdd(instance.instance_property_path, convertedDataType);
                 }
                 // Try to parse the data using the next type
                 catch (Exception ex) when (ex is NotSupportedException || ex is ArgumentException || ex is FormatException)
@@ -76,14 +82,16 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
                     await client.UpdateDigitalTwinAsync(instance.instance_id, jsonPatchDocument);
                     return;
                 }
-                catch(RequestFailedException ex)
+                // This catch block is empty. If the convertedDataType
+                catch(RequestFailedException)
                 {
-                    errorMessage = @$"Failed to parse {instance.data} due to {ex.Message}.
-                        Cannot set instance {instance.instance_id}{instance.instance_property_path}
-                        based on model {instance.model_id} to {instance.data}";
+                    _logger.LogDebug($"Trying next data type conversion for {instance.model_id}");
                 }
             }
 
+            string errorMessage = @$"Cannot find type conversion for {instance.data}.
+                Cannot set instance {instance.instance_id}{instance.instance_property_path}
+                based on model {instance.model_id} to {instance.data}";
             throw new NotSupportedException(errorMessage);
         }
 
@@ -95,9 +103,8 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
         /// <exception>An exception is thrown if the Azure Digital Twin client cannot update an instance.</exception>
         /// <returns></returns>
         [FunctionName("MQTTConnectorAzureFunction")]
-        public static async Task Run([EventGridTrigger] CloudEvent cloudEvent, ILogger logger)
+        public async Task Run([EventGridTrigger] CloudEvent cloudEvent, ILogger logger)
         {
-            List<Type> dataTypes = new List<Type>() { typeof(Double), typeof(Boolean), typeof(Int32) };
             DigitalTwinsInstance instance = cloudEvent.Data.ToObjectFromJson<DigitalTwinsInstance>();
 
             try
