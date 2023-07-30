@@ -33,11 +33,11 @@ dotnet_licenses_output_directory="$dotnet_directory/dotnet_licenses_output"
 mkdir -p "$dotnet_licenses_output_directory"
 echo "Getting the .NET Third Party licenses"
 
-dotnet-project-licenses -i $dotnet_directory -o -f "$dotnet_directory/dotnet_licenses_output" -u --json -e -c \
+dotnet-project-licenses -i $dotnet_directory -o -f "$dotnet_licenses_output_directory" -u --json -e -c \
     --licenseurl-to-license-mappings "$license_url_to_license_mappings"
 
-./tools/dotnet_get_licenses.sh "$dotnet_directory/dotnet_licenses_output/licenses.json" "$dotnet_directory/dotnet_licenses_output"
-./tools/dotnet_append_to_notice.sh "$notice_file_path" "$dotnet_directory/dotnet_licenses_output/licenses.json"
+./tools/dotnet_get_licenses.sh "$dotnet_licenses_output_directory/licenses.json" "$dotnet_directory/dotnet_licenses_output"
+./tools/dotnet_append_to_notice.sh "$notice_file_path" "$dotnet_licenses_output_directory/licenses.json"
 
 rm -r "$dotnet_licenses_output_directory"
 
