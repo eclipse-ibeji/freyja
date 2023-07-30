@@ -636,12 +636,14 @@ limitations under the License.
 
 #### Used by
 
-- [instant]( https://github.com/sebcrozet/instant ) 0.1.12
+- [matchit]( https://github.com/ibraheemdev/matchit ) 0.7.1
 
 #### License
 
 ```text
-Copyright (c) 2019, Sébastien Crozet
+BSD 3-Clause License
+
+Copyright (c) 2013, Julien Schmidt
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -654,13 +656,13 @@ modification, are permitted provided that the following conditions are met:
    this list of conditions and the following disclaimer in the documentation
    and/or other materials provided with the distribution.
 
-3. Neither the name of the author nor the names of its contributors may be used
-   to endorse or promote products derived from this software without specific
-   prior written permission.
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
 FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
@@ -1274,7 +1276,7 @@ THE SOFTWARE.
 - [bitflags]( https://github.com/bitflags/bitflags ) 2.3.3
 - [log]( https://github.com/rust-lang/log ) 0.4.19
 - [regex]( https://github.com/rust-lang/regex ) 1.9.1
-- [regex-automata]( https://github.com/rust-lang/regex/tree/master/regex-automata ) 0.3.3
+- [regex-automata]( https://github.com/rust-lang/regex/tree/master/regex-automata ) 0.3.4
 - [regex-syntax]( https://github.com/rust-lang/regex/tree/master/regex-syntax ) 0.7.4
 
 #### License
@@ -1380,7 +1382,7 @@ THE SOFTWARE.
 
 #### Used by
 
-- [either]( https://github.com/bluss/either ) 1.8.1
+- [either]( https://github.com/bluss/either ) 1.9.0
 - [itertools]( https://github.com/rust-itertools/itertools ) 0.10.5
 - [petgraph]( https://github.com/petgraph/petgraph ) 0.6.3
 
@@ -1482,7 +1484,7 @@ THE SOFTWARE.
 
 #### Used by
 
-- [tempfile]( https://github.com/Stebalien/tempfile ) 3.6.0
+- [tempfile]( https://github.com/Stebalien/tempfile ) 3.7.0
 
 #### License
 
@@ -3358,7 +3360,7 @@ SOFTWARE.
 
 #### Used by
 
-- [matchit]( https://github.com/ibraheemdev/matchit ) 0.7.0
+- [matchit]( https://github.com/ibraheemdev/matchit ) 0.7.1
 
 #### License
 
@@ -3437,16 +3439,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [adler]( https://github.com/jonas-schievink/adler.git ) 1.0.2
 - [anyhow]( https://github.com/dtolnay/anyhow ) 1.0.72
 - [async-channel]( https://github.com/smol-rs/async-channel ) 1.9.0
-- [async-trait]( https://github.com/dtolnay/async-trait ) 0.1.71
+- [async-trait]( https://github.com/dtolnay/async-trait ) 0.1.72
 - [concurrent-queue]( https://github.com/smol-rs/concurrent-queue ) 2.2.0
 - [env_logger]( https://github.com/rust-cli/env_logger/ ) 0.10.0
 - [event-listener]( https://github.com/smol-rs/event-listener ) 2.5.3
-- [fastrand]( https://github.com/smol-rs/fastrand ) 1.9.0
+- [fastrand]( https://github.com/smol-rs/fastrand ) 2.0.0
 - [hermit-abi]( https://github.com/hermitcore/rusty-hermit ) 0.3.2
-- [io-lifetimes]( https://github.com/sunfishcode/io-lifetimes ) 1.0.11
 - [is-terminal]( https://github.com/sunfishcode/is-terminal ) 0.4.9
 - [itoa]( https://github.com/dtolnay/itoa ) 1.0.9
-- [linux-raw-sys]( https://github.com/sunfishcode/linux-raw-sys ) 0.3.8
 - [linux-raw-sys]( https://github.com/sunfishcode/linux-raw-sys ) 0.4.3
 - [once_cell]( https://github.com/matklad/once_cell ) 1.18.0
 - [pin-project]( https://github.com/taiki-e/pin-project ) 1.1.2
@@ -3454,16 +3454,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - [pin-project-lite]( https://github.com/taiki-e/pin-project-lite ) 0.2.10
 - [prettyplease]( https://github.com/dtolnay/prettyplease ) 0.1.25
 - [proc-macro2]( https://github.com/dtolnay/proc-macro2 ) 1.0.66
-- [quote]( https://github.com/dtolnay/quote ) 1.0.31
-- [rustix]( https://github.com/bytecodealliance/rustix ) 0.37.23
+- [quote]( https://github.com/dtolnay/quote ) 1.0.32
 - [rustix]( https://github.com/bytecodealliance/rustix ) 0.38.4
 - [rustversion]( https://github.com/dtolnay/rustversion ) 1.0.14
-- [serde]( https://github.com/serde-rs/serde ) 1.0.171
-- [serde_derive]( https://github.com/serde-rs/serde ) 1.0.171
-- [serde_json]( https://github.com/serde-rs/json ) 1.0.103
+- [serde]( https://github.com/serde-rs/serde ) 1.0.178
+- [serde_derive]( https://github.com/serde-rs/serde ) 1.0.178
+- [serde_json]( https://github.com/serde-rs/json ) 1.0.104
 - [serde_path_to_error]( https://github.com/dtolnay/path-to-error ) 0.1.14
 - [syn]( https://github.com/dtolnay/syn ) 1.0.109
-- [syn]( https://github.com/dtolnay/syn ) 2.0.26
+- [syn]( https://github.com/dtolnay/syn ) 2.0.27
 - [thiserror]( https://github.com/dtolnay/thiserror ) 1.0.44
 - [thiserror-impl]( https://github.com/dtolnay/thiserror ) 1.0.44
 - [unicode-ident]( https://github.com/dtolnay/unicode-ident ) 1.0.11
@@ -3650,8 +3649,8 @@ THE SOFTWARE.
 
 #### Used by
 
-- [security-framework]( https://github.com/kornelski/rust-security-framework ) 2.9.1
-- [security-framework-sys]( https://github.com/kornelski/rust-security-framework ) 2.9.0
+- [security-framework]( https://github.com/kornelski/rust-security-framework ) 2.9.2
+- [security-framework-sys]( https://github.com/kornelski/rust-security-framework ) 2.9.1
 
 #### License
 
