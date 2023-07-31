@@ -15,7 +15,7 @@ use async_trait::async_trait;
 use core_protobuf_data_access::invehicle_digital_twin::v1::{
     invehicle_digital_twin_client::InvehicleDigitalTwinClient, EndpointInfo, FindByIdRequest,
 };
-use log::{debug, error, warn};
+use log::{debug, warn};
 use service_discovery_proto::service_registry::v1::service_registry_client::ServiceRegistryClient;
 use service_discovery_proto::service_registry::v1::DiscoverRequest;
 use tonic::{transport::Channel, Request};
@@ -28,9 +28,7 @@ use dts_contracts::{
     },
     entity::{Entity, EntityID},
     provider_proxy::OperationKind,
-    provider_proxy_request::{
-        ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
-    },
+    provider_proxy_request::ProviderProxySelectorRequestSender,
 };
 
 const GET_OPERATION: &str = "Get";
@@ -42,62 +40,6 @@ pub struct IbejiAdapter {
 }
 
 impl IbejiAdapter {
-    /// Creates or updates a provider proxy for each entity using its info then caches the info in entity_map
-    ///
-    /// # Arguments
-    /// - `entity_map`: shared map of entity ID to entity information
-    /// - `provider_proxy_selector_request_sender`: sends requests to the provider proxy selector
-    async fn init_provider_proxies_with_entities(
-        &self,
-        entity_map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>,
-        provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
-    ) -> Result<(), DigitalTwinAdapterError> {
-        let mut entity_map_update;
-        {
-            entity_map_update = entity_map.lock().unwrap().clone();
-        }
-
-        // Update the copy of entity map if it contains an entity that has no information
-        for (entity_id, entity) in entity_map_update.iter_mut() {
-            if entity.is_some() {
-                continue;
-            }
-
-            // Update the copy of entity map if we're able to find the info of an entity after doing find_by_id
-            let request = GetDigitalTwinProviderRequest {
-                entity_id: entity_id.clone(),
-            };
-
-            match self.find_by_id(request).await {
-                Ok(response) => {
-                    let entity_info = response.entity.clone();
-                    let (id, uri, protocol, operation) = (
-                        entity_info.id,
-                        entity_info.uri,
-                        entity_info.protocol,
-                        entity_info.operation,
-                    );
-                    *entity = Some(response.entity);
-
-                    // Notify the provider proxy selector to start a proxy
-                    let request = ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy(
-                        id, uri, protocol, operation,
-                    );
-                    provider_proxy_selector_request_sender
-                        .send_request_to_provider_proxy_selector(request);
-                }
-                Err(err) => {
-                    error!("{err}");
-                    *entity = None
-                }
-            };
-        }
-
-        *entity_map.lock().unwrap() = entity_map_update;
-
-        Ok(())
-    }
-
     /// Retrieves Ibeji's In-Vehicle Digital Twin URI from Chariott
     ///
     /// # Arguments
@@ -247,7 +189,7 @@ impl DigitalTwinAdapter for IbejiAdapter {
         provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
     ) -> Result<(), DigitalTwinAdapterError> {
         loop {
-            self.init_provider_proxies_with_entities(
+            self.update_entity_map(
                 entity_map.clone(),
                 provider_proxy_selector_request_sender.clone(),
             )
@@ -325,10 +267,7 @@ mod ibeji_digital_twin_adapter_tests {
 
         use core_protobuf_data_access::invehicle_digital_twin::v1::invehicle_digital_twin_server::InvehicleDigitalTwinServer;
         use tempfile::TempPath;
-        use tokio::{
-            net::{UnixListener, UnixStream},
-            sync::mpsc,
-        };
+        use tokio::net::{UnixListener, UnixStream};
         use tokio_stream::wrappers::UnixListenerStream;
         use tonic::transport::{Channel, Endpoint, Server, Uri};
         use tower::service_fn;
@@ -355,49 +294,6 @@ mod ibeji_digital_twin_adapter_tests {
                 .serve_with_incoming(uds_stream)
                 .await
                 .unwrap();
-        }
-
-        #[tokio::test]
-        async fn init_provider_proxies_with_entities_test() {
-            // Create the Unix Socket
-            let bind_path = Arc::new(tempfile::NamedTempFile::new().unwrap().into_temp_path());
-            let uds = match UnixListener::bind(bind_path.as_ref()) {
-                Ok(unix_listener) => unix_listener,
-                Err(_) => {
-                    std::fs::remove_file(bind_path.as_ref()).unwrap();
-                    UnixListener::bind(bind_path.as_ref()).unwrap()
-                }
-            };
-            let uds_stream = UnixListenerStream::new(uds);
-
-            let request_future = async {
-                let client = create_test_grpc_client(bind_path.clone()).await;
-                let ibeji_digital_twin_adapter = IbejiAdapter { client };
-
-                let (tx_provider_proxy_selector_request, _rx_provider_proxy_selector_request) =
-                    mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-
-                let entity_map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>> =
-                    Arc::new(Mutex::new(HashMap::new()));
-
-                let provider_proxy_selector_request_sender = Arc::new(
-                    ProviderProxySelectorRequestSender::new(tx_provider_proxy_selector_request),
-                );
-                let result = ibeji_digital_twin_adapter
-                    .init_provider_proxies_with_entities(
-                        entity_map,
-                        provider_proxy_selector_request_sender,
-                    )
-                    .await;
-                assert!(result.is_ok());
-            };
-
-            tokio::select! {
-                _ = run_test_grpc_server(uds_stream) => (),
-                _ = request_future => ()
-            }
-
-            std::fs::remove_file(bind_path.as_ref()).unwrap();
         }
 
         #[tokio::test]

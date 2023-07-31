@@ -9,7 +9,7 @@ use crossbeam::queue::SegQueue;
 use serde::{Deserialize, Serialize};
 use strum_macros::{Display, EnumString};
 
-#[derive(Debug, EnumString, Display, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, EnumString, Display, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[strum(ascii_case_insensitive)]
 pub enum OperationKind {
     #[strum(serialize = "Get")]

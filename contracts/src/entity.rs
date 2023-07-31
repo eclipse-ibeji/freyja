@@ -10,7 +10,7 @@ pub type EntityID = String;
 pub type ProviderURI = String;
 
 /// Represents an entity
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Entity {
     /// The entity's id
     pub id: String,
