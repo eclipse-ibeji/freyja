@@ -28,7 +28,7 @@ use dts_contracts::{
     },
     entity::{Entity, EntityID},
     provider_proxy::OperationKind,
-    provider_proxy_request:: ProviderProxySelectorRequestSender,
+    provider_proxy_request::ProviderProxySelectorRequestSender,
 };
 
 const GET_OPERATION: &str = "Get";
@@ -189,7 +189,11 @@ impl DigitalTwinAdapter for IbejiAdapter {
         provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
     ) -> Result<(), DigitalTwinAdapterError> {
         loop {
-            self.update_entity_map(entity_map.clone(),provider_proxy_selector_request_sender.clone()).await?;
+            self.update_entity_map(
+                entity_map.clone(),
+                provider_proxy_selector_request_sender.clone(),
+            )
+            .await?;
             tokio::time::sleep(sleep_interval).await;
         }
     }

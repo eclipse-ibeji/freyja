@@ -89,7 +89,11 @@ impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
         provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
     ) -> Result<(), DigitalTwinAdapterError> {
         loop {
-            self.update_entity_map(entity_map.clone(), provider_proxy_selector_request_sender.clone()).await?;
+            self.update_entity_map(
+                entity_map.clone(),
+                provider_proxy_selector_request_sender.clone(),
+            )
+            .await?;
             tokio::time::sleep(sleep_interval).await;
         }
     }

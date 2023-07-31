@@ -13,7 +13,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     entity::{Entity, EntityID},
-    provider_proxy_request::{ProviderProxySelectorRequestSender, ProviderProxySelectorRequestKind},
+    provider_proxy_request::{
+        ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
+    },
 };
 
 /// Provides digital twin data
@@ -58,7 +60,7 @@ pub trait DigitalTwinAdapter {
         provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
     ) -> Result<(), DigitalTwinAdapterError>
     where
-        Self: Sized
+        Self: Sized,
     {
         // Copy the shared map
         let mut updated_entities = {
@@ -77,7 +79,13 @@ pub trait DigitalTwinAdapter {
                     *entity = Some(response.entity.clone());
 
                     // Notify the provider proxy selector to start a proxy
-                    let Entity { id, uri, operation, protocol, .. } = response.entity;
+                    let Entity {
+                        id,
+                        uri,
+                        operation,
+                        protocol,
+                        ..
+                    } = response.entity;
                     let request = ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy(
                         id, uri, protocol, operation,
                     );
@@ -154,15 +162,19 @@ mod digital_twin_adapter_tests {
     use crate::provider_proxy::OperationKind;
 
     use rstest::*;
-    use tokio::{sync::mpsc::{self}, task::JoinHandle};
+    use tokio::{
+        sync::mpsc::{self},
+        task::JoinHandle,
+    };
 
     struct TestDigitalTwinAdapter {
-        entity: Entity
+        entity: Entity,
     }
 
     #[async_trait]
     impl DigitalTwinAdapter for TestDigitalTwinAdapter {
-        fn create_new() -> Result<Box<dyn DigitalTwinAdapter + Send + Sync>, DigitalTwinAdapterError> {
+        fn create_new() -> Result<Box<dyn DigitalTwinAdapter + Send + Sync>, DigitalTwinAdapterError>
+        {
             Err(DigitalTwinAdapterError::unknown("not implemented"))
         }
 
@@ -209,15 +221,14 @@ mod digital_twin_adapter_tests {
             protocol: "protocol".to_string(),
         };
 
-        let (sender, mut receiver) =
-            mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
+        let (sender, mut receiver) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
 
-        let listener_handler = tokio::spawn(async move {
-            receiver.recv().await
-        });
+        let listener_handler = tokio::spawn(async move { receiver.recv().await });
 
         TestFixture {
-            adapter: TestDigitalTwinAdapter { entity: entity.clone() },
+            adapter: TestDigitalTwinAdapter {
+                entity: entity.clone(),
+            },
             entity_id: entity.id.clone(),
             entity,
             map: Arc::new(Mutex::new(HashMap::new())),
@@ -226,7 +237,10 @@ mod digital_twin_adapter_tests {
         }
     }
 
-    fn assert_entry_is_in_map(entry: (String, Option<Entity>), map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>) {
+    fn assert_entry_is_in_map(
+        entry: (String, Option<Entity>),
+        map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>,
+    ) {
         let (id, entity) = entry;
         let map = map.lock().unwrap();
         let value = map.get(&id);
@@ -237,7 +251,7 @@ mod digital_twin_adapter_tests {
                 assert!(value.unwrap().is_some());
                 let retrieved_entity = value.unwrap().as_ref().unwrap();
                 assert_eq!(entity, *retrieved_entity);
-            },
+            }
             None => {
                 assert!(value.unwrap().is_none());
             }
@@ -245,16 +259,13 @@ mod digital_twin_adapter_tests {
     }
 
     // Variation of assert_entry_is_in_map for conveneince
-    fn assert_entity_is_in_map(entity: Entity, map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>)
-    {
+    fn assert_entity_is_in_map(entity: Entity, map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>) {
         assert_entry_is_in_map((entity.id.clone(), Some(entity)), map)
     }
 
     #[rstest]
     #[tokio::test]
-    async fn update_entity_map_updates_none_value(
-        fixture: TestFixture,
-    ) {
+    async fn update_entity_map_updates_none_value(fixture: TestFixture) {
         // Setup
         {
             let mut map = fixture.map.lock().unwrap();
@@ -262,7 +273,10 @@ mod digital_twin_adapter_tests {
         }
 
         // Test
-        let update_result = fixture.adapter.update_entity_map(fixture.map.clone(), fixture.sender).await;
+        let update_result = fixture
+            .adapter
+            .update_entity_map(fixture.map.clone(), fixture.sender)
+            .await;
         let join_result = fixture.listener_handler.await;
 
         // Verify
@@ -275,7 +289,12 @@ mod digital_twin_adapter_tests {
         assert!(proxy_request.is_some());
         let proxy_request = proxy_request.as_ref().unwrap();
         match proxy_request {
-            ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy(entity_id, uri, protocol, operation) => {
+            ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy(
+                entity_id,
+                uri,
+                protocol,
+                operation,
+            ) => {
                 assert_eq!(*entity_id, fixture.entity_id);
                 assert_eq!(*uri, fixture.entity.uri);
                 assert_eq!(*protocol, fixture.entity.protocol);
@@ -287,9 +306,7 @@ mod digital_twin_adapter_tests {
 
     #[rstest]
     #[tokio::test]
-    async fn update_entity_map_skips_existing_values(
-        fixture: TestFixture,
-    ) {
+    async fn update_entity_map_skips_existing_values(fixture: TestFixture) {
         // Setup
         {
             let mut map = fixture.map.lock().unwrap();
@@ -297,7 +314,10 @@ mod digital_twin_adapter_tests {
         }
 
         // Test
-        let update_result = fixture.adapter.update_entity_map(fixture.map.clone(), fixture.sender).await;
+        let update_result = fixture
+            .adapter
+            .update_entity_map(fixture.map.clone(), fixture.sender)
+            .await;
         let join_result = fixture.listener_handler.await;
 
         // Verify
@@ -312,9 +332,7 @@ mod digital_twin_adapter_tests {
 
     #[rstest]
     #[tokio::test]
-    async fn update_entity_map_handles_entity_not_found(
-        fixture: TestFixture,
-    ) {
+    async fn update_entity_map_handles_entity_not_found(fixture: TestFixture) {
         // Setup
         let non_existent_id = String::from("fooid");
 
@@ -324,7 +342,10 @@ mod digital_twin_adapter_tests {
         }
 
         // Test
-        let update_result = fixture.adapter.update_entity_map(fixture.map.clone(), fixture.sender).await;
+        let update_result = fixture
+            .adapter
+            .update_entity_map(fixture.map.clone(), fixture.sender)
+            .await;
         let join_result = fixture.listener_handler.await;
 
         // Verify
