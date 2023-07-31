@@ -25,7 +25,6 @@ members = [
 async-trait = "0.1.64"
 axum = "0.6.12"
 convert_case = "0.6.0"
-core-protobuf-data-access  = { git = "https://github.com/eclipse-ibeji/ibeji",  branch = "main" }
 crossbeam = "0.8.2"
 env_logger = "0.10.0"
 futures = "0.3.28"
@@ -37,10 +36,8 @@ prost = "0.11.9"
 quote = "1.0.23"
 reqwest = { version = "0.11.4", features = ["json"] }
 rstest = "0.18.1"
-samples-protobuf-data-access  = { git = "https://github.com/eclipse-ibeji/ibeji",  branch = "main" }
 serde = { version = "1.0.88", features = ["derive"] }
 serde_json = "1.0.88"
-service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott", branch = "main" }
 strum = "0.25.0"
 strum_macros = "0.25.1"
 syn = { version = "2.0.8", features = ["extra-traits", "full"] }
@@ -51,3 +48,7 @@ tokio-stream = { version = "0.1.8", features = ["net"] }
 tonic = "0.9.2"
 tonic-build = "0.9.2"
 tower = { version = "0.4", features = ["util"] }
+
+core-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji", branch = "main" }
+samples-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji", branch = "main" }
+service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott", branch = "main" }

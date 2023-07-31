@@ -269,13 +269,18 @@ mod digital_twin_adapter_tests {
         assert!(update_result.is_ok());
         assert!(join_result.is_ok());
 
-        assert_entity_is_in_map(fixture.entity, fixture.map.clone());
+        assert_entity_is_in_map(fixture.entity.clone(), fixture.map.clone());
 
         let proxy_request = join_result.unwrap();
         assert!(proxy_request.is_some());
         let proxy_request = proxy_request.as_ref().unwrap();
         match proxy_request {
-            ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy(entity_id, _, _, _) => assert_eq!(*entity_id, fixture.entity_id),
+            ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy(entity_id, uri, protocol, operation) => {
+                assert_eq!(*entity_id, fixture.entity_id);
+                assert_eq!(*uri, fixture.entity.uri);
+                assert_eq!(*protocol, fixture.entity.protocol);
+                assert_eq!(*operation, fixture.entity.operation);
+            }
             _ => panic!("Unexpected proxy request kind: {proxy_request:?}"),
         }
     }
