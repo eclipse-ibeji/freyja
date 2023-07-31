@@ -226,13 +226,28 @@ mod digital_twin_adapter_tests {
         }
     }
 
-    fn assert_entity_is_in_map(entity: Entity, map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>) {
+    fn assert_entry_is_in_map(entry: (String, Option<Entity>), map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>) {
+        let (id, entity) = entry;
         let map = map.lock().unwrap();
-        let value = map.get(&entity.id);
+        let value = map.get(&id);
         assert!(value.is_some());
-        assert!(value.unwrap().is_some());
-        let retrieved_entity = value.unwrap().as_ref().unwrap();
-        assert_eq!(entity.id, retrieved_entity.id);
+
+        match entity {
+            Some(entity) => {
+                assert!(value.unwrap().is_some());
+                let retrieved_entity = value.unwrap().as_ref().unwrap();
+                assert_eq!(entity, *retrieved_entity);
+            },
+            None => {
+                assert!(value.unwrap().is_none());
+            }
+        }
+    }
+
+    // Variation of assert_entry_is_in_map for conveneince
+    fn assert_entity_is_in_map(entity: Entity, map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>)
+    {
+        assert_entry_is_in_map((entity.id.clone(), Some(entity)), map)
     }
 
     #[rstest]
@@ -290,5 +305,30 @@ mod digital_twin_adapter_tests {
         assert!(proxy_request.is_none());
     }
 
-    // TODO: test provider not found case
+    #[rstest]
+    #[tokio::test]
+    async fn update_entity_map_handles_entity_not_found(
+        fixture: TestFixture,
+    ) {
+        // Setup
+        let non_existent_id = String::from("fooid");
+
+        {
+            let mut map = fixture.map.lock().unwrap();
+            map.insert(non_existent_id.clone(), None);
+        }
+
+        // Test
+        let update_result = fixture.adapter.update_entity_map(fixture.map.clone(), fixture.sender).await;
+        let join_result = fixture.listener_handler.await;
+
+        // Verify
+        assert!(update_result.is_ok());
+        assert!(join_result.is_ok());
+
+        assert_entry_is_in_map((non_existent_id, None), fixture.map.clone());
+
+        let proxy_request = join_result.unwrap();
+        assert!(proxy_request.is_none());
+    }
 }
