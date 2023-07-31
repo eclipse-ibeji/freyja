@@ -48,7 +48,7 @@ pub trait DigitalTwinAdapter {
         provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
     ) -> Result<(), DigitalTwinAdapterError>;
 
-    /// Updates a shared entity map to populate empty values with provider information fetched from the digital twim service.
+    /// Updates a shared entity map to populate empty values with provider information fetched from the digital twin service.
     /// This default implementation is shared for all providers.
     ///
     /// # Arguments
