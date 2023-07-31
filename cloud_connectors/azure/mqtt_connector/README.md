@@ -138,7 +138,7 @@ Navigate to the client that you have created in your Event Grid Namespace, and v
 
 1. Replace the code in your Azure Function with the code in the `res/azure_function/src/run.cs` file.
 
-1. Add the following files `res/azure_function/src/function.json` and `res/azure_function/src/function.csproj` to your Azure Function.
+1. Add `src/function.json` and `src/function.csproj` from `{freyja-root-dir}/cloud_connectors/azure/mqtt_connector/res/azure_function` to your Azure Function.
 
 1. Go back to your Azure Function App homepage, and click on **Configuration** on the side-panel.
 
