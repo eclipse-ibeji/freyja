@@ -48,7 +48,7 @@ pub trait DigitalTwinAdapter {
 
     /// Updates a shared entity map to populate empty values with provider information fetched from the digital twim service.
     /// This default implementation is shared for all providers.
-    /// 
+    ///
     /// # Arguments
     /// - `entity_map`: the map to update
     /// - `provider_proxy_selector_request_sender`: sends requests to the provider proxy selector
@@ -56,12 +56,12 @@ pub trait DigitalTwinAdapter {
         &self,
         entity_map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>,
         provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
-    ) -> Result<(), DigitalTwinAdapterError> 
+    ) -> Result<(), DigitalTwinAdapterError>
     where
         Self: Sized
     {
         // Copy the shared map
-        let mut updated_entities = { 
+        let mut updated_entities = {
             let map = entity_map.lock().unwrap();
             map.clone()
         };
@@ -150,7 +150,7 @@ proc_macros::error! {
 #[cfg(test)]
 mod digital_twin_adapter_tests {
     use super::*;
-    
+
     use crate::provider_proxy::OperationKind;
 
     use rstest::*;
@@ -171,7 +171,7 @@ mod digital_twin_adapter_tests {
             request: GetDigitalTwinProviderRequest,
         ) -> Result<GetDigitalTwinProviderResponse, DigitalTwinAdapterError> {
             if self.entity.id == request.entity_id {
-                Ok(GetDigitalTwinProviderResponse { 
+                Ok(GetDigitalTwinProviderResponse {
                     entity: self.entity.clone(),
                 })
             } else {
@@ -209,9 +209,9 @@ mod digital_twin_adapter_tests {
             protocol: "protocol".to_string(),
         };
 
-        let (sender, mut receiver) = 
+        let (sender, mut receiver) =
             mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-        
+
         let listener_handler = tokio::spawn(async move {
             receiver.recv().await
         });
@@ -230,10 +230,9 @@ mod digital_twin_adapter_tests {
         let map = map.lock().unwrap();
         let value = map.get(&entity.id);
         assert!(value.is_some());
-        println!("{:?}", value.unwrap());
         assert!(value.unwrap().is_some());
-        let entity = value.unwrap().as_ref().unwrap();
-        assert_eq!(entity.id, entity.id);
+        let retrieved_entity = value.unwrap().as_ref().unwrap();
+        assert_eq!(entity.id, retrieved_entity.id);
     }
 
     #[rstest]
@@ -259,9 +258,10 @@ mod digital_twin_adapter_tests {
 
         let proxy_request = join_result.unwrap();
         assert!(proxy_request.is_some());
-        match proxy_request.as_ref().unwrap() {
+        let proxy_request = proxy_request.as_ref().unwrap();
+        match proxy_request {
             ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy(entity_id, _, _, _) => assert_eq!(*entity_id, fixture.entity_id),
-            _ => assert!(false),
+            _ => panic!("Unexpected proxy request kind: {proxy_request:?}"),
         }
     }
 
@@ -285,7 +285,7 @@ mod digital_twin_adapter_tests {
         assert!(join_result.is_ok());
 
         assert_entity_is_in_map(fixture.entity, fixture.map.clone());
-        
+
         let proxy_request = join_result.unwrap();
         assert!(proxy_request.is_none());
     }
