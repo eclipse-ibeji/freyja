@@ -33,9 +33,9 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
 
         // Maps a string data type name to its concrete data type.
         private static readonly Dictionary<string, Type> dataTypeNameToConverterMap = new Dictionary<string, Type> {
-            { "int", typeof(System.Int32) },
-            { "double", typeof(System.Double) },
-            { "boolean", typeof(System.Boolean) }
+            { "int", typeof(int) },
+            { "double", typeof(double) },
+            { "boolean", typeof(bool) }
         };
 
         public MQTTConnectorAzureFunction(ILogger<MQTTConnectorAzureFunction> logger)
