@@ -32,10 +32,10 @@ namespace Microsoft.ESDV.CloudConnector.Azure.Tests
         [Test]
         public void ConvertStringToDataType_ShouldSucceed()
         {
-            Assert.That(_connector.ConvertStringToDataType("int"), Is.EqualTo("System.Int32"));
-            Assert.That(_connector.ConvertStringToDataType("double"), Is.EqualTo("System.Double"));
-            Assert.That(_connector.ConvertStringToDataType("boolean"), Is.EqualTo("System.Boolean"));
-            Assert.Throws<NotSupportedException>(() => _connector.ConvertStringToDataType("invalid-converter"));
+            Assert.That(_connector.GetDataTypeFromString("int"), Is.EqualTo(typeof(System.Int32)));
+            Assert.That(_connector.GetDataTypeFromString("double"), Is.EqualTo(typeof(System.Double)));
+            Assert.That(_connector.GetDataTypeFromString("boolean"), Is.EqualTo(typeof(System.Boolean)));
+            Assert.Throws<NotSupportedException>(() => _connector.GetDataTypeFromString("invalid-converter"));
         }
 
         [Test]

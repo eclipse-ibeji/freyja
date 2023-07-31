@@ -31,11 +31,11 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
 
         private const string KEYVAULT_SETTINGS = "KEYVAULT_SETTINGS";
 
-        // Maps a data type name to its data type converter name
-        private static readonly Dictionary<string, string> dataTypeNameToConverterMap = new Dictionary<string, string> {
-            { "int", "System.Int32" },
-            { "double", "System.Double" },
-            { "boolean", "System.Boolean" }
+        // Maps a string data type name to its concrete data type.
+        private static readonly Dictionary<string, Type> dataTypeNameToConverterMap = new Dictionary<string, Type> {
+            { "int", typeof(System.Int32) },
+            { "double", typeof(System.Double) },
+            { "boolean", typeof(System.Boolean) }
         };
 
         public MQTTConnectorAzureFunction(ILogger<MQTTConnectorAzureFunction> logger)
@@ -53,11 +53,11 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
         }
 
         /// <summary>
-        /// Gets the converter name to use from a data type name.
+        /// Gets the data type from a data type name.
         /// </summary>
         /// <param name="dataTypeName">the name of the data type.
         /// <returns>Returns a task for updating a digital twin instance.</returns>
-        public string ConvertStringToDataType(string dataTypeName) {
+        public Type GetDataTypeFromString(string dataTypeName) {
             if (!dataTypeNameToConverterMap.ContainsKey(dataTypeName)) {
                 throw new NotSupportedException($"No conversion for {dataTypeName}");
             }
@@ -75,18 +75,15 @@ namespace Microsoft.ESDV.CloudConnector.Azure {
             JsonPatchDocument jsonPatchDocument = new JsonPatchDocument();
 
             try {
-                // Get the converter for the instance's data by using the data type name
-                // then use that converter to change the instance's data type to the converter's type.
-                string dataTypeConverterName = ConvertStringToDataType(dataTypeName);
-                Type type = Type.GetType(dataTypeConverterName);
-                dynamic convertedDataToType = Convert.ChangeType(instance.data, type);
+                // Get the concrete data type of an instance's data based on its string data type name
+                // then uses that concrete data type to change the data from string to its concrete data type.
+                Type dataType = GetDataTypeFromString(dataTypeName);
+                dynamic convertedDataToType = Convert.ChangeType(instance.data, dataType);
 
                 if (!DoesPathStartsWithSlash(instance.instance_property_path))
                 {
                     instance.instance_property_path = $"/{instance.instance_property_path}";
                 }
-                // Once we're able to change the data to a concrete type,
-                // we append it to the jsonPatchDocument
                 jsonPatchDocument.AppendAdd(instance.instance_property_path, convertedDataToType);
             }
             catch (Exception ex) when (ex is NotSupportedException || ex is InvalidCastException || ex is FormatException) {
