@@ -199,19 +199,16 @@ mod digital_twin_adapter_tests {
     }
 
     #[fixture]
-    fn fixture(
-        #[default(
-            Entity {
-                id: "entity_id".to_string(),
-                name: Some("name".to_string()),
-                uri: "uri".to_string(),
-                description: Some("description".to_string()),
-                operation: OperationKind::Get,
-                protocol: "protocol".to_string(),
-            }
-        )]
-        entity: Entity,
-    ) -> TestFixture {
+    fn fixture() -> TestFixture {
+        let entity = Entity {
+            id: "entity_id".to_string(),
+            name: Some("name".to_string()),
+            uri: "uri".to_string(),
+            description: Some("description".to_string()),
+            operation: OperationKind::Get,
+            protocol: "protocol".to_string(),
+        };
+
         let (sender, mut receiver) = 
             mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
         
@@ -292,4 +289,6 @@ mod digital_twin_adapter_tests {
         let proxy_request = join_result.unwrap();
         assert!(proxy_request.is_none());
     }
+
+    // TODO: test provider not found case
 }
