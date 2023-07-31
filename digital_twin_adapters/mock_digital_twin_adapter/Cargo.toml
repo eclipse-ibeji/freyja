@@ -9,10 +9,10 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-dts-contracts = { path = "../../contracts" }
-mock-digital-twin = { path = "../../mocks/mock_digital_twin"}
 async-trait = { workspace = true }
+dts-contracts = { workspace = true }
 httptest = { workspace = true }
+mock-digital-twin = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
