@@ -27,7 +27,11 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
             ${{ runner.os }}-nuget
-      - name: Build
+      - name: Build Digital Twins Connector
         run: ./cloud_connectors/azure/digital_twins_connector/build.sh
-      - name: Test
+      - name: Build MQTT Connector's Azure Function
+        run: dotnet build cloud_connectors/azure/mqtt_connector/res/azure_function/src/function.csproj
+      - name: Digital Twins Connector Tests
         run: dotnet test cloud_connectors/azure/digital_twins_connector/tests/**/*.csproj
+      - name: MQTT Connector's Azure Function Tests
+        run: dotnet test cloud_connectors/azure/mqtt_connector/res/azure_function/tests/MQTTConnectorAzureFunction.Tests.csproj

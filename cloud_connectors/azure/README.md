@@ -28,6 +28,8 @@ You must install the following:
 
 * [Azure IoT CLI Extension](https://github.com/Azure/azure-iot-cli-extension)
 
+* [Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cportal%2Cv2%2Cbash&pivots=programming-language-csharp) (required only for the [MQTT Connector](./mqtt_connector/README.md)).
+
 ### Azure Resource Group Role-Based Access Control
 
 You will need to be an Owner or a Contributor for your Azure resource group to deploy Azure resources using the scripts. Please see [Azure built-in roles](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles) for more details.
