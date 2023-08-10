@@ -16,10 +16,8 @@ Example of config.json:
 {
     "service_type": "InVehicleDigitalTwinService",
     "uri": "http://0.0.0.0:5010",
-    "retry_policy": {
-        "max_retries": 5,
-        "duration_between_retries_ms": 1000
-    },
+    "max_retries": 5,
+    "duration_between_retries_ms": 1000
 }
 ```
 
@@ -35,10 +33,8 @@ Example of config.json:
 {
     "service_type": "ChariottDiscoveryService",
     "uri": "http://0.0.0.0:50000",
-    "retry_policy": {
-        "max_retries": 5,
-        "duration_between_retries_ms": 1000
-    },
+    "max_retries": 5,
+    "duration_between_retries_ms": 1000,
     "metadata": {
         "namespace": "sdv.ibeji",
         "name": "digital_twin",

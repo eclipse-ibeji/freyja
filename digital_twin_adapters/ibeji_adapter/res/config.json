@@ -1,10 +1,8 @@
 {
     "service_type": "ChariottDiscoveryService",
     "uri": "http://0.0.0.0:50000",
-    "retry_policy": {
-        "max_retries": 5,
-        "duration_between_retries_ms": 1000
-    },
+    "max_retries": 5,
+    "duration_between_retries_ms": 1000,
     "metadata": {
         "namespace": "sdv.ibeji",
         "name": "invehicle_digital_twin",

@@ -4,8 +4,6 @@
 
 use serde::{Deserialize, Serialize};
 
-use common::utils::RetryPolicy;
-
 pub(crate) const CONFIG_FILE: &str = "config.json";
 
 /// Configuration setting variants for selecting the service
@@ -16,13 +14,15 @@ pub enum Settings {
     /// In-Vehicle Digital Twin Service
     InVehicleDigitalTwinService {
         uri: String,
-        retry_policy: RetryPolicy,
+        max_retries: u32,
+        duration_between_retries_ms: u64,
     },
 
     /// Chariott's Service Discovery to discover Ibeji
     ChariottDiscoveryService {
         uri: String,
-        retry_policy: RetryPolicy,
+        max_retries: u32,
+        duration_between_retries_ms: u64,
         metadata: IbejiDiscoveryMetadata,
     },
 }

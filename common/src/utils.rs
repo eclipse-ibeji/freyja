@@ -5,14 +5,7 @@
 use std::future::Future;
 
 use log::debug;
-use serde::{Deserialize, Serialize};
 use tokio::time::{sleep, Duration};
-
-#[derive(Clone, Serialize, Deserialize)]
-pub struct RetryPolicy {
-    pub max_retries: u32,
-    pub duration_between_retries_ms: u64,
-}
 
 /// Retry an async function that returns any error.
 ///
