@@ -1,5 +1,10 @@
 # Project Freyja
 
+<a href="https://github.com/eclipse-ibeji/freyja/actions/workflows/rust-ci.yml"><img alt="build: N/A" src="https://img.shields.io/github/actions/workflow/status/eclipse-ibeji/freyja/rust-ci.yml"></a>
+<a href="https://github.com/eclipse-ibeji/freyja/issues"><img alt="issues: N/A" src="https://img.shields.io/github/issues/eclipse-ibeji/freyja"></a>
+<img src="https://img.shields.io/badge/status-maintained-green.svg" alt="status: maintained">
+<a href="https://github.com/eclipse-ibeji/freyja/blob/main/LICENSE"><img alt="license: MIT" src="https://img.shields.io/github/license/eclipse-ibeji/freyja"></a>
+
 - [Introduction](#introduction)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
