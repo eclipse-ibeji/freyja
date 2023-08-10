@@ -11,11 +11,11 @@ use tokio::time::{sleep, Duration};
 ///
 /// # Arguments
 /// * `max_retries` - The maximum number of retries.
-/// * `duration_between_retries` - The duration between retries.
+/// * `retry_interval_ms` - The retry interval between retries in milliseconds.
 /// * `function` - The function to retry.
 pub async fn retry_async_function<T, E, Fut, F: FnMut() -> Fut>(
     max_retries: u32,
-    duration_between_retries: Duration,
+    retry_interval_ms: Duration,
     mut function: F,
 ) -> Result<T, E>
 where
@@ -31,8 +31,8 @@ where
                 last_error = Err(error);
             }
         }
-        debug!("Retrying function call.");
-        sleep(duration_between_retries).await;
+        debug!("Retrying the function call. Total retry attempts: {retries}");
+        sleep(retry_interval_ms).await;
 
         retries += 1;
 

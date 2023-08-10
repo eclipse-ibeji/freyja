@@ -15,14 +15,14 @@ pub enum Settings {
     InVehicleDigitalTwinService {
         uri: String,
         max_retries: u32,
-        duration_between_retries_ms: u64,
+        retry_interval_ms: u64,
     },
 
     /// Chariott's Service Discovery to discover Ibeji
     ChariottDiscoveryService {
         uri: String,
         max_retries: u32,
-        duration_between_retries_ms: u64,
+        retry_interval_ms: u64,
         metadata: IbejiDiscoveryMetadata,
     },
 }
