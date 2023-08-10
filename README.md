@@ -13,7 +13,6 @@
 - [Why "Freyja"?](#why-freyja)
 - [Trademarks](#trademarks)
 
-
 ## Introduction
 
 Project Freyja is an ESDV application which enables synchronization between the digital twin state on the vehicle (the "instance digital twin") and the digital twin state in the cloud (the "canonical digital twin").
