@@ -40,7 +40,7 @@ where
             break;
         }
     }
-    return last_error;
+    last_error
 }
 
 #[cfg(test)]
