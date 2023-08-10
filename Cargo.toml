@@ -4,21 +4,21 @@
 
 [workspace]
 members = [
-  "dts",
-  "contracts",
   "cloud_adapters/azure_cloud_connector_adapter",
   "cloud_adapters/in_memory_mock_cloud_adapter",
-  "provider_proxies/grpc/v1",
-  "provider_proxies/in_memory_mock_provider_proxy",
-  "mapping_clients/in_memory_mock_mapping_client",
-  "mapping_clients/mock_mapping_service_client",
+  "cloud_connectors/azure/mqtt_connector",
+  "cloud_connectors/azure/proto-build",
+  "common",
   "digital_twin_adapters/ibeji_adapter",
   "digital_twin_adapters/in_memory_mock_digital_twin_adapter",
+  "dts",
+  "mapping_clients/in_memory_mock_mapping_client",
+  "mapping_clients/mock_mapping_service_client",
   "mocks/mock_mapping_service",
   "proc_macros",
+  "provider_proxies/grpc/v1",
+  "provider_proxies/in_memory_mock_provider_proxy",
   "provider_proxy_selector",
-  "cloud_connectors/azure/mqtt_connector",
-  "cloud_connectors/azure/proto-build"
 ]
 
 [workspace.dependencies]

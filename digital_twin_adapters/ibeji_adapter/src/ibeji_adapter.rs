@@ -15,12 +15,13 @@ use async_trait::async_trait;
 use core_protobuf_data_access::invehicle_digital_twin::v1::{
     invehicle_digital_twin_client::InvehicleDigitalTwinClient, EndpointInfo, FindByIdRequest,
 };
-use log::{debug, warn};
+use log::{info, warn};
 use service_discovery_proto::service_registry::v1::service_registry_client::ServiceRegistryClient;
 use service_discovery_proto::service_registry::v1::DiscoverRequest;
 use tonic::{transport::Channel, Request};
 
 use crate::config::{IbejiDiscoveryMetadata, Settings, CONFIG_FILE};
+use common::utils::retry_async_function;
 use dts_contracts::{
     digital_twin_adapter::{
         DigitalTwinAdapter, DigitalTwinAdapterError, GetDigitalTwinProviderRequest,
@@ -84,22 +85,40 @@ impl DigitalTwinAdapter for IbejiAdapter {
             fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
         let settings: Settings = serde_json::from_str(settings_content.as_str()).unwrap();
 
-        let invehicle_digital_twin_service_uri = match settings {
-            Settings::InVehicleDigitalTwinService { uri } => uri,
-            Settings::ChariottDiscoveryService { uri, metadata } => {
+        let (invehicle_digital_twin_service_uri, retry_policy) = match settings {
+            Settings::InVehicleDigitalTwinService { uri, retry_policy } => (uri, retry_policy),
+            Settings::ChariottDiscoveryService {
+                uri,
+                retry_policy,
+                metadata,
+            } => (
                 futures::executor::block_on(async {
-                    Self::retrieve_ibeji_invehicle_digital_twin_uri_from_chariott(&uri, metadata)
-                        .await
+                    retry_async_function(
+                        retry_policy.max_retries,
+                        Duration::from_millis(retry_policy.duration_between_retries_ms),
+                        || {
+                            Self::retrieve_ibeji_invehicle_digital_twin_uri_from_chariott(
+                                &uri,
+                                metadata.clone(),
+                            )
+                        },
+                    )
+                    .await
                 })
-                .unwrap()
-            }
+                .unwrap(),
+                retry_policy,
+            ),
         };
-        debug!("Discovered the uri of the In-Vehicle Digital Twin Service via Chariott: {invehicle_digital_twin_service_uri}");
+        info!("Discovered the uri of the In-Vehicle Digital Twin Service via Chariott: {invehicle_digital_twin_service_uri}");
 
         let client = futures::executor::block_on(async {
-            InvehicleDigitalTwinClient::connect(invehicle_digital_twin_service_uri)
-                .await
-                .map_err(DigitalTwinAdapterError::communication)
+            retry_async_function(
+                retry_policy.max_retries,
+                Duration::from_millis(retry_policy.duration_between_retries_ms),
+                || InvehicleDigitalTwinClient::connect(invehicle_digital_twin_service_uri.clone()),
+            )
+            .await
+            .map_err(DigitalTwinAdapterError::communication)
         })
         .unwrap();
 
