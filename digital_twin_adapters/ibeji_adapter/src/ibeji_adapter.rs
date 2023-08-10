@@ -85,37 +85,36 @@ impl DigitalTwinAdapter for IbejiAdapter {
             fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
         let settings: Settings = serde_json::from_str(settings_content.as_str()).unwrap();
 
-        let (invehicle_digital_twin_service_uri, max_retries, retry_interval_ms) =
-            match settings {
-                Settings::InVehicleDigitalTwinService {
-                    uri,
-                    max_retries,
-                    retry_interval_ms,
-                } => (uri, max_retries, retry_interval_ms),
-                Settings::ChariottDiscoveryService {
-                    uri,
-                    max_retries,
-                    retry_interval_ms,
-                    metadata,
-                } => (
-                    futures::executor::block_on(async {
-                        retry_async_function(
-                            max_retries,
-                            Duration::from_millis(retry_interval_ms),
-                            || {
-                                Self::retrieve_ibeji_invehicle_digital_twin_uri_from_chariott(
-                                    &uri,
-                                    metadata.clone(),
-                                )
-                            },
-                        )
-                        .await
-                    })
-                    .unwrap(),
-                    max_retries,
-                    retry_interval_ms,
-                ),
-            };
+        let (invehicle_digital_twin_service_uri, max_retries, retry_interval_ms) = match settings {
+            Settings::InVehicleDigitalTwinService {
+                uri,
+                max_retries,
+                retry_interval_ms,
+            } => (uri, max_retries, retry_interval_ms),
+            Settings::ChariottDiscoveryService {
+                uri,
+                max_retries,
+                retry_interval_ms,
+                metadata,
+            } => (
+                futures::executor::block_on(async {
+                    retry_async_function(
+                        max_retries,
+                        Duration::from_millis(retry_interval_ms),
+                        || {
+                            Self::retrieve_ibeji_invehicle_digital_twin_uri_from_chariott(
+                                &uri,
+                                metadata.clone(),
+                            )
+                        },
+                    )
+                    .await
+                })
+                .unwrap(),
+                max_retries,
+                retry_interval_ms,
+            ),
+        };
         info!("Discovered the uri of the In-Vehicle Digital Twin Service via Chariott: {invehicle_digital_twin_service_uri}");
 
         let client = futures::executor::block_on(async {
