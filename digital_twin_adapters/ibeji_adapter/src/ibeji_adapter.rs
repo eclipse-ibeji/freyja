@@ -20,8 +20,8 @@ use service_discovery_proto::service_registry::v1::service_registry_client::Serv
 use service_discovery_proto::service_registry::v1::DiscoverRequest;
 use tonic::{transport::Channel, Request};
 
-use crate::config::{IbejiDiscoveryMetadata, Settings, CONFIG_FILE};
-use common::utils::retry_async_function;
+use crate::config::{IbejiDiscoveryMetadata, Settings, CONFIG_FILE_RELATIVE_TO_OUTPUT_DIR};
+use common::utils::execute_with_retry;
 use dts_contracts::{
     digital_twin_adapter::{
         DigitalTwinAdapter, DigitalTwinAdapterError, GetDigitalTwinProviderRequest,
@@ -82,7 +82,8 @@ impl DigitalTwinAdapter for IbejiAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
     fn create_new() -> Result<Box<dyn DigitalTwinAdapter + Send + Sync>, DigitalTwinAdapterError> {
         let settings_content =
-            fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
+            fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE_RELATIVE_TO_OUTPUT_DIR))
+                .unwrap();
         let settings: Settings = serde_json::from_str(settings_content.as_str()).unwrap();
 
         let (invehicle_digital_twin_service_uri, max_retries, retry_interval_ms) = match settings {
@@ -96,9 +97,9 @@ impl DigitalTwinAdapter for IbejiAdapter {
                 max_retries,
                 retry_interval_ms,
                 metadata,
-            } => (
-                futures::executor::block_on(async {
-                    retry_async_function(
+            } => {
+                let invehicle_digital_twin_service_uri = futures::executor::block_on(async {
+                    execute_with_retry(
                         max_retries,
                         Duration::from_millis(retry_interval_ms),
                         || {
@@ -107,21 +108,27 @@ impl DigitalTwinAdapter for IbejiAdapter {
                                 metadata.clone(),
                             )
                         },
+                        Some(String::from("Connection retry for connecting to Chariott")),
                     )
                     .await
                 })
-                .unwrap(),
-                max_retries,
-                retry_interval_ms,
-            ),
+                .unwrap();
+                info!("Discovered the uri of the In-Vehicle Digital Twin Service via Chariott: {invehicle_digital_twin_service_uri}");
+
+                (
+                    invehicle_digital_twin_service_uri,
+                    max_retries,
+                    retry_interval_ms,
+                )
+            }
         };
-        info!("Discovered the uri of the In-Vehicle Digital Twin Service via Chariott: {invehicle_digital_twin_service_uri}");
 
         let client = futures::executor::block_on(async {
-            retry_async_function(
+            execute_with_retry(
                 max_retries,
                 Duration::from_millis(retry_interval_ms),
                 || InvehicleDigitalTwinClient::connect(invehicle_digital_twin_service_uri.clone()),
+                Some(String::from("Connection retry for connecting to Ibeji")),
             )
             .await
             .map_err(DigitalTwinAdapterError::communication)
