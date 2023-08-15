@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 
-pub(crate) const CONFIG_FILE_RELATIVE_TO_OUTPUT_DIR: &str = "../../../ibeji_adapter_config.json";
+pub(crate) const CONFIG_FILE: &str = "ibeji_adapter_config.json";
 
 /// Configuration setting variants for selecting the service
 /// that the Ibeji Adapter should communicate with to interact with Ibeji

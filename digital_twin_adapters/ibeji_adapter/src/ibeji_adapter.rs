@@ -20,7 +20,7 @@ use service_discovery_proto::service_registry::v1::service_registry_client::Serv
 use service_discovery_proto::service_registry::v1::DiscoverRequest;
 use tonic::{transport::Channel, Request};
 
-use crate::config::{IbejiDiscoveryMetadata, Settings, CONFIG_FILE_RELATIVE_TO_OUTPUT_DIR};
+use crate::config::{IbejiDiscoveryMetadata, Settings, CONFIG_FILE};
 use common::utils::execute_with_retry;
 use dts_contracts::{
     digital_twin_adapter::{
@@ -82,8 +82,7 @@ impl DigitalTwinAdapter for IbejiAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
     fn create_new() -> Result<Box<dyn DigitalTwinAdapter + Send + Sync>, DigitalTwinAdapterError> {
         let settings_content =
-            fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE_RELATIVE_TO_OUTPUT_DIR))
-                .unwrap();
+            fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
         let settings: Settings = serde_json::from_str(settings_content.as_str()).unwrap();
 
         let (invehicle_digital_twin_service_uri, max_retries, retry_interval_ms) = match settings {
