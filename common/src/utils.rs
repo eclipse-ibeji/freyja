@@ -33,8 +33,10 @@ where
                 last_error = Err(error);
             }
         }
-        debug!("Retrying the function call. Total retry attempts: {retries} (context: {context:?})");
-        
+        debug!(
+            "Retrying the function call. Total retry attempts: {retries} (context: {context:?})"
+        );
+
         sleep(retry_interval_ms).await;
 
         retries += 1;
