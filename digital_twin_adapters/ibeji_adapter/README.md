@@ -8,14 +8,12 @@ The adapter shares an `entity_map` map with Freyja's emitter that maps `entity_i
 
 ### Ibeji Without Chariott
 
-By default, running `cargo build` will copy the `ibeji_adapter_config.sample.json` file from the `res` directory and paste it into the `{freyja-root-dir}/target/debug/build/ibeji-adapter/out` directory. Please ensure that the `uri` field in the `ibeji_adapter_config.json` file in `{freyja-root-dir}/target/debug/build/ibeji-adapter/out` matches with the URI that Ibeji's In-Vehicle Digital Twin service uses.
-
-The Ibeji Adapter will use Ibeji's In-Vehicle Digital Digital URI if the `service_type` field in `res/config.json` is set to `"InVehicleDigitalTwinService`
+By default, running `cargo build` will copy the `ibeji_adapter_config.sample.json` file from the `res` directory. Before building, please edit the `uri` field in `res/ibeji_adapter_config.sample.json`, so that the URI matches with the URI that Ibeji's In-Vehicle Digital Twin service uses.
 
 ### Ibeji With Chariott
 
-If Ibeji is registered in [Chariott's Service Discovery system](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/README.md) and you wish to discover Ibeji through Chariott, then copy the `ibeji_adapter_config_with_chariott.json` file from the `res` directory, and paste it into the `{freyja-root-dir}/target/debug/build/ibeji-adapter/out` directory.
+If Ibeji is registered with [Chariott's Service Discovery system](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/README.md) and you wish to discover Ibeji through Chariott, then copy the contents from `res/ibeji_adapter_config_with_chariott.sample.json`, and paste it into `res/ibeji_adapter_config.sample.json`.
 
-Please ensure that the `uri` field in the `ibeji_adapter_config.json` file in `{freyja-root-dir}/target/debug/build/ibeji-adapter/out` matches with the URI that Chariott's Serice Discovery uses.
+Before building, please edit the `uri` field in `res/ibeji_adapter_config.sample.json`, so that the URI matches with the URI that Chariott's Serice Discovery uses.
 
 The Ibeji Adapter will discover Ibeji's In-Vehicle Digital Twin Service URI through Chariott.
