@@ -33,11 +33,8 @@ where
                 last_error = Err(error);
             }
         }
-        debug!("Retrying the function call. Total retry attempts: {retries}");
-
-        if context.is_some() {
-            debug!("Context: {}", context.clone().unwrap());
-        }
+        debug!("Retrying the function call. Total retry attempts: {retries} (context: {context:?})");
+        
         sleep(retry_interval_ms).await;
 
         retries += 1;
