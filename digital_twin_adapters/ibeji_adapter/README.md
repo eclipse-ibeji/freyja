@@ -8,33 +8,12 @@ The adapter shares an `entity_map` map with Freyja's emitter that maps `entity_i
 
 ### Ibeji Without Chariott
 
-The Ibeji Adapter will use Ibeji's In-Vehicle Digital Digital URI if the `service_type` field in `res/config.json` is set to `"InVehicleDigitalTwinService`
-
-Example of config.json:
-
-```json
-{
-    "service_type": "InVehicleDigitalTwinService",
-    "uri": "http://0.0.0.0:5010"
-}
-```
+By default, running `cargo build` will copy the `ibeji_adapter_config.sample.json` file from the `res` directory. Before building, please edit the `uri` field in `res/ibeji_adapter_config.sample.json`, so that the URI matches with the URI that Ibeji's In-Vehicle Digital Twin service uses.
 
 ### Ibeji With Chariott
 
-If Ibeji is registered in [Chariott's Service Discovery system](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/README.md)and you wish to discover Ibeji through Chariott, then please set the `service type` field to `ChariottDiscoveryService` in the `res/config.json` file, value for the `uri` field, and the metadata for Ibeji.
+If Ibeji is registered with [Chariott's Service Discovery system](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/README.md) and you wish to discover Ibeji through Chariott, then copy the contents from `res/ibeji_adapter_config_with_chariott.sample.json`, and paste it into `res/ibeji_adapter_config.sample.json`.
+
+Before building, please edit the `uri` field in `res/ibeji_adapter_config.sample.json`, so that the URI matches with the URI that Chariott's Serice Discovery uses.
 
 The Ibeji Adapter will discover Ibeji's In-Vehicle Digital Twin Service URI through Chariott.
-
-Example of config.json:
-
-```json
-{
-    "service_type": "ChariottDiscoveryService",
-    "uri": "http://0.0.0.0:50000",
-    "metadata": {
-        "namespace": "sdv.ibeji",
-        "name": "digital_twin",
-        "version": "1.0"
-    }
-}
-```

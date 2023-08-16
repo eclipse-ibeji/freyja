@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 
-pub(crate) const CONFIG_FILE: &str = "config.json";
+pub(crate) const CONFIG_FILE: &str = "ibeji_adapter_config.json";
 
 /// Configuration setting variants for selecting the service
 /// that the Ibeji Adapter should communicate with to interact with Ibeji
@@ -12,11 +12,17 @@ pub(crate) const CONFIG_FILE: &str = "config.json";
 #[serde(tag = "service_type")]
 pub enum Settings {
     /// In-Vehicle Digital Twin Service
-    InVehicleDigitalTwinService { uri: String },
+    InVehicleDigitalTwinService {
+        uri: String,
+        max_retries: u32,
+        retry_interval_ms: u64,
+    },
 
     /// Chariott's Service Discovery to discover Ibeji
     ChariottDiscoveryService {
         uri: String,
+        max_retries: u32,
+        retry_interval_ms: u64,
         metadata: IbejiDiscoveryMetadata,
     },
 }
