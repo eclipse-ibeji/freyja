@@ -1,0 +1,13 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+# SPDX-License-Identifier: MIT
+
+# Placeholder for generated code
+[package]
+name = "freyja-deps"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+in-memory-mock-digital-twin-adapter = { path = "../../digital_twin_adapters/in_memory_mock_digital_twin_adapter" }

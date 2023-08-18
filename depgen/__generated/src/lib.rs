@@ -1,0 +1,1 @@
+pub use in_memory_mock_digital_twin_adapter::in_memory_mock_digital_twin_adapter::InMemoryMockDigitalTwinAdapter as DigitalTwinAdapterImpl;

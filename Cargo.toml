@@ -19,6 +19,7 @@ members = [
   "provider_proxies/grpc/v1",
   "provider_proxies/in_memory_mock_provider_proxy",
   "provider_proxy_selector",
+  "depgen",
 ]
 
 [workspace.dependencies]

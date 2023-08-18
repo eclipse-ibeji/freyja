@@ -35,26 +35,23 @@ sudo snap install rustup --classic
 
 The rust toolchain version is managed by the `rust-toolchain.toml` file, so once you install `rustup` there is no need to manually install a toolchain or set a default.
 
+Freyja relies on `cargo-make` for builds, so you will also need to install that:
+
+```shell
+cargo install --force cargo-make
+```
+
 1. Clone this repository with `git clone`
 
 ### Build
 
-Freyja supports the use of custom library implementations for many of the interfaces with external components. For each of these interfaces, an implementation is chosen to statically link at compilation time. This is accomplished through a procedural macro which generates use statements based on enviromnent variables. In order to build, Freyja requires the following environment variables to be set:
-
-Variable|Description|Example
--|-|-
-FREYJA_MAPPING_CLIENT|The name of a crate containing the `MappingClient` implementation to use|`in_memory_mock_mapping_client`
-FREYJA_DT_ADAPTER|The name of a crate containing the `DigitalTwinAdapter` implementation to use|`in_memory_mock_digital_twin_adapter`
-FREYJA_CLOUD_ADAPTER|The name of the crate containing the `CloudAdapter` implementation to use|`in_memory_mock_cloud_adapter`
-
-To quickly set these variables, you can edit the `tools/env-config.sh` file with the desired values. The crates referenced above should re-export their implementation of a trait to `<trait>Impl` so that the Freyja application can find it (for example, add `pub use crate::sample_mapping_client::SampleMappingClient as MappingClientImpl;` to your `lib.rs`). The `dts/Cargo.toml` file includes all of the implementations of these traits as dependencies for convenience, but only the ones selected with this mechanism will get packaged into the final executable.
-
-To set the environment variables and build the workspace, run the following commands from the repo root:
+Freyja supports the use of custom library implementations for many of the interfaces with external components. The build depends on a set of environment variables to specify which libraries to use for these implementations. To set these environment variables and build the workspace, run the following command from the repo root:
 
 ```shell
-source tools/env-config.sh
-cargo build
+cargo make build --env-file=./tools/freyja-build.env
 ```
+
+With the default values in `tools/freyja-build.env`, this will use the in-memory mock interfaces. For more information on building Freyja with your own libraries, see [the article on using external libraries](docs/external-libs.md).
 
 Note: if you are using the rust-analyzer extension with Visual Studio code, you may need to restart the application any time you change environment variables to avoid incorrect error highlighting or hints
 

@@ -11,6 +11,7 @@ license = "MIT"
 [dependencies]
 dts-contracts = { path = "../contracts" }
 proc-macros = { path = "../proc_macros" }
+freyja-deps = { path = "../depgen/__generated" }
 
 # Cloud Adapters
 in-memory-mock-cloud-adapter = { path = "../cloud_adapters/in_memory_mock_cloud_adapter"}

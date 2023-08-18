@@ -1,0 +1,12 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "freyja-depgen"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+toml_edit = "0.19.4"

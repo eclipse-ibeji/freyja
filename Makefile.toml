@@ -1,0 +1,47 @@
+[config]
+# with workspace support enabled, tasks would be run for each workspace member
+default_to_workspace = false
+
+# workflows
+[tasks.build]
+dependencies = ["freyja-depgen", "cargo-build"]
+
+[tasks.build-and-test]
+dependencies = ["freyja-depgen", "cargo-build", "cargo-test"]
+
+[tasks.freyja-ci-code-analysis]
+dependencies = ["freyja-depgen", "check", "clippy", "fmt", "doctest", "doc"]
+
+# cargo commands
+[tasks.cargo-build]
+command = "cargo"
+args = ["build"]
+
+[tasks.cargo-test]
+command = "cargo"
+args = ["test"]
+
+[tasks.check]
+command = "cargo"
+args = ["check", "--workspace"]
+
+[tasks.clippy]
+command = "cargo"
+args = ["clippy", "--all-targets", "--all-features", "--workspace", "--no-deps", "--", "-D", "warnings"]
+
+[tasks.fmt]
+install_crate = "rustfmt"
+command = "cargo"
+args = ["fmt", "--all", "--", "--check"]
+
+[tasks.doctest]
+command = "cargo"
+args = ["test", "--workspace", "--doc"]
+
+[tasks.doc]
+command = "cargo"
+args = ["doc", "--workspace", "--no-deps"]
+
+[tasks.freyja-depgen]
+command = "cargo"
+args = ["run", "--package", "freyja-depgen", "--bin", "depgen"]

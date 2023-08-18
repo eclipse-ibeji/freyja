@@ -26,7 +26,8 @@ x86/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
 bld/
-[Bb]in/
+# Rust package layouts can include code in a bin folder
+#[Bb]in/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
@@ -352,3 +353,6 @@ MigrationBackup/
 # Rust build artifacts
 Cargo.lock
 target/
+
+# Ignore files built by the dependency generator
+__generated/

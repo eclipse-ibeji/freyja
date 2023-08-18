@@ -4,5 +4,3 @@
 
 mod config;
 pub mod in_memory_mock_digital_twin_adapter;
-
-pub use crate::in_memory_mock_digital_twin_adapter::InMemoryMockDigitalTwinAdapter as DigitalTwinAdapterImpl;
