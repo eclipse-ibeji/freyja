@@ -4,5 +4,3 @@
 
 mod config;
 pub mod ibeji_adapter;
-
-pub use crate::ibeji_adapter::IbejiAdapter as DigitalTwinAdapterImpl;

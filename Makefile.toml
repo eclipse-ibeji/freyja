@@ -6,7 +6,10 @@ default_to_workspace = false
 [tasks.build]
 dependencies = ["freyja-depgen", "cargo-build"]
 
-[tasks.build-and-test]
+[tasks.test]
+dependencies = ["freyja-depgen", "cargo-test"]
+
+[tasks.freyja-ci-build-and-test]
 dependencies = ["freyja-depgen", "cargo-build", "cargo-test"]
 
 [tasks.freyja-ci-code-analysis]

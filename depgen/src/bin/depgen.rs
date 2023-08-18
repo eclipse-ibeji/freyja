@@ -13,9 +13,7 @@ const LIBRS_FILE_PATH: &str = "src/lib.rs";
 fn main() -> Result<(), String> {
     println!("Freyja dependency generator");
 
-    let workspace = env::var("CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY")
-        .map_err(|_| "Unable to get workspace directory; did you run this with cargo make?"
-        .to_string())?;
+    let workspace = get_env("CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY")?;
 
     println!("Workspace directory: {workspace}");
     let cargo_file = format!("{}/{}/{}",
@@ -42,7 +40,21 @@ fn write_cargo_toml(path: &String) -> Result<(), String> {
         .map_err(|e| format!("Unable to parse Cargo.toml file: {e:?}"))?;
 
     let mut dependencies = toml_edit::table();
-    dependencies["in-memory-mock-digital-twin-adapter"] = "{ path = \"../../digital_twin_adapters/in_memory_mock_digital_twin_adapter\" }".parse::<toml_edit::Item>().unwrap();
+
+    // Digital Twin Adapter
+    let dt_adapter_package_name = get_env("FREYJA_DT_ADAPTER_PKG_NAME")?;
+    let dt_adapter_package_source = get_env("FREYJA_DT_ADAPTER_PKG_SOURCE")?;
+    dependencies[dt_adapter_package_name] = dt_adapter_package_source.parse::<toml_edit::Item>().unwrap();
+
+    // Cloud Adapter
+    let cloud_adapter_package_name = get_env("FREYJA_CLOUD_ADAPTER_PKG_NAME")?;
+    let cloud_adapter_package_source = get_env("FREYJA_CLOUD_ADAPTER_PKG_SOURCE")?;
+    dependencies[cloud_adapter_package_name] = cloud_adapter_package_source.parse::<toml_edit::Item>().unwrap();
+
+    // Mapping Client
+    let mapping_client_package_name = get_env("FREYJA_MAPPING_CLIENT_PKG_NAME")?;
+    let mapping_client_package_source = get_env("FREYJA_MAPPING_CLIENT_PKG_SOURCE")?;
+    dependencies[mapping_client_package_name] = mapping_client_package_source.parse::<toml_edit::Item>().unwrap();
 
     toml["dependencies"] = dependencies;
 
@@ -55,9 +67,34 @@ fn write_cargo_toml(path: &String) -> Result<(), String> {
 fn write_lib(path: &String) -> Result<(), String> {
     println!("Generating lb.rs...");
 
-    let contents = "pub use in_memory_mock_digital_twin_adapter::in_memory_mock_digital_twin_adapter::InMemoryMockDigitalTwinAdapter as DigitalTwinAdapterImpl;";
+    // Digital Twin Adapter
+    let dt_adapter_use = format!(
+        "pub use {} as DigitalTwinAdapterImpl;",
+        get_env("FREYJA_DT_ADAPTER_STRUCT")?);
+
+    // Cloud Adapter
+    let cloud_adapter_use = format!(
+        "pub use {} as CloudAdapterImpl;",
+        get_env("FREYJA_CLOUD_ADAPTER_STRUCT")?);
+
+    // Mapping Client
+    let mapping_client_use = format!(
+        "pub use {} as MappingClientImpl;",
+        get_env("FREYJA_MAPPING_CLIENT_STRUCT")?);
+
+    let contents = format!(
+        "{}\n{}\n{}",
+        dt_adapter_use,
+        cloud_adapter_use,
+        mapping_client_use);
+
     fs::write(path, contents)
         .map_err(|e| format!("Unable to write file: {e}"))?;
 
     Ok(())
+}
+
+fn get_env(key: &str) -> Result<String, String> {
+    env::var(key)
+        .map_err(|e| format!("Unable to get environment variable {key}; did you run this with cargo make? {e:?}"))
 }

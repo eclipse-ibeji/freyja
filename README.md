@@ -48,7 +48,7 @@ cargo install --force cargo-make
 Freyja supports the use of custom library implementations for many of the interfaces with external components. The build depends on a set of environment variables to specify which libraries to use for these implementations. To set these environment variables and build the workspace, run the following command from the repo root:
 
 ```shell
-cargo make build --env-file=./tools/freyja-build.env
+cargo make --env-file=./tools/freyja-build.env build
 ```
 
 With the default values in `tools/freyja-build.env`, this will use the in-memory mock interfaces. For more information on building Freyja with your own libraries, see [the article on using external libraries](docs/external-libs.md).
