@@ -43,18 +43,18 @@ fn write_cargo_toml(path: &String) -> Result<(), String> {
 
     // Digital Twin Adapter
     let dt_adapter_package_name = get_env("FREYJA_DT_ADAPTER_PKG_NAME")?;
-    let dt_adapter_package_source = get_env("FREYJA_DT_ADAPTER_PKG_SOURCE")?;
-    dependencies[dt_adapter_package_name] = dt_adapter_package_source.parse::<toml_edit::Item>().unwrap();
+    let dt_adapter_package_config = get_env("FREYJA_DT_ADAPTER_PKG_CONFIG")?;
+    dependencies[dt_adapter_package_name] = dt_adapter_package_config.parse::<toml_edit::Item>().unwrap();
 
     // Cloud Adapter
     let cloud_adapter_package_name = get_env("FREYJA_CLOUD_ADAPTER_PKG_NAME")?;
-    let cloud_adapter_package_source = get_env("FREYJA_CLOUD_ADAPTER_PKG_SOURCE")?;
-    dependencies[cloud_adapter_package_name] = cloud_adapter_package_source.parse::<toml_edit::Item>().unwrap();
+    let cloud_adapter_package_config = get_env("FREYJA_CLOUD_ADAPTER_PKG_CONFIG")?;
+    dependencies[cloud_adapter_package_name] = cloud_adapter_package_config.parse::<toml_edit::Item>().unwrap();
 
     // Mapping Client
     let mapping_client_package_name = get_env("FREYJA_MAPPING_CLIENT_PKG_NAME")?;
-    let mapping_client_package_source = get_env("FREYJA_MAPPING_CLIENT_PKG_SOURCE")?;
-    dependencies[mapping_client_package_name] = mapping_client_package_source.parse::<toml_edit::Item>().unwrap();
+    let mapping_client_package_config = get_env("FREYJA_MAPPING_CLIENT_PKG_CONFIG")?;
+    dependencies[mapping_client_package_name] = mapping_client_package_config.parse::<toml_edit::Item>().unwrap();
 
     toml["dependencies"] = dependencies;
 
