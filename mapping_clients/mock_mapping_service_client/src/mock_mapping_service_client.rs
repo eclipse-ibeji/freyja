@@ -108,7 +108,9 @@ impl MappingClient for MockMappingServiceClient {
             self.max_retries,
             Duration::from_millis(self.retry_interval_ms),
             || self.client.get(&target).send(),
-            Some(String::from("Getting mapping info from the mapping service")),
+            Some(String::from(
+                "Getting mapping info from the mapping service",
+            )),
         )
         .await
         .map_err(MappingClientError::communication)?
