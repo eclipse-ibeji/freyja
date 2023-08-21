@@ -11,6 +11,7 @@ license = "MIT"
 [dependencies]
 async-trait = { workspace = true }
 azure-cloud-connector-proto = { path = "../proto-build/" }
+common = { path = "../../../common" }
 env_logger = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }

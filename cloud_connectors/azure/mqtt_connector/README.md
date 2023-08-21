@@ -177,6 +177,29 @@ Also your Function App will need the Key Vault Reader role to read the `ADT-INST
 
 ## Build
 
+1. Before building, please edit the placeholders in `res/mqtt_config.template.json` with their respective values.
+
+    Field descriptions:
+
+    * `max_retries`: Max retries for connecting to Azure Event Grid
+
+    * `retry_interval_ms`: Retry interval in milliseconds
+
+    <!--alex ignore host-hostess-->
+    * `grpc_server_authority`: The gRPC server authority you wish to use to host the MQTT Connector's gRPC server. Example `"grpc_server_authority": "[::1]:8890"`
+
+    * `cert_path`: The absolute path to the self-signed certificate generated in step 3 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt). This file ends in *.cer.
+
+    * `private_key_path`: The absolute path to the private key generated in step 1 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt). This file ends in *.key.
+
+    * `mqtt_client_id`: The client ID for identifying the MQTT client used in this Cloud Connector. You can keep the default value or change it. The client ID can be any unique value, as long as it's not the same client ID of another client that's publishing to your Azure Event Grid.
+
+    * `mqtt_client_authentication_name`: The client authentication name that you specified in step 1 of [Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App](#automated-deployment-of-azure-key-vault-event-grid-and-azure-function-app), or step 6 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt) for manual deployment.
+
+    * `event_grid_topic`: The topic that you specified in step 1 of [Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App](#automated-deployment-of-azure-key-vault-event-grid-and-azure-function-app), or step 7 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt) for manual deployment.
+
+    * `event_grid_namespace_host_name`: The Event Grid Namespace MQTT hostname. You can find the hostname by clicking on your event grid namespace, then copy the MQTT hostname.
+
 ```shell
 cargo build
 ```
@@ -193,23 +216,7 @@ Whether you followed the [Automated Deployment of Azure Key Vault, Event Grid, a
 
 1. After building the MQTT Connector, you should see a `mqtt_config.json` file in your `{freyja-root-dir}/target/debug`. If you do not see the `mqtt_config.json` file in `{freyja-root-dir}/target/debug`, you can create one manually by copying the `res/mqtt_config.template.json` file and pasting it into `{freyja-root-dir}/target/debug`.
 
-1. Replace the placeholders in your `mqtt_config.json` with their respective values.
 
-    Field descriptions:
-    <!--alex ignore host-hostess-->
-    * `grpc_server_authority`: The gRPC server authority you wish to use to host the MQTT Connector's gRPC server. Example `"grpc_server_authority": "[::1]:8890"`
-
-    * `cert_path`: The absolute path to the self-signed certificate generated in step 3 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt). This file ends in *.cer.
-
-    * `private_key_path`: The absolute path to the private key generated in step 1 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt). This file ends in *.key.
-
-    * `mqtt_client_id`: The client ID for identifying the MQTT client used in this Cloud Connector. You can keep the default value or change it. The client ID can be any unique value, as long as it's not the same client ID of another client that's publishing to your Azure Event Grid.
-
-    * `mqtt_client_authentication_name`: The client authentication name that you specified in step 1 of [Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App](#automated-deployment-of-azure-key-vault-event-grid-and-azure-function-app), or step 6 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt) for manual deployment.
-
-    * `event_grid_topic`: The topic that you specified in step 1 of [Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App](#automated-deployment-of-azure-key-vault-event-grid-and-azure-function-app), or step 7 of [Azure Event Grid with MQTT](#2-azure-event-grid-with-mqtt) for manual deployment.
-
-    * `event_grid_namespace_host_name`: The Event Grid Namespace MQTT hostname. You can find the hostname by clicking on your event grid namespace, then copy the MQTT hostname.
 
 ## Run
 

@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{env, fs, path::Path};
+use std::{env, fs, path::Path, time::Duration};
 
 use async_trait::async_trait;
 use azure_cloud_connector_proto::azure_cloud_connector::{
@@ -12,7 +12,8 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 use tonic::transport::Channel;
 
-use crate::config::{ConfigItem, CONFIG_FILE_NAME};
+use crate::azure_cloud_connector_adapter_config::{ConfigItem, CONFIG_FILE};
+use common::utils::execute_with_retry;
 use dts_contracts::cloud_adapter::{
     CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse,
 };
@@ -81,16 +82,22 @@ impl CloudAdapter for AzureCloudConnectorAdapter {
     /// Creates a new instance of a CloudAdapter with default settings
     fn create_new() -> Result<Box<dyn CloudAdapter + Send + Sync>, CloudAdapterError> {
         let cloud_connector_client = futures::executor::block_on(async {
-            let out_dir_path = env!("OUT_DIR");
             let config_file =
-                fs::read_to_string(Path::new(out_dir_path).join(CONFIG_FILE_NAME)).unwrap();
+                fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
 
             // Load the config
             let config: ConfigItem = serde_json::from_str(&config_file).unwrap();
 
-            AzureCloudConnectorClient::connect(config.cloud_connector_url)
-                .await
-                .map_err(CloudAdapterError::communication)
+            execute_with_retry(
+                config.max_retries,
+                Duration::from_millis(config.retry_interval_ms),
+                || AzureCloudConnectorClient::connect(config.cloud_connector_url.clone()),
+                Some(String::from(
+                    "Connection retry for connecting to Azure Cloud Connector",
+                )),
+            )
+            .await
+            .map_err(CloudAdapterError::communication)
         })
         .unwrap();
 
