@@ -12,7 +12,7 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 use tonic::transport::Channel;
 
-use crate::azure_cloud_connector_adapter_config::{ConfigItem, CONFIG_FILE};
+use crate::azure_cloud_connector_adapter_config::{Config, CONFIG_FILE};
 use common::utils::execute_with_retry;
 use dts_contracts::cloud_adapter::{
     CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse,
@@ -86,7 +86,7 @@ impl CloudAdapter for AzureCloudConnectorAdapter {
                 fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
 
             // Load the config
-            let config: ConfigItem = serde_json::from_str(&config_file).unwrap();
+            let config: Config = serde_json::from_str(&config_file).unwrap();
 
             execute_with_retry(
                 config.max_retries,

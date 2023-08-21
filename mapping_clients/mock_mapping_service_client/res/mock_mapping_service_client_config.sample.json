@@ -1,0 +1,5 @@
+{
+     "max_retries": 5,
+     "retry_interval_ms": 1000,
+     "mock_mapping_service_url": "http://127.0.0.1:8888"
+}

@@ -8,7 +8,7 @@ pub(crate) const CONFIG_FILE: &str = "azure_cloud_connector_adapter_config.json"
 
 /// A config entry for the Azure Cloud Connector Adapter
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ConfigItem {
+pub struct Config {
     /// Max retries for connecting to an Azure Cloud Connector
     pub max_retries: u32,
 

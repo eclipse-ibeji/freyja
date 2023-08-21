@@ -5,8 +5,8 @@
 use std::{env, fs, path::Path};
 
 const OUT_DIR: &str = "OUT_DIR";
-const SAMPLE_CONFIG_FILE: &str = "res/azure_cloud_connector_adapter_config.sample.json";
-const CONFIG_FILE: &str = "azure_cloud_connector_adapter_config.json";
+const SAMPLE_CONFIG_FILE: &str = "res/mock_mapping_service_client_config.sample.json";
+const CONFIG_FILE: &str = "mock_mapping_service_client_config.json";
 
 fn main() {
     // Current directory of the build script is the package's root directory

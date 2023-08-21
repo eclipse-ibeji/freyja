@@ -216,8 +216,6 @@ Whether you followed the [Automated Deployment of Azure Key Vault, Event Grid, a
 
 1. After building the MQTT Connector, you should see a `mqtt_config.json` file in your `{freyja-root-dir}/target/debug`. If you do not see the `mqtt_config.json` file in `{freyja-root-dir}/target/debug`, you can create one manually by copying the `res/mqtt_config.template.json` file and pasting it into `{freyja-root-dir}/target/debug`.
 
-
-
 ## Run
 
 Change directory to the directory with the build artifacts `{freyja-root-dir}/target/debug`. Replace `{freyja-root-dir}` with the repository's root directory.
