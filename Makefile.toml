@@ -65,4 +65,4 @@ args = ["doc", "--workspace", "--no-deps"]
 
 [tasks.freyja-depgen]
 command = "cargo"
-args = ["run", "--package", "freyja-depgen", "--bin", "depgen"]
+args = ["run", "--package", "freyja-depgen"]

@@ -26,8 +26,7 @@ x86/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
 bld/
-# Rust package layouts can include code in a bin folder
-#[Bb]in/
+[Bb]in/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
