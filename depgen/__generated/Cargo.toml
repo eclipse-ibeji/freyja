@@ -11,5 +11,5 @@ license = "MIT"
 
 [dependencies]
 in-memory-mock-digital-twin-adapter = { path = "../../digital_twin_adapters/in_memory_mock_digital_twin_adapter" }
-in-memory-mock-cloud-adapter = { path = "../../cloud_adapters/in_memory_mock_cloud_adapter"}
+in-memory-mock-cloud-adapter = { path = "../../cloud_adapters/in_memory_mock_cloud_adapter" }
 in-memory-mock-mapping-client = { path = "../../mapping_clients/in_memory_mock_mapping_client" }
