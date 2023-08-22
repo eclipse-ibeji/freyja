@@ -16,7 +16,7 @@ fn main() -> Result<(), String> {
     let workspace = get_env("CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY")?;
 
     println!("Workspace directory: {workspace}");
-    let cargo_file = Path::new(&workspace.clone())
+    let cargo_file = Path::new(&workspace)
         .join(GENERATED_DIR_RELATIVE_TO_WORKSPACE)
         .join(CARGO_FILE_PATH);
 
