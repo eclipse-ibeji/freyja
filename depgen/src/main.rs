@@ -46,7 +46,7 @@ fn main() -> Result<(), String> {
 
 /// Generates and writes the Cargo.toml file for Freyja's dependencies
 /// Reads a template that already has package info and overwrites the `dependencies` section
-/// 
+///
 /// # Arguments
 /// - `path`: The path to the Cargo.toml file to edit
 fn write_cargo_toml<P>(path: &P) -> Result<(), String>
@@ -91,7 +91,7 @@ where
 }
 
 /// Generates and writes the lib.rs file for Freyja's dependencies
-/// 
+///
 /// # Arguments
 /// - `path`: The path to the lib.rs file
 fn write_lib<P>(path: &P) -> Result<(), String>
@@ -130,7 +130,7 @@ where
 }
 
 /// Gets an enironment variable and maps errors to a stringified version of the error.
-/// 
+///
 /// # Arguments
 /// - `key`: The environment variable to try to read
 fn get_env(key: &str) -> Result<String, String> {
