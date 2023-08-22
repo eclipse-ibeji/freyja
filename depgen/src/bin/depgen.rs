@@ -94,11 +94,11 @@ where
         get_env("FREYJA_MAPPING_CLIENT_STRUCT")?
     );
 
-    // Sort the use statements so that the formatter is happy
+    // Sort the use statements and add a newline at the end of the file so that the formatter is happy
     let mut stmts = vec![dt_adapter_use, cloud_adapter_use, mapping_client_use];
     stmts.sort();
-
-    let contents = stmts.join("\n");
+    let mut contents = stmts.join("\n");
+    contents += "\n";
 
     fs::write(path, contents).map_err(|e| format!("Unable to write file: {e}"))?;
 
