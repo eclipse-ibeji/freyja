@@ -45,15 +45,15 @@ cargo install --force cargo-make
 
 ### Build
 
-Freyja supports the use of custom library implementations for many of the interfaces with external components. The build depends on a set of environment variables to specify which libraries to use for these implementations. To set these environment variables and build the workspace, run the following command from the repo root:
+Freyja supports the use of custom library implementations for many of the interfaces with external components. By default, the build will use in-memory mock versions of each of these components. To build with these dependencies, run the following:
 
 ```shell
-cargo make --env-file=./tools/freyja-build.env build
+cargo make build
 ```
 
-With the default values in `tools/freyja-build.env`, this will use the in-memory mock interfaces. For more information on building Freyja with your own libraries, see [the article on using external libraries](docs/external-libs.md).
+For more information on how to customize the build and use external dependencies, see [the article on using external libraries](docs/external-libs.md).
 
-Note: if you are using the rust-analyzer extension with Visual Studio code, you may need to restart the application any time you change environment variables to avoid incorrect error highlighting or hints
+Note: if you are using the rust-analyzer extension with Visual Studio code, you may need to restart the application any time you change environment variables to avoid incorrect error highlighting or hints.
 
 ### Run
 
