@@ -1,3 +1,7 @@
+env_files = [
+    { path = "./tools/freyja-build.env", defaults_only = true }
+]
+
 [config]
 # with workspace support enabled, tasks would be run for each workspace member
 default_to_workspace = false
@@ -9,11 +13,14 @@ dependencies = ["freyja-depgen", "cargo-build"]
 [tasks.test]
 dependencies = ["freyja-depgen", "cargo-test"]
 
+[tasks.fmt]
+dependencies = ["freyja-depgen", "cargo-fmt"]
+
 [tasks.freyja-ci-build-and-test]
 dependencies = ["freyja-depgen", "cargo-build", "cargo-test"]
 
 [tasks.freyja-ci-code-analysis]
-dependencies = ["freyja-depgen", "check", "clippy", "fmt", "doctest", "doc"]
+dependencies = ["freyja-depgen", "cargo-check", "cargo-clippy", "cargo-fmt-check", "cargo-doctest", "cargo-doc"]
 
 # cargo commands
 [tasks.cargo-build]
@@ -24,24 +31,29 @@ args = ["build"]
 command = "cargo"
 args = ["test"]
 
-[tasks.check]
+[tasks.cargo-check]
 command = "cargo"
 args = ["check", "--workspace"]
 
-[tasks.clippy]
+[tasks.cargo-clippy]
 command = "cargo"
 args = ["clippy", "--all-targets", "--all-features", "--workspace", "--no-deps", "--", "-D", "warnings"]
 
-[tasks.fmt]
+[tasks.cargo-fmt]
+install_crate = "rustfmt"
+command = "cargo"
+args = ["fmt", "--all"]
+
+[tasks.cargo-fmt-check]
 install_crate = "rustfmt"
 command = "cargo"
 args = ["fmt", "--all", "--", "--check"]
 
-[tasks.doctest]
+[tasks.cargo-doctest]
 command = "cargo"
 args = ["test", "--workspace", "--doc"]
 
-[tasks.doc]
+[tasks.cargo-doc]
 command = "cargo"
 args = ["doc", "--workspace", "--no-deps"]
 
