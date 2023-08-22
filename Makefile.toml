@@ -1,3 +1,9 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+# SPDX-License-Identifier: MIT
+
+# Makefile for cargo-make (more info: https://docs.rs/crate/cargo-make/latest)
+
 env_files = [
     { path = "./tools/freyja-build.env", defaults_only = true }
 ]
@@ -24,6 +30,9 @@ dependencies = ["freyja-depgen", "cargo-build", "cargo-test"]
 
 [tasks.freyja-ci-code-analysis]
 dependencies = ["freyja-depgen", "cargo-check", "cargo-clippy", "cargo-fmt-check", "cargo-doctest", "cargo-doc"]
+
+[tasks.freyja-ci-audit]
+dependencies = ["freyja-depgen", "cargo-audit"]
 
 # cargo commands
 [tasks.cargo-build]
@@ -62,6 +71,10 @@ args = ["test", "--workspace", "--doc"]
 [tasks.cargo-doc]
 command = "cargo"
 args = ["doc", "--workspace", "--no-deps"]
+
+[tasks.cargo-audit]
+command = "cargo"
+args = ["audit", "--deny", "warnings"]
 
 [tasks.freyja-depgen]
 command = "cargo"
