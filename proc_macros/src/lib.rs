@@ -34,6 +34,7 @@ use proc_macro::TokenStream;
 ///
 /// `use mock_dt_adapter::DtAdapterImpl;`
 #[proc_macro]
+#[deprecated = "deprecated in favor of using freyja-depgen to target dependencies based on environment variables"]
 pub fn use_env(ts: TokenStream) -> TokenStream {
     use_env::use_env(ts.into()).into()
 }

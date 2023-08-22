@@ -10,7 +10,7 @@ Note that each trait implementation must live in a separate crate. You cannot pu
 
 ## Freyja Dependency Generator
 
-The Freyja dependency generator helps with bringing in custom libraries and linking then with the main Freyja application. The dependency generator is an executable located in the `depgen` folder, and the generated files are placed in `depgen/__generated`. This folder contains some placeholder files so that cargo can check the workspace properly. These placeholders will be part of the repo when you clone it, but changes will be ignored. 
+The Freyja dependency generator helps with bringing in custom libraries and linking then with the main Freyja application. The dependency generator is an executable located in the `depgen` folder, and the generated files are placed in `depgen/__generated`. This folder contains some placeholder files so that cargo can check the workspace properly. These placeholders will be part of the repo when you clone it, but changes will be ignored.
 
 **It is strongly recommended to use `cargo make` to interact with the project** (e.g. `cargo make build`). This ensures that the dependency generator runs automatically and picks up your build configuration since all of the `cargo make` commands for this project will invoke the generator. A few common cargo operations have equivalent `cargo make` tasks defined for them, such as `build`, `test`, and `fmt`. The placeholder files are valid and the project can actually be built with plain cargo, but the default implementations are basic in-memory mocks which are generally only useful for prototyping.
 

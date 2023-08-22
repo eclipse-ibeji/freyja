@@ -42,7 +42,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: make
-          args: freyja-ci-static-code-analysis
+          args: freyja-ci-code-analysis
 
   build_and_test:
     runs-on: ubuntu-20.04
