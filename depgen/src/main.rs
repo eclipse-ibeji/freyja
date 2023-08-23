@@ -26,7 +26,7 @@ const MAPPING_CLIENT_PKG_CONFIG_ENV_VAR: &str = "FREYJA_MAPPING_CLIENT_PKG_CONFI
 const MAPPING_CLIENT_STRUCT_ENV_VAR: &str = "FREYJA_MAPPING_CLIENT_STRUCT";
 
 /// Executes the freyja-depgen application.
-/// This generates a crate for use with the Freyja application that bundles dependencies based on environment variables.
+/// This generates a crate for the Freyja application that bundles dependencies based on environment variables.
 fn main() -> Result<(), String> {
     println!("Freyja dependency generator");
 
@@ -54,7 +54,8 @@ fn main() -> Result<(), String> {
 /// Reads a template that already has package info and overwrites the `dependencies` section
 ///
 /// # Arguments
-/// - `path`: The path to the Cargo.toml file to edit
+/// - `template`: The template for the Cargo.toml file
+/// - `path`: The output path for the generated Cargo.toml
 fn write_cargo_toml<P1, P2>(template: &P1, path: &P2) -> Result<(), String>
 where
     P1: AsRef<Path> + Debug,
@@ -92,7 +93,7 @@ where
 
     toml["dependencies"] = dependencies;
 
-    fs::write(path, toml.to_string()).map_err(|e| format!("Unable to write file: {e}"))?;
+    fs::write(path, toml.to_string()).map_err(|e| format!("Unable to write file {path:?}: {e}"))?;
 
     Ok(())
 }
