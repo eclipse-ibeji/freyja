@@ -82,10 +82,7 @@ jobs:
       - name: Cache Dependencies
         uses: Swatinem/rust-cache@v2
       - name: Freyja depgen
-        uses: actions-rs/cargo@v1
-        with:
-          command: run
-          args: --manifest-path depgen/Cargo.toml
+        uses: ./.github/actions/freyja-depgen
       - name: Build
         uses: actions-rs/cargo@v1
         with:
