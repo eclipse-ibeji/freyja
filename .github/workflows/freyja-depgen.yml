@@ -1,0 +1,16 @@
+name: Freyja Dependency Generation
+
+on:
+  workflow_call:
+
+jobs:
+  freyja_depgen:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Configure environment
+        run: ./cp depgen/res/config.template.toml ./.cargo/config.toml
+      - name: Run depgen
+        uses: actions-rs/cargo@v1
+        with:
+          command: run
+          args: --manifest-path depgen/Cargo.toml

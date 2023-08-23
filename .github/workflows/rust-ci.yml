@@ -34,10 +34,7 @@ jobs:
       - name: Cache Dependencies
         uses: Swatinem/rust-cache@v2
       - name: Freyja depgen
-        uses: actions-rs/cargo@v1
-        with:
-          command: run
-          args: --manifest-path depgen/Cargo.toml
+        uses: ./.github/workflows/freyja-depgen.yml
       - name: Cargo check workspace
         uses: actions-rs/cargo@v1
         with:

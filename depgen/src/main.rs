@@ -142,6 +142,6 @@ where
 /// - `key`: The environment variable to try to read
 fn get_env(key: &str) -> Result<String, String> {
     env::var(key).map_err(|e| {
-        format!("Unable to get environment variable {key}; did you run this with cargo make? {e:?}")
+        format!("Unable to get environment variable {key}: {e:?}")
     })
 }
