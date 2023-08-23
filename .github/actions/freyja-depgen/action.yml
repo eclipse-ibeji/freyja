@@ -4,7 +4,9 @@ runs:
   using: "composite"
   steps:
     - name: Copy environment config
-      run: cp ./depgen/res/config.template.toml ./.cargo/config.toml
+      run: |
+        mkdir -p ./.cargo/
+        cp ./depgen/res/config.template.toml ./.cargo/config.toml
       shell: bash
     - name: Run depgen
       uses: actions-rs/cargo@v1
