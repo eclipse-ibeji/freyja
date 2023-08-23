@@ -1,12 +1,10 @@
 name: Freyja depgen
 description: Generates a crate for Freyja dependencies
-inputs:
-outputs:
 runs:
   using: "composite"
   steps:
     - name: Copy environment config
-    run: cp ./depgen/res/config.template.toml ./.cargo/config.toml
+      run: cp ./depgen/res/config.template.toml ./.cargo/config.toml
     - name: Run depgen
       uses: actions-rs/cargo@v1
       with:
