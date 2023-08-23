@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{env, fmt::Debug, fs, path::{Path, PathBuf}, process::Command, str};
+use std::{env, fmt::Debug, fs, path::Path, str};
 
 use toml_edit::Document;
 
@@ -30,7 +30,7 @@ const MAPPING_CLIENT_STRUCT_ENV_VAR: &str = "FREYJA_MAPPING_CLIENT_STRUCT";
 fn main() -> Result<(), String> {
     println!("Freyja dependency generator");
 
-    let project_dir = get_current_project_directory(false);
+    let project_dir = env!("CARGO_MANIFEST_DIR");
     let res_dir = Path::new(&project_dir)
         .join(RESOURCE_DIR_NAME);
     let generated_dir = Path::new(&project_dir)
@@ -38,7 +38,8 @@ fn main() -> Result<(), String> {
     let generated_src_dir = Path::new(&generated_dir)
         .join(SRC_DIR_NAME);
 
-    println!("Using '{}' as the generated directory", project_dir.display());
+    println!("Using '{}' as the generated directory", project_dir);
+    println!("Manifest dir is {}", env!("CARGO_MANIFEST_DIR"));
 
     let cargo_template_file = Path::new(&res_dir)
         .join(CARGO_TEMPLATE_NAME);
@@ -68,7 +69,7 @@ where
     println!("Generating Cargo.toml...");
 
     let mut toml = fs::read_to_string(template)
-        .map_err(|e| format!("Unable to read file at {path:?}: {e:?}"))?
+        .map_err(|e| format!("Unable to read file at {template:?}: {e:?}"))?
         .parse::<Document>()
         .map_err(|e| format!("Unable to parse Cargo.toml template file: {e:?}"))?;
 
@@ -139,25 +140,6 @@ where
     fs::write(path, contents).map_err(|e| format!("Unable to write file: {e}"))?;
 
     Ok(())
-}
-
-/// Runs cargo locate-project to find the current project
-fn get_current_project_directory(workspace: bool) -> PathBuf {
-    let mut args = vec!["locate-project", "--message-format=plain"];
-
-    if workspace {
-        args.push("--workspace");
-    }
-
-    let output = Command::new(env!("CARGO"))
-        .args(args)
-        .output()
-        .unwrap()
-        .stdout;
-
-    // This path includes the Cargo.toml filename which needs to get removed
-    let cargo_path = Path::new(str::from_utf8(&output).unwrap().trim());
-    cargo_path.parent().unwrap().to_path_buf()
 }
 
 /// Gets an enironment variable and maps errors to a stringified version of the error.

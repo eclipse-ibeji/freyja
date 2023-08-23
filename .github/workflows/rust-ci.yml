@@ -24,7 +24,7 @@ jobs:
           submodules: recursive
       - name: Install protobuf-compiler
         run: sudo apt-get install -y protobuf-compiler
-      - name: Install nightly Rust toolchain
+      - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -33,14 +33,29 @@ jobs:
           components: clippy, rustfmt
       - name: Cache Dependencies
         uses: Swatinem/rust-cache@v2
-      - run: cargo check --workspace
-        # Note: cargo check should use the --locked option
-        #       Excluding it because of this known issue: https://github.com/mozilla/uniffi-rs/issues/1032
-      - run: cargo clippy --all-targets --all-features --workspace --no-deps -- -D warnings
-      - run: cargo fmt --all -- --check
+      - name: Freyja depgen
+        uses: actions-rs/cargo@v1
+        with:
+          command: run
+          args: --manifest-path depgen/Cargo.toml
+      - name: Cargo check workspace
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          # Note: cargo check should use the --locked option
+          # Excluding it because of this known issue: https://github.com/mozilla/uniffi-rs/issues/1032
+          args: --workspace
+      - name: Cargo clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-targets --all-features --workspace --no-deps -- -D warnings
+      - name: Cargo format check
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
       - name: Run doctest only
-        # we run doctests here as cargo tarpaulin (our test runner)
-        # requires nightly toolchain to do so
         uses: actions-rs/cargo@v1
         with:
           command: test
@@ -69,7 +84,16 @@ jobs:
           override: true
       - name: Cache Dependencies
         uses: Swatinem/rust-cache@v2
+      - name: Freyja depgen
+        uses: actions-rs/cargo@v1
+        with:
+          command: run
+          args: --manifest-path depgen/Cargo.toml
       - name: Build
-        run: cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
       - name: Test
-        run: cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
