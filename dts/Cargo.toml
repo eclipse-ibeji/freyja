@@ -11,19 +11,7 @@ license = "MIT"
 [dependencies]
 dts-contracts = { path = "../contracts" }
 proc-macros = { path = "../proc_macros" }
-
-# Cloud Adapters
-in-memory-mock-cloud-adapter = { path = "../cloud_adapters/in_memory_mock_cloud_adapter"}
-azure-cloud-connector-adapter = { path = "../cloud_adapters/azure_cloud_connector_adapter" }
-
-# Digital Twin Adapters
-ibeji-adapter = { path = "../digital_twin_adapters/ibeji_adapter"}
-in-memory-mock-digital-twin-adapter = { path = "../digital_twin_adapters/in_memory_mock_digital_twin_adapter" }
-mock-digital-twin-adapter = { path = "../digital_twin_adapters/mock_digital_twin_adapter" }
-
-# Mapping Clients
-in-memory-mock-mapping-client = { path = "../mapping_clients/in_memory_mock_mapping_client" }
-mock-mapping-service-client = { path = "../mapping_clients/mock_mapping_service_client" }
+freyja-deps = { path = "../depgen/__generated" }
 
 tokio = { workspace = true }
 log = { workspace = true }
@@ -32,3 +20,6 @@ time = { workspace = true }
 env_logger = { workspace = true }
 provider-proxy-selector = { path = "../provider_proxy_selector"}
 crossbeam = { workspace = true }
+
+[dev-dependencies]
+in-memory-mock-cloud-adapter = { path = "../cloud_adapters/in_memory_mock_cloud_adapter"}

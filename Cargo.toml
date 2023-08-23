@@ -20,6 +20,7 @@ members = [
   "provider_proxies/in_memory_mock_provider_proxy",
   "provider_proxy_selector",
 ]
+exclude = ["depgen"]
 
 [workspace.dependencies]
 # Freyja dependencies

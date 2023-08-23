@@ -39,33 +39,40 @@ The rust toolchain version is managed by the `rust-toolchain.toml` file, so once
 
 ### Build
 
-Freyja supports the use of custom library implementations for many of the interfaces with external components. For each of these interfaces, an implementation is chosen to statically link at compilation time. This is accomplished through a procedural macro which generates use statements based on enviromnent variables. In order to build, Freyja requires the following environment variables to be set:
+Freyja supports the use of custom library implementations for many of the interfaces with external components. To accomplish this, there is a code generation step that is a required prerequisite for the build.
 
-Variable|Description|Example
--|-|-
-FREYJA_MAPPING_CLIENT|The name of a crate containing the `MappingClient` implementation to use|`in_memory_mock_mapping_client`
-FREYJA_DT_ADAPTER|The name of a crate containing the `DigitalTwinAdapter` implementation to use|`in_memory_mock_digital_twin_adapter`
-FREYJA_CLOUD_ADAPTER|The name of the crate containing the `CloudAdapter` implementation to use|`in_memory_mock_cloud_adapter`
+#### Pre-Build
 
-To quickly set these variables, you can edit the `tools/env-config.sh` file with the desired values. The crates referenced above should re-export their implementation of a trait to `<trait>Impl` so that the Freyja application can find it (for example, add `pub use crate::sample_mapping_client::SampleMappingClient as MappingClientImpl;` to your `lib.rs`). The `dts/Cargo.toml` file includes all of the implementations of these traits as dependencies for convenience, but only the ones selected with this mechanism will get packaged into the final executable.
-
-To set the environment variables and build the workspace, run the following commands from the repo root:
+1. Set up your environment. The instructions below are the recommended way to do this, but any other method of setting environment variables will also work if you prefer not to edit your personal cargo config file(s).
+    1. Copy the template file from `<repo-root>/depgen/res/config.template.toml` to your personal cargo config at `$CARGO_HOME/cargo.toml` (defaults to `$HOME/.cargo/cargo.toml` on Linux if `$CARGO_HOME` is not set). If you don't already have a cargo config file you can copy the entire contents of the template, otherwise just copy the contents of the `[env]` section into your own config file's `[env]` table.
+    1. Modify the values to configure the dependencies you want to use. By default, the template specifies the in-memory mocks. For more information on how to configure your environment see the [documentation on using external libraries](docs/external-libs.md).
+1. Starting from the repo root, build and run the dependency generator application:
 
 ```shell
-source tools/env-config.sh
+pushd depgen
+cargo run
+popd
+```
+
+This step will need to be executed again any time you change the environment variables in your cargo config to use different dependencies.
+
+#### Build
+
+Once the pre-build steps are completed, you can build the Freyja application with cargo:
+
+```shell
 cargo build
 ```
 
-Note: if you are using the rust-analyzer extension with Visual Studio code, you may need to restart the application any time you change environment variables to avoid incorrect error highlighting or hints
-
 ### Run
 
+You can run the Freyja application using cargo:
+
 ```shell
-cd target/debug
-./dts
+cargo run --bin dts
 ```
 
-Note that certain choices for the build variables may require other applications to be started as well. In general, everything other than the in-memory libraries will require some kind of external endpoint to be set up.
+Note that the dependencies chosen during the pre-build steps may require other applications to be started as well. In general, everything other than the in-memory libraries will require some kind of external endpoint to be set up.
 
 <!--alex disable he-she her-him brothers-sisters-->
 ## Why "Freyja"?

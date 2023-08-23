@@ -30,11 +30,7 @@ use dts_contracts::{
 use emitter::Emitter;
 use provider_proxy_selector::provider_proxy_selector::ProviderProxySelector;
 
-proc_macros::use_env!(
-    FREYJA_MAPPING_CLIENT::MappingClientImpl,
-    FREYJA_DT_ADAPTER::DigitalTwinAdapterImpl,
-    FREYJA_CLOUD_ADAPTER::CloudAdapterImpl,
-);
+use freyja_deps::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
