@@ -43,9 +43,9 @@ Freyja supports the use of custom library implementations for many of the interf
 
 #### Pre-Build
 
-1. Set up your environment. The instructions below are the recommended way to do this, but any other method of setting environment variables will also work if you prefer not to edit your personal cargo config file(s).
-    1. Copy the template file from `<repo-root>/depgen/res/config.template.toml` to your personal cargo config at `$CARGO_HOME/cargo.toml` (defaults to `$HOME/.cargo/cargo.toml` on Linux if `$CARGO_HOME` is not set). If you don't already have a cargo config file you can copy the entire contents of the template, otherwise just copy the contents of the `[env]` section into your own config file's `[env]` table.
-    1. Modify the values to configure the dependencies you want to use. By default, the template specifies the in-memory mocks. For more information on how to configure your environment see the [documentation on using external libraries](docs/external-libs.md).
+1. Set up your environment. The instructions below are the recommended way to do this, but any other method of setting environment variables will also work if you prefer not to edit your personal Cargo config file(s).
+    1. Copy the template file from `<repo-root>/depgen/res/config.template.toml` to your personal Cargo config at `$CARGO_HOME/cargo.toml` (defaults to `$HOME/.cargo/cargo.toml` on Linux if `$CARGO_HOME` is not set). If you don't already have a Cargo config file you can copy the entire contents of the template, otherwise just copy the contents of the `[env]` section into your own config file's `[env]` table. Note that this environment will only be configured when using Cargo to run the application.
+    1. Modify the values to configure the dependencies you want to use. By default, the template specifies the in-memory mocks. For more information on how to author your own dependencies and configure your environment to use them see [the documentation on using external libraries](docs/external-libs.md).
 1. Starting from the repo root, build and run the dependency generator application:
 
 ```shell
@@ -54,11 +54,11 @@ cargo run
 popd
 ```
 
-This step will need to be executed again any time you change the environment variables in your cargo config to use different dependencies.
+This step only needs to be executed again if the environment variables in your Cargo config change to use different dependencies.
 
 #### Build
 
-Once the pre-build steps are completed, you can build the Freyja application with cargo:
+Once the pre-build steps are completed, you can build the Freyja application with Cargo:
 
 ```shell
 cargo build
@@ -66,7 +66,7 @@ cargo build
 
 ### Run
 
-You can run the Freyja application using cargo:
+You can run the Freyja application using Cargo:
 
 ```shell
 cargo run --bin dts
