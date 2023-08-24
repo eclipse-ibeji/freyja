@@ -16,4 +16,4 @@ runs:
     - name: Install Additional Components
       run: rustup component add ${{ inputs.components }}
       shell: bash
-      if: ${{ inputs.componenets != null }}
+      if: ${{ inputs.components != null }}
