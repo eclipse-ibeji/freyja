@@ -45,9 +45,10 @@ impl MockMappingServiceClient {
 impl MappingClient for MockMappingServiceClient {
     /// Creates a new instance of a CloudAdapter with default settings
     fn create_new() -> Result<Box<dyn MappingClient>, MappingClientError> {
-        let config_contents =
-            fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
-        let config: Config = serde_json::from_str(config_contents.as_str()).unwrap();
+        let config_contents = fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE))
+            .map_err(MappingClientError::io)?;
+        let config: Config = serde_json::from_str(config_contents.as_str())
+            .map_err(MappingClientError::deserialize)?;
 
         Ok(Box::new(Self::from_config(config)))
     }
