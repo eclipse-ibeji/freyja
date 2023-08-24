@@ -1,5 +1,8 @@
+aka
 alex
 alt
+aspnet
+AspNet
 bot
 Br
 Brísingamen
@@ -11,8 +14,11 @@ CloudAdapter
 codeofconduct
 config
 com
+cvd
 dev
 DigitalTwinAdapter
+dotnet
+DotNet
 DT
 dts
 ECA
@@ -44,10 +50,13 @@ MappingClient
 MappingClientImpl
 md
 microsoft
+msrc
+MSRC
 ni
 opencode
 opensource
 org
+pgpkey
 php
 PR
 repo
@@ -65,3 +74,4 @@ toml
 toolchain
 www
 yml
+xamarin

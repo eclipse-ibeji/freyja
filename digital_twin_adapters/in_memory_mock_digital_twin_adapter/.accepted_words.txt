@@ -1,9 +1,11 @@
 config
 Config
 DigitalTwinAdapter
+EntityConfig
 Freyja
 Ibeji
 InMemoryMockDigitalTwinAdapter
 json
 ProviderConfig
+uri
 url

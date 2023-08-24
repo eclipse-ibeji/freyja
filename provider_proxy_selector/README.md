@@ -8,7 +8,7 @@ The Provider Proxy Selector enables communication with protocol-agnostic in-vehi
 
 ## Sample Provider Proxies
 
-A provider proxy retrieves values from a provider’s entity. Compatibility with a digital twin provider requires the use of the same protocol and schema. Sample provider proxies can be found in the [../provider_proxies](../provider_proxies/) directory.
+A provider proxy retrieves values from a provider's entity. Compatibility with a digital twin provider requires the use of the same protocol and schema. Sample provider proxies can be found in the [../provider_proxies](../provider_proxies/) directory.
 
 Provider Proxy|Description|Usage
 -|-|-
