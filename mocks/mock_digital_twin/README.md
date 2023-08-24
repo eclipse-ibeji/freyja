@@ -1,4 +1,4 @@
-# Mock Ditigal Twin
+# Mock Digital Twin
 
 The Mock Digital Twin mocks the behavior of the in-vehicle digital twin services (e.g. Ibeji) in a separate process. This enables functionality similar to the in-memory mock, but with finer control over the behavior of the mocked data.
 

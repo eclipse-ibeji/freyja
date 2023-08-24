@@ -1,5 +1,6 @@
 API
 config
+configs
 Freyja
 json
 MappingClient
