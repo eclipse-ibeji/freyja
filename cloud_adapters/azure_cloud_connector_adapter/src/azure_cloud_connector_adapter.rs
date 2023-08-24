@@ -82,11 +82,11 @@ impl CloudAdapter for AzureCloudConnectorAdapter {
     /// Creates a new instance of a CloudAdapter with default settings
     fn create_new() -> Result<Box<dyn CloudAdapter + Send + Sync>, CloudAdapterError> {
         let cloud_connector_client = futures::executor::block_on(async {
-            let config_file =
-                fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
-
+            let config_file = fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE))
+                .map_err(CloudAdapterError::io)?;
             // Load the config
-            let config: Config = serde_json::from_str(&config_file).unwrap();
+            let config: Config =
+                serde_json::from_str(&config_file).map_err(CloudAdapterError::deserialize)?;
 
             execute_with_retry(
                 config.max_retries,
