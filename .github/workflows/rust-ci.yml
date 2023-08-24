@@ -27,6 +27,7 @@ jobs:
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
+          toolchain: stable
           components: clippy, rustfmt
       - name: Cache Dependencies
         uses: Swatinem/rust-cache@v2
@@ -76,6 +77,8 @@ jobs:
         run: sudo apt-get install -y protobuf-compiler
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
       - name: Cache Dependencies
         uses: Swatinem/rust-cache@v2
       - name: Freyja depgen
