@@ -36,7 +36,6 @@ fn main() -> Result<(), String> {
     let generated_src_dir = Path::new(&generated_dir).join(SRC_DIR_NAME);
 
     println!("Using '{}' as the generated directory", project_dir);
-    println!("Manifest dir is {}", env!("CARGO_MANIFEST_DIR"));
 
     let cargo_template_file = Path::new(&res_dir).join(CARGO_TEMPLATE_NAME);
     let cargo_file = Path::new(&generated_dir).join(CARGO_FILE_NAME);
