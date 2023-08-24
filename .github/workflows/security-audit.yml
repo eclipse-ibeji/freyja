@@ -15,7 +15,12 @@ jobs:
   security_audit_rust:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install Rust toolchain
+        uses: ./.github/actions/install-rust-toolchain
       - name: Freyja depgen
         uses: ./.github/actions/freyja-depgen
       - name: Cargo audit
@@ -33,6 +38,8 @@ jobs:
     steps:
       - name: Checkout repository and submodules
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: Install .NET 6.0.119
         uses: actions/setup-dotnet@v3
         with:
