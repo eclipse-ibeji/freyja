@@ -44,8 +44,8 @@ Freyja supports the use of custom library implementations for many of the interf
 #### Pre-Build
 
 1. Set up your environment. The instructions below are the recommended way to do this, but any other method of setting environment variables will also work if you prefer not to edit your personal Cargo config file(s).
-    1. Copy the template file from `<repo-root>/depgen/res/config.template.toml` to your personal Cargo config at `$CARGO_HOME/cargo.toml` (defaults to `$HOME/.cargo/cargo.toml` on Linux if `$CARGO_HOME` is not set). If you don't already have a Cargo config file you can copy the entire contents of the template; otherwise copy the contents of the `[env]` section into your own config file's `[env]` table. Note that this environment config will onyl be applied when using Cargo to run the application.
-    1. Modify the values to configure the dependencies you want to use. By default, the template specifies the in-memory mocks. For more information on how to author your own dependencies and configure your environment to use them see [the documentation on using external libraries](docs/external-libs.md).
+    1. Copy the template file from `<repo-root>/depgen/res/config.template.toml` to your personal Cargo config at `$CARGO_HOME/cargo.toml` (defaults to `$HOME/.cargo/cargo.toml` on Linux if `$CARGO_HOME` is not set). If you don't already have a Cargo config file you can copy the entire contents of the template; otherwise copy the contents of the `[env]` section into your own config file's `[env]` table. Note that this environment config will only be applied when using Cargo to run the application.
+    1. Modify the values to configure the dependencies you want to use. By default, the template specifies the in-memory mocks. For more information on how to author your own dependencies and configure your environment to use them, see [the documentation on using external libraries](docs/external-libs.md).
 1. Starting from the repo root, build and run the dependency generator application:
 
 ```shell

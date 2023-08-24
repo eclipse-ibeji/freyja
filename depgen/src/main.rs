@@ -106,7 +106,7 @@ fn write_lib<P>(path: &P) -> Result<(), String>
 where
     P: AsRef<Path> + Debug,
 {
-    println!("Generating lb.rs...");
+    println!("Generating lib.rs...");
 
     // Digital Twin Adapter
     let dt_adapter_use = format!(
