@@ -18,10 +18,6 @@ jobs:
           submodules: recursive
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          default: true
-          override: true
       - name: Cache Dependencies
         uses: Swatinem/rust-cache@v1
       - name: Generate the Notice
