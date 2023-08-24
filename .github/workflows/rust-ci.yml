@@ -10,9 +10,6 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  FREYJA_MAPPING_CLIENT: in_memory_mock_mapping_client
-  FREYJA_DT_ADAPTER: in_memory_mock_digital_twin_adapter
-  FREYJA_CLOUD_ADAPTER: in_memory_mock_cloud_adapter
 
 jobs:
   static_code_analysis:
@@ -25,10 +22,9 @@ jobs:
       - name: Install protobuf-compiler
         run: sudo apt-get install -y protobuf-compiler
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: ./.github/actions/freyja-depgen
         with:
-          toolchain: stable
-          components: clippy, rustfmt
+          components: clippy rustfmt
       - name: Cache Dependencies
         uses: Swatinem/rust-cache@v2
       - name: Show cargo version

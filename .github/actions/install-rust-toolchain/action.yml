@@ -1,0 +1,19 @@
+name: Install Rust Toolchain
+description: |
+  Installs the rust toolchain.
+  Relies on the fact that rustup show will install a toolchain. The installed version is based on a toolchain file, or stable if no such file is found.
+inputs:
+  components:
+    description: A list of additional components to install
+    required: false
+    default: null
+runs:
+  using: "composite"
+  steps:
+    - name: Install Rust Toolchain
+      run: rustup show
+      shell: bash
+    - name: Install Additional Components
+      run: rustup component add ${{ inputs.components }}
+      shell: bash
+      if: ${{ inputs.componenets != null }}
