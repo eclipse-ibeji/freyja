@@ -9,7 +9,7 @@ pub(crate) const CONFIG_FILE: &str = "mock_mapping_service_client_config.json";
 /// Configuration metadata for discovering Ibeji using Chariott
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Config {
-    /// Max retries for connecting to
+    /// Max retries
     pub max_retries: u32,
 
     /// Retry interval in milliseconds

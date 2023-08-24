@@ -16,7 +16,7 @@ For instructions on other operating systems, see the full documentation [here](h
 
 ## Build
 
-1. Before building, please ensure that the `mock_mapping_service_url` field in `res/mock_mapping_service_client_config.sample.json` matches with the url that the Mock Mapping Service uses.
+1. Before building, please ensure that the `mock_mapping_service_url` field in `res/mock_mapping_service_client_config.sample.json` matches the url that the Mock Mapping Service uses.
 
 ```shell
 cargo build

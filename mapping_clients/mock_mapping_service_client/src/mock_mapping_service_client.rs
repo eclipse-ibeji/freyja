@@ -27,8 +27,11 @@ pub struct MockMappingServiceClient {
 }
 
 impl MockMappingServiceClient {
-    /// Creates a new instance of a CloudAdapter with default settings
-    pub fn with_url(config: Config) -> Self {
+    /// Creates a new instance of a CloudAdapter using a config file.
+    ///
+    /// # Arguments
+    /// - `config`: the config
+    pub fn from_config(config: Config) -> Self {
         Self {
             base_url: config.mock_mapping_service_url,
             client: reqwest::Client::new(),
@@ -46,7 +49,7 @@ impl MappingClient for MockMappingServiceClient {
             fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
         let config: Config = serde_json::from_str(config_contents.as_str()).unwrap();
 
-        Ok(Box::new(Self::with_url(config)))
+        Ok(Box::new(Self::from_config(config)))
     }
 
     /// Checks for any additional work that the mapping service requires.

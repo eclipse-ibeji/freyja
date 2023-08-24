@@ -98,8 +98,7 @@ impl CloudAdapter for AzureCloudConnectorAdapter {
             )
             .await
             .map_err(CloudAdapterError::communication)
-        })
-        .unwrap();
+        })?;
 
         Ok(Box::new(Self {
             cloud_connector_client,

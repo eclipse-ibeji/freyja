@@ -177,7 +177,7 @@ Also your Function App will need the Key Vault Reader role to read the `ADT-INST
 
 ## Build
 
-1. Before building, please edit the placeholders in `res/mqtt_config.template.json` with their respective values.
+1. Before building, please replace the placeholders in `res/mqtt_config.template.json` with their respective values.
 
     Field descriptions:
 
@@ -206,9 +206,7 @@ cargo build
 
 ## Configuration
 
-Whether you followed the [Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App](#automated-deployment-of-azure-key-vault-event-grid-and-azure-function-app), or the [Manual Deployment of Azure Key Vault, Event Grid, and Azure Function App](#manual-deployment-of-azure-key-vault-event-grid-and-azure-function-app), you will still need to follow the configuration steps below.
-
-1. Change directory to the directory with the build artifacts `{freyja-root-dir}/target/debug`. Replace `{freyja-root-dir}` with the repository's root directory.
+1. Change to the directory with the build artifacts `{freyja-root-dir}/target/debug`. Replace `{freyja-root-dir}` with the repository's root directory.
 
     ```shell
     cd {freyja-root-dir}/target/debug
@@ -216,7 +214,7 @@ Whether you followed the [Automated Deployment of Azure Key Vault, Event Grid, a
 
 ## Run
 
-Change directory to the directory with the build artifacts `{freyja-root-dir}/target/debug`. Replace `{freyja-root-dir}` with the repository's root directory.
+Change to the directory with the build artifacts `{freyja-root-dir}/target/debug`. Replace `{freyja-root-dir}` with the repository's root directory.
 
 ```shell
 cd {freyja-root-dir}/target/debug

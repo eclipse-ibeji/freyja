@@ -9,7 +9,7 @@ const SAMPLE_CONFIG_FILE: &str = "res/ibeji_adapter_config.sample.json";
 const CONFIG_FILE: &str = "ibeji_adapter_config.json";
 
 fn main() {
-    // Current directory of the build script is the package's root directory
+    // The current directory of the build script is the package's root directory
     let config_path = env::current_dir().unwrap().join(SAMPLE_CONFIG_FILE);
 
     let target_dir = env::var(OUT_DIR).unwrap();
