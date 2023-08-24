@@ -16,5 +16,14 @@ jobs:
         run: sudo apt-get install -y spell
       - name: Check spelling
         run: |
-          find . -name "README.md" -exec ./tools/check_spelling.sh {} \;
+          EXIT_CODE=0
+          
+          while IFS= read -r -d '' file; do
+            ./tools/check_spelling.sh "$file"
+            if [ $? -ne 0 ]; then
+              EXIT_CODE=1
+            fi
+          done < <(find . -name "*.md" -print0)
+          
+          exit $EXIT_CODE
         shell: bash
