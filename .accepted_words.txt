@@ -2,6 +2,7 @@ alex
 alt
 bot
 Br
+Brísingamen
 cd
 ci
 cla
@@ -20,6 +21,7 @@ env
 enviromnent
 ESDV
 faq
+Fólkvangr
 FREYJA
 Freyja
 freyja
@@ -28,6 +30,7 @@ Freyr
 github
 githubusercontent
 Hildisv
+Hildisvíni
 href
 https
 ibeji
@@ -52,6 +55,7 @@ repos
 rustup
 SampleMappingClient
 sei
+seiðr
 singamen
 snapd
 src
