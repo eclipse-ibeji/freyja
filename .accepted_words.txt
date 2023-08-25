@@ -40,6 +40,7 @@ csproj
 csr
 cv
 cvd
+depgen
 der
 dev
 digitaltwins
@@ -90,6 +91,7 @@ json
 KeyVault
 keygen
 launchSetting
+libs
 libssl
 lifecycle
 mailto
@@ -126,9 +128,13 @@ pgpkey
 php
 pkeyopt
 pkg
+popd
+Pre
+pre
 PrivateKeyName
 proto
 protobuf
+pushd
 quickstart
 repo
 req
@@ -145,6 +151,9 @@ signkey
 snapd
 src
 SSL
+STRUCT
+struct
+structs
 sudo
 svg
 Thumbprint
