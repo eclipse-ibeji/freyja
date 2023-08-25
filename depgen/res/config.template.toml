@@ -1,0 +1,18 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+# SPDX-License-Identifier: MIT
+
+# Template for setting up environment variables through Cargo
+[env]
+# digital twin adapter
+FREYJA_DT_ADAPTER_PKG_NAME='in-memory-mock-digital-twin-adapter'
+FREYJA_DT_ADAPTER_PKG_CONFIG='{ path = "../../digital_twin_adapters/in_memory_mock_digital_twin_adapter" }'
+FREYJA_DT_ADAPTER_STRUCT='in_memory_mock_digital_twin_adapter::in_memory_mock_digital_twin_adapter::InMemoryMockDigitalTwinAdapter'
+# cloud adapter
+FREYJA_CLOUD_ADAPTER_PKG_NAME='in-memory-mock-cloud-adapter'
+FREYJA_CLOUD_ADAPTER_PKG_CONFIG='{ path = "../../cloud_adapters/in_memory_mock_cloud_adapter" }'
+FREYJA_CLOUD_ADAPTER_STRUCT='in_memory_mock_cloud_adapter::in_memory_mock_cloud_adapter::InMemoryMockCloudAdapter'
+# mapping client
+FREYJA_MAPPING_CLIENT_PKG_NAME='in-memory-mock-mapping-client'
+FREYJA_MAPPING_CLIENT_PKG_CONFIG='{ path = "../../mapping_clients/in_memory_mock_mapping_client" }'
+FREYJA_MAPPING_CLIENT_STRUCT='in_memory_mock_mapping_client::in_memory_mock_mapping_client::InMemoryMockMappingClient'

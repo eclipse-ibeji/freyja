@@ -1,0 +1,15 @@
+name: Freyja depgen
+description: Generates a crate for Freyja dependencies
+runs:
+  using: "composite"
+  steps:
+    - name: Copy environment config
+      run: |
+        mkdir -p ./.cargo/
+        cp ./depgen/res/config.template.toml ./.cargo/config.toml
+      shell: bash
+    - name: Run depgen
+      uses: actions-rs/cargo@v1
+      with:
+        command: run
+        args: --manifest-path depgen/Cargo.toml

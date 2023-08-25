@@ -10,9 +10,6 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  FREYJA_MAPPING_CLIENT: in_memory_mock_mapping_client
-  FREYJA_DT_ADAPTER: in_memory_mock_digital_twin_adapter
-  FREYJA_CLOUD_ADAPTER: in_memory_mock_cloud_adapter
 
 jobs:
   static_code_analysis:
@@ -24,23 +21,32 @@ jobs:
           submodules: recursive
       - name: Install protobuf-compiler
         run: sudo apt-get install -y protobuf-compiler
-      - name: Install nightly Rust toolchain
-        uses: actions-rs/toolchain@v1
+      - name: Install Rust toolchain
+        uses: ./.github/actions/install-rust-toolchain
         with:
-          toolchain: stable
-          default: true
-          override: true
-          components: clippy, rustfmt
+          components: clippy rustfmt
       - name: Cache Dependencies
         uses: Swatinem/rust-cache@v2
-      - run: cargo check --workspace
-        # Note: cargo check should use the --locked option
-        #       Excluding it because of this known issue: https://github.com/mozilla/uniffi-rs/issues/1032
-      - run: cargo clippy --all-targets --all-features --workspace --no-deps -- -D warnings
-      - run: cargo fmt --all -- --check
+      - name: Freyja depgen
+        uses: ./.github/actions/freyja-depgen
+      - name: Cargo check workspace
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          # Note: cargo check should use the --locked option
+          # Excluding it because of this known issue: https://github.com/mozilla/uniffi-rs/issues/1032
+          args: --workspace
+      - name: Cargo clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-targets --all-features --workspace --no-deps -- -D warnings
+      - name: Cargo format check
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
       - name: Run doctest only
-        # we run doctests here as cargo tarpaulin (our test runner)
-        # requires nightly toolchain to do so
         uses: actions-rs/cargo@v1
         with:
           command: test
@@ -61,15 +67,17 @@ jobs:
           submodules: recursive
       - name: Install protobuf-compiler
         run: sudo apt-get install -y protobuf-compiler
-      - name: Install nightly Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          default: true
-          override: true
+      - name: Install Rust toolchain
+        uses: ./.github/actions/install-rust-toolchain
       - name: Cache Dependencies
         uses: Swatinem/rust-cache@v2
+      - name: Freyja depgen
+        uses: ./.github/actions/freyja-depgen
       - name: Build
-        run: cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
       - name: Test
-        run: cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test

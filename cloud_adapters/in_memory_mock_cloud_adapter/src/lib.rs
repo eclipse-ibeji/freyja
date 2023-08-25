@@ -4,5 +4,3 @@
 
 pub mod config_item;
 pub mod in_memory_mock_cloud_adapter;
-
-pub use crate::in_memory_mock_cloud_adapter::InMemoryMockCloudAdapter as CloudAdapterImpl;
