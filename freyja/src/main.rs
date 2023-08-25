@@ -19,6 +19,7 @@ use log::LevelFilter;
 use tokio::sync::mpsc;
 
 use cartographer::Cartographer;
+use emitter::Emitter;
 use freyja_contracts::provider_proxy_request::{
     ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
 };
@@ -27,7 +28,6 @@ use freyja_contracts::{
     digital_twin_map_entry::DigitalTwinMapEntry, entity::*, mapping_client::MappingClient,
     provider_proxy::SignalValue,
 };
-use emitter::Emitter;
 use provider_proxy_selector::provider_proxy_selector::ProviderProxySelector;
 
 use freyja_deps::*;
