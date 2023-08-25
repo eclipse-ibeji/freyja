@@ -3,4 +3,4 @@
 // SPDX-License-Identifier: MIT
 
 pub mod azure_cloud_connector_adapter;
-mod config;
+mod azure_cloud_connector_adapter_config;

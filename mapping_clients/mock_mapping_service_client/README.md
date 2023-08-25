@@ -13,3 +13,11 @@ sudo apt-get install -y pkg-config libssl-dev
 ```
 
 For instructions on other operating systems, see the full documentation [here](https://docs.rs/openssl/latest/openssl/#automatic)
+
+## Build
+
+1. Before building, please ensure that the `mock_mapping_service_url` field in `res/mock_mapping_service_client_config.sample.json` matches the url that the Mock Mapping Service uses.
+
+```shell
+cargo build
+```

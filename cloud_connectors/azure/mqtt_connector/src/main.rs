@@ -13,14 +13,12 @@ use tonic::transport::Server;
 
 use azure_cloud_connector_proto::azure_cloud_connector::azure_cloud_connector_server::AzureCloudConnectorServer;
 use mqtt_connector::MQTTConnector;
-use mqtt_connector_config::{Config, MQTT_FILE_RELATIVE_TO_OUTPUT_DIR, OUTPUT_DIR_PATH};
+use mqtt_connector_config::{Config, CONFIG_FILE};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Load the configuration settings
-    let config_file =
-        fs::read_to_string(Path::new(OUTPUT_DIR_PATH).join(MQTT_FILE_RELATIVE_TO_OUTPUT_DIR))
-            .unwrap();
+    let config_file = fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
     let config: Config = serde_json::from_str(&config_file).unwrap();
 
     // Setup logging
