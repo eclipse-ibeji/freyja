@@ -13,8 +13,8 @@ use serde::{Deserialize, Serialize};
 use tonic::transport::Channel;
 
 use crate::azure_cloud_connector_adapter_config::{Config, CONFIG_FILE};
-use common::utils::execute_with_retry;
-use dts_contracts::cloud_adapter::{
+use freyja_common::utils::execute_with_retry;
+use freyja_contracts::cloud_adapter::{
     CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse,
 };
 

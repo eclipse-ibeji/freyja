@@ -4,7 +4,7 @@ Freyja allows users to bring their own implementations of various traits which i
 
 ## How to Author an External Dependency
 
-Freyja supports custom implementations of the `DigitalTwinAdapter`, `CloudAdapter`, and `MappingClient` interfaces. To write your own, make a new library crate, add `dts-contracts` as a dependency, and implement the interface. Note the package name and the way you can refer to the package in a toml file (e.g., `{ path = "some/path" }` or `{ git = "some.git/url" }`), as well as the fully qualified name of the struct that implements one of the mentioned structs. You will need these to set up the environment for the dependency generator (see [Environment Variables](#environment-variables)).
+Freyja supports custom implementations of the `DigitalTwinAdapter`, `CloudAdapter`, and `MappingClient` interfaces. To write your own, make a new library crate, add `freyja-contracts` as a dependency, and implement the interface. Note the package name and the way you can refer to the package in a toml file (e.g., `{ path = "some/path" }` or `{ git = "some.git/url" }`), as well as the fully qualified name of the struct that implements one of the mentioned structs. You will need these to set up the environment for the dependency generator (see [Environment Variables](#environment-variables)).
 
 It is not necessary to build your dependencies separately. Since they will be included in the generated `Cargo.toml` file, Cargo will take care of locating and building your dependencies when you build the Freyja application.
 
@@ -14,7 +14,7 @@ Note that each trait implementation must live in a separate crate. You cannot pu
 
 The Freyja dependency generator helps with bringing in custom libraries and linking them with the main Freyja application. The dependency generator is an executable located in the `depgen` folder, and the generated files are placed in `depgen/__generated`.
 
-**The Freyja application will not build successfully until you run the dependency generator at least once!** This is because the `dts/Cargo.toml` file refers to a crate that does not exist until the generator creates it. You don't need to re-run the generator unless you change the environment config mentioned below, so generally you only need to run it once and can build and rebuild Freyja normally with Cargo afterwards.
+**The Freyja application will not build successfully until you run the dependency generator at least once!** This is because the `freyja/Cargo.toml` file refers to a crate that does not exist until the generator creates it. You do not need to re-run the generator unless you change the environment config mentioned below, so generally you only need to run it once and can build and rebuild Freyja normally with Cargo afterwards.
 
 The dependency generator will generate a small crate which bundles Freyja's external dependencies. This includes a `lib.rs` file which contains re-exports of relevant structs and a `Cargo.toml` file to package the dependencies. The generated package is excluded from the source tree so that users can freely customize their build without having git track their individual changes.
 

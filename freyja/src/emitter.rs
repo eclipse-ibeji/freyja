@@ -13,7 +13,7 @@ use log::{debug, info};
 use time::OffsetDateTime;
 use tokio::time::sleep;
 
-use dts_contracts::{
+use freyja_contracts::{
     cloud_adapter::{CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse},
     digital_twin_map_entry::DigitalTwinMapEntry,
     entity::{Entity, EntityID},
@@ -375,7 +375,8 @@ impl Emitter {
 
                 // Reset the time_ms_left
                 if emission_payload.time_ms_left == 0 {
-                    let Some(dt_map_entry) = Self::get_dt_map_entry(dt_map_entries, signal_id) else {
+                    let Some(dt_map_entry) = Self::get_dt_map_entry(dt_map_entries, signal_id)
+                    else {
                         continue;
                     };
                     emission_payload.time_ms_left = dt_map_entry.interval_ms;
@@ -480,7 +481,7 @@ mod emitter_tests {
     use core::panic;
     use tokio::sync::mpsc;
 
-    use dts_contracts::conversion::Conversion;
+    use freyja_contracts::conversion::Conversion;
     use in_memory_mock_cloud_adapter::in_memory_mock_cloud_adapter::InMemoryMockCloudAdapter;
 
     mod fixture {
@@ -589,8 +590,9 @@ mod emitter_tests {
         // Sort since collecting keys as a vector is random
         signal_ids.sort();
 
-        let [test_1_entry , test_2_entry] =
-            &signal_ids[..] else {panic!{"Cannot get digital twin entries"}};
+        let [test_1_entry, test_2_entry] = &signal_ids[..] else {
+            panic! {"Cannot get digital twin entries"}
+        };
 
         Emitter::update_emission_payload_time_left(
             &mut emitter_fixture.digital_twin_map_entries,

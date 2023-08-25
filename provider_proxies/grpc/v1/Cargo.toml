@@ -9,15 +9,15 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-samples-protobuf-data-access  = { workspace = true }
-log = { workspace = true }
-tokio = { workspace = true }
-tonic = { workspace = true }
-dts-contracts = { path = "../../../contracts"}
-proc-macros = { path = "../../../proc_macros" }
 async-trait = { workspace = true }
 crossbeam = { workspace = true }
-tower = { workspace = true }
-tokio-stream = { workspace = true }
-tempfile = { workspace = true }
+freyja-contracts = { workspace = true }
 futures = { workspace = true }
+log = { workspace = true }
+proc-macros = { workspace = true }
+samples-protobuf-data-access  = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true }
+tokio-stream = { workspace = true }
+tonic = { workspace = true }
+tower = { workspace = true }

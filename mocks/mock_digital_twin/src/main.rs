@@ -18,10 +18,10 @@ use serde::Deserialize;
 use tokio::sync::{mpsc, mpsc::UnboundedSender};
 
 use config::{ConfigItem, Settings, CONFIG_FILE};
-use dts_contracts::digital_twin_adapter::{
+use freyja_contracts::digital_twin_adapter::{
     EntityValueRequest, EntityValueResponse, GetDigitalTwinProviderResponse,
 };
-use dts_contracts::entity::Entity;
+use freyja_contracts::entity::Entity;
 use mock_digital_twin::{ENTITY_GET_VALUE_PATH, ENTITY_PATH, ENTITY_SUBSCRIBE_PATH};
 
 const GET_OPERATION: &str = "Get";

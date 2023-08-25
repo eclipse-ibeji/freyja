@@ -10,7 +10,7 @@ license = "MIT"
 
 [dependencies]
 async-trait = { workspace = true }
-dts-contracts = { workspace = true }
+freyja-contracts = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true }

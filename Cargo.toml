@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MIT
 
 [workspace]
+# The default resolver for workspaces is different than for regular packages, so use v2 to avoid warnings
+resolver = "2"
 members = [
   "cloud_adapters/azure_cloud_connector_adapter",
   "cloud_adapters/in_memory_mock_cloud_adapter",
@@ -11,7 +13,7 @@ members = [
   "common",
   "digital_twin_adapters/ibeji_adapter",
   "digital_twin_adapters/in_memory_mock_digital_twin_adapter",
-  "dts",
+  "freyja",
   "mapping_clients/in_memory_mock_mapping_client",
   "mapping_clients/mock_mapping_service_client",
   "mocks/mock_mapping_service",
@@ -25,8 +27,12 @@ exclude = ["depgen"]
 
 [workspace.dependencies]
 # Freyja dependencies
-dts-contracts = { path = "contracts" }
+azure-cloud-connector-proto = { path = "cloud_connectors/azure/proto-build" }
+freyja-common = { path = "common" }
+freyja-contracts = { path = "contracts" }
 mock-digital-twin = { path = "mocks/mock_digital_twin" }
+proc-macros = { path = "proc_macros" }
+provider-proxy-selector = { path = "provider_proxy_selector" }
 
 # Other SDV projects
 core-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji", branch = "main" }

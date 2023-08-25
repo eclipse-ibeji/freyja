@@ -10,7 +10,7 @@ use async_trait::async_trait;
 
 use crate::config::ConfigItem;
 
-use dts_contracts::mapping_client::*;
+use freyja_contracts::mapping_client::*;
 
 const CONFIG_FILE: &str = "config.json";
 
@@ -117,7 +117,7 @@ mod in_memory_mock_mapping_client_tests {
 
     use std::collections::{HashMap, HashSet};
 
-    use dts_contracts::{conversion::Conversion, digital_twin_map_entry::DigitalTwinMapEntry};
+    use freyja_contracts::{conversion::Conversion, digital_twin_map_entry::DigitalTwinMapEntry};
 
     #[test]
     fn from_config_file_returns_err_on_nonexistent_file() {

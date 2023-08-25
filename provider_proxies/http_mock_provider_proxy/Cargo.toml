@@ -9,17 +9,17 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-log = { workspace = true }
-tokio = { workspace = true }
-tonic = { workspace = true }
-dts-contracts = { path = "../../contracts"}
-proc-macros = { path = "../../proc_macros" }
-mock-digital-twin = { path = "../../mocks/mock_digital_twin" }
 async-trait = { workspace = true }
+axum = { workspace = true }
 crossbeam = { workspace = true }
-tower = { workspace = true }
-tokio-stream = { workspace = true }
+freyja-contracts = { workspace = true  }
+log = { workspace = true }
+mock-digital-twin = { workspace = true }
+proc-macros = { workspace = true  }
+reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-axum = { workspace = true }
-reqwest = { workspace = true }
+tokio = { workspace = true }
+tokio-stream = { workspace = true }
+tonic = { workspace = true }
+tower = { workspace = true }

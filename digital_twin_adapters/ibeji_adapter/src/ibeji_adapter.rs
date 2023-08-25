@@ -21,8 +21,8 @@ use service_discovery_proto::service_registry::v1::DiscoverRequest;
 use tonic::{transport::Channel, Request};
 
 use crate::config::{IbejiDiscoveryMetadata, Settings, CONFIG_FILE};
-use common::utils::execute_with_retry;
-use dts_contracts::{
+use freyja_common::utils::execute_with_retry;
+use freyja_contracts::{
     digital_twin_adapter::{
         DigitalTwinAdapter, DigitalTwinAdapterError, GetDigitalTwinProviderRequest,
         GetDigitalTwinProviderResponse,

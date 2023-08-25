@@ -69,7 +69,7 @@ cargo build
 You can run the Freyja application using Cargo:
 
 ```shell
-cargo run --bin dts
+cargo run --bin freyja
 ```
 
 Note that the dependencies chosen during the pre-build steps may require other applications to be started as well. In general, everything other than the in-memory libraries will require some kind of external endpoint to be set up.

@@ -8,7 +8,7 @@ use async_trait::async_trait;
 use log::{debug, info};
 
 use crate::config_item::ConfigItem;
-use dts_contracts::cloud_adapter::{
+use freyja_contracts::cloud_adapter::{
     CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse,
 };
 

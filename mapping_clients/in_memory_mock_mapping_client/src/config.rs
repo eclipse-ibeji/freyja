@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use dts_contracts::digital_twin_map_entry::DigitalTwinMapEntry;
+use freyja_contracts::digital_twin_map_entry::DigitalTwinMapEntry;
 
 /// A config item for the in-memory mock mapping client
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -9,13 +9,13 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-log = { workspace = true }
-tokio = { workspace = true }
-tonic = { workspace = true }
-dts-contracts = { path = "../../contracts"}
-proc-macros = { path = "../../proc_macros" }
 async-trait = { workspace = true }
 crossbeam = { workspace = true }
-tower = { workspace = true }
+freyja-contracts = { workspace = true }
+log = { workspace = true }
+proc-macros = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+tokio = { workspace = true }
+tonic = { workspace = true }
+tower = { workspace = true }

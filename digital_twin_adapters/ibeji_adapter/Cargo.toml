@@ -10,13 +10,13 @@ license = "MIT"
 
 [dependencies]
 async-trait = { workspace = true }
-common = { path = "../../common" }
 core-protobuf-data-access  = { workspace = true }
-dts-contracts = { path = "../../contracts"}
+freyja-common = { workspace = true }
+freyja-contracts = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
-proc-macros = { path = "../../proc_macros" }
-provider-proxy-selector = { path = "../../provider_proxy_selector" }
+proc-macros = { workspace = true }
+provider-proxy-selector = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 service_discovery_proto = { workspace = true }

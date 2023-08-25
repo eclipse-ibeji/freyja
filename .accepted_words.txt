@@ -50,7 +50,6 @@ dotnet
 DT
 DTDL
 dtdl
-dts
 DigitalTwinAdapter
 dyn
 ECA

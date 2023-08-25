@@ -13,7 +13,7 @@ use log::{debug, info, warn};
 use strum_macros::{Display, EnumString};
 use tokio::{sync::mpsc::UnboundedReceiver, time::Duration};
 
-use dts_contracts::{
+use freyja_contracts::{
     entity::{Entity, EntityID, ProviderURI},
     provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue},
     provider_proxy_request::ProviderProxySelectorRequestKind,
@@ -337,7 +337,7 @@ proc_macros::error! {
 mod provider_proxy_selector_tests {
     use super::*;
 
-    use dts_contracts::provider_proxy::OperationKind;
+    use freyja_contracts::provider_proxy::OperationKind;
 
     const AMBIENT_AIR_TEMPERATURE_ID: &str = "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1";
 

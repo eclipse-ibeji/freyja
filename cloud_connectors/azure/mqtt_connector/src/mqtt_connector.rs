@@ -14,7 +14,7 @@ use azure_cloud_connector_proto::azure_cloud_connector::azure_cloud_connector_se
 use azure_cloud_connector_proto::azure_cloud_connector::{
     UpdateDigitalTwinRequest, UpdateDigitalTwinResponse,
 };
-use common::utils::execute_with_retry;
+use freyja_common::utils::execute_with_retry;
 
 /// Implementation of the MQTTConnector gRPC trait
 pub struct MQTTConnector {

@@ -8,8 +8,8 @@ use async_trait::async_trait;
 use reqwest::Client;
 
 use crate::mock_mapping_service_client_config::{Config, CONFIG_FILE};
-use common::utils::execute_with_retry;
-use dts_contracts::mapping_client::*;
+use freyja_common::utils::execute_with_retry;
+use freyja_contracts::mapping_client::*;
 
 /// Mocks a mapping provider in memory
 pub struct MockMappingServiceClient {

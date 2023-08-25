@@ -19,7 +19,7 @@ use samples_protobuf_data_access::sample_grpc::v1::{
 use tonic::transport::{Channel, Server};
 
 use crate::grpc_client_impl::GRPCClientImpl;
-use dts_contracts::{
+use freyja_contracts::{
     entity::EntityID,
     provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue},
 };

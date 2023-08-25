@@ -22,7 +22,7 @@ use env_logger::Target;
 use log::{info, LevelFilter};
 
 use config::ConfigItem;
-use dts_contracts::mapping_client::{
+use freyja_contracts::mapping_client::{
     CheckForWorkResponse, GetMappingResponse, SendInventoryRequest, SendInventoryResponse,
 };
 

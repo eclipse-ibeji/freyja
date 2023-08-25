@@ -7,8 +7,8 @@ use std::{collections::HashMap, time::Duration};
 
 use log::info;
 
-use dts_contracts::digital_twin_map_entry::DigitalTwinMapEntry;
-use dts_contracts::mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient};
+use freyja_contracts::digital_twin_map_entry::DigitalTwinMapEntry;
+use freyja_contracts::mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient};
 
 /// Manages mappings from the mapping service
 pub struct Cartographer {
