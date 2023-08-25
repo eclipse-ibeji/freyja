@@ -23,14 +23,12 @@ while IFS= read -r -d '' file; do
     spell $1 | sort -u > $TEMP_FILE
   fi
   NUM_SPELLING_ERRORS=`wc -l $TEMP_FILE | cut -d ' ' -f 1`
-  if [ $? -ne 0 ]; then
-    EXIT_CODE=1
-  fi
   if [ $NUM_SPELLING_ERRORS -eq 0 ]; then
     echo "$file has no spelling mistakes."
   else
     echo "Error: $file has spelling mistakes. Please fix them."
     cat $TEMP_FILE
+    EXIT_CODE=1
   fi
 done < <(find . -path ./target -prune -o -path ./node_modules -prune -o -name "*.md" -print0)
 
