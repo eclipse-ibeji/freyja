@@ -39,7 +39,7 @@ The rust toolchain version is managed by the `rust-toolchain.toml` file, so once
 
 ### Build
 
-Freyja supports the use of custom library implementations for many of the interfaces with external components. For each of these interfaces, an implementation is chosen to statically link at compilation time. This is accomplished through a procedural macro which generates use statements based on enviromnent variables. In order to build, Freyja requires the following environment variables to be set:
+Freyja supports the use of custom library implementations for many of the interfaces with external components. For each of these interfaces, an implementation is chosen to statically link at compilation time. This is accomplished through a procedural macro which generates use statements based on environment variables. In order to build, Freyja requires the following environment variables to be set:
 
 Variable|Description|Example
 -|-|-

@@ -1,6 +1,0 @@
-
-DigitalTwinAdapter
-Freyja
-md
-src
-svg
