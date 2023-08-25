@@ -15,7 +15,7 @@ async
 awk
 AzureDigitalTwinsInstanceUrl
 az
-Br
+Brísingamen
 Cbash
 cd
 cer
@@ -57,6 +57,7 @@ en
 env
 ESDV
 EntityConfig
+Fólkvangr
 FREYJA
 Freyja
 Freyja's
@@ -68,12 +69,12 @@ githubusercontent
 GRPCProviderProxy
 grpc
 gRPC
-Hildisv
+Hildisvíni
 HTTPMockProviderProxy
+https
 href
 hvac
 HybridBatteryRemaining
-https
 Ibeji
 ibeji
 img
@@ -92,7 +93,6 @@ keygen
 launchSetting
 libssl
 lifecycle
-lkvangr
 mailto
 MappingClient
 MappingClientImpl
@@ -140,10 +140,9 @@ SampleMappingClient
 sdk
 SDV
 SecretUri
-sei
+seiðr
 sha
 signkey
-singamen
 snapd
 src
 SSL
