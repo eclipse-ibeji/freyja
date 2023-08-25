@@ -16,5 +16,5 @@ jobs:
         run: sudo apt-get install -y spell
       - name: Check spelling
         run: |
-          ./tools/check_spelling.sh
+          ./tools/check_spelling.sh .
         shell: bash
