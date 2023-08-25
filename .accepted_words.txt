@@ -8,7 +8,6 @@ codeofconduct
 com
 DigitalTwinAdapter
 DT
-dts
 en
 ESDV
 faq

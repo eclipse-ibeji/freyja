@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 use tonic::transport::Channel;
 
 use crate::config::{ConfigItem, CONFIG_FILE_NAME};
-use dts_contracts::cloud_adapter::{
+use freyja_contracts::cloud_adapter::{
     CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse,
 };
 

@@ -19,10 +19,10 @@ use log::LevelFilter;
 use tokio::sync::mpsc;
 
 use cartographer::Cartographer;
-use dts_contracts::provider_proxy_request::{
+use freyja_contracts::provider_proxy_request::{
     ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
 };
-use dts_contracts::{
+use freyja_contracts::{
     cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter,
     digital_twin_map_entry::DigitalTwinMapEntry, entity::*, mapping_client::MappingClient,
     provider_proxy::SignalValue,

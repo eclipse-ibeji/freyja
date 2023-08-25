@@ -13,7 +13,7 @@ use log::{debug, info};
 use time::OffsetDateTime;
 use tokio::time::sleep;
 
-use dts_contracts::{
+use freyja_contracts::{
     cloud_adapter::{CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse},
     digital_twin_map_entry::DigitalTwinMapEntry,
     entity::{Entity, EntityID},
@@ -480,7 +480,7 @@ mod emitter_tests {
     use core::panic;
     use tokio::sync::mpsc;
 
-    use dts_contracts::conversion::Conversion;
+    use freyja_contracts::conversion::Conversion;
     use in_memory_mock_cloud_adapter::in_memory_mock_cloud_adapter::InMemoryMockCloudAdapter;
 
     mod fixture {

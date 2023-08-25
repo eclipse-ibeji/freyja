@@ -9,6 +9,6 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-dts-contracts = { path = "../../contracts" }
-reqwest = { workspace = true }
 async-trait = { workspace = true }
+freyja-contracts = { workspace = true }
+reqwest = { workspace = true }

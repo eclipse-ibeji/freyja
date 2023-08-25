@@ -5,7 +5,7 @@
 use async_trait::async_trait;
 use reqwest::Client;
 
-use dts_contracts::mapping_client::*;
+use freyja_contracts::mapping_client::*;
 
 const DEFAULT_ENDPOINT: &str = "http://127.0.0.1:8888"; // Devskim: ignore DS137138
 

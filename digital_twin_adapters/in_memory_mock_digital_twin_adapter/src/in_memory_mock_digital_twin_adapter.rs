@@ -7,7 +7,7 @@ use std::{collections::HashMap, fs, path::Path, sync::Arc, sync::Mutex, time::Du
 use async_trait::async_trait;
 
 use crate::config::EntityConfig;
-use dts_contracts::{
+use freyja_contracts::{
     digital_twin_adapter::{
         DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind,
         GetDigitalTwinProviderRequest, GetDigitalTwinProviderResponse,
@@ -103,7 +103,7 @@ impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
 mod in_memory_mock_digital_twin_adapter_tests {
     use super::*;
 
-    use dts_contracts::provider_proxy::OperationKind;
+    use freyja_contracts::provider_proxy::OperationKind;
 
     #[test]
     fn from_config_file_returns_err_on_nonexistent_file() {

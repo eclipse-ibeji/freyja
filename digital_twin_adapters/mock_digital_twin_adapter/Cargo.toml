@@ -10,7 +10,7 @@ license = "MIT"
 
 [dependencies]
 async-trait = { workspace = true }
-dts-contracts = { workspace = true }
+freyja-contracts = { workspace = true }
 httptest = { workspace = true }
 mock-digital-twin = { workspace = true }
 reqwest = { workspace = true }

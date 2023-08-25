@@ -17,7 +17,7 @@ use crossbeam::queue::SegQueue;
 use log::info;
 
 use crate::config::{EntityConfig, Settings};
-use dts_contracts::{
+use freyja_contracts::{
     entity::EntityID,
     provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue},
 };

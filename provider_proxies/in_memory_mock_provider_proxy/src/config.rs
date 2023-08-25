@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use dts_contracts::entity::EntityID;
+use freyja_contracts::entity::EntityID;
 
 /// Configuration for a entity
 #[derive(Clone, Debug, Serialize, Deserialize)]

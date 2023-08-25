@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use dts_contracts::entity::Entity;
+use freyja_contracts::entity::Entity;
 
 pub(crate) const CONFIG_FILE: &str = "config.json";
 

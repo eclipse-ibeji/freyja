@@ -12,12 +12,12 @@ use reqwest::Client;
 use serde_json;
 
 use crate::config::{Settings, CONFIG_FILE};
-use dts_contracts::digital_twin_adapter::{
+use freyja_contracts::digital_twin_adapter::{
     DigitalTwinAdapter, DigitalTwinAdapterError, GetDigitalTwinProviderRequest,
     GetDigitalTwinProviderResponse,
 };
-use dts_contracts::entity::{Entity, EntityID};
-use dts_contracts::provider_proxy_request::ProviderProxySelectorRequestSender;
+use freyja_contracts::entity::{Entity, EntityID};
+use freyja_contracts::provider_proxy_request::ProviderProxySelectorRequestSender;
 use mock_digital_twin::ENTITY_QUERY_PATH;
 
 /// Mocks a Digital Twin Adapter that calls the mocks/mock_digital_twin

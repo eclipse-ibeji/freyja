@@ -15,9 +15,9 @@ use log::{debug, error, info};
 use reqwest::Client;
 
 use crate::config::{Settings, CALLBACK_FOR_VALUES_PATH, CONFIG_FILE};
-use dts_contracts::digital_twin_adapter::{EntityValueRequest, EntityValueResponse};
-use dts_contracts::entity::EntityID;
-use dts_contracts::provider_proxy::{
+use freyja_contracts::digital_twin_adapter::{EntityValueRequest, EntityValueResponse};
+use freyja_contracts::entity::EntityID;
+use freyja_contracts::provider_proxy::{
     OperationKind, ProviderProxy, ProviderProxyError, SignalValue,
 };
 

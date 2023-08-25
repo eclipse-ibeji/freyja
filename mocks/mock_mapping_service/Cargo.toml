@@ -9,10 +9,10 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-dts-contracts = { path = "../../contracts" }
+axum = { workspace = true }
+env_logger = { workspace = true }
+freyja-contracts = { workspace = true }
+log = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-log = { workspace = true }
-env_logger = { workspace = true }
-axum = { workspace = true }
 tokio = { workspace = true }

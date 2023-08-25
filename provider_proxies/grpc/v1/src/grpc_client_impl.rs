@@ -8,7 +8,7 @@ use crossbeam::queue::SegQueue;
 use log::{debug, warn};
 use tonic::{Request, Response, Status};
 
-use dts_contracts::provider_proxy::SignalValue;
+use freyja_contracts::provider_proxy::SignalValue;
 use samples_protobuf_data_access::sample_grpc::v1::digital_twin_consumer::{
     digital_twin_consumer_server::DigitalTwinConsumer, PublishRequest, PublishResponse,
     RespondRequest, RespondResponse,
