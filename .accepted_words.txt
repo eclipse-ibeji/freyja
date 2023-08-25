@@ -148,7 +148,6 @@ src
 SSL
 sudo
 svg
-synchonous
 Thumbprint
 thumbprint
 toml
