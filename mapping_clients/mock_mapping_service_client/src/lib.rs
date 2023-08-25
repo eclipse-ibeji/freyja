@@ -3,5 +3,4 @@
 // SPDX-License-Identifier: MIT
 
 pub mod mock_mapping_service_client;
-
-pub use crate::mock_mapping_service_client::MockMappingServiceClient as MappingClientImpl;
+mod mock_mapping_service_client_config;

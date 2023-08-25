@@ -9,6 +9,9 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
+async-trait = { workspace = true }
+common = { path = "../../common" }
 dts-contracts = { path = "../../contracts" }
 reqwest = { workspace = true }
-async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true}

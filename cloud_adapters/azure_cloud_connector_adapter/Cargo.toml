@@ -9,6 +9,7 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
+common = { path = "../../common" }
 dts-contracts = { path = "../../contracts" }
 azure-cloud-connector-proto = { path = "../../cloud_connectors/azure/proto-build/" }
 tonic = { workspace = true }
