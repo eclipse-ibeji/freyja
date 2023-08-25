@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 [workspace]
+resolver = "2"
 members = [
   "cloud_adapters/azure_cloud_connector_adapter",
   "cloud_adapters/in_memory_mock_cloud_adapter",
