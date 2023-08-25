@@ -86,7 +86,6 @@ io
 IoT
 iot
 IsAirConditioningActive
-ISTANCE
 json
 KeyVault
 keygen
