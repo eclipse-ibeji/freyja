@@ -91,7 +91,7 @@ chmod +x mqtt_connector_setup.sh
 
 1. Create a secret with `ADT-INSTANCE-URL` as the name, and the value should be the **Azure Digital Twin URL** that you obtained in step 1.
 
-You have successfully deployed your Key Vault if you see an `ADT-ISTANCE-URL` secret and the status of that secret is enabled.
+You have successfully deployed your Key Vault if you see an `ADT-INSTANCE-URL` secret and the status of that secret is enabled.
 
 ### 2. Azure Event Grid with MQTT
 

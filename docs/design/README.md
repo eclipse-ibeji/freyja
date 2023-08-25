@@ -50,7 +50,7 @@ Freyja communicates with the in-vehicle digital twin to get signal values for em
 
 - `create_new`: Generates a `Box<dyn DigitalTwinAdapter>` and serves as the integration point for the core Freyja components
 - `find_provider_by_id`: Finds a digital twin provider by id
-- `get_signal_value`: Gets the value of a signal from a provider. Note that this API is subject to change or removal since it is a synchonous request but the overall SDV architecture calls for "asynchronous gets" with a callback. The current API is simplified for easier prototyping
+- `get_signal_value`: Gets the value of a signal from a provider. Note that this API is subject to change or removal since it is a synchronous request but the overall SDV architecture calls for "asynchronous gets" with a callback. The current API is simplified for easier prototyping
 
 Although this component is built with the same pluggable model as other external interfaces, it is being designed closely together with other SDV components. As a result, it is strongly suggested to use the provided SDV implementation of this interface, and this implementation should be sufficient for most production scenarios.
 

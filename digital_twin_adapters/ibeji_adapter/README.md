@@ -14,6 +14,6 @@ By default, running `cargo build` will copy the `ibeji_adapter_config.sample.jso
 
 If Ibeji is registered with [Chariott's Service Discovery system](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/README.md) and you wish to discover Ibeji through Chariott, then copy the contents from `res/ibeji_adapter_config_with_chariott.sample.json`, and paste it into `res/ibeji_adapter_config.sample.json`.
 
-Before building, please edit the `uri` field in `res/ibeji_adapter_config.sample.json`, so that the URI matches with the URI that Chariott's Serice Discovery uses.
+Before building, please edit the `uri` field in `res/ibeji_adapter_config.sample.json`, so that the URI matches with the URI that Chariott's Service Discovery uses.
 
 The Ibeji Adapter will discover Ibeji's In-Vehicle Digital Twin Service URI through Chariott.

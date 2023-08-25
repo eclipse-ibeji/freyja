@@ -1,6 +1,0 @@
-API
-config
-Freyja
-json
-MappingClient
-md
