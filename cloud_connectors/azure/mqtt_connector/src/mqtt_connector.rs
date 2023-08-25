@@ -2,6 +2,8 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
+use std::time::Duration;
+
 use log::info;
 use paho_mqtt::{self as mqtt, MQTT_VERSION_5};
 use serde::{Deserialize, Serialize};
@@ -12,6 +14,7 @@ use azure_cloud_connector_proto::azure_cloud_connector::azure_cloud_connector_se
 use azure_cloud_connector_proto::azure_cloud_connector::{
     UpdateDigitalTwinRequest, UpdateDigitalTwinResponse,
 };
+use freyja_common::utils::execute_with_retry;
 
 /// Implementation of the MQTTConnector gRPC trait
 pub struct MQTTConnector {
@@ -34,7 +37,10 @@ impl MQTTConnector {
     /// # Arguments
     /// - `config`: the config file
     pub fn new(config: Config) -> Result<Self, MQTTConnectorError> {
-        let event_grid_mqtt_uri = format!("mqtts://{}:8883", config.event_grid_namespace_host_name);
+        let event_grid_mqtt_uri = format!(
+            "mqtts://{}:{}",
+            config.event_grid_namespace_host_name, config.event_grid_port
+        );
 
         let mqtt_event_grid_client = mqtt::CreateOptionsBuilder::new()
             .server_uri(event_grid_mqtt_uri)
@@ -58,10 +64,16 @@ impl MQTTConnector {
             .finalize();
 
         futures::executor::block_on(async {
-            mqtt_event_grid_client
-                .connect(conn_opts)
-                .await
-                .map_err(MQTTConnectorError::communication)
+            execute_with_retry(
+                config.max_retries,
+                Duration::from_millis(config.retry_interval_ms),
+                || mqtt_event_grid_client.connect(conn_opts.clone()),
+                Some(String::from(
+                    "Connection retry for connecting to your Azure Event Grid",
+                )),
+            )
+            .await
+            .map_err(MQTTConnectorError::communication)
         })?;
 
         Ok(MQTTConnector {

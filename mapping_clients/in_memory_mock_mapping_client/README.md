@@ -4,7 +4,7 @@ Together with the matching service, the Mock Mapping Service client mocks the be
 
 For more information about the mock service, see [the README for the Mock Mapping Service](../../mocks/mock_mapping_service/README.md)
 
-## Prerequsites
+## Prerequisites
 
 The HTTP client library used in this implementation requires Open-SSL 1.0.1, 1.0.2, 1.1.0, or 1.1.1 with headers. This requires the following additional setup to build the client on Ubuntu:
 

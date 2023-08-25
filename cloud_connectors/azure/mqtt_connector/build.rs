@@ -8,17 +8,15 @@ use std::{
 };
 
 const OUTPUT_DIR: &str = "OUT_DIR";
-const MQTT_CONFIG_SAMPLE_IN_RESOURCE: &str = "res/mqtt_config.template.json";
-const MQTT_CONFIG_FILE_RELATIVE_TO_OUTPUT_DIR: &str = "../../../mqtt_config.json";
+const TEMPLATE_CONFIG_FILE: &str = "res/mqtt_config.template.json";
+const CONFIG_FILE: &str = "mqtt_config.json";
 
 fn main() {
     let target_dir = env::var(OUTPUT_DIR).unwrap();
 
     // Copy the mqtt_config.template.json template to target/debug
-    let config_template = env::current_dir()
-        .unwrap()
-        .join(MQTT_CONFIG_SAMPLE_IN_RESOURCE);
-    let dest_path = Path::new(&target_dir).join(MQTT_CONFIG_FILE_RELATIVE_TO_OUTPUT_DIR);
+    let config_template = env::current_dir().unwrap().join(TEMPLATE_CONFIG_FILE);
+    let dest_path = Path::new(&target_dir).join(CONFIG_FILE);
     copy(config_template, dest_path);
 }
 

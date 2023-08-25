@@ -4,12 +4,17 @@
 
 use serde::{Deserialize, Serialize};
 
-pub(crate) const OUTPUT_DIR_PATH: &str = env!("OUT_DIR");
-pub(crate) const MQTT_FILE_RELATIVE_TO_OUTPUT_DIR: &str = "../../../mqtt_config.json";
+pub(crate) const CONFIG_FILE: &str = "mqtt_config.json";
 
 /// Configuration for the MQTT Connector
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
+    /// Max retries for connecting to Azure Event Grid
+    pub max_retries: u32,
+
+    /// Retry interval in milliseconds
+    pub retry_interval_ms: u64,
+
     /// gRPC Server Authority
     pub grpc_server_authority: String,
 
@@ -32,4 +37,7 @@ pub struct Config {
 
     /// The Event Grid Namespace hostname.
     pub event_grid_namespace_host_name: String,
+
+    /// The Event Grid port number
+    pub event_grid_port: String,
 }

@@ -10,5 +10,8 @@ license = "MIT"
 
 [dependencies]
 async-trait = { workspace = true }
+freyja-common = { workspace = true }
 freyja-contracts = { workspace = true }
 reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true}

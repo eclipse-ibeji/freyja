@@ -91,7 +91,7 @@ chmod +x mqtt_connector_setup.sh
 
 1. Create a secret with `ADT-INSTANCE-URL` as the name, and the value should be the **Azure Digital Twin URL** that you obtained in step 1.
 
-You have successfully deployed your Key Vault if you see an `ADT-ISTANCE-URL` secret and the status of that secret is enabled.
+You have successfully deployed your Key Vault if you see an `ADT-INSTANCE-URL` secret and the status of that secret is enabled.
 
 ### 2. Azure Event Grid with MQTT
 
@@ -177,25 +177,14 @@ Also your Function App will need the Key Vault Reader role to read the `ADT-INST
 
 ## Build
 
-```shell
-cargo build
-```
-
-## Configuration
-
-Whether you followed the [Automated Deployment of Azure Key Vault, Event Grid, and Azure Function App](#automated-deployment-of-azure-key-vault-event-grid-and-azure-function-app), or the [Manual Deployment of Azure Key Vault, Event Grid, and Azure Function App](#manual-deployment-of-azure-key-vault-event-grid-and-azure-function-app), you will still need to follow the configuration steps below.
-
-1. Change directory to the directory with the build artifacts `{freyja-root-dir}/target/debug`. Replace `{freyja-root-dir}` with the repository's root directory.
-
-    ```shell
-    cd {freyja-root-dir}/target/debug
-    ```
-
-1. After building the MQTT Connector, you should see a `mqtt_config.json` file in your `{freyja-root-dir}/target/debug`. If you do not see the `mqtt_config.json` file in `{freyja-root-dir}/target/debug`, you can create one manually by copying the `res/mqtt_config.template.json` file and pasting it into `{freyja-root-dir}/target/debug`.
-
-1. Replace the placeholders in your `mqtt_config.json` with their respective values.
+1. Before building, please replace the placeholders in `res/mqtt_config.template.json` with their respective values.
 
     Field descriptions:
+
+    * `max_retries`: Max retries for connecting to Azure Event Grid
+
+    * `retry_interval_ms`: Retry interval in milliseconds
+
     <!--alex ignore host-hostess-->
     * `grpc_server_authority`: The gRPC server authority you wish to use to host the MQTT Connector's gRPC server. Example `"grpc_server_authority": "[::1]:8890"`
 
@@ -211,9 +200,21 @@ Whether you followed the [Automated Deployment of Azure Key Vault, Event Grid, a
 
     * `event_grid_namespace_host_name`: The Event Grid Namespace MQTT hostname. You can find the hostname by clicking on your event grid namespace, then copy the MQTT hostname.
 
+```shell
+cargo build
+```
+
+## Configuration
+
+1. Change to the directory with the build artifacts `{freyja-root-dir}/target/debug`. Replace `{freyja-root-dir}` with the repository's root directory.
+
+    ```shell
+    cd {freyja-root-dir}/target/debug
+    ```
+
 ## Run
 
-Change directory to the directory with the build artifacts `{freyja-root-dir}/target/debug`. Replace `{freyja-root-dir}` with the repository's root directory.
+Change to the directory with the build artifacts `{freyja-root-dir}/target/debug`. Replace `{freyja-root-dir}` with the repository's root directory.
 
 ```shell
 cd {freyja-root-dir}/target/debug

@@ -2,36 +2,55 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
+use std::{fs, path::Path, time::Duration};
+
 use async_trait::async_trait;
 use reqwest::Client;
 
+use crate::mock_mapping_service_client_config::{Config, CONFIG_FILE};
+use freyja_common::utils::execute_with_retry;
 use freyja_contracts::mapping_client::*;
 
-const DEFAULT_ENDPOINT: &str = "http://127.0.0.1:8888"; // Devskim: ignore DS137138
-
 /// Mocks a mapping provider in memory
-pub struct MockMappingServiceClient<'a> {
+pub struct MockMappingServiceClient {
     /// The base URL for requests
-    base_url: &'a str,
+    base_url: String,
+
     /// An internal HTTP client
     client: Client,
+
+    /// Max retries for connecting to Mock Mapping Service
+    pub max_retries: u32,
+
+    /// Retry interval in milliseconds
+    pub retry_interval_ms: u64,
 }
 
-impl<'a> MockMappingServiceClient<'a> {
-    /// Creates a new instance of a CloudAdapter with default settings
-    pub fn with_url(base_url: &'a str) -> Self {
+impl MockMappingServiceClient {
+    /// Creates a new instance of a CloudAdapter using a config file.
+    ///
+    /// # Arguments
+    /// - `config`: the config
+    pub fn from_config(config: Config) -> Self {
         Self {
-            base_url,
+            base_url: config.mock_mapping_service_url,
             client: reqwest::Client::new(),
+            max_retries: config.max_retries,
+            retry_interval_ms: config.retry_interval_ms,
         }
     }
 }
 
 #[async_trait]
-impl MappingClient for MockMappingServiceClient<'static> {
+impl MappingClient for MockMappingServiceClient {
     /// Creates a new instance of a CloudAdapter with default settings
     fn create_new() -> Result<Box<dyn MappingClient>, MappingClientError> {
-        Ok(Box::new(Self::with_url(DEFAULT_ENDPOINT)))
+        let config_contents = fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE))
+            .map_err(MappingClientError::io)?;
+        let config: Config = serde_json::from_str(config_contents.as_str())
+            .map_err(MappingClientError::deserialize)?;
+
+        Ok(Box::new(Self::from_config(config)))
     }
 
     /// Checks for any additional work that the mapping service requires.
@@ -42,16 +61,20 @@ impl MappingClient for MockMappingServiceClient<'static> {
         _request: CheckForWorkRequest,
     ) -> Result<CheckForWorkResponse, MappingClientError> {
         let target = format!("{}/work", self.base_url);
-        self.client
-            .get(&target)
-            .send()
-            .await
-            .map_err(MappingClientError::communication)?
-            .error_for_status()
-            .map_err(MappingClientError::communication)?
-            .json::<CheckForWorkResponse>()
-            .await
-            .map_err(MappingClientError::deserialize)
+
+        execute_with_retry(
+            self.max_retries,
+            Duration::from_millis(self.retry_interval_ms),
+            || self.client.get(&target).send(),
+            Some(String::from("Checking for work from the mapping service")),
+        )
+        .await
+        .map_err(MappingClientError::communication)?
+        .error_for_status()
+        .map_err(MappingClientError::communication)?
+        .json::<CheckForWorkResponse>()
+        .await
+        .map_err(MappingClientError::deserialize)
     }
 
     /// Sends the provider inventory to the mapping service
@@ -84,15 +107,21 @@ impl MappingClient for MockMappingServiceClient<'static> {
         _request: GetMappingRequest,
     ) -> Result<GetMappingResponse, MappingClientError> {
         let target = format!("{}/mapping", self.base_url);
-        self.client
-            .get(&target)
-            .send()
-            .await
-            .map_err(MappingClientError::communication)?
-            .error_for_status()
-            .map_err(MappingClientError::communication)?
-            .json::<GetMappingResponse>()
-            .await
-            .map_err(MappingClientError::deserialize)
+
+        execute_with_retry(
+            self.max_retries,
+            Duration::from_millis(self.retry_interval_ms),
+            || self.client.get(&target).send(),
+            Some(String::from(
+                "Getting mapping info from the mapping service",
+            )),
+        )
+        .await
+        .map_err(MappingClientError::communication)?
+        .error_for_status()
+        .map_err(MappingClientError::communication)?
+        .json::<GetMappingResponse>()
+        .await
+        .map_err(MappingClientError::deserialize)
     }
 }

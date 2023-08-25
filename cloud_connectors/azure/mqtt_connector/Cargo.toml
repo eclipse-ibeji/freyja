@@ -12,6 +12,7 @@ license = "MIT"
 async-trait = { workspace = true }
 azure-cloud-connector-proto = { path = "../proto-build/" }
 env_logger = { workspace = true }
+freyja-common = { path = "../../../common" }
 futures = { workspace = true }
 log = { workspace = true }
 time = { workspace = true }
