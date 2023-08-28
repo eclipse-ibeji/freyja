@@ -175,20 +175,25 @@ impl ProviderProxy for GRPCProviderProxy {
 
 #[cfg(test)]
 mod grpc_provider_proxy_v1_tests {
+    use std::pin::Pin;
+
     use super::*;
 
+    use tokio_stream::Stream;
     use tonic::{Request, Response, Status};
 
     use samples_protobuf_data_access::sample_grpc::v1::digital_twin_provider::{
         digital_twin_provider_server::{DigitalTwinProvider, DigitalTwinProviderServer},
-        GetRequest, GetResponse, InvokeRequest, InvokeResponse, SetRequest, SetResponse,
-        SubscribeRequest, SubscribeResponse, UnsubscribeRequest, UnsubscribeResponse,
+        GetResponse, InvokeRequest, InvokeResponse, SetRequest, SetResponse, StreamRequest,
+        StreamResponse, SubscribeResponse, UnsubscribeRequest, UnsubscribeResponse,
     };
 
     pub struct MockProvider {}
 
     #[tonic::async_trait]
     impl DigitalTwinProvider for MockProvider {
+        // This is required by the Ibeji contract
+        type StreamStream = Pin<Box<dyn Stream<Item = Result<StreamResponse, Status>> + Send>>;
         async fn subscribe(
             &self,
             _request: Request<SubscribeRequest>,
@@ -226,6 +231,13 @@ mod grpc_provider_proxy_v1_tests {
             _request: Request<InvokeRequest>,
         ) -> Result<Response<InvokeResponse>, Status> {
             Err(Status::unimplemented("invoke has not been implemented"))
+        }
+
+        async fn stream(
+            &self,
+            _request: Request<StreamRequest>,
+        ) -> Result<Response<Self::StreamStream>, Status> {
+            Err(Status::unimplemented("stream has not been implemented"))
         }
     }
 

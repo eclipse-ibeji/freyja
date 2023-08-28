@@ -34,10 +34,10 @@ mock-digital-twin = { path = "mocks/mock_digital_twin" }
 proc-macros = { path = "proc_macros" }
 provider-proxy-selector = { path = "provider_proxy_selector" }
 
-# Other SDV projects
-core-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji", branch = "main" }
-samples-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji", branch = "main" }
-service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott", branch = "main" }
+# Other SDV projects (revisions are from the main branch as of 28 Aug 2023)
+core-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji", rev = "370a4f5ae529239607a383f5260966959f55cf3f" }
+samples-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji", rev = "370a4f5ae529239607a383f5260966959f55cf3f" }
+service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott", rev = "01bba85097f8efabd1f7ea2ed5275da54598d3a5" }
 
 # crates.io dependencies
 async-trait = "0.1.64"
