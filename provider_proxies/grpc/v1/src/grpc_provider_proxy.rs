@@ -182,8 +182,11 @@ mod grpc_provider_proxy_v1_tests {
     use tokio_stream::Stream;
     use tonic::{Request, Response, Status};
 
-    use samples_protobuf_data_access::sample_grpc::v1::digital_twin_provider::digital_twin_provider_server::{DigitalTwinProvider, DigitalTwinProviderServer};
-    use samples_protobuf_data_access::sample_grpc::v1::digital_twin_provider::*;
+    use samples_protobuf_data_access::sample_grpc::v1::digital_twin_provider::{
+        digital_twin_provider_server::{DigitalTwinProvider, DigitalTwinProviderServer},
+        GetResponse, InvokeRequest, InvokeResponse, SetRequest, SetResponse, StreamRequest,
+        StreamResponse, SubscribeResponse, UnsubscribeRequest, UnsubscribeResponse,
+    };
 
     pub struct MockProvider {}
 
