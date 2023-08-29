@@ -16,7 +16,7 @@ use tokio::time::sleep;
 use freyja_contracts::{
     cloud_adapter::{CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse},
     digital_twin_map_entry::DigitalTwinMapEntry,
-    entity::{Entity, EntityID},
+    entity::Entity,
     provider_proxy::SignalValue,
     provider_proxy_request::{
         ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
@@ -32,7 +32,7 @@ pub struct Emitter {
     dt_map_entries: Arc<Mutex<HashMap<String, DigitalTwinMapEntry>>>,
 
     /// Shared map of entity ID to entity info
-    entity_map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>,
+    entity_map: Arc<Mutex<HashMap<String, Option<Entity>>>>,
 
     /// The cloud adapter used to emit data to the cloud
     cloud_adapter: Box<dyn CloudAdapter + Sync + Send>,
@@ -70,9 +70,9 @@ impl Emitter {
     /// - `provider_proxy_selector_request_sender`: sends requests to the provider proxy selector
     /// - `signal_values_queue`: queue for receiving signal values
     pub fn new(
-        dt_map_entries: Arc<Mutex<HashMap<EntityID, DigitalTwinMapEntry>>>,
+        dt_map_entries: Arc<Mutex<HashMap<String, DigitalTwinMapEntry>>>,
         cloud_adapter: Box<dyn CloudAdapter + Sync + Send>,
-        entity_map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>,
+        entity_map: Arc<Mutex<HashMap<String, Option<Entity>>>>,
         provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Self {
@@ -91,8 +91,8 @@ impl Emitter {
     /// - `emissions_map`: hashmap for storing signals to emit
     /// - `dt_map_entries`: cloned hashmap for storing mapping information
     fn update_emissions(
-        emissions_map: &mut HashMap<EntityID, EmissionPayload>,
-        dt_map_entries: &HashMap<EntityID, DigitalTwinMapEntry>,
+        emissions_map: &mut HashMap<String, EmissionPayload>,
+        dt_map_entries: &HashMap<String, DigitalTwinMapEntry>,
     ) {
         for (signal_id, entry) in dt_map_entries.iter() {
             // Insert into emissions if unique mapping
@@ -117,7 +117,7 @@ impl Emitter {
     /// - `emissions_map`: hashmap for storing signals to emit
     async fn create_key_to_entity_map(
         &self,
-        emissions_map: &HashMap<EntityID, EmissionPayload>,
+        emissions_map: &HashMap<String, EmissionPayload>,
     ) -> Result<(), String> {
         // Check to see if an emission entry requires a key
         let mut entity_map = self.entity_map.lock().unwrap();
@@ -137,11 +137,11 @@ impl Emitter {
     /// Execute this Emitter
     pub async fn run(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let mut min_interval_ms = None;
-        let mut emissions_map: HashMap<EntityID, EmissionPayload> = HashMap::new();
+        let mut emissions_map: HashMap<String, EmissionPayload> = HashMap::new();
         let mut signal_values_map = HashMap::new();
 
         loop {
-            let mut dt_map_entries_clone: HashMap<EntityID, DigitalTwinMapEntry>;
+            let mut dt_map_entries_clone: HashMap<String, DigitalTwinMapEntry>;
             // Note: since this a sync lock, do not introduce async calls to this block without switching to an async lock!
             {
                 let dt_map_entries = self.dt_map_entries.lock().unwrap();
@@ -170,7 +170,7 @@ impl Emitter {
     ///
     /// # Arguments
     /// - `signal_values_map`: a map for storing a signal value
-    fn update_signal_values_map(&self, signal_values_map: &mut HashMap<EntityID, Option<String>>) {
+    fn update_signal_values_map(&self, signal_values_map: &mut HashMap<String, Option<String>>) {
         while !self.signal_values_queue.is_empty() {
             let SignalValue { entity_id, value } = self.signal_values_queue.pop().unwrap();
             signal_values_map.insert(entity_id, Some(value));
@@ -213,7 +213,7 @@ impl Emitter {
     /// - `signal_values_map`: hashmap for storing signal values
     /// - `signal_id`: the signal id
     fn get_signal_value_with_entity_id(
-        signal_values_map: &mut HashMap<EntityID, Option<String>>,
+        signal_values_map: &mut HashMap<String, Option<String>>,
         signal_id: &str,
     ) -> Option<String> {
         match signal_values_map.entry(signal_id.to_string()) {
@@ -227,7 +227,7 @@ impl Emitter {
     /// # Arguments
     /// - `dt_map_entries`: hashmap for storing mapping information
     fn get_dt_map_entry(
-        dt_map_entries: &mut HashMap<EntityID, DigitalTwinMapEntry>,
+        dt_map_entries: &mut HashMap<String, DigitalTwinMapEntry>,
         signal_id: &str,
     ) -> Option<DigitalTwinMapEntry> {
         match dt_map_entries.entry(signal_id.to_string()) {
@@ -242,8 +242,8 @@ impl Emitter {
     /// - `emissions_map`: hashmap for storing signals to emit
     /// - `signal_values_map`: hashmap for storing signal values
     fn update_emissions_signal_value_change_status(
-        emissions_map: &mut HashMap<EntityID, EmissionPayload>,
-        signal_values_map: &mut HashMap<EntityID, Option<String>>,
+        emissions_map: &mut HashMap<String, EmissionPayload>,
+        signal_values_map: &mut HashMap<String, Option<String>>,
     ) {
         for (signal_id, emission_payload) in emissions_map.iter_mut() {
             let previous_signal_value = emission_payload.previous_signal_value.clone();
@@ -271,11 +271,11 @@ impl Emitter {
     /// - `min_interval_ms`: minimum interval in milliseconds
     async fn emit_signals(
         &self,
-        emissions_map: &mut HashMap<EntityID, EmissionPayload>,
-        signal_values_map: &mut HashMap<EntityID, Option<String>>,
-        dt_map_entries: &mut HashMap<EntityID, DigitalTwinMapEntry>,
+        emissions_map: &mut HashMap<String, EmissionPayload>,
+        signal_values_map: &mut HashMap<String, Option<String>>,
+        dt_map_entries: &mut HashMap<String, DigitalTwinMapEntry>,
         min_interval_ms: &mut Option<TimeMsLeft>,
-    ) -> Result<HashMap<EntityID, TimeMsLeft>, Box<dyn std::error::Error + Send + Sync>> {
+    ) -> Result<HashMap<String, TimeMsLeft>, Box<dyn std::error::Error + Send + Sync>> {
         // Signals that match the minimum interval
         let emissions_with_min_interval =
             Self::get_emissions_with_min_interval(emissions_map, min_interval_ms);
@@ -303,9 +303,9 @@ impl Emitter {
 
                         // Send request again for a new signal value since our cache
                         // doesn't contain a signal value for this signal
-                        let request = ProviderProxySelectorRequestKind::GetEntityValue(
-                            String::from(signal_id),
-                        );
+                        let request = ProviderProxySelectorRequestKind::GetEntityValue {
+                            entity_id: String::from(signal_id),
+                        };
 
                         self.provider_proxy_selector_request_sender
                             .send_request_to_provider_proxy_selector(request);
@@ -319,7 +319,9 @@ impl Emitter {
 
             // Get a new value for this current entity in emission
             // if an entity only supports subscribe this call shouldn't do anything
-            let request = ProviderProxySelectorRequestKind::GetEntityValue(String::from(signal_id));
+            let request = ProviderProxySelectorRequestKind::GetEntityValue {
+                entity_id: String::from(signal_id)
+            };
             self.provider_proxy_selector_request_sender
                 .send_request_to_provider_proxy_selector(request);
 
@@ -360,8 +362,8 @@ impl Emitter {
     /// - `emissions_map`: hashmap for storing signals to emit
     /// - `min_interval_ms`: minimum interval in milliseconds
     fn update_emission_payload_time_left(
-        dt_map_entries: &mut HashMap<EntityID, DigitalTwinMapEntry>,
-        emissions_map: &mut HashMap<EntityID, EmissionPayload>,
+        dt_map_entries: &mut HashMap<String, DigitalTwinMapEntry>,
+        emissions_map: &mut HashMap<String, EmissionPayload>,
         min_interval_ms: &mut Option<TimeMsLeft>,
     ) {
         let mut new_min_interval: Option<TimeMsLeft> = None;
@@ -398,9 +400,9 @@ impl Emitter {
     /// - `emissions_map`: hashmap for storing signals to emit
     /// - `min_interval_ms`: minimum interval in milliseconds
     fn get_emissions_with_min_interval(
-        emissions_map: &HashMap<EntityID, EmissionPayload>,
+        emissions_map: &HashMap<String, EmissionPayload>,
         min_interval_ms: &Option<TimeMsLeft>,
-    ) -> HashMap<EntityID, TimeMsLeft> {
+    ) -> HashMap<String, TimeMsLeft> {
         emissions_map
             .clone()
             .into_iter()
@@ -419,7 +421,7 @@ impl Emitter {
     /// - `emissions_map`: hashmap for storing signals
     fn should_emit_signal_for_emit_on_change(
         dt_map_entry: &DigitalTwinMapEntry,
-        emissions_map: &mut HashMap<EntityID, EmissionPayload>,
+        emissions_map: &mut HashMap<String, EmissionPayload>,
     ) -> bool {
         // Skip if the digital twin map entry doesn't require emit on change
         if !dt_map_entry.emit_on_change {
@@ -449,7 +451,7 @@ impl Emitter {
     /// - `signal_id`: the signal id to set the value to has_signal_been_emitted
     /// - `has_signal_been_emitted`: states whether the signal has been emitted
     fn set_emission_has_signal_been_emitted(
-        emissions_map: &mut HashMap<EntityID, EmissionPayload>,
+        emissions_map: &mut HashMap<String, EmissionPayload>,
         signal_id: &str,
         has_signal_been_emitted: bool,
     ) -> Result<(), EmitterError> {
@@ -494,8 +496,8 @@ mod emitter_tests {
         /// - `emissions_map`: Hashmap where the key is a map entry to emit, and the value is the time left in milliseconds to emit
         /// - `min_interval_ms`: minimum interval in milliseconds from a list of signal intervals
         pub(crate) struct EmitterFixture {
-            pub digital_twin_map_entries: HashMap<EntityID, DigitalTwinMapEntry>,
-            pub emissions_map: HashMap<EntityID, EmissionPayload>,
+            pub digital_twin_map_entries: HashMap<String, DigitalTwinMapEntry>,
+            pub emissions_map: HashMap<String, EmissionPayload>,
             pub min_interval_ms: Option<u64>,
         }
 
@@ -537,8 +539,8 @@ mod emitter_tests {
 
     fn generate_digital_twin_map_entries(
         intervals_ms: &[u64],
-    ) -> HashMap<EntityID, DigitalTwinMapEntry> {
-        let mut digital_twin_map_entries: HashMap<EntityID, DigitalTwinMapEntry> = HashMap::new();
+    ) -> HashMap<String, DigitalTwinMapEntry> {
+        let mut digital_twin_map_entries: HashMap<String, DigitalTwinMapEntry> = HashMap::new();
 
         for (index, interval_ms) in intervals_ms.iter().enumerate() {
             let (source, target_id) = (format!("test_{index}"), format!("test_target_{index}"));
@@ -561,9 +563,9 @@ mod emitter_tests {
     }
 
     fn insert_digital_map_entries(
-        digital_map_entries: &HashMap<EntityID, DigitalTwinMapEntry>,
-    ) -> HashMap<EntityID, EmissionPayload> {
-        let mut emissions_map: HashMap<EntityID, EmissionPayload> = HashMap::new();
+        digital_map_entries: &HashMap<String, DigitalTwinMapEntry>,
+    ) -> HashMap<String, EmissionPayload> {
+        let mut emissions_map: HashMap<String, EmissionPayload> = HashMap::new();
 
         for entry in digital_map_entries.values() {
             let emission_payload = EmissionPayload {
@@ -645,7 +647,7 @@ mod emitter_tests {
     fn update_emissions_did_signal_value_change_test() {
         let intervals_ms = vec![2000, 3000];
         let mut emitter_fixture = fixture::EmitterFixture::setup(intervals_ms);
-        let mut signal_values_map: HashMap<EntityID, Option<String>> = emitter_fixture
+        let mut signal_values_map: HashMap<String, Option<String>> = emitter_fixture
             .emissions_map
             .keys()
             .map(|signal_id| (signal_id.clone(), Some(String::from("0.00"))))
@@ -891,7 +893,7 @@ mod emitter_tests {
             assert!(dt_map_entry.emit_on_change);
         }
 
-        let mut emissions: HashMap<EntityID, EmissionPayload> = HashMap::new();
+        let mut emissions: HashMap<String, EmissionPayload> = HashMap::new();
         for (signal_id, _) in digital_twin_map_entries.iter_mut() {
             let emission_payload = EmissionPayload {
                 time_ms_left: 0,
@@ -938,7 +940,7 @@ mod emitter_tests {
             }
         }
 
-        let mut emissions: HashMap<EntityID, EmissionPayload> = HashMap::new();
+        let mut emissions: HashMap<String, EmissionPayload> = HashMap::new();
         for (signal_id, dt_map_entry) in digital_twin_map_entries.iter_mut() {
             let emission_payload = EmissionPayload {
                 time_ms_left: 0,
@@ -988,7 +990,7 @@ mod emitter_tests {
             fixture::EmitterFixture::set_digital_twin_map_entry_to_emit_on_change(dt_map_entry);
         }
 
-        let mut emissions: HashMap<EntityID, EmissionPayload> = HashMap::new();
+        let mut emissions: HashMap<String, EmissionPayload> = HashMap::new();
         for (signal_id, dt_map_entry) in digital_twin_map_entries.iter_mut() {
             let emission_payload = EmissionPayload {
                 time_ms_left: 0,

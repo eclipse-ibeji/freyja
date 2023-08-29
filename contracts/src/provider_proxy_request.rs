@@ -11,10 +11,17 @@ pub type Protocol = String;
 #[derive(Debug)]
 pub enum ProviderProxySelectorRequestKind {
     /// Creates or updates a provider's proxy
-    CreateOrUpdateProviderProxy(String, String, Protocol, OperationKind),
+    CreateOrUpdateProviderProxy {
+        entity_id: String,
+        uri: String,
+        protocol: Protocol,
+        operation: OperationKind,
+    },
 
-    /// Get an entity's
-    GetEntityValue(String),
+    /// Get an entity's value
+    GetEntityValue {
+        entity_id: String,
+    },
 }
 
 pub struct ProviderProxySelectorRequestSender {

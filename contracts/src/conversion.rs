@@ -69,6 +69,12 @@ impl Conversion {
     }
 }
 
+impl Default for Conversion {
+    fn default() -> Self {
+        Self::None
+    }
+}
+
 #[cfg(test)]
 mod conversion_tests {
     use super::*;

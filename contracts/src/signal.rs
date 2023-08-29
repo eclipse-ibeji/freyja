@@ -39,7 +39,7 @@ impl Default for Signal {
     fn default() -> Self {
         Self {
             id: String::default(),
-            value: None,
+            value: Option::default(),
             source: Entity::default(),
             target: Target::default(),
             emission: Emission::default(),
@@ -61,7 +61,7 @@ impl Default for Emission {
             policy: EmissionPolicy::default(),
             // Note that setting the default next emission interval to 0 means that signals are emitted ASAP
             next_emission_ms: u64::default(),
-            last_emitted_value: None,
+            last_emitted_value: Option::default(),
         }
     }
 }
@@ -71,7 +71,7 @@ impl Default for EmissionPolicy {
         Self {
             interval_ms: u64::default(),
             emit_on_change: bool::default(),
-            conversion: Conversion::None,
+            conversion: Conversion::default(),
         }
     }
 }

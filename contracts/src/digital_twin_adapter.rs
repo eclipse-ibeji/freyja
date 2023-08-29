@@ -86,9 +86,9 @@ pub trait DigitalTwinAdapter {
                         protocol,
                         ..
                     } = response.entity;
-                    let request = ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy(
-                        id, uri, protocol, operation,
-                    );
+                    let request = ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy{
+                        entity_id: id, uri, protocol, operation,
+                    };
 
                     provider_proxy_selector_request_sender
                         .send_request_to_provider_proxy_selector(request);
@@ -289,12 +289,12 @@ mod digital_twin_adapter_tests {
         assert!(proxy_request.is_some());
         let proxy_request = proxy_request.as_ref().unwrap();
         match proxy_request {
-            ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy(
+            ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy{
                 entity_id,
                 uri,
                 protocol,
                 operation,
-            ) => {
+            } => {
                 assert_eq!(*entity_id, fixture.entity_id);
                 assert_eq!(*uri, fixture.entity.uri);
                 assert_eq!(*protocol, fixture.entity.protocol);

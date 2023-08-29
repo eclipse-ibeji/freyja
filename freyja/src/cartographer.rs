@@ -8,7 +8,7 @@ use std::time::Duration;
 use freyja_common::signal_store::SignalStore;
 use log::info;
 
-use freyja_contracts::{mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient}, signal::{Signal, Target, EmissionPolicy, Emission}};
+use freyja_contracts::{mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient}, signal::{Signal, Target, EmissionPolicy, Emission}, conversion::Conversion, digital_twin_adapter::{DigitalTwinAdapter, GetDigitalTwinProviderRequest}, provider_proxy_request::{ProviderProxySelectorRequestSender, ProviderProxySelectorRequestKind}};
 
 /// Manages mappings from the mapping service
 pub struct Cartographer {
@@ -17,6 +17,12 @@ pub struct Cartographer {
 
     /// The mapping client
     mapping_client: Box<dyn MappingClient>,
+
+    /// The digital twin client
+    digital_twin_client: Box<dyn DigitalTwinAdapter>,
+
+    /// The provider proxy selector client
+    provider_proxy_selector_client: Arc<ProviderProxySelectorRequestSender>,
 
     /// The mapping service polling interval
     poll_interval: Duration,
@@ -32,11 +38,15 @@ impl Cartographer {
     pub fn new(
         signals: Arc<SignalStore>,
         mapping_client: Box<dyn MappingClient>,
+        digital_twin_client: Box<dyn DigitalTwinAdapter>,
+        provider_proxy_selector_client: Arc<ProviderProxySelectorRequestSender>,
         poll_interval: Duration,
     ) -> Self {
         Self {
             signals,
             mapping_client,
+            digital_twin_client,
+            provider_proxy_selector_client,
             poll_interval,
         }
     }
@@ -64,13 +74,14 @@ impl Cartographer {
                 // self.mapping_client.send_inventory(SendInventoryRequest { inventory: self.known_providers.clone() }).await?;
 
                 // TODO: waiting/retry logic?
-                let signals = self
+                let mut signals: Vec<_> = self
                     .mapping_client
                     .get_mapping(GetMappingRequest {})
                     .await?
                     .map
                     .into_iter()
                     .map(|(id, entry)| Signal {
+                        // TODO: Should this id be here or is it part of the entity?
                         id,
                         target: Target {
                             metadata: entry.target,
@@ -79,14 +90,40 @@ impl Cartographer {
                             policy: EmissionPolicy {
                                 interval_ms: entry.interval_ms,
                                 emit_on_change: entry.emit_on_change,
-                                conversion: entry.conversion,
+                                conversion: Conversion::default(),
                             },
                             ..Default::default()
                         },
                         ..Default::default()
-                    });
+                    })
+                    .collect();
+                
+                // Some of these API calls are not really necessary, but this function gets executed
+                // infrequently enough that the sub-optimal performance is not a major concern.
+                // If Ibeji had a bulk find_by_id API there would be even less of a concern.
+                // TODO: punt stuff to the dt client and we call find_all here
+                // TODO: if there's a bulk api for providers then there probably needs to be a bulk api for proxies
+                // TODO: handle errors
+                for signal in signals.iter_mut() {
+                    signal.source = self
+                        .digital_twin_client
+                        .find_by_id(GetDigitalTwinProviderRequest {
+                            entity_id: signal.id.clone(),
+                        })
+                        .await?
+                        .entity;
 
-                self.signals.do_the_thing(signals);
+                    let request = ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy{
+                        entity_id: signal.source.id.clone(),
+                        uri: signal.source.uri.clone(), 
+                        protocol: signal.source.protocol.clone(),
+                        operation: signal.source.operation.clone(),
+                    };
+
+                    self.provider_proxy_selector_client.send_request_to_provider_proxy_selector(request);
+                }
+
+                self.signals.do_the_thing(signals.into_iter());
             }
 
             tokio::time::sleep(self.poll_interval).await;

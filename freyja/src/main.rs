@@ -62,27 +62,31 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let signal_store = Arc::new(SignalStore::new());
     let entity_map: Arc<Mutex<HashMap<String, Option<Entity>>>> =
         Arc::new(Mutex::new(HashMap::new()));
+    let (tx_provider_proxy_selector_request, rx_provider_proxy_selector_request) =
+        mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
+    // TODO: I believe arc is unnecessary here, we can just have copies (assuming the sender is stateless)
+    let provider_proxy_selector_request_sender = Arc::new(ProviderProxySelectorRequestSender::new(
+        tx_provider_proxy_selector_request,
+    ));
 
     // Setup interfaces
-    let dt_adapter = DigitalTwinAdapterImpl::create_new().unwrap();
-    let mapping_client = MappingClientImpl::create_new().unwrap();
     let cloud_adapter: Box<dyn CloudAdapter + Send + Sync> =
         CloudAdapterImpl::create_new().unwrap();
 
     // Setup cartographer
     let cartographer_poll_interval = Duration::from_secs(5);
-    let cartographer = Cartographer::new(signal_store.clone(), mapping_client, cartographer_poll_interval);
+    let cartographer = Cartographer::new(
+        signal_store.clone(), 
+        MappingClientImpl::create_new().unwrap(), 
+        DigitalTwinAdapterImpl::create_new().unwrap(),
+        provider_proxy_selector_request_sender.clone(),
+        cartographer_poll_interval);
 
     // Setup emitter
     let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
-    let (tx_provider_proxy_selector_request, rx_provider_proxy_selector_request) =
-        mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-    let provider_proxy_selector_request_sender = Arc::new(ProviderProxySelectorRequestSender::new(
-        tx_provider_proxy_selector_request,
-    ));
 
     let emitter = Emitter::new(
-        map,
+        Arc::new(Mutex::new(HashMap::new())),
         cloud_adapter,
         entity_map.clone(),
         provider_proxy_selector_request_sender.clone(),
@@ -91,7 +95,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let provider_proxy_selector = ProviderProxySelector::new();
     tokio::select! {
-        Err(e) = dt_adapter.run(entity_map, Duration::from_secs(5), provider_proxy_selector_request_sender) => { println!("[main] digital twin adapter terminated with error {e:?}"); Err(e)? },
+        //Err(e) = dt_adapter.run(entity_map, Duration::from_secs(5), provider_proxy_selector_request_sender) => { println!("[main] digital twin adapter terminated with error {e:?}"); Err(e)? },
         Err(e) = cartographer.run() => { println!("[main] cartographer terminated with error {e:?}"); Err(e) },
         Err(e) = emitter.run() => { println!("[main] emitter terminated with error {e:?}"); Err(e) },
         Err(e) = provider_proxy_selector.run(rx_provider_proxy_selector_request, signal_values_queue) => {  Err(e)? }

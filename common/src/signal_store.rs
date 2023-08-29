@@ -14,7 +14,7 @@ pub struct SignalStore {
 }
 
 impl SignalStore {
-    /// Creates an empty EntityStore
+    /// Creates an empty SignalStore
     pub fn new() -> Self {
         Self {
             signals: RwLock::new(HashMap::new()),
@@ -40,9 +40,8 @@ impl SignalStore {
 
     /// TODO: Needs an actual name, or maybe the input should be a subset of signal
     /// For each signal in the input:
-    /// - If the incoming signal is already in the data store, update only its target and emission policy
-    ///     (Everything else is actively being managed by the emitter and digital twin adapters.
-    ///      Overwriting it would result in untimely or incorrect emissions and unnecessary API calls)
+    /// - If the incoming signal is already in the data store, update only its source, target, and emission policy.
+    ///     We don't update any of the other data that's being managed by the emitter to avoid untimely or incorrect emissions.
     /// - If the incoming signal is not in the data store, insert it
     /// 
     /// For each signal in the data store:
@@ -74,6 +73,7 @@ impl SignalStore {
                 .entry(incoming_signal.id.clone())
                 // If the incoming signal is already in the data store, update only its target and emission policy
                 .and_modify(|e| {
+                    e.source = incoming_signal.source.clone();
                     e.target = incoming_signal.target.clone();
                     e.emission.policy = incoming_signal.emission.policy.clone();
                 })
