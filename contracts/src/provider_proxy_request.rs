@@ -4,20 +4,17 @@
 
 use tokio::sync::mpsc::UnboundedSender;
 
-use crate::{
-    entity::{EntityID, ProviderURI},
-    provider_proxy::OperationKind,
-};
+use crate::provider_proxy::OperationKind;
 pub type Protocol = String;
 
 /// Represents a provider proxy selector request kind
 #[derive(Debug)]
 pub enum ProviderProxySelectorRequestKind {
     /// Creates or updates a provider's proxy
-    CreateOrUpdateProviderProxy(EntityID, ProviderURI, Protocol, OperationKind),
+    CreateOrUpdateProviderProxy(String, String, Protocol, OperationKind),
 
     /// Get an entity's
-    GetEntityValue(EntityID),
+    GetEntityValue(String),
 }
 
 pub struct ProviderProxySelectorRequestSender {

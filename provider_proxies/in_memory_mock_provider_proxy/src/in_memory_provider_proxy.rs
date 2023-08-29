@@ -17,10 +17,7 @@ use crossbeam::queue::SegQueue;
 use log::info;
 
 use crate::config::{EntityConfig, Settings};
-use freyja_contracts::{
-    entity::EntityID,
-    provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue},
-};
+use freyja_contracts::provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue};
 
 const CONFIG_FILE: &str = "config.json";
 const SUPPORTED_OPERATIONS: &[OperationKind] = &[OperationKind::Get, OperationKind::Subscribe];
@@ -28,10 +25,10 @@ const SUPPORTED_OPERATIONS: &[OperationKind] = &[OperationKind::Get, OperationKi
 #[derive(Debug)]
 pub struct InMemoryMockProviderProxy {
     /// Maps the number of calls to each provider so we can mock changing behavior
-    data: HashMap<EntityID, (EntityConfig, AtomicU8)>,
+    data: HashMap<String, (EntityConfig, AtomicU8)>,
 
     /// Local cache for keeping track of which entities this provider proxy contains
-    entity_operation_map: Arc<Mutex<HashMap<EntityID, OperationKind>>>,
+    entity_operation_map: Arc<Mutex<HashMap<String, OperationKind>>>,
 
     /// Shared queue for all proxies to push new signal values of entities
     signal_values_queue: Arc<SegQueue<SignalValue>>,
@@ -97,7 +94,7 @@ impl InMemoryMockProviderProxy {
     fn generate_signal_value(
         entity_id: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
-        data: &HashMap<EntityID, (EntityConfig, AtomicU8)>,
+        data: &HashMap<String, (EntityConfig, AtomicU8)>,
     ) -> Result<(), ProviderProxyError> {
         let (entity_config, counter) = data
             .get(entity_id)
@@ -140,7 +137,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
         info!("Started an InMemoryMockProviderProxy!");
 
         loop {
-            let entities_with_subscribe: Vec<EntityID>;
+            let entities_with_subscribe: Vec<String>;
 
             {
                 entities_with_subscribe = self

@@ -2,18 +2,18 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::sync::{Arc, Mutex};
-use std::{collections::HashMap, time::Duration};
+use std::sync::Arc;
+use std::time::Duration;
 
+use freyja_common::signal_store::SignalStore;
 use log::info;
 
-use freyja_contracts::digital_twin_map_entry::DigitalTwinMapEntry;
-use freyja_contracts::mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient};
+use freyja_contracts::{mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient}, signal::{Signal, Target, EmissionPolicy, Emission}};
 
 /// Manages mappings from the mapping service
 pub struct Cartographer {
-    /// The mapping shared with the emitter
-    map: Arc<Mutex<HashMap<String, DigitalTwinMapEntry>>>,
+    /// The shared signal store
+    signals: Arc<SignalStore>,
 
     /// The mapping client
     mapping_client: Box<dyn MappingClient>,
@@ -26,16 +26,16 @@ impl Cartographer {
     /// Create a new instance of a Cartographer
     ///
     /// # Arguments
-    /// - `map`: the shared map instance to update with new changes
+    /// - `signals`: the shared signal store
     /// - `mapping_client`: the client for the mapping service
     /// - `poll_interval`: the interval at which the cartographer should poll for changes
     pub fn new(
-        map: Arc<Mutex<HashMap<String, DigitalTwinMapEntry>>>,
+        signals: Arc<SignalStore>,
         mapping_client: Box<dyn MappingClient>,
         poll_interval: Duration,
     ) -> Self {
         Self {
-            map,
+            signals,
             mapping_client,
             poll_interval,
         }
@@ -64,13 +64,29 @@ impl Cartographer {
                 // self.mapping_client.send_inventory(SendInventoryRequest { inventory: self.known_providers.clone() }).await?;
 
                 // TODO: waiting/retry logic?
-                let mapping_response = self
+                let signals = self
                     .mapping_client
                     .get_mapping(GetMappingRequest {})
-                    .await?;
+                    .await?
+                    .map
+                    .into_iter()
+                    .map(|(id, entry)| Signal {
+                        id,
+                        target: Target {
+                            metadata: entry.target,
+                        },
+                        emission: Emission {
+                            policy: EmissionPolicy {
+                                interval_ms: entry.interval_ms,
+                                emit_on_change: entry.emit_on_change,
+                                conversion: entry.conversion,
+                            },
+                            ..Default::default()
+                        },
+                        ..Default::default()
+                    });
 
-                // Note: since this a sync lock, do not introduce async calls to this block without switching to an async lock!
-                *self.map.lock().unwrap() = mapping_response.map;
+                self.signals.do_the_thing(signals);
             }
 
             tokio::time::sleep(self.poll_interval).await;

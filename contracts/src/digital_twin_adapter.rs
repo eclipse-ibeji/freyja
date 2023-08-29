@@ -12,7 +12,7 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    entity::{Entity, EntityID},
+    entity::Entity,
     provider_proxy_request::{
         ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
     },
@@ -43,7 +43,7 @@ pub trait DigitalTwinAdapter {
     /// - `provider_proxy_selector_request_sender`: sends requests to the provider proxy selector
     async fn run(
         &self,
-        entity_map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>,
+        entity_map: Arc<Mutex<HashMap<String, Option<Entity>>>>,
         sleep_interval: Duration,
         provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
     ) -> Result<(), DigitalTwinAdapterError>;
@@ -56,7 +56,7 @@ pub trait DigitalTwinAdapter {
     /// - `provider_proxy_selector_request_sender`: sends requests to the provider proxy selector
     async fn update_entity_map(
         &self,
-        entity_map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>,
+        entity_map: Arc<Mutex<HashMap<String, Option<Entity>>>>,
         provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
     ) -> Result<(), DigitalTwinAdapterError>
     where
@@ -193,7 +193,7 @@ mod digital_twin_adapter_tests {
 
         async fn run(
             &self,
-            _entity_map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>,
+            _entity_map: Arc<Mutex<HashMap<String, Option<Entity>>>>,
             _sleep_interval: Duration,
             _provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
         ) -> Result<(), DigitalTwinAdapterError> {
@@ -205,7 +205,7 @@ mod digital_twin_adapter_tests {
         adapter: TestDigitalTwinAdapter,
         entity_id: String,
         entity: Entity,
-        map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>,
+        map: Arc<Mutex<HashMap<String, Option<Entity>>>>,
         sender: Arc<ProviderProxySelectorRequestSender>,
         listener_handler: JoinHandle<Option<ProviderProxySelectorRequestKind>>,
     }
@@ -239,7 +239,7 @@ mod digital_twin_adapter_tests {
 
     fn assert_entry_is_in_map(
         entry: (String, Option<Entity>),
-        map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>,
+        map: Arc<Mutex<HashMap<String, Option<Entity>>>>,
     ) {
         let (id, entity) = entry;
         let map = map.lock().unwrap();
@@ -259,7 +259,7 @@ mod digital_twin_adapter_tests {
     }
 
     // Variation of assert_entry_is_in_map for conveneince
-    fn assert_entity_is_in_map(entity: Entity, map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>) {
+    fn assert_entity_is_in_map(entity: Entity, map: Arc<Mutex<HashMap<String, Option<Entity>>>>) {
         assert_entry_is_in_map((entity.id.clone(), Some(entity)), map)
     }
 

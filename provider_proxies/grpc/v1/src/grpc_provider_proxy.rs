@@ -19,10 +19,7 @@ use samples_protobuf_data_access::sample_grpc::v1::{
 use tonic::transport::{Channel, Server};
 
 use crate::grpc_client_impl::GRPCClientImpl;
-use freyja_contracts::{
-    entity::EntityID,
-    provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue},
-};
+use freyja_contracts::provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue};
 
 const CONSUMER_ADDR: &str = "[::1]:60010";
 const SUPPORTED_OPERATIONS: &[OperationKind] = &[OperationKind::Get, OperationKind::Subscribe];
@@ -33,7 +30,7 @@ pub struct GRPCProviderProxy {
     provider_client: DigitalTwinProviderClient<Channel>,
 
     /// Local cache for keeping track of which entities this provider proxy contains
-    entity_operation_map: Arc<Mutex<HashMap<EntityID, OperationKind>>>,
+    entity_operation_map: Arc<Mutex<HashMap<String, OperationKind>>>,
 
     /// Shared queue for all proxies to push new signal values of entities
     signal_values_queue: Arc<SegQueue<SignalValue>>,

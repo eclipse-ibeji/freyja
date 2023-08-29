@@ -27,7 +27,7 @@ use freyja_contracts::{
         DigitalTwinAdapter, DigitalTwinAdapterError, GetDigitalTwinProviderRequest,
         GetDigitalTwinProviderResponse,
     },
-    entity::{Entity, EntityID},
+    entity::Entity,
     provider_proxy::OperationKind,
     provider_proxy_request::ProviderProxySelectorRequestSender,
 };
@@ -215,7 +215,7 @@ impl DigitalTwinAdapter for IbejiAdapter {
     /// - `provider_proxy_selector_request_sender`: sends requests to the provider proxy selector
     async fn run(
         &self,
-        entity_map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>>,
+        entity_map: Arc<Mutex<HashMap<String, Option<Entity>>>>,
         sleep_interval: Duration,
         provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
     ) -> Result<(), DigitalTwinAdapterError> {

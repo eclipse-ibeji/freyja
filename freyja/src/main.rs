@@ -20,17 +20,13 @@ use tokio::sync::mpsc;
 
 use cartographer::Cartographer;
 use emitter::Emitter;
-use freyja_contracts::provider_proxy_request::{
-    ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
-};
 use freyja_contracts::{
-    cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter,
-    digital_twin_map_entry::DigitalTwinMapEntry, entity::*, mapping_client::MappingClient,
-    provider_proxy::SignalValue,
+    cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter, mapping_client::MappingClient,
+    provider_proxy::SignalValue, entity::Entity, provider_proxy_request::{ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender},
 };
-use provider_proxy_selector::provider_proxy_selector::ProviderProxySelector;
-
+use freyja_common::signal_store::SignalStore;
 use freyja_deps::*;
+use provider_proxy_selector::provider_proxy_selector::ProviderProxySelector;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -63,9 +59,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .init();
 
     // Setup shared resources
-    let map: Arc<Mutex<HashMap<String, DigitalTwinMapEntry>>> =
-        Arc::new(Mutex::new(HashMap::new()));
-    let entity_map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>> =
+    let signal_store = Arc::new(SignalStore::new());
+    let entity_map: Arc<Mutex<HashMap<String, Option<Entity>>>> =
         Arc::new(Mutex::new(HashMap::new()));
 
     // Setup interfaces
@@ -76,7 +71,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // Setup cartographer
     let cartographer_poll_interval = Duration::from_secs(5);
-    let cartographer = Cartographer::new(map.clone(), mapping_client, cartographer_poll_interval);
+    let cartographer = Cartographer::new(signal_store.clone(), mapping_client, cartographer_poll_interval);
 
     // Setup emitter
     let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
