@@ -165,7 +165,7 @@ impl ProviderProxySelector {
             debug!("Handling new request {:?}", message);
 
             match message {
-                ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy{
+                ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy {
                     entity_id,
                     uri,
                     protocol,
@@ -186,7 +186,7 @@ impl ProviderProxySelector {
                         )
                         .await;
                 }
-                ProviderProxySelectorRequestKind::GetEntityValue{entity_id} => {
+                ProviderProxySelectorRequestKind::GetEntityValue { entity_id } => {
                     let provider_uri;
                     {
                         let lock = self.entity_map.lock().unwrap();

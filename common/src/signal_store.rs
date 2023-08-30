@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{sync::RwLock, collections::HashMap};
+use std::{collections::HashMap, sync::RwLock};
 
 use freyja_contracts::signal::Signal;
 
@@ -43,18 +43,18 @@ impl SignalStore {
     /// - If the incoming signal is already in the data store, update only its source, target, and emission policy.
     ///     We don't update any of the other data that's being managed by the emitter to avoid untimely or incorrect emissions.
     /// - If the incoming signal is not in the data store, insert it
-    /// 
+    ///
     /// For each signal in the data store:
     /// - If the stored signal is not in the input, delete it
-    /// 
+    ///
     /// The previous state of the store is discarded.
     /// Acquires a write lock.
-    /// 
+    ///
     /// # Arguments
     /// - `incoming_signals`: The list of input signals
     pub fn do_the_thing<SignalIterator>(&self, incoming_signals: SignalIterator)
     where
-        SignalIterator: Iterator<Item = Signal>
+        SignalIterator: Iterator<Item = Signal>,
     {
         // This algorithm avoids trying to iterate over incoming_signals multiple times since iterators are consumed in this process.
         // If the iterator were cloneable then the implementation would be a bit nicer, but in general that's not always possible
@@ -88,7 +88,7 @@ impl SignalStore {
     /// Sets the value of the signal with the given id to the requested value.
     /// Returns the old value, or None if the signal could not be found.
     /// Acquires a write lock.
-    /// 
+    ///
     /// # Arguments
     /// - `id`: The id of the signal to edit
     /// - `value`: The new value to assign to the signal
@@ -96,12 +96,10 @@ impl SignalStore {
         let mut signals = self.signals.write().unwrap();
 
         let mut result = None;
-        signals
-            .entry(id)
-            .and_modify(|s| {
-                result = Some(s.value.clone());
-                s.value = Some(value);
-            });
+        signals.entry(id).and_modify(|s| {
+            result = Some(s.value.clone());
+            s.value = Some(value);
+        });
 
         result
     }
@@ -109,7 +107,7 @@ impl SignalStore {
     /// Sets the last emitted value of the signal with the given id to the requested value.
     /// Returns the old value, or None if the signal could not be found.
     /// Acquires a write lock.
-    /// 
+    ///
     /// # Arguments
     /// - `id`: The id of the signal to edit
     /// - `value`: The new value to assign to the signal's last emitted value
@@ -117,12 +115,10 @@ impl SignalStore {
         let mut signals = self.signals.write().unwrap();
 
         let mut result = None;
-        signals
-            .entry(id)
-            .and_modify(|s| {
-                result = Some(s.emission.last_emitted_value.clone());
-                s.emission.last_emitted_value = Some(value);
-            });
+        signals.entry(id).and_modify(|s| {
+            result = Some(s.emission.last_emitted_value.clone());
+            s.emission.last_emitted_value = Some(value);
+        });
 
         result
     }

@@ -19,7 +19,9 @@ use samples_protobuf_data_access::sample_grpc::v1::{
 use tonic::transport::{Channel, Server};
 
 use crate::grpc_client_impl::GRPCClientImpl;
-use freyja_contracts::provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue};
+use freyja_contracts::provider_proxy::{
+    OperationKind, ProviderProxy, ProviderProxyError, SignalValue,
+};
 
 const CONSUMER_ADDR: &str = "[::1]:60010";
 const SUPPORTED_OPERATIONS: &[OperationKind] = &[OperationKind::Get, OperationKind::Subscribe];

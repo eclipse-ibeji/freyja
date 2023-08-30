@@ -2,12 +2,7 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{
-    fs,
-    path::Path,
-    str::FromStr,
-    time::Duration,
-};
+use std::{fs, path::Path, str::FromStr, time::Duration};
 
 use async_trait::async_trait;
 use core_protobuf_data_access::invehicle_digital_twin::v1::{

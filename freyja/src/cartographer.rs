@@ -8,7 +8,15 @@ use std::time::Duration;
 use freyja_common::signal_store::SignalStore;
 use log::info;
 
-use freyja_contracts::{mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient}, signal::{Signal, Target, EmissionPolicy, Emission}, conversion::Conversion, digital_twin_adapter::{DigitalTwinAdapter, GetDigitalTwinProviderRequest}, provider_proxy_request::{ProviderProxySelectorRequestSender, ProviderProxySelectorRequestKind}};
+use freyja_contracts::{
+    conversion::Conversion,
+    digital_twin_adapter::{DigitalTwinAdapter, GetDigitalTwinProviderRequest},
+    mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient},
+    provider_proxy_request::{
+        ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
+    },
+    signal::{Emission, EmissionPolicy, Signal, Target},
+};
 
 /// Manages mappings from the mapping service
 pub struct Cartographer {
@@ -97,7 +105,7 @@ impl Cartographer {
                         ..Default::default()
                     })
                     .collect();
-                
+
                 // Some of these API calls are not really necessary, but this code gets executed
                 // infrequently enough that the sub-optimal performance is not a major concern.
                 // If Ibeji had a bulk find_by_id API there would be even less of a concern.
@@ -113,14 +121,15 @@ impl Cartographer {
                         .await?
                         .entity;
 
-                    let request = ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy{
+                    let request = ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy {
                         entity_id: signal.source.id.clone(),
-                        uri: signal.source.uri.clone(), 
+                        uri: signal.source.uri.clone(),
                         protocol: signal.source.protocol.clone(),
                         operation: signal.source.operation.clone(),
                     };
 
-                    self.provider_proxy_selector_client.send_request_to_provider_proxy_selector(request);
+                    self.provider_proxy_selector_client
+                        .send_request_to_provider_proxy_selector(request);
                 }
 
                 self.signals.do_the_thing(signals.into_iter());

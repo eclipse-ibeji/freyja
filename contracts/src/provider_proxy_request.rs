@@ -19,9 +19,7 @@ pub enum ProviderProxySelectorRequestKind {
     },
 
     /// Get an entity's value
-    GetEntityValue {
-        entity_id: String,
-    },
+    GetEntityValue { entity_id: String },
 }
 
 #[derive(Clone)]

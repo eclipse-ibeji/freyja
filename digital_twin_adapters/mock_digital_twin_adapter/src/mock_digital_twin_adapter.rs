@@ -78,7 +78,7 @@ impl DigitalTwinAdapter for MockDigitalTwinAdapter {
             "{}{ENTITY_QUERY_PATH}{}",
             self.base_uri_for_digital_twin_server, request.entity_id
         );
-        
+
         self.client
             .get(&target)
             .send()

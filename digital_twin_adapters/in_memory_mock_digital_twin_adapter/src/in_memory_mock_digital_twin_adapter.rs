@@ -8,9 +8,9 @@ use async_trait::async_trait;
 
 use crate::config::EntityConfig;
 use freyja_contracts::digital_twin_adapter::{
-        DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind,
-        GetDigitalTwinProviderRequest, GetDigitalTwinProviderResponse,
-    };
+    DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind,
+    GetDigitalTwinProviderRequest, GetDigitalTwinProviderResponse,
+};
 
 const CONFIG_FILE: &str = "config.json";
 
@@ -77,7 +77,7 @@ impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
 mod in_memory_mock_digital_twin_adapter_tests {
     use super::*;
 
-    use freyja_contracts::{provider_proxy::OperationKind, entity::Entity};
+    use freyja_contracts::{entity::Entity, provider_proxy::OperationKind};
 
     #[test]
     fn from_config_file_returns_err_on_nonexistent_file() {

@@ -4,7 +4,7 @@
 
 use std::collections::HashMap;
 
-use crate::{entity::Entity, conversion::Conversion};
+use crate::{conversion::Conversion, entity::Entity};
 
 /// Conveys information about a signal, its current state, and how the data should be emitted
 #[derive(Clone, Default)]

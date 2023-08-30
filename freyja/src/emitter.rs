@@ -2,10 +2,7 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{
-    sync::Arc,
-    time::Duration, cmp::min,
-};
+use std::{cmp::min, sync::Arc, time::Duration};
 
 use crossbeam::queue::SegQueue;
 use log::{info, warn};
@@ -18,7 +15,8 @@ use freyja_contracts::{
     provider_proxy::SignalValue,
     provider_proxy_request::{
         ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
-    }, signal::Signal,
+    },
+    signal::Signal,
 };
 
 /// Data emitter for the digital twin sync project
@@ -88,30 +86,31 @@ impl Emitter {
                     // This approach to requesting signal values introduces an inherent delay in uploading data
                     // and needs to be revisited.
                     let request = ProviderProxySelectorRequestKind::GetEntityValue {
-                        entity_id: signal.id.clone()
+                        entity_id: signal.id.clone(),
                     };
                     self.provider_proxy_selector_request_sender
                         .send_request_to_provider_proxy_selector(request);
-    
+
                     if signal.value.is_none() {
                         info!(
                             "No signal value for {} in our cache. Skipping emission for this signal.",
                             signal.id
                         );
-    
+
                         // Go to the next signal
                         continue;
                     }
-    
+
                     if signal.emission.policy.emit_only_if_changed
                         && signal.emission.last_emitted_value.is_some()
-                        && signal.value == signal.emission.last_emitted_value {
+                        && signal.value == signal.emission.last_emitted_value
+                    {
                         info!("Signal {} did not change and has already been emitted. Skipping emission for this signal.", signal.id);
-    
+
                         // Go to next signal
                         continue;
                     }
-    
+
                     self.send_to_cloud(signal).await?;
                     // TODO: Update next emission time
                 }
@@ -141,19 +140,16 @@ impl Emitter {
     ///
     /// # Arguments
     /// - `signal`: The signal to emit
-    async fn send_to_cloud(
-        &self,
-        signal: Signal,
-    ) -> Result<CloudMessageResponse, EmitterError> {
+    async fn send_to_cloud(&self, signal: Signal) -> Result<CloudMessageResponse, EmitterError> {
         let value = signal
             .value
             .clone()
             // This error case should actually be unreachable, but always good to check!
             .ok_or::<EmitterError>(EmitterErrorKind::SignalValueEmpty.into())?;
 
-        let converted = value
-            .parse::<f32>()
-            .map_or(value.clone(), |v| signal.emission.policy.conversion.apply(v).to_string());
+        let converted = value.parse::<f32>().map_or(value.clone(), |v| {
+            signal.emission.policy.conversion.apply(v).to_string()
+        });
 
         info!(
             "Digital Twin Instance {:?}: {}",

@@ -5,13 +5,7 @@
 mod cartographer;
 mod emitter;
 
-use std::{
-    collections::HashMap,
-    env,
-    str::FromStr,
-    sync::Arc,
-    time::Duration,
-};
+use std::{collections::HashMap, env, str::FromStr, sync::Arc, time::Duration};
 
 use crossbeam::queue::SegQueue;
 use env_logger::Target;
@@ -22,8 +16,13 @@ use cartographer::Cartographer;
 use emitter::Emitter;
 use freyja_common::signal_store::SignalStore;
 use freyja_contracts::{
-    cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter, mapping_client::MappingClient,
-    provider_proxy::SignalValue, provider_proxy_request::{ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender},
+    cloud_adapter::CloudAdapter,
+    digital_twin_adapter::DigitalTwinAdapter,
+    mapping_client::MappingClient,
+    provider_proxy::SignalValue,
+    provider_proxy_request::{
+        ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
+    },
 };
 use freyja_deps::*;
 use provider_proxy_selector::provider_proxy_selector::ProviderProxySelector;
@@ -62,9 +61,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let signal_store = Arc::new(SignalStore::new());
     let (tx_provider_proxy_selector_request, rx_provider_proxy_selector_request) =
         mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-    let provider_proxy_selector_request_sender = ProviderProxySelectorRequestSender::new(
-        tx_provider_proxy_selector_request,
-    );
+    let provider_proxy_selector_request_sender =
+        ProviderProxySelectorRequestSender::new(tx_provider_proxy_selector_request);
 
     // Setup interfaces
     let cloud_adapter: Box<dyn CloudAdapter + Send + Sync> =
@@ -73,11 +71,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Setup cartographer
     let cartographer_poll_interval = Duration::from_secs(5);
     let cartographer = Cartographer::new(
-        signal_store.clone(), 
-        MappingClientImpl::create_new().unwrap(), 
+        signal_store.clone(),
+        MappingClientImpl::create_new().unwrap(),
         DigitalTwinAdapterImpl::create_new().unwrap(),
         provider_proxy_selector_request_sender.clone(),
-        cartographer_poll_interval);
+        cartographer_poll_interval,
+    );
 
     // Setup emitter
     let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());

@@ -17,7 +17,9 @@ use crossbeam::queue::SegQueue;
 use log::info;
 
 use crate::config::{EntityConfig, Settings};
-use freyja_contracts::provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue};
+use freyja_contracts::provider_proxy::{
+    OperationKind, ProviderProxy, ProviderProxyError, SignalValue,
+};
 
 const CONFIG_FILE: &str = "config.json";
 const SUPPORTED_OPERATIONS: &[OperationKind] = &[OperationKind::Get, OperationKind::Subscribe];
