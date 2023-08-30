@@ -132,7 +132,7 @@ impl Cartographer {
                         .send_request_to_provider_proxy_selector(request);
                 }
 
-                self.signals.do_the_thing(signals.into_iter());
+                self.signals.sync(signals.into_iter());
             }
 
             tokio::time::sleep(self.poll_interval).await;
