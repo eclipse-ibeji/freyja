@@ -4,7 +4,7 @@
 
 use std::{collections::HashMap, sync::RwLock};
 
-use freyja_contracts::signal::{Signal, Emission, SignalPatch};
+use freyja_contracts::signal::{Emission, Signal, SignalPatch};
 
 /// Stores signals in a thread-safe manner.
 /// Suitable for use as `Arc<SignalStore>`.
@@ -54,7 +54,7 @@ impl SignalStore {
     pub fn sync<SyncIterator, TItem>(&self, incoming_signals: SyncIterator)
     where
         SyncIterator: Iterator<Item = TItem>,
-        TItem: Into<SignalPatch>
+        TItem: Into<SignalPatch>,
     {
         let mut signals = self.signals.write().unwrap();
 
@@ -65,7 +65,12 @@ impl SignalStore {
         let size_hint = incoming_signals.size_hint();
         let mut incoming_ids = Vec::with_capacity(size_hint.1.unwrap_or(size_hint.0));
         for value in incoming_signals {
-            let SignalPatch { id, source, target, emission_policy } = value.into();
+            let SignalPatch {
+                id,
+                source,
+                target,
+                emission_policy,
+            } = value.into();
 
             // We'll use these ids later to only retain entries in the store which were in the incoming list.
             // We track it separately from the input iterator since we can't reuse the iterator.
@@ -138,7 +143,7 @@ impl SignalStore {
     /// - If the signal's next_emission_ms is 0, reset it
     /// - If the signal's next_emission_ms is non-zero, subtract the provided value.
     ///     If overflow would occur, the value saturates at `u64::MIN` (0).
-    /// 
+    ///
     /// Acquires a write lock.
     ///
     /// # Arguments
@@ -168,7 +173,12 @@ impl Default for SignalStore {
 mod signal_store_tests {
     use std::collections::HashSet;
 
-    use freyja_contracts::{provider_proxy::OperationKind, signal::{Emission, Target, EmissionPolicy}, conversion::Conversion, entity::Entity};
+    use freyja_contracts::{
+        conversion::Conversion,
+        entity::Entity,
+        provider_proxy::OperationKind,
+        signal::{Emission, EmissionPolicy, Target},
+    };
 
     use super::*;
 
@@ -179,8 +189,11 @@ mod signal_store_tests {
         let uut = SignalStore::new();
         {
             let mut signals = uut.signals.write().unwrap();
-            let mut signal = Signal::default();
-            signal.id = ID.to_string();
+            let signal = Signal {
+                id: ID.to_string(),
+                ..Default::default()
+            };
+
             signals.insert(ID.to_string(), signal);
         }
 
@@ -196,8 +209,11 @@ mod signal_store_tests {
         let uut = SignalStore::new();
         {
             let mut signals = uut.signals.write().unwrap();
-            let mut signal = Signal::default();
-            signal.id = ID.to_string();
+            let signal = Signal {
+                id: ID.to_string(),
+                ..Default::default()
+            };
+
             signals.insert(ID.to_string(), signal);
         }
 
@@ -217,8 +233,11 @@ mod signal_store_tests {
             let mut signals = uut.signals.write().unwrap();
 
             for id in ids.iter() {
-                let mut signal = Signal::default();
-                signal.id = id.clone();
+                let signal = Signal {
+                    id: id.clone(),
+                    ..Default::default()
+                };
+
                 signals.insert(id.clone(), signal);
             }
         }
@@ -229,8 +248,12 @@ mod signal_store_tests {
 
         // HashSet equality checks that both operands have the same contents
         assert_eq!(
-            result.into_iter().map(|s| s.id).collect::<HashSet<String>>(),
-            ids);
+            result
+                .into_iter()
+                .map(|s| s.id)
+                .collect::<HashSet<String>>(),
+            ids
+        );
     }
 
     #[test]
@@ -251,15 +274,17 @@ mod signal_store_tests {
                 protocol: ORIGINAL.to_string(),
             },
             target: Target {
-                metadata: [(ORIGINAL.to_string(), ORIGINAL.to_string())].into_iter().collect(),
+                metadata: [(ORIGINAL.to_string(), ORIGINAL.to_string())]
+                    .into_iter()
+                    .collect(),
             },
-            emission: Emission { 
+            emission: Emission {
                 policy: EmissionPolicy {
                     interval_ms: 42,
                     emit_only_if_changed: false,
                     conversion: Conversion::None,
-                }, 
-                next_emission_ms: 42, 
+                },
+                next_emission_ms: 42,
                 last_emitted_value: Some(ORIGINAL.to_string()),
             },
         };
@@ -278,14 +303,19 @@ mod signal_store_tests {
                 protocol: INCOMING.to_string(),
             },
             target: Target {
-                metadata: [(INCOMING.to_string(), INCOMING.to_string())].into_iter().collect(),
+                metadata: [(INCOMING.to_string(), INCOMING.to_string())]
+                    .into_iter()
+                    .collect(),
             },
-            emission: Emission { 
+            emission: Emission {
                 policy: EmissionPolicy {
                     interval_ms: 123,
                     emit_only_if_changed: true,
-                    conversion: Conversion::Linear { mul: 1.2, offset: 3.4 },
-                }, 
+                    conversion: Conversion::Linear {
+                        mul: 1.2,
+                        offset: 3.4,
+                    },
+                },
                 next_emission_ms: 123,
                 last_emitted_value: Some(INCOMING.to_string()),
             },
@@ -306,15 +336,24 @@ mod signal_store_tests {
         // - emission.policy.*
         assert_eq!(updated_signal.source, incoming_signal.source);
         assert_eq!(updated_signal.target, incoming_signal.target);
-        assert_eq!(updated_signal.emission.policy, incoming_signal.emission.policy);
-        
+        assert_eq!(
+            updated_signal.emission.policy,
+            incoming_signal.emission.policy
+        );
+
         // The following fields should NOT have changed to match the incoming signal:
         // - value
         // - emission.next_emission_ms
         // - emission.last_emitted_value
         assert_eq!(updated_signal.value, original_signal.value);
-        assert_eq!(updated_signal.emission.next_emission_ms, original_signal.emission.next_emission_ms);
-        assert_eq!(updated_signal.emission.last_emitted_value, original_signal.emission.last_emitted_value);
+        assert_eq!(
+            updated_signal.emission.next_emission_ms,
+            original_signal.emission.next_emission_ms
+        );
+        assert_eq!(
+            updated_signal.emission.last_emitted_value,
+            original_signal.emission.last_emitted_value
+        );
     }
 
     #[test]
@@ -336,14 +375,19 @@ mod signal_store_tests {
                 protocol: INCOMING.to_string(),
             },
             target: Target {
-                metadata: [(INCOMING.to_string(), INCOMING.to_string())].into_iter().collect(),
+                metadata: [(INCOMING.to_string(), INCOMING.to_string())]
+                    .into_iter()
+                    .collect(),
             },
-            emission: Emission { 
+            emission: Emission {
                 policy: EmissionPolicy {
                     interval_ms: 123,
                     emit_only_if_changed: true,
-                    conversion: Conversion::Linear { mul: 1.2, offset: 3.4 },
-                }, 
+                    conversion: Conversion::Linear {
+                        mul: 1.2,
+                        offset: 3.4,
+                    },
+                },
                 next_emission_ms: 123,
                 last_emitted_value: Some(INCOMING.to_string()),
             },
@@ -360,15 +404,21 @@ mod signal_store_tests {
         // - emission.policy.*
         assert_eq!(updated_signal.source, incoming_signal.source);
         assert_eq!(updated_signal.target, incoming_signal.target);
-        assert_eq!(updated_signal.emission.policy, incoming_signal.emission.policy);
-        
+        assert_eq!(
+            updated_signal.emission.policy,
+            incoming_signal.emission.policy
+        );
+
         // The following fields should be initialized to default:
         // - value
         // - emission.next_emission_ms
         // - emission.last_emitted_value
         assert_eq!(updated_signal.value, Default::default());
         assert_eq!(updated_signal.emission.next_emission_ms, Default::default());
-        assert_eq!(updated_signal.emission.last_emitted_value, Default::default());
+        assert_eq!(
+            updated_signal.emission.last_emitted_value,
+            Default::default()
+        );
     }
 
     #[test]
@@ -388,15 +438,17 @@ mod signal_store_tests {
                 protocol: ORIGINAL.to_string(),
             },
             target: Target {
-                metadata: [(ORIGINAL.to_string(), ORIGINAL.to_string())].into_iter().collect(),
+                metadata: [(ORIGINAL.to_string(), ORIGINAL.to_string())]
+                    .into_iter()
+                    .collect(),
             },
-            emission: Emission { 
+            emission: Emission {
                 policy: EmissionPolicy {
                     interval_ms: 42,
                     emit_only_if_changed: false,
                     conversion: Conversion::None,
-                }, 
-                next_emission_ms: 42, 
+                },
+                next_emission_ms: 42,
                 last_emitted_value: Some(ORIGINAL.to_string()),
             },
         };
@@ -419,11 +471,14 @@ mod signal_store_tests {
         let uut = SignalStore::new();
         {
             let mut signals = uut.signals.write().unwrap();
-            let mut signal = Signal::default();
-            signal.id = ID.to_string();
+            let signal = Signal {
+                id: ID.to_string(),
+                ..Default::default()
+            };
+
             signals.insert(ID.to_string(), signal);
         }
-        
+
         // Test first set returns Some(None) and changes state
         let value = String::from("value");
         let result = uut.set_value(ID.to_string(), value.clone());
@@ -431,7 +486,10 @@ mod signal_store_tests {
         assert!(result.unwrap().is_none());
         {
             let signals = uut.signals.read().unwrap();
-            assert_eq!(signals.get(&ID.to_string()).unwrap().value, Some(value.clone()));
+            assert_eq!(
+                signals.get(&ID.to_string()).unwrap().value,
+                Some(value.clone())
+            );
         }
 
         // Test setting non-existent value returns None doesn't change state
@@ -439,7 +497,10 @@ mod signal_store_tests {
         assert!(result.is_none());
         {
             let signals = uut.signals.read().unwrap();
-            assert_eq!(signals.get(&ID.to_string()).unwrap().value, Some(value.clone()));
+            assert_eq!(
+                signals.get(&ID.to_string()).unwrap().value,
+                Some(value.clone())
+            );
         }
 
         // Test second set returns Some(Some("value")) and changes state
@@ -449,7 +510,10 @@ mod signal_store_tests {
         assert_eq!(result.unwrap().unwrap(), value);
         {
             let signals = uut.signals.read().unwrap();
-            assert_ne!(signals.get(&ID.to_string()).unwrap().value, Some(value.clone()));
+            assert_ne!(
+                signals.get(&ID.to_string()).unwrap().value,
+                Some(value.clone())
+            );
         }
     }
 
@@ -460,11 +524,14 @@ mod signal_store_tests {
         let uut = SignalStore::new();
         {
             let mut signals = uut.signals.write().unwrap();
-            let mut signal = Signal::default();
-            signal.id = ID.to_string();
+            let signal = Signal {
+                id: ID.to_string(),
+                ..Default::default()
+            };
+
             signals.insert(ID.to_string(), signal);
         }
-        
+
         // Test first set returns Some(None) and changes state
         let value = String::from("value");
         let result = uut.set_last_emitted_value(ID.to_string(), value.clone());
@@ -472,7 +539,14 @@ mod signal_store_tests {
         assert!(result.unwrap().is_none());
         {
             let signals = uut.signals.read().unwrap();
-            assert_eq!(signals.get(&ID.to_string()).unwrap().emission.last_emitted_value, Some(value.clone()));
+            assert_eq!(
+                signals
+                    .get(&ID.to_string())
+                    .unwrap()
+                    .emission
+                    .last_emitted_value,
+                Some(value.clone())
+            );
         }
 
         // Test setting non-existent value returns None doesn't change state
@@ -480,7 +554,14 @@ mod signal_store_tests {
         assert!(result.is_none());
         {
             let signals = uut.signals.read().unwrap();
-            assert_eq!(signals.get(&ID.to_string()).unwrap().emission.last_emitted_value, Some(value.clone()));
+            assert_eq!(
+                signals
+                    .get(&ID.to_string())
+                    .unwrap()
+                    .emission
+                    .last_emitted_value,
+                Some(value.clone())
+            );
         }
 
         // Test second set returns Some(Some("value")) and changes state
@@ -490,7 +571,14 @@ mod signal_store_tests {
         assert_eq!(result.unwrap().unwrap(), value);
         {
             let signals = uut.signals.read().unwrap();
-            assert_ne!(signals.get(&ID.to_string()).unwrap().emission.last_emitted_value, Some(value.clone()));
+            assert_ne!(
+                signals
+                    .get(&ID.to_string())
+                    .unwrap()
+                    .emission
+                    .last_emitted_value,
+                Some(value.clone())
+            );
         }
     }
 
@@ -503,17 +591,30 @@ mod signal_store_tests {
         let uut = SignalStore::new();
         {
             let mut signals = uut.signals.write().unwrap();
-            let mut signal = Signal::default();
-            signal.id = ID.to_string();
-            signal.emission.next_emission_ms = ORIGINAL_VALUE;
+            let signal = Signal {
+                id: ID.to_string(),
+                emission: Emission {
+                    next_emission_ms: ORIGINAL_VALUE,
+                    ..Default::default()
+                },
+                ..Default::default()
+            };
+
             signals.insert(ID.to_string(), signal);
         }
-        
+
         uut.update_next_emission_times(ADJUSTMENT);
 
         {
             let signals = uut.signals.read().unwrap();
-            assert_eq!(signals.get(&ID.to_string()).unwrap().emission.next_emission_ms, ORIGINAL_VALUE - ADJUSTMENT);
+            assert_eq!(
+                signals
+                    .get(&ID.to_string())
+                    .unwrap()
+                    .emission
+                    .next_emission_ms,
+                ORIGINAL_VALUE - ADJUSTMENT
+            );
         }
     }
 
@@ -526,17 +627,30 @@ mod signal_store_tests {
         let uut = SignalStore::new();
         {
             let mut signals = uut.signals.write().unwrap();
-            let mut signal = Signal::default();
-            signal.id = ID.to_string();
-            signal.emission.next_emission_ms = ORIGINAL_VALUE;
+            let signal = Signal {
+                id: ID.to_string(),
+                emission: Emission {
+                    next_emission_ms: ORIGINAL_VALUE,
+                    ..Default::default()
+                },
+                ..Default::default()
+            };
+
             signals.insert(ID.to_string(), signal);
         }
-        
+
         uut.update_next_emission_times(ADJUSTMENT);
 
         {
             let signals = uut.signals.read().unwrap();
-            assert_eq!(signals.get(&ID.to_string()).unwrap().emission.next_emission_ms, 0);
+            assert_eq!(
+                signals
+                    .get(&ID.to_string())
+                    .unwrap()
+                    .emission
+                    .next_emission_ms,
+                0
+            );
         }
     }
 
@@ -550,18 +664,33 @@ mod signal_store_tests {
         let uut = SignalStore::new();
         {
             let mut signals = uut.signals.write().unwrap();
-            let mut signal = Signal::default();
-            signal.id = ID.to_string();
-            signal.emission.next_emission_ms = ORIGINAL_VALUE;
-            signal.emission.policy.interval_ms = INTERVAL;
+            let signal = Signal {
+                id: ID.to_string(),
+                emission: Emission {
+                    policy: EmissionPolicy {
+                        interval_ms: INTERVAL,
+                        ..Default::default()
+                    },
+                    next_emission_ms: ORIGINAL_VALUE,
+                    ..Default::default()
+                },
+                ..Default::default()
+            };
             signals.insert(ID.to_string(), signal);
         }
-        
+
         uut.update_next_emission_times(ADJUSTMENT);
 
         {
             let signals = uut.signals.read().unwrap();
-            assert_eq!(signals.get(&ID.to_string()).unwrap().emission.next_emission_ms, INTERVAL);
+            assert_eq!(
+                signals
+                    .get(&ID.to_string())
+                    .unwrap()
+                    .emission
+                    .next_emission_ms,
+                INTERVAL
+            );
         }
     }
 }

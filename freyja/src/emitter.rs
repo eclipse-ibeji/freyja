@@ -83,22 +83,14 @@ impl Emitter {
 
                     if signal.emission.next_emission_ms > 0 {
                         // Don't emit this signal on this iteration, but use the value to update the sleep interval
-                        sleep_interval =
-                            min(
-                                sleep_interval,
-                                signal.emission.next_emission_ms,
-                            );
+                        sleep_interval = min(sleep_interval, signal.emission.next_emission_ms);
 
                         // Go to next signal
                         continue;
                     } else {
                         // We will emit this signal since the timer is expired,
                         // but need to also check the new interval in case it's smaller than the remaining intervals
-                        sleep_interval = 
-                            min(
-                                sleep_interval,
-                                signal.emission.policy.interval_ms,
-                            );
+                        sleep_interval = min(sleep_interval, signal.emission.policy.interval_ms);
                     }
 
                     if signal.value.is_none() {
