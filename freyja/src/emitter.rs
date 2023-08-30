@@ -59,29 +59,19 @@ impl Emitter {
 
     /// Execute this Emitter
     pub async fn run(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        const DEFAULT_SLEEP_INTERVAL_MS: u64 = 1000;
         loop {
             self.update_signal_values();
 
             let signals = self.signals.get_all();
-            let mut min_nonzero_next_interval = None;
-            let mut signals_to_emit = vec![];
-            for signal in signals {
-                match signal.emission.next_emission_ms {
-                    0 => signals_to_emit.push(signal),
-                    n if n > 0 => min_nonzero_next_interval = Some(
-                        min(
-                            min_nonzero_next_interval.unwrap_or(u64::MAX),
-                            n
-                        )
-                    ),
-                    _ => warn!("Signal {} has a negative next_emission_ms value, which shouldn't be possible!", signal.id),
-                };
-            }
+            let mut sleep_interval = u64::MAX;
 
-            if !signals_to_emit.is_empty() {
+            if signals.is_empty() {
+                sleep_interval = DEFAULT_SLEEP_INTERVAL_MS;
+            } else {
                 info!("********************BEGIN EMISSION********************");
 
-                for signal in signals_to_emit {
+                for signal in signals {
                     // Submit a request for a new value for the next iteration.
                     // This approach to requesting signal values introduces an inherent delay in uploading data
                     // and needs to be revisited.
@@ -90,6 +80,26 @@ impl Emitter {
                     };
                     self.provider_proxy_selector_request_sender
                         .send_request_to_provider_proxy_selector(request);
+
+                    if signal.emission.next_emission_ms > 0 {
+                        // Don't emit this signal on this iteration, but use the value to update the sleep interval
+                        sleep_interval =
+                            min(
+                                sleep_interval,
+                                signal.emission.next_emission_ms,
+                            );
+
+                        // Go to next signal
+                        continue;
+                    } else {
+                        // We will emit this signal since the timer is expired,
+                        // but need to also check the new interval in case it's smaller than the remaining intervals
+                        sleep_interval = 
+                            min(
+                                sleep_interval,
+                                signal.emission.policy.interval_ms,
+                            );
+                    }
 
                     if signal.value.is_none() {
                         info!(
@@ -112,13 +122,18 @@ impl Emitter {
                     }
 
                     self.send_to_cloud(signal).await?;
-                    // TODO: Update next emission time
                 }
 
                 info!("*********************END EMISSION*********************");
+
+                // Update the emission times for the next loop.
+                // Note that the signal set could actually have changed since we originally queried them!
+                // Updating new signals will be a no-op since they get initialized with next_emission_ms = 0.
+                // If all of the signals corresponding to this value were removed from tracking
+                // then the loop will wake up early and emit nothing after sleeping for this interval.
+                self.signals.update_next_emission_times(sleep_interval);
             }
 
-            let sleep_interval = min_nonzero_next_interval.unwrap_or(1000);
             info!("Checking for next emission in {sleep_interval}ms\n");
             sleep(Duration::from_millis(sleep_interval)).await;
         }

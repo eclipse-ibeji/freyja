@@ -56,12 +56,12 @@ impl SignalStore {
         SyncIterator: Iterator<Item = TItem>,
         TItem: Into<SignalPatch>
     {
+        let mut signals = self.signals.write().unwrap();
+
         // This algorithm avoids trying to iterate over incoming_signals multiple times since iterators are consumed in this process.
         // If the iterator were cloneable then the implementation would be a bit nicer, but in general that's not always possible
         // (and in particular, it's not possible with the iterator being passed to this function in its usage).
         // This function isn't invoked very often (only when we have a new mapping), so less-than-optimal efficiency is less of a concern.
-        let mut signals = self.signals.write().unwrap();
-
         let size_hint = incoming_signals.size_hint();
         let mut incoming_ids = Vec::with_capacity(size_hint.1.unwrap_or(size_hint.0));
         for value in incoming_signals {
@@ -132,6 +132,29 @@ impl SignalStore {
         });
 
         result
+    }
+
+    /// Adjusts the next emission time of all signals according to the following rules:
+    /// - If the signal's next_emission_ms is 0, reset it
+    /// - If the signal's next_emission_ms is non-zero, subtract the provided value.
+    ///     If overflow would occur, the value saturates at `u64::MIN` (0).
+    /// 
+    /// Acquires a write lock.
+    ///
+    /// # Arguments
+    /// - `id`: The id of the signal to edit
+    /// - `adjustment`: The value to subtract from each signal's next_emission_ms value
+    pub fn update_next_emission_times(&self, interval: u64) {
+        let mut signals = self.signals.write().unwrap();
+
+        for (_, signal) in signals.iter_mut() {
+            signal.emission.next_emission_ms = if signal.emission.next_emission_ms == 0 {
+                // Reset the timer
+                signal.emission.policy.interval_ms
+            } else {
+                signal.emission.next_emission_ms.saturating_sub(interval)
+            };
+        }
     }
 }
 
@@ -468,6 +491,77 @@ mod signal_store_tests {
         {
             let signals = uut.signals.read().unwrap();
             assert_ne!(signals.get(&ID.to_string()).unwrap().emission.last_emitted_value, Some(value.clone()));
+        }
+    }
+
+    #[test]
+    fn update_next_emission_times_sets_correct_value() {
+        const ID: &str = "testid";
+        const ORIGINAL_VALUE: u64 = 42;
+        const ADJUSTMENT: u64 = 20;
+
+        let uut = SignalStore::new();
+        {
+            let mut signals = uut.signals.write().unwrap();
+            let mut signal = Signal::default();
+            signal.id = ID.to_string();
+            signal.emission.next_emission_ms = ORIGINAL_VALUE;
+            signals.insert(ID.to_string(), signal);
+        }
+        
+        uut.update_next_emission_times(ADJUSTMENT);
+
+        {
+            let signals = uut.signals.read().unwrap();
+            assert_eq!(signals.get(&ID.to_string()).unwrap().emission.next_emission_ms, ORIGINAL_VALUE - ADJUSTMENT);
+        }
+    }
+
+    #[test]
+    fn update_next_emission_times_saturates_overflowed_value() {
+        const ID: &str = "testid";
+        const ORIGINAL_VALUE: u64 = 20;
+        const ADJUSTMENT: u64 = 42;
+
+        let uut = SignalStore::new();
+        {
+            let mut signals = uut.signals.write().unwrap();
+            let mut signal = Signal::default();
+            signal.id = ID.to_string();
+            signal.emission.next_emission_ms = ORIGINAL_VALUE;
+            signals.insert(ID.to_string(), signal);
+        }
+        
+        uut.update_next_emission_times(ADJUSTMENT);
+
+        {
+            let signals = uut.signals.read().unwrap();
+            assert_eq!(signals.get(&ID.to_string()).unwrap().emission.next_emission_ms, 0);
+        }
+    }
+
+    #[test]
+    fn update_next_emission_times_resets_values() {
+        const ID: &str = "testid";
+        const ORIGINAL_VALUE: u64 = 0;
+        const INTERVAL: u64 = 42;
+        const ADJUSTMENT: u64 = 20;
+
+        let uut = SignalStore::new();
+        {
+            let mut signals = uut.signals.write().unwrap();
+            let mut signal = Signal::default();
+            signal.id = ID.to_string();
+            signal.emission.next_emission_ms = ORIGINAL_VALUE;
+            signal.emission.policy.interval_ms = INTERVAL;
+            signals.insert(ID.to_string(), signal);
+        }
+        
+        uut.update_next_emission_times(ADJUSTMENT);
+
+        {
+            let signals = uut.signals.read().unwrap();
+            assert_eq!(signals.get(&ID.to_string()).unwrap().emission.next_emission_ms, INTERVAL);
         }
     }
 }

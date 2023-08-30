@@ -31,12 +31,12 @@ pub struct Entity {
 impl Default for Entity {
     fn default() -> Self {
         Self {
-            id: String::default(),
-            name: None,
-            uri: String::default(),
-            description: None,
+            id: Default::default(),
+            name: Default::default(),
+            uri: Default::default(),
+            description: Default::default(),
             operation: OperationKind::Get,
-            protocol: String::default(),
+            protocol: Default::default(),
         }
     }
 }
