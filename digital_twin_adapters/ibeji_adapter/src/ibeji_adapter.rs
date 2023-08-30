@@ -3,11 +3,9 @@
 // SPDX-License-Identifier: MIT
 
 use std::{
-    collections::HashMap,
     fs,
     path::Path,
     str::FromStr,
-    sync::{Arc, Mutex},
     time::Duration,
 };
 
@@ -29,7 +27,6 @@ use freyja_contracts::{
     },
     entity::Entity,
     provider_proxy::OperationKind,
-    provider_proxy_request::ProviderProxySelectorRequestSender,
 };
 
 const GET_OPERATION: &str = "Get";
@@ -149,6 +146,7 @@ impl DigitalTwinAdapter for IbejiAdapter {
         let request = tonic::Request::new(FindByIdRequest {
             id: entity_id.clone(),
         });
+
         let response = self
             .client
             .clone()
@@ -204,29 +202,8 @@ impl DigitalTwinAdapter for IbejiAdapter {
             uri: endpoint.uri,
             protocol: endpoint.protocol,
         };
-        Ok(GetDigitalTwinProviderResponse { entity })
-    }
 
-    /// Run as a client to the in-vehicle digital twin provider
-    ///
-    /// # Arguments
-    /// - `entity_map`: shared map of entity ID to entity information
-    /// - `sleep_interval`: the interval in milliseconds between finding the access info of entities
-    /// - `provider_proxy_selector_request_sender`: sends requests to the provider proxy selector
-    async fn run(
-        &self,
-        entity_map: Arc<Mutex<HashMap<String, Option<Entity>>>>,
-        sleep_interval: Duration,
-        provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
-    ) -> Result<(), DigitalTwinAdapterError> {
-        loop {
-            self.update_entity_map(
-                entity_map.clone(),
-                provider_proxy_selector_request_sender.clone(),
-            )
-            .await?;
-            tokio::time::sleep(sleep_interval).await;
-        }
+        Ok(GetDigitalTwinProviderResponse { entity })
     }
 }
 

@@ -2,19 +2,15 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{collections::HashMap, fs, path::Path, sync::Arc, sync::Mutex, time::Duration};
+use std::{fs, path::Path};
 
 use async_trait::async_trait;
 
 use crate::config::EntityConfig;
-use freyja_contracts::{
-    digital_twin_adapter::{
+use freyja_contracts::digital_twin_adapter::{
         DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind,
         GetDigitalTwinProviderRequest, GetDigitalTwinProviderResponse,
-    },
-    entity::Entity,
-    provider_proxy_request::ProviderProxySelectorRequestSender,
-};
+    };
 
 const CONFIG_FILE: &str = "config.json";
 
@@ -75,35 +71,13 @@ impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
             })
             .ok_or(DigitalTwinAdapterErrorKind::EntityNotFound.into())
     }
-
-    /// Run as a client to the mock in-vehicle digital twin provider
-    ///
-    /// # Arguments
-    /// - `entity_map`: shared map of entity ID to entity information
-    /// - `sleep_interval`: the interval in milliseconds between finding the access info of entities
-    /// - `provider_proxy_selector_request_sender`: sends requests to the provider proxy selector
-    async fn run(
-        &self,
-        entity_map: Arc<Mutex<HashMap<String, Option<Entity>>>>,
-        sleep_interval: Duration,
-        provider_proxy_selector_request_sender: Arc<ProviderProxySelectorRequestSender>,
-    ) -> Result<(), DigitalTwinAdapterError> {
-        loop {
-            self.update_entity_map(
-                entity_map.clone(),
-                provider_proxy_selector_request_sender.clone(),
-            )
-            .await?;
-            tokio::time::sleep(sleep_interval).await;
-        }
-    }
 }
 
 #[cfg(test)]
 mod in_memory_mock_digital_twin_adapter_tests {
     use super::*;
 
-    use freyja_contracts::provider_proxy::OperationKind;
+    use freyja_contracts::{provider_proxy::OperationKind, entity::Entity};
 
     #[test]
     fn from_config_file_returns_err_on_nonexistent_file() {

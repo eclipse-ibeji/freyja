@@ -24,6 +24,7 @@ pub enum ProviderProxySelectorRequestKind {
     },
 }
 
+#[derive(Clone)]
 pub struct ProviderProxySelectorRequestSender {
     tx_provider_proxy_selector_request: UnboundedSender<ProviderProxySelectorRequestKind>,
 }

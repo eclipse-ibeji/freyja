@@ -9,7 +9,7 @@ use std::{
     collections::HashMap,
     env,
     str::FromStr,
-    sync::{Arc, Mutex},
+    sync::Arc,
     time::Duration,
 };
 
@@ -20,11 +20,11 @@ use tokio::sync::mpsc;
 
 use cartographer::Cartographer;
 use emitter::Emitter;
+use freyja_common::signal_store::SignalStore;
 use freyja_contracts::{
     cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter, mapping_client::MappingClient,
-    provider_proxy::SignalValue, entity::Entity, provider_proxy_request::{ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender},
+    provider_proxy::SignalValue, provider_proxy_request::{ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender},
 };
-use freyja_common::signal_store::SignalStore;
 use freyja_deps::*;
 use provider_proxy_selector::provider_proxy_selector::ProviderProxySelector;
 
@@ -60,14 +60,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // Setup shared resources
     let signal_store = Arc::new(SignalStore::new());
-    let entity_map: Arc<Mutex<HashMap<String, Option<Entity>>>> =
-        Arc::new(Mutex::new(HashMap::new()));
     let (tx_provider_proxy_selector_request, rx_provider_proxy_selector_request) =
         mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-    // TODO: I believe arc is unnecessary here, we can just have copies (assuming the sender is stateless)
-    let provider_proxy_selector_request_sender = Arc::new(ProviderProxySelectorRequestSender::new(
+    let provider_proxy_selector_request_sender = ProviderProxySelectorRequestSender::new(
         tx_provider_proxy_selector_request,
-    ));
+    );
 
     // Setup interfaces
     let cloud_adapter: Box<dyn CloudAdapter + Send + Sync> =
@@ -86,16 +83,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
 
     let emitter = Emitter::new(
-        Arc::new(Mutex::new(HashMap::new())),
+        signal_store.clone(),
         cloud_adapter,
-        entity_map.clone(),
         provider_proxy_selector_request_sender.clone(),
         signal_values_queue.clone(),
     );
 
     let provider_proxy_selector = ProviderProxySelector::new();
     tokio::select! {
-        //Err(e) = dt_adapter.run(entity_map, Duration::from_secs(5), provider_proxy_selector_request_sender) => { println!("[main] digital twin adapter terminated with error {e:?}"); Err(e)? },
         Err(e) = cartographer.run() => { println!("[main] cartographer terminated with error {e:?}"); Err(e) },
         Err(e) = emitter.run() => { println!("[main] emitter terminated with error {e:?}"); Err(e) },
         Err(e) = provider_proxy_selector.run(rx_provider_proxy_selector_request, signal_values_queue) => {  Err(e)? }

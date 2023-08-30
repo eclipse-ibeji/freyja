@@ -22,7 +22,7 @@ pub struct Cartographer {
     digital_twin_client: Box<dyn DigitalTwinAdapter>,
 
     /// The provider proxy selector client
-    provider_proxy_selector_client: Arc<ProviderProxySelectorRequestSender>,
+    provider_proxy_selector_client: ProviderProxySelectorRequestSender,
 
     /// The mapping service polling interval
     poll_interval: Duration,
@@ -39,7 +39,7 @@ impl Cartographer {
         signals: Arc<SignalStore>,
         mapping_client: Box<dyn MappingClient>,
         digital_twin_client: Box<dyn DigitalTwinAdapter>,
-        provider_proxy_selector_client: Arc<ProviderProxySelectorRequestSender>,
+        provider_proxy_selector_client: ProviderProxySelectorRequestSender,
         poll_interval: Duration,
     ) -> Self {
         Self {
@@ -89,7 +89,7 @@ impl Cartographer {
                         emission: Emission {
                             policy: EmissionPolicy {
                                 interval_ms: entry.interval_ms,
-                                emit_on_change: entry.emit_on_change,
+                                emit_only_if_changed: entry.emit_on_change,
                                 conversion: Conversion::default(),
                             },
                             ..Default::default()
@@ -98,7 +98,7 @@ impl Cartographer {
                     })
                     .collect();
                 
-                // Some of these API calls are not really necessary, but this function gets executed
+                // Some of these API calls are not really necessary, but this code gets executed
                 // infrequently enough that the sub-optimal performance is not a major concern.
                 // If Ibeji had a bulk find_by_id API there would be even less of a concern.
                 // TODO: punt stuff to the dt client and we call find_all here
