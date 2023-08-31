@@ -120,7 +120,8 @@ impl SignalStore {
         result
     }
 
-    /// Sets the last emitted value of the signal with the given id to the requested value.
+    /// Sets the last emitted value of the signal with the given id to the requested value
+    /// and resets its next_emssion_time_ms based on the emission policy.
     /// Returns the old value, or None if the signal could not be found.
     /// Acquires a write lock.
     ///
@@ -134,32 +135,30 @@ impl SignalStore {
         signals.entry(id).and_modify(|s| {
             result = Some(s.emission.last_emitted_value.clone());
             s.emission.last_emitted_value = Some(value);
+            s.emission.next_emission_ms = s.emission.policy.interval_ms;
         });
 
         result
     }
 
-    /// Adjusts the next emission time of all signals according to the following rules:
-    /// - If the signal's next_emission_ms is 0, reset it
-    /// - If the signal's next_emission_ms is non-zero, subtract the provided value.
-    ///     If overflow would occur, the value saturates at `u64::MIN` (0).
-    ///
+    /// Adjusts the emission times of all signals in the store by subtracting the provided interval from next_emission_ms.
+    /// If overflow would occur, the value saturates at u64::MIN (0).
+    /// Once this is done, returns the list of all signals.
     /// Acquires a write lock.
     ///
     /// # Arguments
     /// - `id`: The id of the signal to edit
     /// - `adjustment`: The value to subtract from each signal's next_emission_ms value
-    pub fn update_next_emission_times(&self, interval: u64) {
+    pub fn update_emission_times_and_get_all(&self, interval_ms: u64) -> Vec<Signal> {
         let mut signals = self.signals.write().unwrap();
+        let mut result = Vec::new();
 
         for (_, signal) in signals.iter_mut() {
-            signal.emission.next_emission_ms = if signal.emission.next_emission_ms == 0 {
-                // Reset the timer
-                signal.emission.policy.interval_ms
-            } else {
-                signal.emission.next_emission_ms.saturating_sub(interval)
-            };
+            signal.emission.next_emission_ms = signal.emission.next_emission_ms.saturating_sub(interval_ms);
+            result.push(signal.clone());
         }
+
+        result
     }
 }
 
@@ -520,12 +519,21 @@ mod signal_store_tests {
     #[test]
     fn set_last_emitted_value_tests() {
         const ID: &str = "testid";
+        const INTERVAL: u64 = 42;
+        const UPDATED_EMISSION_TIME: u64 = 20;
 
         let uut = SignalStore::new();
         {
             let mut signals = uut.signals.write().unwrap();
             let signal = Signal {
                 id: ID.to_string(),
+                emission: Emission {
+                    policy: EmissionPolicy {
+                        interval_ms: INTERVAL,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                },
                 ..Default::default()
             };
 
@@ -539,14 +547,15 @@ mod signal_store_tests {
         assert!(result.unwrap().is_none());
         {
             let signals = uut.signals.read().unwrap();
-            assert_eq!(
-                signals
-                    .get(&ID.to_string())
-                    .unwrap()
-                    .emission
-                    .last_emitted_value,
-                Some(value.clone())
-            );
+            let signal = signals.get(&ID.to_string()).unwrap();
+            assert_eq!(signal.emission.last_emitted_value, Some(value.clone()));
+            assert_eq!(signal.emission.next_emission_ms, INTERVAL);
+        }
+
+        {
+            // Simulate something changing next_emission_ms, such as the emitter
+            let mut signals = uut.signals.write().unwrap();
+            signals.entry(ID.to_string()).and_modify(|s| s.emission.next_emission_ms = UPDATED_EMISSION_TIME);
         }
 
         // Test setting non-existent value returns None doesn't change state
@@ -554,14 +563,15 @@ mod signal_store_tests {
         assert!(result.is_none());
         {
             let signals = uut.signals.read().unwrap();
-            assert_eq!(
-                signals
-                    .get(&ID.to_string())
-                    .unwrap()
-                    .emission
-                    .last_emitted_value,
-                Some(value.clone())
-            );
+            let signal = signals.get(&ID.to_string()).unwrap();
+            assert_eq!(signal.emission.last_emitted_value, Some(value.clone()));
+            assert_eq!(signal.emission.next_emission_ms, UPDATED_EMISSION_TIME);
+        }
+
+        {
+            // Simulate something changing next_emission_ms, such as the emitter
+            let mut signals = uut.signals.write().unwrap();
+            signals.entry(ID.to_string()).and_modify(|s| s.emission.next_emission_ms = UPDATED_EMISSION_TIME);
         }
 
         // Test second set returns Some(Some("value")) and changes state
@@ -571,22 +581,17 @@ mod signal_store_tests {
         assert_eq!(result.unwrap().unwrap(), value);
         {
             let signals = uut.signals.read().unwrap();
-            assert_ne!(
-                signals
-                    .get(&ID.to_string())
-                    .unwrap()
-                    .emission
-                    .last_emitted_value,
-                Some(value.clone())
-            );
+            let signal = signals.get(&ID.to_string()).unwrap();
+            assert_ne!(signal.emission.last_emitted_value, Some(value.clone()));
+            assert_eq!(signal.emission.next_emission_ms, INTERVAL);
         }
     }
 
     #[test]
-    fn update_next_emission_times_sets_correct_value() {
+    fn update_emission_times_and_get_all_sets_correct_value() {
         const ID: &str = "testid";
         const ORIGINAL_VALUE: u64 = 42;
-        const ADJUSTMENT: u64 = 20;
+        const INTERVAL: u64 = 20;
 
         let uut = SignalStore::new();
         {
@@ -603,26 +608,30 @@ mod signal_store_tests {
             signals.insert(ID.to_string(), signal);
         }
 
-        uut.update_next_emission_times(ADJUSTMENT);
+        let mut result = uut.update_emission_times_and_get_all(INTERVAL);
 
+        // Validate the values in the result
+        assert_eq!(result.len(), 1);
+        let signal = result.pop().unwrap();
+        assert_eq!(signal.id, ID.to_string());
+        assert_eq!(signal.emission.next_emission_ms, ORIGINAL_VALUE - INTERVAL);
+
+        // Validate the values in the store itself
         {
             let signals = uut.signals.read().unwrap();
-            assert_eq!(
-                signals
-                    .get(&ID.to_string())
-                    .unwrap()
-                    .emission
-                    .next_emission_ms,
-                ORIGINAL_VALUE - ADJUSTMENT
-            );
+            assert_eq!(signals.len(), 1);
+            assert!(signals.contains_key(&ID.to_string()));
+            let signal = signals.get(&ID.to_string()).unwrap();
+            assert_eq!(signal.id, ID.to_string());
+            assert_eq!(signal.emission.next_emission_ms, ORIGINAL_VALUE - INTERVAL);
         }
-    }
+    }   
 
     #[test]
-    fn update_next_emission_times_saturates_overflowed_value() {
+    fn update_emission_times_and_get_all_saturates_overflowed_value() {
         const ID: &str = "testid";
         const ORIGINAL_VALUE: u64 = 20;
-        const ADJUSTMENT: u64 = 42;
+        const INTERVAL: u64 = u64::MAX;
 
         let uut = SignalStore::new();
         {
@@ -639,58 +648,22 @@ mod signal_store_tests {
             signals.insert(ID.to_string(), signal);
         }
 
-        uut.update_next_emission_times(ADJUSTMENT);
+        let mut result = uut.update_emission_times_and_get_all(INTERVAL);
 
+        // Validate the values in the result
+        assert_eq!(result.len(), 1);
+        let signal = result.pop().unwrap();
+        assert_eq!(signal.id, ID.to_string());
+        assert_eq!(signal.emission.next_emission_ms, 0);
+
+        // Validate the values in the store itself
         {
             let signals = uut.signals.read().unwrap();
-            assert_eq!(
-                signals
-                    .get(&ID.to_string())
-                    .unwrap()
-                    .emission
-                    .next_emission_ms,
-                0
-            );
-        }
-    }
-
-    #[test]
-    fn update_next_emission_times_resets_values() {
-        const ID: &str = "testid";
-        const ORIGINAL_VALUE: u64 = 0;
-        const INTERVAL: u64 = 42;
-        const ADJUSTMENT: u64 = 20;
-
-        let uut = SignalStore::new();
-        {
-            let mut signals = uut.signals.write().unwrap();
-            let signal = Signal {
-                id: ID.to_string(),
-                emission: Emission {
-                    policy: EmissionPolicy {
-                        interval_ms: INTERVAL,
-                        ..Default::default()
-                    },
-                    next_emission_ms: ORIGINAL_VALUE,
-                    ..Default::default()
-                },
-                ..Default::default()
-            };
-            signals.insert(ID.to_string(), signal);
-        }
-
-        uut.update_next_emission_times(ADJUSTMENT);
-
-        {
-            let signals = uut.signals.read().unwrap();
-            assert_eq!(
-                signals
-                    .get(&ID.to_string())
-                    .unwrap()
-                    .emission
-                    .next_emission_ms,
-                INTERVAL
-            );
+            assert_eq!(signals.len(), 1);
+            assert!(signals.contains_key(&ID.to_string()));
+            let signal = signals.get(&ID.to_string()).unwrap();
+            assert_eq!(signal.id, ID.to_string());
+            assert_eq!(signal.emission.next_emission_ms, 0);
         }
     }
 }
