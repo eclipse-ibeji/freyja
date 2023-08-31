@@ -102,7 +102,9 @@ impl Emitter {
                     };
                     self.provider_proxy_selector_request_sender
                         .send_request_to_provider_proxy_selector(request)
-                        .map_err(|e| format!("Error sending request to provider proxy selector: {e}"))?;
+                        .map_err(|e| {
+                            format!("Error sending request to provider proxy selector: {e}")
+                        })?;
 
                     if signal.value.is_none() {
                         info!(

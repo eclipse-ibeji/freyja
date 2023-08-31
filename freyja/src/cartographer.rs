@@ -99,7 +99,9 @@ impl Cartographer {
     }
 
     /// Gets the mapping from the mapping client and returns a corresponding list of signals.
-    async fn get_mapping_as_signals(&self) -> Result<Vec<Signal>, Box<dyn std::error::Error + Send + Sync>> {
+    async fn get_mapping_as_signals(
+        &self,
+    ) -> Result<Vec<Signal>, Box<dyn std::error::Error + Send + Sync>> {
         Ok(self
             .mapping_client
             .get_mapping(GetMappingRequest {})
@@ -124,7 +126,10 @@ impl Cartographer {
             .collect())
     }
 
-    async fn populate_entity(&self, signal: &mut Signal) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    async fn populate_entity(
+        &self,
+        signal: &mut Signal,
+    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         signal.source = self
             .digital_twin_client
             .find_by_id(GetDigitalTwinProviderRequest {
@@ -153,11 +158,20 @@ mod cartographer_tests {
     use std::collections::HashMap;
 
     use super::*;
-    
+
     use async_trait::async_trait;
     use mockall::*;
-    
-    use freyja_contracts::{mapping_client::{MappingClientError, CheckForWorkResponse, SendInventoryRequest, SendInventoryResponse, GetMappingResponse}, digital_twin_map_entry::DigitalTwinMapEntry, digital_twin_adapter::{DigitalTwinAdapterError, GetDigitalTwinProviderResponse}, entity::Entity, provider_proxy::OperationKind};
+
+    use freyja_contracts::{
+        digital_twin_adapter::{DigitalTwinAdapterError, GetDigitalTwinProviderResponse},
+        digital_twin_map_entry::DigitalTwinMapEntry,
+        entity::Entity,
+        mapping_client::{
+            CheckForWorkResponse, GetMappingResponse, MappingClientError, SendInventoryRequest,
+            SendInventoryResponse,
+        },
+        provider_proxy::OperationKind,
+    };
     use tokio::sync::mpsc;
 
     mock! {
@@ -184,7 +198,7 @@ mod cartographer_tests {
             fn create_new() -> Result<Box<dyn MappingClient>, MappingClientError>
             where
                 Self: Sized;
-                
+
             async fn check_for_work(
                 &self,
                 request: CheckForWorkRequest,
@@ -216,11 +230,16 @@ mod cartographer_tests {
         let test_map_entry_clone = test_map_entry.clone();
 
         let mut mock_mapping_client = MockMappingClientImpl::new();
-        mock_mapping_client.expect_get_mapping()
-            .returning(move |_| Ok(GetMappingResponse {
-                map: [(ID.to_string(), test_map_entry_clone.clone())].into_iter().collect(),
-            }));
-        
+        mock_mapping_client
+            .expect_get_mapping()
+            .returning(move |_| {
+                Ok(GetMappingResponse {
+                    map: [(ID.to_string(), test_map_entry_clone.clone())]
+                        .into_iter()
+                        .collect(),
+                })
+            });
+
         let (tx, _) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
         let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
         let uut = Cartographer {
@@ -238,8 +257,14 @@ mod cartographer_tests {
         let signal = signals.pop().unwrap();
         assert_eq!(signal.id, ID.to_string());
         assert_eq!(signal.target.metadata, test_map_entry.target);
-        assert_eq!(signal.emission.policy.interval_ms, test_map_entry.interval_ms);
-        assert_eq!(signal.emission.policy.emit_only_if_changed, test_map_entry.emit_on_change);
+        assert_eq!(
+            signal.emission.policy.interval_ms,
+            test_map_entry.interval_ms
+        );
+        assert_eq!(
+            signal.emission.policy.emit_only_if_changed,
+            test_map_entry.emit_on_change
+        );
         assert_eq!(signal.emission.policy.conversion, test_map_entry.conversion);
     }
 
@@ -263,11 +288,12 @@ mod cartographer_tests {
         let test_entity_clone = test_entity.clone();
 
         let mut mock_dt_adapter = MockDigitalTwinAdapterImpl::new();
-        mock_dt_adapter.expect_find_by_id()
-            .returning(move |_| Ok(GetDigitalTwinProviderResponse {
+        mock_dt_adapter.expect_find_by_id().returning(move |_| {
+            Ok(GetDigitalTwinProviderResponse {
                 entity: test_entity_clone.clone(),
-            }));
-        
+            })
+        });
+
         let (tx, mut rx) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
         let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
         let listener_handler = tokio::spawn(async move { rx.recv().await });
@@ -279,24 +305,29 @@ mod cartographer_tests {
             provider_proxy_selector_client,
             poll_interval: Duration::from_secs(1),
         };
-        
+
         let result = uut.populate_entity(test_signal).await;
         let join_result = listener_handler.await;
 
         assert!(result.is_ok());
         assert!(join_result.is_ok());
         assert_eq!(test_signal.source, test_entity);
-        
+
         let proxy_request = join_result.unwrap();
         assert!(proxy_request.is_some());
         let proxy_request = proxy_request.as_ref().unwrap();
         match proxy_request {
-            ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy { entity_id, uri, protocol, operation } => {
+            ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy {
+                entity_id,
+                uri,
+                protocol,
+                operation,
+            } => {
                 assert_eq!(*entity_id, test_entity.id);
                 assert_eq!(*uri, test_entity.uri);
                 assert_eq!(*protocol, test_entity.protocol);
                 assert_eq!(*operation, test_entity.operation);
-            },
+            }
             _ => panic!("Unexpected proxy request kind: {proxy_request:?}"),
         }
     }
