@@ -75,7 +75,7 @@ pub struct SendInventoryResponse {}
 pub struct GetMappingRequest {}
 
 /// A responsewith a mapping
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GetMappingResponse {
     /// The map
     pub map: HashMap<String, DigitalTwinMapEntry>,
