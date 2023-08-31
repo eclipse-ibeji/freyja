@@ -154,7 +154,8 @@ impl SignalStore {
         let mut result = Vec::new();
 
         for (_, signal) in signals.iter_mut() {
-            signal.emission.next_emission_ms = signal.emission.next_emission_ms.saturating_sub(interval_ms);
+            signal.emission.next_emission_ms =
+                signal.emission.next_emission_ms.saturating_sub(interval_ms);
             result.push(signal.clone());
         }
 
@@ -555,7 +556,9 @@ mod signal_store_tests {
         {
             // Simulate something changing next_emission_ms, such as the emitter
             let mut signals = uut.signals.write().unwrap();
-            signals.entry(ID.to_string()).and_modify(|s| s.emission.next_emission_ms = UPDATED_EMISSION_TIME);
+            signals
+                .entry(ID.to_string())
+                .and_modify(|s| s.emission.next_emission_ms = UPDATED_EMISSION_TIME);
         }
 
         // Test setting non-existent value returns None doesn't change state
@@ -571,7 +574,9 @@ mod signal_store_tests {
         {
             // Simulate something changing next_emission_ms, such as the emitter
             let mut signals = uut.signals.write().unwrap();
-            signals.entry(ID.to_string()).and_modify(|s| s.emission.next_emission_ms = UPDATED_EMISSION_TIME);
+            signals
+                .entry(ID.to_string())
+                .and_modify(|s| s.emission.next_emission_ms = UPDATED_EMISSION_TIME);
         }
 
         // Test second set returns Some(Some("value")) and changes state
@@ -625,7 +630,7 @@ mod signal_store_tests {
             assert_eq!(signal.id, ID.to_string());
             assert_eq!(signal.emission.next_emission_ms, ORIGINAL_VALUE - INTERVAL);
         }
-    }   
+    }
 
     #[test]
     fn update_emission_times_and_get_all_saturates_overflowed_value() {

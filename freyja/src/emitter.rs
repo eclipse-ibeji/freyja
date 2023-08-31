@@ -69,13 +69,15 @@ impl Emitter {
             // Note that the first time the loop is executed sleep_interval will still be u64::MAX,
             // which will have the effect of force-emitting every signal in the store (though typically there won't be anything).
             // After that, the intervals will be no more than the max configured interval.
-            let signals = self.signals.update_emission_times_and_get_all(sleep_interval);
+            let signals = self
+                .signals
+                .update_emission_times_and_get_all(sleep_interval);
 
             if signals.is_empty() {
                 sleep_interval = DEFAULT_SLEEP_INTERVAL_MS;
             } else {
                 info!("********************BEGIN EMISSION********************");
-                
+
                 // Reset the sleep interval so that we can find the new lowest value
                 sleep_interval = u64::MAX;
 
@@ -91,7 +93,7 @@ impl Emitter {
                         // but need to also check the new interval in case it's smaller than the remaining intervals
                         sleep_interval = min(sleep_interval, signal.emission.policy.interval_ms);
                     }
-                    
+
                     // Submit a request for a new value for the next iteration.
                     // This approach to requesting signal values introduces an inherent delay in uploading data
                     // of signal.emission.policy.interval_ms and needs to be revisited.
