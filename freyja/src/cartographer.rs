@@ -89,7 +89,6 @@ impl Cartographer {
                     .map
                     .into_iter()
                     .map(|(id, entry)| Signal {
-                        // TODO: Should this id be here or is it part of the entity?
                         id,
                         target: Target {
                             metadata: entry.target,
@@ -129,7 +128,8 @@ impl Cartographer {
                     };
 
                     self.provider_proxy_selector_client
-                        .send_request_to_provider_proxy_selector(request);
+                        .send_request_to_provider_proxy_selector(request)
+                        .map_err(|e| format!("Error sending request to provider proxy selector: {e}"))?;
                 }
 
                 self.signals.sync(signals.into_iter());

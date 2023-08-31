@@ -6,7 +6,7 @@ use std::{collections::HashMap, sync::RwLock};
 
 use freyja_contracts::signal::{Emission, Signal, SignalPatch};
 
-/// Stores signals in a thread-safe manner.
+/// Stores signals and allows access in a thread-safe manner with support for multiple concurrent readers.
 /// Suitable for use as `Arc<SignalStore>`.
 pub struct SignalStore {
     /// The data being stored
@@ -21,7 +21,7 @@ impl SignalStore {
         }
     }
 
-    /// Get a value from the store, or None if the signal was not found.
+    /// Get a value from the store. Returns `None` if the signal was not found.
     /// Acquires a read lock.
     ///
     /// # Arguments
@@ -31,7 +31,7 @@ impl SignalStore {
         signals.get(id).cloned()
     }
 
-    /// Gets a Vec containing copies all of the signals in the store.
+    /// Gets a `Vec` containing copies all of the signals in the store.
     /// Acquires a read lock.
     pub fn get_all(&self) -> Vec<Signal> {
         let signals = self.signals.read().unwrap();
@@ -39,9 +39,8 @@ impl SignalStore {
     }
 
     /// For each signal in the input:
-    /// - If the incoming signal is already in the data store, update only its source, target, and emission policy.
-    ///     We don't update any of the other data that's being managed by the emitter to avoid untimely or incorrect emissions.
-    /// - If the incoming signal is not in the data store, insert it
+    /// - If the incoming signal is already in the data store, apply the patch.
+    /// - If the incoming signal is not in the data store, create a new signal from the patch.
     ///
     /// For each signal in the data store:
     /// - If the stored signal is not in the input, delete it
@@ -51,16 +50,15 @@ impl SignalStore {
     ///
     /// # Arguments
     /// - `incoming_signals`: The list of input signals
-    pub fn sync<SyncIterator, TItem>(&self, incoming_signals: SyncIterator)
+    pub fn sync<SyncIterator, IntoSignalPatch>(&self, incoming_signals: SyncIterator)
     where
-        SyncIterator: Iterator<Item = TItem>,
-        TItem: Into<SignalPatch>,
+        SyncIterator: Iterator<Item = IntoSignalPatch>,
+        IntoSignalPatch: Into<SignalPatch>,
     {
         let mut signals = self.signals.write().unwrap();
 
         // This algorithm avoids trying to iterate over incoming_signals multiple times since iterators are consumed in this process.
-        // If the iterator were cloneable then the implementation would be a bit nicer, but in general that's not always possible
-        // (and in particular, it's not possible with the iterator being passed to this function in its usage).
+        // If the iterator were cloneable then the implementation could be better, but in general that's not always a feasible constraint.
         // This function isn't invoked very often (only when we have a new mapping), so less-than-optimal efficiency is less of a concern.
         let size_hint = incoming_signals.size_hint();
         let mut incoming_ids = Vec::with_capacity(size_hint.1.unwrap_or(size_hint.0));
@@ -79,12 +77,12 @@ impl SignalStore {
             signals
                 .entry(id.clone())
                 // If the incoming signal is already in the data store, update only its target and emission policy
-                .and_modify(|e| {
-                    e.source = source.clone();
-                    e.target = target.clone();
-                    e.emission.policy = emission_policy.clone();
+                .and_modify(|s| {
+                    s.source = source.clone();
+                    s.target = target.clone();
+                    s.emission.policy = emission_policy.clone();
                 })
-                // If the incoming signal is not in the data store, insert it
+                // If the incoming signal is not in the data store, insert a new one
                 .or_insert(Signal {
                     id,
                     source,
@@ -102,7 +100,7 @@ impl SignalStore {
     }
 
     /// Sets the value of the signal with the given id to the requested value.
-    /// Returns the old value, or None if the signal could not be found.
+    /// Returns the old value, or `None` if the signal could not be found.
     /// Acquires a write lock.
     ///
     /// # Arguments
@@ -121,8 +119,8 @@ impl SignalStore {
     }
 
     /// Sets the last emitted value of the signal with the given id to the requested value
-    /// and resets its next_emssion_time_ms based on the emission policy.
-    /// Returns the old value, or None if the signal could not be found.
+    /// and resets its `next_emssion_ms` based on the emission policy.
+    /// Returns the old value, or `None` if the signal could not be found.
     /// Acquires a write lock.
     ///
     /// # Arguments
@@ -142,8 +140,8 @@ impl SignalStore {
     }
 
     /// Adjusts the emission times of all signals in the store by subtracting the provided interval from next_emission_ms.
-    /// If overflow would occur, the value saturates at u64::MIN (0).
-    /// Once this is done, returns the list of all signals.
+    /// If overflow would occur, the value saturates at `u64::MIN` (`0`).
+    /// Returns the updated list of all signals.
     /// Acquires a write lock.
     ///
     /// # Arguments
