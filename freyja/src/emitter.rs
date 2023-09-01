@@ -21,8 +21,7 @@ use freyja_contracts::{
 
 const DEFAULT_SLEEP_INTERVAL_MS: u64 = 1000;
 
-/// Data emitter for the digital twin sync project
-/// Emits sensor data at regular intervals as defined by the map
+/// Emits sensor data at regular intervals as configured in the store
 pub struct Emitter<TCloudAdapter> {
     /// The shared signal store
     signals: Arc<SignalStore>,
@@ -38,7 +37,7 @@ pub struct Emitter<TCloudAdapter> {
 }
 
 impl<TCloudAdapter: CloudAdapter> Emitter<TCloudAdapter> {
-    /// Creates a new instance of emitter
+    /// Creates a new instance of the Emitter
     ///
     /// # Arguments
     /// - `signals`: the shared signal store
@@ -172,7 +171,7 @@ impl<TCloudAdapter: CloudAdapter> Emitter<TCloudAdapter> {
         }
     }
 
-    /// Applies conversion implicitly to a signal value and sends it to the cloud
+    /// Applies a conversion implicitly to a signal value and sends it to the cloud
     ///
     /// # Arguments
     /// - `signal`: The signal to emit

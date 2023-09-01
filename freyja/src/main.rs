@@ -57,7 +57,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .target(Target::Stdout)
         .init();
 
-    // Setup shared resources
     let signal_store = Arc::new(SignalStore::new());
     let (tx_provider_proxy_selector_request, rx_provider_proxy_selector_request) =
         mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
@@ -76,7 +75,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // Setup emitter
     let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
-
     let emitter = Emitter::new(
         signal_store.clone(),
         CloudAdapterImpl::create_new().unwrap(),
