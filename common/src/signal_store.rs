@@ -359,8 +359,6 @@ mod signal_store_tests {
         const ID: &str = "id";
         const INCOMING: &str = "incoming";
 
-        // Note that everything in this signal is different compared to original_signal
-        // (except the id)
         let incoming_signal = Signal {
             id: ID.to_string(),
             value: Some(INCOMING.to_string()),
