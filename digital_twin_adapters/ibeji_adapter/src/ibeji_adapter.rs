@@ -72,7 +72,7 @@ impl IbejiAdapter {
 #[async_trait]
 impl DigitalTwinAdapter for IbejiAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
-    fn create_new() -> Result<Box<dyn DigitalTwinAdapter + Send + Sync>, DigitalTwinAdapterError> {
+    fn create_new() -> Result<Self, DigitalTwinAdapterError> {
         let settings_content =
             fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
         let settings: Settings = serde_json::from_str(settings_content.as_str()).unwrap();
@@ -126,7 +126,7 @@ impl DigitalTwinAdapter for IbejiAdapter {
         })
         .unwrap();
 
-        Ok(Box::new(Self { client }))
+        Ok(Self { client })
     }
 
     /// Gets entity access information

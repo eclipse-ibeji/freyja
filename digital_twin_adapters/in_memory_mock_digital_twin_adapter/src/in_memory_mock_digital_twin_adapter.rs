@@ -50,9 +50,8 @@ impl InMemoryMockDigitalTwinAdapter {
 #[async_trait]
 impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
-    fn create_new() -> Result<Box<dyn DigitalTwinAdapter + Send + Sync>, DigitalTwinAdapterError> {
+    fn create_new() -> Result<Self, DigitalTwinAdapterError> {
         Self::from_config_file(Path::new(env!("OUT_DIR")).join(CONFIG_FILE))
-            .map(|r| Box::new(r) as _)
     }
 
     /// Gets the entity information based on the request

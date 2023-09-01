@@ -13,7 +13,7 @@ use crate::digital_twin_map_entry::DigitalTwinMapEntry;
 #[async_trait]
 pub trait MappingClient {
     /// Creates a new instance of a MappingClient with default settings
-    fn create_new() -> Result<Box<dyn MappingClient>, MappingClientError>
+    fn create_new() -> Result<Self, MappingClientError>
     where
         Self: Sized;
 

@@ -11,7 +11,7 @@ use crate::entity::Entity;
 #[async_trait]
 pub trait DigitalTwinAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
-    fn create_new() -> Result<Box<dyn DigitalTwinAdapter + Send + Sync>, DigitalTwinAdapterError>
+    fn create_new() -> Result<Self, DigitalTwinAdapterError>
     where
         Self: Sized;
 

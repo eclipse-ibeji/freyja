@@ -53,9 +53,8 @@ impl InMemoryMockMappingClient {
 #[async_trait]
 impl MappingClient for InMemoryMockMappingClient {
     /// Creates a new instance of an InMemoryMockMappingClient with default settings
-    fn create_new() -> Result<Box<dyn MappingClient>, MappingClientError> {
+    fn create_new() -> Result<Self, MappingClientError> {
         Self::from_config_file(Path::new(env!("OUT_DIR")).join(CONFIG_FILE))
-            .map(|r| Box::new(r) as _)
     }
 
     /// Checks for any additional work that the mapping service requires.

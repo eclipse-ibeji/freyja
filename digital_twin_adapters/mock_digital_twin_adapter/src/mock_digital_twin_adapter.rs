@@ -55,15 +55,15 @@ impl MockDigitalTwinAdapter {
 #[async_trait]
 impl DigitalTwinAdapter for MockDigitalTwinAdapter {
     /// Creates a new instance of a MockDigitalTwinAdapter
-    fn create_new() -> Result<Box<dyn DigitalTwinAdapter + Send + Sync>, DigitalTwinAdapterError> {
+    fn create_new() -> Result<Self, DigitalTwinAdapterError> {
         let settings_content = fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE))
             .map_err(DigitalTwinAdapterError::io)?;
         let settings: Settings = serde_json::from_str(settings_content.as_str())
             .map_err(DigitalTwinAdapterError::deserialize)?;
 
-        Ok(Box::new(Self::with_uri(
+        Ok(Self::with_uri(
             &settings.base_uri_for_digital_twin_server,
-        )))
+        ))
     }
 
     /// Gets the info of an entity via an HTTP request.

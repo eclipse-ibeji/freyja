@@ -19,15 +19,15 @@ use freyja_contracts::{
 };
 
 /// Manages mappings from the mapping service
-pub struct Cartographer {
+pub struct Cartographer<TMappingClient, TDigitalTwinAdapter> {
     /// The shared signal store
     signals: Arc<SignalStore>,
 
     /// The mapping client
-    mapping_client: Box<dyn MappingClient>,
+    mapping_client: TMappingClient,
 
     /// The digital twin client
-    digital_twin_client: Box<dyn DigitalTwinAdapter>,
+    digital_twin_client: TDigitalTwinAdapter,
 
     /// The provider proxy selector client
     provider_proxy_selector_client: ProviderProxySelectorRequestSender,
@@ -36,7 +36,7 @@ pub struct Cartographer {
     poll_interval: Duration,
 }
 
-impl Cartographer {
+impl<TMappingClient: MappingClient, TDigitalTwinAdapter: DigitalTwinAdapter> Cartographer<TMappingClient, TDigitalTwinAdapter> {
     /// Create a new instance of a Cartographer
     ///
     /// # Arguments
@@ -45,8 +45,8 @@ impl Cartographer {
     /// - `poll_interval`: the interval at which the cartographer should poll for changes
     pub fn new(
         signals: Arc<SignalStore>,
-        mapping_client: Box<dyn MappingClient>,
-        digital_twin_client: Box<dyn DigitalTwinAdapter>,
+        mapping_client: TMappingClient,
+        digital_twin_client: TDigitalTwinAdapter,
         provider_proxy_selector_client: ProviderProxySelectorRequestSender,
         poll_interval: Duration,
     ) -> Self {
@@ -207,7 +207,7 @@ mod cartographer_tests {
 
         #[async_trait]
         impl DigitalTwinAdapter for DigitalTwinAdapterImpl {
-            fn create_new() -> Result<Box<dyn DigitalTwinAdapter + Send + Sync>, DigitalTwinAdapterError>
+            fn create_new() -> Result<Self, DigitalTwinAdapterError>
             where
                 Self: Sized;
 
@@ -223,7 +223,7 @@ mod cartographer_tests {
 
         #[async_trait]
         impl MappingClient for MappingClientImpl {
-            fn create_new() -> Result<Box<dyn MappingClient>, MappingClientError>
+            fn create_new() -> Result<Self, MappingClientError>
             where
                 Self: Sized;
 
@@ -272,8 +272,8 @@ mod cartographer_tests {
         let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
         let uut = Cartographer {
             signals: Arc::new(SignalStore::new()),
-            mapping_client: Box::new(mock_mapping_client),
-            digital_twin_client: Box::new(MockDigitalTwinAdapterImpl::new()),
+            mapping_client: mock_mapping_client,
+            digital_twin_client: MockDigitalTwinAdapterImpl::new(),
             provider_proxy_selector_client,
             poll_interval: Duration::from_secs(1),
         };
@@ -328,8 +328,8 @@ mod cartographer_tests {
 
         let uut = Cartographer {
             signals: Arc::new(SignalStore::new()),
-            mapping_client: Box::new(MockMappingClientImpl::new()),
-            digital_twin_client: Box::new(mock_dt_adapter),
+            mapping_client: MockMappingClientImpl::new(),
+            digital_twin_client: mock_dt_adapter,
             provider_proxy_selector_client,
             poll_interval: Duration::from_secs(1),
         };
