@@ -18,7 +18,7 @@ use freyja_contracts::{
     provider_proxy_request::{
         ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
     },
-    signal::{EmissionPolicy, Target, SignalPatch},
+    signal::{EmissionPolicy, SignalPatch, Target},
 };
 
 /// Manages mappings from the mapping service
@@ -118,16 +118,10 @@ impl<TMappingClient: MappingClient, TDigitalTwinAdapter: DigitalTwinAdapter>
                                 warn!("Entity not found for signal {}", patch.id);
                             }
                             Ok(e) => {
-                                log::error!(
-                                    "Error fetching entity for signal {}: {e:?}",
-                                    patch.id
-                                );
+                                log::error!("Error fetching entity for signal {}: {e:?}", patch.id);
                             }
                             Err(e) => {
-                                log::error!(
-                                    "Error fetching entity for signal {}: {e:?}",
-                                    patch.id
-                                );
+                                log::error!("Error fetching entity for signal {}: {e:?}", patch.id);
                             }
                         }
 
