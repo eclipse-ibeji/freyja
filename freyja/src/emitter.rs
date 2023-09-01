@@ -124,9 +124,14 @@ impl<TCloudAdapter: CloudAdapter> Emitter<TCloudAdapter> {
                 let request = ProviderProxySelectorRequestKind::GetEntityValue {
                     entity_id: signal.id.clone(),
                 };
-                self.provider_proxy_selector_client
+
+                let proxy_result = self.provider_proxy_selector_client
                     .send_request_to_provider_proxy_selector(request)
-                    .map_err(EmitterError::provider_proxy_error)?;
+                    .map_err(EmitterError::provider_proxy_error);
+
+                if proxy_result.is_err() {
+                    log::error!("Error submitting request for signal value while processing signal {}: {:?}", signal.id, proxy_result.err());
+                }
 
                 if signal.value.is_none() {
                     info!(
@@ -148,7 +153,12 @@ impl<TCloudAdapter: CloudAdapter> Emitter<TCloudAdapter> {
                     continue;
                 }
 
-                self.send_to_cloud(signal).await?;
+                let signal_id = signal.id.clone();
+                let send_to_cloud_result = self.send_to_cloud(signal).await;
+
+                if send_to_cloud_result.is_err() {
+                    log::error!("Error sending data to cloud while processing signal {}: {:?}", signal_id, send_to_cloud_result.err());
+                }
             }
 
             info!("*********************END EMISSION*********************");
@@ -211,7 +221,7 @@ proc_macros::error! {
 mod emitter_tests {
     use super::*;
     use async_trait::async_trait;
-    use freyja_contracts::{cloud_adapter::CloudAdapterError, signal::{Emission, EmissionPolicy}};
+    use freyja_contracts::{cloud_adapter::{CloudAdapterError, CloudAdapterErrorKind}, signal::{Emission, EmissionPolicy}};
     use mockall::*;
     use tokio::sync::mpsc;
 
@@ -522,5 +532,81 @@ mod emitter_tests {
         assert!(listener_result.is_ok());
         let listener_result = listener_result.unwrap();
         assert!(listener_result.is_some());
+    }
+
+    #[tokio::test]
+    async fn cloud_adapter_error_doesnt_prevent_further_emission_attempts() {
+        let (tx, _) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
+        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
+
+        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        mock_cloud_adapter.expect_send_to_cloud()
+            .times(2)
+            .returning(|_| Err(CloudAdapterErrorKind::Unknown.into()));
+
+        let mut uut = Emitter {
+            signals: Arc::new(SignalStore::new()),
+            cloud_adapter: mock_cloud_adapter,
+            provider_proxy_selector_client,
+            signal_values_queue: Arc::new(SegQueue::new()),
+        };
+
+        let test_signal = Signal {
+            value: Some("foo".to_string()),
+            ..Default::default()
+        };
+
+        let result = uut.emit_data(vec![test_signal.clone(), test_signal]).await;
+
+        uut.cloud_adapter.checkpoint();
+
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn send_to_cloud_updates_signal_store() {
+        const ID: &str = "testid";
+        const INTERVAL: u64 = 42;
+
+        let (tx, _) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
+        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
+        
+        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        mock_cloud_adapter.expect_send_to_cloud()
+            .returning(|_| Ok(CloudMessageResponse {  }));
+
+        let test_signal = Signal {
+            id: ID.to_string(),
+            value: Some("foo".to_string()),
+            emission: Emission {
+                policy: EmissionPolicy {
+                    interval_ms: INTERVAL,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let signals = SignalStore::new();
+        signals.sync([test_signal.clone()].into_iter());
+
+        let uut = Emitter {
+            signals: Arc::new(signals),
+            cloud_adapter: mock_cloud_adapter,
+            provider_proxy_selector_client,
+            signal_values_queue: Arc::new(SegQueue::new()),
+        };
+
+        let result = uut.send_to_cloud(test_signal).await;
+
+        assert!(result.is_ok());
+
+        // Ideally the signal store should be mockable so we can just verify call count
+        let signal = uut.signals.get(&ID.to_string());
+        assert!(signal.is_some());
+        let signal = signal.unwrap();
+        assert!(signal.emission.last_emitted_value.is_some());
+        assert_eq!(signal.emission.next_emission_ms, INTERVAL);
     }
 }
