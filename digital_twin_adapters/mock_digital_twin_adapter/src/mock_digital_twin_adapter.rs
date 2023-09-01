@@ -61,9 +61,7 @@ impl DigitalTwinAdapter for MockDigitalTwinAdapter {
         let settings: Settings = serde_json::from_str(settings_content.as_str())
             .map_err(DigitalTwinAdapterError::deserialize)?;
 
-        Ok(Self::with_uri(
-            &settings.base_uri_for_digital_twin_server,
-        ))
+        Ok(Self::with_uri(&settings.base_uri_for_digital_twin_server))
     }
 
     /// Gets the info of an entity via an HTTP request.

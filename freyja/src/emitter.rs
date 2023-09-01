@@ -95,7 +95,7 @@ impl<TCloudAdapter: CloudAdapter> Emitter<TCloudAdapter> {
 
     /// Performs data emissions of the provided signals.
     /// Returns the amount of time that the main emitter loop should sleep before the next iteration.
-    /// 
+    ///
     /// # Arguments
     /// - `signals`: The set of signals to emit
     async fn emit_data(&self, signals: Vec<Signal>) -> Result<u64, EmitterError> {
@@ -125,7 +125,8 @@ impl<TCloudAdapter: CloudAdapter> Emitter<TCloudAdapter> {
                     entity_id: signal.id.clone(),
                 };
 
-                let proxy_result = self.provider_proxy_selector_client
+                let proxy_result = self
+                    .provider_proxy_selector_client
                     .send_request_to_provider_proxy_selector(request)
                     .map_err(EmitterError::provider_proxy_error);
 
@@ -157,7 +158,11 @@ impl<TCloudAdapter: CloudAdapter> Emitter<TCloudAdapter> {
                 let send_to_cloud_result = self.send_to_cloud(signal).await;
 
                 if send_to_cloud_result.is_err() {
-                    log::error!("Error sending data to cloud while processing signal {}: {:?}", signal_id, send_to_cloud_result.err());
+                    log::error!(
+                        "Error sending data to cloud while processing signal {}: {:?}",
+                        signal_id,
+                        send_to_cloud_result.err()
+                    );
                 }
             }
 
@@ -221,7 +226,10 @@ proc_macros::error! {
 mod emitter_tests {
     use super::*;
     use async_trait::async_trait;
-    use freyja_contracts::{cloud_adapter::{CloudAdapterError, CloudAdapterErrorKind}, signal::{Emission, EmissionPolicy}};
+    use freyja_contracts::{
+        cloud_adapter::{CloudAdapterError, CloudAdapterErrorKind},
+        signal::{Emission, EmissionPolicy},
+    };
     use mockall::*;
     use tokio::sync::mpsc;
 
@@ -267,8 +275,7 @@ mod emitter_tests {
         let listener_handler = tokio::spawn(async move { rx.recv().await });
 
         let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
-        mock_cloud_adapter.expect_send_to_cloud()
-            .never();
+        mock_cloud_adapter.expect_send_to_cloud().never();
 
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
@@ -313,9 +320,10 @@ mod emitter_tests {
         let listener_handler = tokio::spawn(async move { rx.recv().await });
 
         let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
-        mock_cloud_adapter.expect_send_to_cloud()
+        mock_cloud_adapter
+            .expect_send_to_cloud()
             .once()
-            .returning(|_| Ok(CloudMessageResponse {  }));
+            .returning(|_| Ok(CloudMessageResponse {}));
 
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
@@ -358,8 +366,7 @@ mod emitter_tests {
         let listener_handler = tokio::spawn(async move { rx.recv().await });
 
         let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
-        mock_cloud_adapter.expect_send_to_cloud()
-            .never();
+        mock_cloud_adapter.expect_send_to_cloud().never();
 
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
@@ -402,8 +409,7 @@ mod emitter_tests {
         let listener_handler = tokio::spawn(async move { rx.recv().await });
 
         let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
-        mock_cloud_adapter.expect_send_to_cloud()
-            .never();
+        mock_cloud_adapter.expect_send_to_cloud().never();
 
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
@@ -423,7 +429,6 @@ mod emitter_tests {
                     emit_only_if_changed: true,
                     ..Default::default()
                 },
-                ..Default::default()
             },
             ..Default::default()
         };
@@ -449,9 +454,10 @@ mod emitter_tests {
         let listener_handler = tokio::spawn(async move { rx.recv().await });
 
         let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
-        mock_cloud_adapter.expect_send_to_cloud()
+        mock_cloud_adapter
+            .expect_send_to_cloud()
             .once()
-            .returning(|_| Ok(CloudMessageResponse {  }));
+            .returning(|_| Ok(CloudMessageResponse {}));
 
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
@@ -470,7 +476,6 @@ mod emitter_tests {
                     emit_only_if_changed: true,
                     ..Default::default()
                 },
-                ..Default::default()
             },
             ..Default::default()
         };
@@ -496,9 +501,10 @@ mod emitter_tests {
         let listener_handler = tokio::spawn(async move { rx.recv().await });
 
         let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
-        mock_cloud_adapter.expect_send_to_cloud()
+        mock_cloud_adapter
+            .expect_send_to_cloud()
             .once()
-            .returning(|_| Ok(CloudMessageResponse {  }));
+            .returning(|_| Ok(CloudMessageResponse {}));
 
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
@@ -517,7 +523,6 @@ mod emitter_tests {
                     emit_only_if_changed: true,
                     ..Default::default()
                 },
-                ..Default::default()
             },
             ..Default::default()
         };
@@ -540,7 +545,8 @@ mod emitter_tests {
         let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
 
         let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
-        mock_cloud_adapter.expect_send_to_cloud()
+        mock_cloud_adapter
+            .expect_send_to_cloud()
             .times(2)
             .returning(|_| Err(CloudAdapterErrorKind::Unknown.into()));
 
@@ -570,10 +576,11 @@ mod emitter_tests {
 
         let (tx, _) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
         let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
-        
+
         let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
-        mock_cloud_adapter.expect_send_to_cloud()
-            .returning(|_| Ok(CloudMessageResponse {  }));
+        mock_cloud_adapter
+            .expect_send_to_cloud()
+            .returning(|_| Ok(CloudMessageResponse {}));
 
         let test_signal = Signal {
             id: ID.to_string(),

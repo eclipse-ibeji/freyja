@@ -10,7 +10,10 @@ use log::{info, warn};
 
 use freyja_contracts::{
     conversion::Conversion,
-    digital_twin_adapter::{DigitalTwinAdapter, GetDigitalTwinProviderRequest, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind},
+    digital_twin_adapter::{
+        DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind,
+        GetDigitalTwinProviderRequest,
+    },
     mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient},
     provider_proxy_request::{
         ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
@@ -36,7 +39,9 @@ pub struct Cartographer<TMappingClient, TDigitalTwinAdapter> {
     poll_interval: Duration,
 }
 
-impl<TMappingClient: MappingClient, TDigitalTwinAdapter: DigitalTwinAdapter> Cartographer<TMappingClient, TDigitalTwinAdapter> {
+impl<TMappingClient: MappingClient, TDigitalTwinAdapter: DigitalTwinAdapter>
+    Cartographer<TMappingClient, TDigitalTwinAdapter>
+{
     /// Create a new instance of a Cartographer
     ///
     /// # Arguments
@@ -72,7 +77,7 @@ impl<TMappingClient: MappingClient, TDigitalTwinAdapter: DigitalTwinAdapter> Car
                 .mapping_client
                 .check_for_work(CheckForWorkRequest {})
                 .await;
-            
+
             if mapping_client_result.is_err() {
                 log::error!("Failed to check for mapping work; will try again later. Error: {mapping_client_result:?}");
                 continue;
@@ -89,7 +94,7 @@ impl<TMappingClient: MappingClient, TDigitalTwinAdapter: DigitalTwinAdapter> Car
                     log::error!("Falied to get mapping from mapping client: {signals_result:?}");
                     continue;
                 }
-                
+
                 let mut signals = signals_result.unwrap();
                 let mut failed_signals = Vec::new();
 
@@ -103,23 +108,37 @@ impl<TMappingClient: MappingClient, TDigitalTwinAdapter: DigitalTwinAdapter> Car
                     let populate_result = self.populate_entity(signal).await;
 
                     if populate_result.is_err() {
-                        match populate_result.err().unwrap().downcast::<DigitalTwinAdapterError>() {
+                        match populate_result
+                            .err()
+                            .unwrap()
+                            .downcast::<DigitalTwinAdapterError>()
+                        {
                             Ok(e) if e.kind() == DigitalTwinAdapterErrorKind::EntityNotFound => {
                                 warn!("Entity not found for signal {}", signal.id);
-                            },
+                            }
                             Ok(e) => {
-                                log::error!("Error fetching entity for signal {}: {e:?}", signal.id);
-                            },
+                                log::error!(
+                                    "Error fetching entity for signal {}: {e:?}",
+                                    signal.id
+                                );
+                            }
                             Err(e) => {
-                                log::error!("Error fetching entity for signal {}: {e:?}", signal.id);
-                            },
+                                log::error!(
+                                    "Error fetching entity for signal {}: {e:?}",
+                                    signal.id
+                                );
+                            }
                         }
 
                         failed_signals.push(signal.id.clone());
                     }
                 }
 
-                self.signals.sync(signals.into_iter().filter(|s| !failed_signals.contains(&s.id)));
+                self.signals.sync(
+                    signals
+                        .into_iter()
+                        .filter(|s| !failed_signals.contains(&s.id)),
+                );
             }
 
             tokio::time::sleep(self.poll_interval).await;
