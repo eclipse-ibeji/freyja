@@ -80,7 +80,7 @@ impl AzureCloudConnectorAdapter {
 #[async_trait]
 impl CloudAdapter for AzureCloudConnectorAdapter {
     /// Creates a new instance of a CloudAdapter with default settings
-    fn create_new() -> Result<Box<dyn CloudAdapter + Send + Sync>, CloudAdapterError> {
+    fn create_new() -> Result<Self, CloudAdapterError> {
         let cloud_connector_client = futures::executor::block_on(async {
             let config_file = fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE))
                 .map_err(CloudAdapterError::io)?;
@@ -100,9 +100,9 @@ impl CloudAdapter for AzureCloudConnectorAdapter {
             .map_err(CloudAdapterError::communication)
         })?;
 
-        Ok(Box::new(Self {
+        Ok(Self {
             cloud_connector_client,
-        }))
+        })
     }
 
     /// Sends the signal to the cloud

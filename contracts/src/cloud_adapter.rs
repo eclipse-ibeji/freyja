@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 #[async_trait]
 pub trait CloudAdapter {
     /// Creates a new instance of a CloudAdapter with default settings
-    fn create_new() -> Result<Box<dyn CloudAdapter + Send + Sync>, CloudAdapterError>
+    fn create_new() -> Result<Self, CloudAdapterError>
     where
         Self: Sized;
 

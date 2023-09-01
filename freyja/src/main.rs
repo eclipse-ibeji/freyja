@@ -64,10 +64,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let provider_proxy_selector_request_sender =
         ProviderProxySelectorRequestSender::new(tx_provider_proxy_selector_request);
 
-    // Setup interfaces
-    let cloud_adapter: Box<dyn CloudAdapter + Send + Sync> =
-        CloudAdapterImpl::create_new().unwrap();
-
     // Setup cartographer
     let cartographer_poll_interval = Duration::from_secs(5);
     let cartographer = Cartographer::new(
@@ -83,7 +79,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let emitter = Emitter::new(
         signal_store.clone(),
-        cloud_adapter,
+        CloudAdapterImpl::create_new().unwrap(),
         provider_proxy_selector_request_sender.clone(),
         signal_values_queue.clone(),
     );

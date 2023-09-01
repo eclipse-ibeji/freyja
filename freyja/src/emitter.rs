@@ -19,23 +19,25 @@ use freyja_contracts::{
     signal::Signal,
 };
 
+const DEFAULT_SLEEP_INTERVAL_MS: u64 = 1000;
+
 /// Data emitter for the digital twin sync project
 /// Emits sensor data at regular intervals as defined by the map
-pub struct Emitter {
+pub struct Emitter<TCloudAdapter> {
     /// The shared signal store
     signals: Arc<SignalStore>,
 
     /// The cloud adapter used to emit data to the cloud
-    cloud_adapter: Box<dyn CloudAdapter + Sync + Send>,
+    cloud_adapter: TCloudAdapter,
 
     /// Sends requests to the provider proxy selector
-    provider_proxy_selector_request_sender: ProviderProxySelectorRequestSender,
+    provider_proxy_selector_client: ProviderProxySelectorRequestSender,
 
     /// Shared message queue for obtaining new signal values
     signal_values_queue: Arc<SegQueue<SignalValue>>,
 }
 
-impl Emitter {
+impl<TCloudAdapter: CloudAdapter> Emitter<TCloudAdapter> {
     /// Creates a new instance of emitter
     ///
     /// # Arguments
@@ -45,21 +47,20 @@ impl Emitter {
     /// - `signal_values_queue`: queue for receiving signal values
     pub fn new(
         signals: Arc<SignalStore>,
-        cloud_adapter: Box<dyn CloudAdapter + Sync + Send>,
-        provider_proxy_selector_request_sender: ProviderProxySelectorRequestSender,
+        cloud_adapter: TCloudAdapter,
+        provider_proxy_selector_client: ProviderProxySelectorRequestSender,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Self {
         Self {
             signals,
             cloud_adapter,
-            provider_proxy_selector_request_sender,
+            provider_proxy_selector_client,
             signal_values_queue,
         }
     }
 
     /// Execute this Emitter
     pub async fn run(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        const DEFAULT_SLEEP_INTERVAL_MS: u64 = 1000;
         let mut sleep_interval = u64::MAX;
         loop {
             self.update_signal_values();
@@ -73,64 +74,7 @@ impl Emitter {
                 .signals
                 .update_emission_times_and_get_all(sleep_interval);
 
-            if signals.is_empty() {
-                sleep_interval = DEFAULT_SLEEP_INTERVAL_MS;
-            } else {
-                info!("********************BEGIN EMISSION********************");
-
-                // Reset the sleep interval so that we can find the new lowest value
-                sleep_interval = u64::MAX;
-
-                for signal in signals {
-                    if signal.emission.next_emission_ms > 0 {
-                        // Don't emit this signal on this iteration, but use the value to update the sleep interval
-                        sleep_interval = min(sleep_interval, signal.emission.next_emission_ms);
-
-                        // Go to next signal
-                        continue;
-                    } else {
-                        // We will emit this signal since the timer is expired,
-                        // but need to also check the new interval in case it's smaller than the remaining intervals
-                        sleep_interval = min(sleep_interval, signal.emission.policy.interval_ms);
-                    }
-
-                    // Submit a request for a new value for the next iteration.
-                    // This approach to requesting signal values introduces an inherent delay in uploading data
-                    // of signal.emission.policy.interval_ms and needs to be revisited.
-                    let request = ProviderProxySelectorRequestKind::GetEntityValue {
-                        entity_id: signal.id.clone(),
-                    };
-                    self.provider_proxy_selector_request_sender
-                        .send_request_to_provider_proxy_selector(request)
-                        .map_err(|e| {
-                            format!("Error sending request to provider proxy selector: {e}")
-                        })?;
-
-                    if signal.value.is_none() {
-                        info!(
-                            "No signal value for {} in our cache. Skipping emission for this signal.",
-                            signal.id
-                        );
-
-                        // Go to the next signal
-                        continue;
-                    }
-
-                    if signal.emission.policy.emit_only_if_changed
-                        && signal.emission.last_emitted_value.is_some()
-                        && signal.value == signal.emission.last_emitted_value
-                    {
-                        info!("Signal {} did not change and has already been emitted. Skipping emission for this signal.", signal.id);
-
-                        // Go to next signal
-                        continue;
-                    }
-
-                    self.send_to_cloud(signal).await?;
-                }
-
-                info!("*********************END EMISSION*********************");
-            }
+            sleep_interval = self.emit_data(signals).await?;
 
             info!("Checking for next emission in {sleep_interval}ms\n");
             sleep(Duration::from_millis(sleep_interval)).await;
@@ -146,6 +90,70 @@ impl Emitter {
             if self.signals.set_value(entity_id.clone(), value).is_none() {
                 warn!("Attempted to update signal {entity_id} but it wasn't found")
             }
+        }
+    }
+
+    /// Performs data emissions of the provided signals.
+    /// Returns the amount of time that the main emitter loop should sleep before the next iteration.
+    /// 
+    /// # Arguments
+    /// - `signals`: The set of signals to emit
+    async fn emit_data(&self, signals: Vec<Signal>) -> Result<u64, EmitterError> {
+        if signals.is_empty() {
+            Ok(DEFAULT_SLEEP_INTERVAL_MS)
+        } else {
+            info!("********************BEGIN EMISSION********************");
+            let mut sleep_interval = u64::MAX;
+
+            for signal in signals {
+                if signal.emission.next_emission_ms > 0 {
+                    // Don't emit this signal on this iteration, but use the value to update the sleep interval
+                    sleep_interval = min(sleep_interval, signal.emission.next_emission_ms);
+
+                    // Go to next signal
+                    continue;
+                } else {
+                    // We will emit this signal since the timer is expired,
+                    // but need to also check the new interval in case it's smaller than the remaining intervals
+                    sleep_interval = min(sleep_interval, signal.emission.policy.interval_ms);
+                }
+
+                // Submit a request for a new value for the next iteration.
+                // This approach to requesting signal values introduces an inherent delay in uploading data
+                // of signal.emission.policy.interval_ms and needs to be revisited.
+                let request = ProviderProxySelectorRequestKind::GetEntityValue {
+                    entity_id: signal.id.clone(),
+                };
+                self.provider_proxy_selector_client
+                    .send_request_to_provider_proxy_selector(request)
+                    .map_err(EmitterError::provider_proxy_error)?;
+
+                if signal.value.is_none() {
+                    info!(
+                        "No signal value for {} in our cache. Skipping emission for this signal.",
+                        signal.id
+                    );
+
+                    // Go to the next signal
+                    continue;
+                }
+
+                if signal.emission.policy.emit_only_if_changed
+                    && signal.emission.last_emitted_value.is_some()
+                    && signal.value == signal.emission.last_emitted_value
+                {
+                    info!("Signal {} did not change and has already been emitted. Skipping emission for this signal.", signal.id);
+
+                    // Go to next signal
+                    continue;
+                }
+
+                self.send_to_cloud(signal).await?;
+            }
+
+            info!("*********************END EMISSION*********************");
+
+            Ok(sleep_interval)
         }
     }
 
@@ -194,6 +202,325 @@ impl Emitter {
 proc_macros::error! {
     EmitterError {
         SignalValueEmpty,
+        ProviderProxyError,
         CloudError,
+    }
+}
+
+#[cfg(test)]
+mod emitter_tests {
+    use super::*;
+    use async_trait::async_trait;
+    use freyja_contracts::{cloud_adapter::CloudAdapterError, signal::{Emission, EmissionPolicy}};
+    use mockall::*;
+    use tokio::sync::mpsc;
+
+    mock! {
+        pub CloudAdapterImpl {}
+
+        #[async_trait]
+        impl CloudAdapter for CloudAdapterImpl {
+            fn create_new() -> Result<Self, CloudAdapterError>
+            where
+                Self: Sized;
+
+            async fn send_to_cloud(
+                &self,
+                cloud_message: CloudMessageRequest,
+            ) -> Result<CloudMessageResponse, CloudAdapterError>;
+        }
+    }
+
+    #[tokio::test]
+    async fn emit_data_returns_default_on_empty_input() {
+        let (tx, _) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
+        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
+        let uut = Emitter {
+            signals: Arc::new(SignalStore::new()),
+            cloud_adapter: MockCloudAdapterImpl::new(),
+            provider_proxy_selector_client,
+            signal_values_queue: Arc::new(SegQueue::new()),
+        };
+
+        let result = uut.emit_data(vec![]).await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), DEFAULT_SLEEP_INTERVAL_MS);
+    }
+
+    #[tokio::test]
+    async fn emit_data_handles_nonzero_next_emission_time() {
+        const NEXT_EMISSION_MS: u64 = 42;
+
+        let (tx, mut rx) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
+        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
+        let listener_handler = tokio::spawn(async move { rx.recv().await });
+
+        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        mock_cloud_adapter.expect_send_to_cloud()
+            .never();
+
+        let mut uut = Emitter {
+            signals: Arc::new(SignalStore::new()),
+            cloud_adapter: mock_cloud_adapter,
+            provider_proxy_selector_client,
+            signal_values_queue: Arc::new(SegQueue::new()),
+        };
+
+        let test_signal = Signal {
+            emission: Emission {
+                next_emission_ms: NEXT_EMISSION_MS,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let result = uut.emit_data(vec![test_signal]).await;
+
+        uut.cloud_adapter.checkpoint();
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), NEXT_EMISSION_MS);
+
+        // The behavior of listener_handler here is unclear, it either
+        // will still be running because it's never received anything
+        // or will be completed with result None because the sender was dropped.
+        // I've seen both things happen before, so check just in case to avoid indefinite waiting
+        if listener_handler.is_finished() {
+            let listener_result = listener_handler.await;
+            assert!(listener_result.is_ok());
+            let listener_result = listener_result.unwrap();
+            assert!(listener_result.is_none());
+        }
+    }
+
+    #[tokio::test]
+    async fn emit_data_handles_zero_next_emission_time() {
+        const INTERVAL: u64 = 42;
+
+        let (tx, mut rx) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
+        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
+        let listener_handler = tokio::spawn(async move { rx.recv().await });
+
+        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        mock_cloud_adapter.expect_send_to_cloud()
+            .once()
+            .returning(|_| Ok(CloudMessageResponse {  }));
+
+        let mut uut = Emitter {
+            signals: Arc::new(SignalStore::new()),
+            cloud_adapter: mock_cloud_adapter,
+            provider_proxy_selector_client,
+            signal_values_queue: Arc::new(SegQueue::new()),
+        };
+
+        let test_signal = Signal {
+            value: Some("foo".to_string()),
+            emission: Emission {
+                next_emission_ms: 0,
+                policy: EmissionPolicy {
+                    interval_ms: INTERVAL,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let result = uut.emit_data(vec![test_signal]).await;
+        let listener_result = listener_handler.await;
+
+        uut.cloud_adapter.checkpoint();
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), INTERVAL);
+        assert!(listener_result.is_ok());
+        let listener_result = listener_result.unwrap();
+        assert!(listener_result.is_some());
+    }
+
+    #[tokio::test]
+    async fn emit_data_doesnt_emit_when_value_empty() {
+        const INTERVAL: u64 = 42;
+
+        let (tx, mut rx) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
+        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
+        let listener_handler = tokio::spawn(async move { rx.recv().await });
+
+        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        mock_cloud_adapter.expect_send_to_cloud()
+            .never();
+
+        let mut uut = Emitter {
+            signals: Arc::new(SignalStore::new()),
+            cloud_adapter: mock_cloud_adapter,
+            provider_proxy_selector_client,
+            signal_values_queue: Arc::new(SegQueue::new()),
+        };
+
+        let test_signal = Signal {
+            value: None,
+            emission: Emission {
+                next_emission_ms: 0,
+                policy: EmissionPolicy {
+                    interval_ms: INTERVAL,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let result = uut.emit_data(vec![test_signal]).await;
+        let listener_result = listener_handler.await;
+
+        uut.cloud_adapter.checkpoint();
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), INTERVAL);
+        assert!(listener_result.is_ok());
+        let listener_result = listener_result.unwrap();
+        assert!(listener_result.is_some());
+    }
+
+    #[tokio::test]
+    async fn emit_data_doesnt_emit_when_value_not_changed() {
+        const INTERVAL: u64 = 42;
+
+        let (tx, mut rx) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
+        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
+        let listener_handler = tokio::spawn(async move { rx.recv().await });
+
+        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        mock_cloud_adapter.expect_send_to_cloud()
+            .never();
+
+        let mut uut = Emitter {
+            signals: Arc::new(SignalStore::new()),
+            cloud_adapter: mock_cloud_adapter,
+            provider_proxy_selector_client,
+            signal_values_queue: Arc::new(SegQueue::new()),
+        };
+
+        let value = Some("foo".to_string());
+        let test_signal = Signal {
+            value: value.clone(),
+            emission: Emission {
+                next_emission_ms: 0,
+                last_emitted_value: value,
+                policy: EmissionPolicy {
+                    interval_ms: INTERVAL,
+                    emit_only_if_changed: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let result = uut.emit_data(vec![test_signal]).await;
+        let listener_result = listener_handler.await;
+
+        uut.cloud_adapter.checkpoint();
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), INTERVAL);
+        assert!(listener_result.is_ok());
+        let listener_result = listener_result.unwrap();
+        assert!(listener_result.is_some());
+    }
+
+    #[tokio::test]
+    async fn emit_data_emits_when_value_changed() {
+        const INTERVAL: u64 = 42;
+
+        let (tx, mut rx) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
+        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
+        let listener_handler = tokio::spawn(async move { rx.recv().await });
+
+        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        mock_cloud_adapter.expect_send_to_cloud()
+            .once()
+            .returning(|_| Ok(CloudMessageResponse {  }));
+
+        let mut uut = Emitter {
+            signals: Arc::new(SignalStore::new()),
+            cloud_adapter: mock_cloud_adapter,
+            provider_proxy_selector_client,
+            signal_values_queue: Arc::new(SegQueue::new()),
+        };
+
+        let test_signal = Signal {
+            value: Some("foo".to_string()),
+            emission: Emission {
+                next_emission_ms: 0,
+                last_emitted_value: Some("bar".to_string()),
+                policy: EmissionPolicy {
+                    interval_ms: INTERVAL,
+                    emit_only_if_changed: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let result = uut.emit_data(vec![test_signal]).await;
+        let listener_result = listener_handler.await;
+
+        uut.cloud_adapter.checkpoint();
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), INTERVAL);
+        assert!(listener_result.is_ok());
+        let listener_result = listener_result.unwrap();
+        assert!(listener_result.is_some());
+    }
+
+    #[tokio::test]
+    async fn emit_data_emits_when_last_value_empty() {
+        const INTERVAL: u64 = 42;
+
+        let (tx, mut rx) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
+        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
+        let listener_handler = tokio::spawn(async move { rx.recv().await });
+
+        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        mock_cloud_adapter.expect_send_to_cloud()
+            .once()
+            .returning(|_| Ok(CloudMessageResponse {  }));
+
+        let mut uut = Emitter {
+            signals: Arc::new(SignalStore::new()),
+            cloud_adapter: mock_cloud_adapter,
+            provider_proxy_selector_client,
+            signal_values_queue: Arc::new(SegQueue::new()),
+        };
+
+        let test_signal = Signal {
+            value: Some("foo".to_string()),
+            emission: Emission {
+                next_emission_ms: 0,
+                last_emitted_value: None,
+                policy: EmissionPolicy {
+                    interval_ms: INTERVAL,
+                    emit_only_if_changed: true,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let result = uut.emit_data(vec![test_signal]).await;
+        let listener_result = listener_handler.await;
+
+        uut.cloud_adapter.checkpoint();
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), INTERVAL);
+        assert!(listener_result.is_ok());
+        let listener_result = listener_result.unwrap();
+        assert!(listener_result.is_some());
     }
 }

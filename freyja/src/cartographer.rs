@@ -6,11 +6,11 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use freyja_common::signal_store::SignalStore;
-use log::info;
+use log::{info, warn};
 
 use freyja_contracts::{
     conversion::Conversion,
-    digital_twin_adapter::{DigitalTwinAdapter, GetDigitalTwinProviderRequest},
+    digital_twin_adapter::{DigitalTwinAdapter, GetDigitalTwinProviderRequest, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind},
     mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient},
     provider_proxy_request::{
         ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
@@ -72,14 +72,26 @@ impl Cartographer {
                 .mapping_client
                 .check_for_work(CheckForWorkRequest {})
                 .await;
+            
+            if mapping_client_result.is_err() {
+                log::error!("Failed to check for mapping work; will try again later. Error: {mapping_client_result:?}");
+                continue;
+            }
 
-            if mapping_client_result?.has_work {
+            if mapping_client_result.unwrap().has_work {
                 info!("Cartographer detected mapping work");
 
                 // TODO: will this notion of checking and sending inventory exist?
                 // self.mapping_client.send_inventory(SendInventoryRequest { inventory: self.known_providers.clone() }).await?;
 
-                let mut signals = self.get_mapping_as_signals().await?;
+                let signals_result = self.get_mapping_as_signals().await;
+                if signals_result.is_err() {
+                    log::error!("Falied to get mapping from mapping client: {signals_result:?}");
+                    continue;
+                }
+                
+                let mut signals = signals_result.unwrap();
+                let mut failed_signals = Vec::new();
 
                 // Some of these API calls are not really necessary, but this code gets executed
                 // infrequently enough that the sub-optimal performance is not a major concern.
@@ -88,10 +100,26 @@ impl Cartographer {
                 // TODO: if there's a bulk api for providers then there probably needs to be a bulk api for proxies
                 // TODO: handle errors
                 for signal in signals.iter_mut() {
-                    self.populate_entity(signal).await?;
+                    let populate_result = self.populate_entity(signal).await;
+
+                    if populate_result.is_err() {
+                        match populate_result.err().unwrap().downcast::<DigitalTwinAdapterError>() {
+                            Ok(e) if e.kind() == DigitalTwinAdapterErrorKind::EntityNotFound => {
+                                warn!("Entity not found for signal {}", signal.id);
+                            },
+                            Ok(e) => {
+                                log::error!("Error fetching entity for signal {}: {e:?}", signal.id);
+                            },
+                            Err(e) => {
+                                log::error!("Error fetching entity for signal {}: {e:?}", signal.id);
+                            },
+                        }
+
+                        failed_signals.push(signal.id.clone());
+                    }
                 }
 
-                self.signals.sync(signals.into_iter());
+                self.signals.sync(signals.into_iter().filter(|s| !failed_signals.contains(&s.id)));
             }
 
             tokio::time::sleep(self.poll_interval).await;
