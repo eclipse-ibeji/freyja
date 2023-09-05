@@ -83,7 +83,10 @@ impl<TMappingClient: MappingClient, TDigitalTwinAdapter: DigitalTwinAdapter>
                 .await;
 
             if mapping_client_result.is_err() {
-                log::error!("Failed to check for mapping work; will try again later. Error: {mapping_client_result:?}");
+                let error = mapping_client_result.err().unwrap();
+                log::error!(
+                    "Failed to check for mapping work; will try again later. Error: {error}"
+                );
                 continue;
             }
 
@@ -95,7 +98,8 @@ impl<TMappingClient: MappingClient, TDigitalTwinAdapter: DigitalTwinAdapter>
 
                 let patches_result = self.get_mapping_as_signal_patches().await;
                 if patches_result.is_err() {
-                    log::error!("Falied to get mapping from mapping client: {patches_result:?}");
+                    let error = patches_result.err().unwrap();
+                    log::error!("Falied to get mapping from mapping client: {error}");
                     continue;
                 }
 
@@ -106,7 +110,7 @@ impl<TMappingClient: MappingClient, TDigitalTwinAdapter: DigitalTwinAdapter>
                     // Many of the API calls in populate_entity are probably unnecessary, but this code gets executed
                     // infrequently enough that the sub-optimal performance is not a major concern.
                     // A bulk find_by_id API in the digital twin service would make this a non-issue
-                    let populate_result = self.populate_entity(patch).await;
+                    let populate_result = self.populate_source(patch).await;
 
                     if populate_result.is_err() {
                         match populate_result
@@ -166,7 +170,12 @@ impl<TMappingClient: MappingClient, TDigitalTwinAdapter: DigitalTwinAdapter>
             .collect())
     }
 
-    async fn populate_entity(
+    /// Populates the source of the provided signal with data retrieved from the digital twin service.
+    /// This will also create or update a proxy to handle incoming requests from the provider.
+    ///
+    /// Arguments
+    /// - `signal`: The signal patch to update
+    async fn populate_source(
         &self,
         signal: &mut SignalPatch,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -309,7 +318,7 @@ mod cartographer_tests {
     }
 
     #[tokio::test]
-    async fn populate_entity_tests() {
+    async fn populate_source_tests() {
         const ID: &str = "testid";
         let test_entity = Entity {
             id: ID.to_string(),
@@ -346,7 +355,7 @@ mod cartographer_tests {
             poll_interval: Duration::from_secs(1),
         };
 
-        let result = uut.populate_entity(test_signal_patch).await;
+        let result = uut.populate_source(test_signal_patch).await;
         let join_result = listener_handler.await;
 
         assert!(result.is_ok());
