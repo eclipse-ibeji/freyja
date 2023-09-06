@@ -9,5 +9,6 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
+freyja-contracts = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true }

@@ -47,9 +47,8 @@ impl InMemoryMockCloudAdapter {
 #[async_trait]
 impl CloudAdapter for InMemoryMockCloudAdapter {
     /// Creates a new instance of a CloudAdapter with default settings
-    fn create_new() -> Result<Box<dyn CloudAdapter + Send + Sync>, CloudAdapterError> {
+    fn create_new() -> Result<Self, CloudAdapterError> {
         Self::from_config_file(Path::new(env!("OUT_DIR")).join(CONFIG_FILE))
-            .map(|r| Box::new(r) as _)
     }
 
     /// Sends the signal to the cloud

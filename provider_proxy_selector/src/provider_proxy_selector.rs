@@ -14,7 +14,7 @@ use strum_macros::{Display, EnumString};
 use tokio::{sync::mpsc::UnboundedReceiver, time::Duration};
 
 use freyja_contracts::{
-    entity::{Entity, EntityID, ProviderURI},
+    entity::Entity,
     provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue},
     provider_proxy_request::ProviderProxySelectorRequestKind,
 };
@@ -130,10 +130,10 @@ impl ProviderProxyKind {
 /// The provider proxy selector selects which provider proxy to create based on protocol and operation
 pub struct ProviderProxySelector {
     /// A map of entity uri to provider proxy
-    pub provider_proxies: Arc<Mutex<HashMap<ProviderURI, ProviderProxyImpl>>>,
+    pub provider_proxies: Arc<Mutex<HashMap<String, ProviderProxyImpl>>>,
 
     /// A map of entity id to provider uri
-    pub entity_map: Arc<Mutex<HashMap<EntityID, ProviderURI>>>,
+    pub entity_map: Arc<Mutex<HashMap<String, String>>>,
 }
 
 impl ProviderProxySelector {
@@ -165,15 +165,15 @@ impl ProviderProxySelector {
             debug!("Handling new request {:?}", message);
 
             match message {
-                ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy(
+                ProviderProxySelectorRequestKind::CreateOrUpdateProviderProxy {
                     entity_id,
-                    provider_uri,
+                    uri,
                     protocol,
                     operation,
-                ) => {
+                } => {
                     let entity = Entity {
                         id: entity_id,
-                        uri: provider_uri,
+                        uri,
                         name: None,
                         description: None,
                         operation,
@@ -186,7 +186,7 @@ impl ProviderProxySelector {
                         )
                         .await;
                 }
-                ProviderProxySelectorRequestKind::GetEntityValue(entity_id) => {
+                ProviderProxySelectorRequestKind::GetEntityValue { entity_id } => {
                     let provider_uri;
                     {
                         let lock = self.entity_map.lock().unwrap();

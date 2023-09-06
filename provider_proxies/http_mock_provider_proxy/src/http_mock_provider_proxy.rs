@@ -16,7 +16,6 @@ use reqwest::Client;
 
 use crate::config::{Settings, CALLBACK_FOR_VALUES_PATH, CONFIG_FILE};
 use freyja_contracts::digital_twin_adapter::{EntityValueRequest, EntityValueResponse};
-use freyja_contracts::entity::EntityID;
 use freyja_contracts::provider_proxy::{
     OperationKind, ProviderProxy, ProviderProxyError, SignalValue,
 };
@@ -39,7 +38,7 @@ pub struct HttpMockProviderProxy {
     client: Client,
 
     /// Local cache for keeping track of which entities this provider proxy contains
-    entity_operation_map: Arc<Mutex<HashMap<EntityID, OperationKind>>>,
+    entity_operation_map: Arc<Mutex<HashMap<String, OperationKind>>>,
 
     /// Shared queue for all proxies to push new signal values
     signal_values_queue: Arc<SegQueue<SignalValue>>,

@@ -4,13 +4,11 @@
 
 use serde::{Deserialize, Serialize};
 
-use freyja_contracts::entity::EntityID;
-
 /// Configuration for a entity
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EntityConfig {
     /// The entity id
-    pub entity_id: EntityID,
+    pub entity_id: String,
 
     /// The config for the sensor values
     pub values: SensorValueConfig,

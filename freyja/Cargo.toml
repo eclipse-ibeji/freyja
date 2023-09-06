@@ -22,4 +22,4 @@ time = { workspace = true }
 tokio = { workspace = true }
 
 [dev-dependencies]
-in-memory-mock-cloud-adapter = { path = "../cloud_adapters/in_memory_mock_cloud_adapter"}
+mockall = { workspace = true }

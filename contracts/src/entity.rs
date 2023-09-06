@@ -6,9 +6,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::provider_proxy::OperationKind;
 
-pub type EntityID = String;
-pub type ProviderURI = String;
-
 /// Represents an entity
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Entity {
@@ -29,4 +26,17 @@ pub struct Entity {
 
     /// The protocol to use to contact this entity
     pub protocol: String,
+}
+
+impl Default for Entity {
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            name: Default::default(),
+            uri: Default::default(),
+            description: Default::default(),
+            operation: OperationKind::Get,
+            protocol: Default::default(),
+        }
+    }
 }

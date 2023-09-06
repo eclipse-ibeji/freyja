@@ -5,13 +5,7 @@
 mod cartographer;
 mod emitter;
 
-use std::{
-    collections::HashMap,
-    env,
-    str::FromStr,
-    sync::{Arc, Mutex},
-    time::Duration,
-};
+use std::{collections::HashMap, env, str::FromStr, sync::Arc, time::Duration};
 
 use crossbeam::queue::SegQueue;
 use env_logger::Target;
@@ -20,17 +14,18 @@ use tokio::sync::mpsc;
 
 use cartographer::Cartographer;
 use emitter::Emitter;
-use freyja_contracts::provider_proxy_request::{
-    ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
-};
+use freyja_common::signal_store::SignalStore;
 use freyja_contracts::{
-    cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter,
-    digital_twin_map_entry::DigitalTwinMapEntry, entity::*, mapping_client::MappingClient,
+    cloud_adapter::CloudAdapter,
+    digital_twin_adapter::DigitalTwinAdapter,
+    mapping_client::MappingClient,
     provider_proxy::SignalValue,
+    provider_proxy_request::{
+        ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
+    },
 };
-use provider_proxy_selector::provider_proxy_selector::ProviderProxySelector;
-
 use freyja_deps::*;
+use provider_proxy_selector::provider_proxy_selector::ProviderProxySelector;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -62,41 +57,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .target(Target::Stdout)
         .init();
 
-    // Setup shared resources
-    let map: Arc<Mutex<HashMap<String, DigitalTwinMapEntry>>> =
-        Arc::new(Mutex::new(HashMap::new()));
-    let entity_map: Arc<Mutex<HashMap<EntityID, Option<Entity>>>> =
-        Arc::new(Mutex::new(HashMap::new()));
-
-    // Setup interfaces
-    let dt_adapter = DigitalTwinAdapterImpl::create_new().unwrap();
-    let mapping_client = MappingClientImpl::create_new().unwrap();
-    let cloud_adapter: Box<dyn CloudAdapter + Send + Sync> =
-        CloudAdapterImpl::create_new().unwrap();
+    let signal_store = Arc::new(SignalStore::new());
+    let (tx_provider_proxy_selector_request, rx_provider_proxy_selector_request) =
+        mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
+    let provider_proxy_selector_request_sender =
+        ProviderProxySelectorRequestSender::new(tx_provider_proxy_selector_request);
 
     // Setup cartographer
     let cartographer_poll_interval = Duration::from_secs(5);
-    let cartographer = Cartographer::new(map.clone(), mapping_client, cartographer_poll_interval);
+    let cartographer = Cartographer::new(
+        signal_store.clone(),
+        MappingClientImpl::create_new().unwrap(),
+        DigitalTwinAdapterImpl::create_new().unwrap(),
+        provider_proxy_selector_request_sender.clone(),
+        cartographer_poll_interval,
+    );
 
     // Setup emitter
     let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
-    let (tx_provider_proxy_selector_request, rx_provider_proxy_selector_request) =
-        mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-    let provider_proxy_selector_request_sender = Arc::new(ProviderProxySelectorRequestSender::new(
-        tx_provider_proxy_selector_request,
-    ));
-
     let emitter = Emitter::new(
-        map,
-        cloud_adapter,
-        entity_map.clone(),
+        signal_store.clone(),
+        CloudAdapterImpl::create_new().unwrap(),
         provider_proxy_selector_request_sender.clone(),
         signal_values_queue.clone(),
     );
 
     let provider_proxy_selector = ProviderProxySelector::new();
     tokio::select! {
-        Err(e) = dt_adapter.run(entity_map, Duration::from_secs(5), provider_proxy_selector_request_sender) => { println!("[main] digital twin adapter terminated with error {e:?}"); Err(e)? },
         Err(e) = cartographer.run() => { println!("[main] cartographer terminated with error {e:?}"); Err(e) },
         Err(e) = emitter.run() => { println!("[main] emitter terminated with error {e:?}"); Err(e) },
         Err(e) = provider_proxy_selector.run(rx_provider_proxy_selector_request, signal_values_queue) => {  Err(e)? }
