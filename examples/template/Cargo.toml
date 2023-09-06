@@ -1,0 +1,18 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "freyja-example-template"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+freyja = { git = "https://github.com/eclipse-ibeji/freyja", branch = "wilyle/test-freyja-lib" }
+
+# Put any dependencies that you need for your adapters down here.
+# This template utilizes the in-memory mock adapters as a sample
+in-memory-mock-cloud-adapter = { git = "https://github.com/eclipse-ibeji/freyja", branch = "wilyle/test-freyja-lib" }
+in-memory-mock-digital-twin-adapter = { git = "https://github.com/eclipse-ibeji/freyja", branch = "wilyle/test-freyja-lib" }
+in-memory-mock-mapping-client = { git = "https://github.com/eclipse-ibeji/freyja", branch = "wilyle/test-freyja-lib" }

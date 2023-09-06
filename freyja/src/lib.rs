@@ -2,6 +2,8 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
+pub use proc_macros::freyja_main;
+
 mod cartographer;
 mod emitter;
 
