@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 mod error;
+mod freyja_main;
 mod use_env;
 
 use proc_macro::TokenStream;
@@ -73,4 +74,32 @@ pub fn use_env(ts: TokenStream) -> TokenStream {
 #[proc_macro]
 pub fn error(ts: TokenStream) -> TokenStream {
     error::error(ts.into()).into()
+}
+
+/// Creates the entry point for a Freyja application.
+/// 
+/// # Arguments
+/// - `ts`: a token stream with the following grammatical syntax:
+/// 
+/// *FreyjaMainPredicate*:
+/// 
+/// &nbsp;&nbsp;&nbsp;&nbsp;*DigitalTwinAdapterType* `,` *CloudAdapterType* `,` *MappingClientType*
+/// 
+/// *DigitalTwinAdapterType*:
+/// 
+/// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
+/// 
+/// *CloudAdapterType*:
+/// 
+/// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
+/// 
+/// *MappingClientType*:
+/// 
+/// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
+/// 
+/// Note that the accepted syntax for each of the adapter types is currently only an identifier,
+/// so it may be necessary to import and/or alias the types that you're going to use.
+#[proc_macro]
+pub fn freyja_main(ts: TokenStream) -> TokenStream {
+    freyja_main::freyja_main(ts.into()).into()
 }
