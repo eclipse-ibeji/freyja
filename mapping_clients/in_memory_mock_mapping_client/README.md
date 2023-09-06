@@ -1,15 +1,20 @@
-# Mock Mapping Service Client
+# In Memory Mock Mapping Client
 
-Together with the matching service, the Mock Mapping Service client mocks the behavior of the mapping service separate from the Freyja application. This enables a higher-fidelity demo with finer control over the behavior of the mocked components. This library contains an implementation of the `MappingClient` trait from the contracts.
+The In Memory Mock Mapping Client mocks the behavior of a mapping service from within the memory of the Freyja application. This enables a minimal example scenario when working with Freyja. This library contains an implementation of the `MappingClient` trait from the contracts.
 
-For more information about the mock service, see [the README for the Mock Mapping Service](../../mocks/mock_mapping_service/README.md)
+## Configuration
 
-## Prerequisites
+The adapter's config is located at `res/config.json` and will be copied to the build output automatically. This file is a list of config objects with the following properties:
 
-The HTTP client library used in this implementation requires Open-SSL 1.0.1, 1.0.2, 1.1.0, or 1.1.1 with headers. This requires the following additional setup to build the client on Ubuntu:
+- `begin`: an integer indicating when to enable the mapping value below
+- `end`: an optional integer indicating when to disable the mapping value below. Set to `null` if you never want the value to "turn off"
+- `value`: a mapping that should be emitted at some point during the application's lifetime. This has the following properties:
+    - `source`: the ID of the entity that will be used as the source for this mapping. This should match something that's retrievable with the `find_by_id` API of the digital twin adapter that you're using.
+    - `target`: a set of key-value pairs that will be passed to the cloud adapter. This is completely freeform, and will potentially be used by the cloud adapter to help with addressing the correct digital twin instance and/or properties for upstream data emissions.
+    - `interval_ms`: the interval at which the entity should be queried for changes
+    - `emit_on_change`: a value indicating whether data emission should be skipped if the value hasn't changed since the last emission. Set to true to enable this behavior.
+    - `conversion`: a conversion that should be applied. Set to null if no conversion is needed. Otherwise the conversion is configured with the `mul` and `offset` properties, and the value `y` that is emitted is calculated as `y = mul * x + offset`. Note that conversions are only supported for signal values which can be parsed as `f64`.
 
-```shell
-sudo apt-get install -y pkg-config libssl-dev
-```
+## Behavior
 
-For instructions on other operating systems, see the full documentation [here](https://docs.rs/openssl/latest/openssl/#automatic)
+The client maintains an internal count, and only mappings satisfying the condition `begin <= count [< end]` will be returned in the `get_mapping` API. This count is incremented every time the `check_for_work` API is invoked. This will also affect the `check_for_work` API, which returns true if the set of mappings has changed since the last timw it was called. This effectively means that the state can potentially change with each loop of the cartographer.

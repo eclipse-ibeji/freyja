@@ -37,42 +37,13 @@ The rust toolchain version is managed by the `rust-toolchain.toml` file, so once
 
 1. Clone this repository with `git clone`
 
-### Build
+### Using Freyja
 
-Freyja supports the use of custom library implementations for many of the interfaces with external components. To accomplish this, there is a code generation step that is a required prerequisite for the build.
+To use Freyja, you will need to implement some adapters and write the main exectuable that will run the Freyja application.
 
-#### Pre-Build
+For a guide on how to get started quickly by running some minimal examples, see the [Quickstart Guide](docs/quisktart.md).
 
-1. Set up your environment. The instructions below are the recommended way to do this, but any other method of setting environment variables will also work if you prefer not to edit your personal Cargo config file(s).
-    1. Copy the template file from `<repo-root>/depgen/res/config.template.toml` to your personal Cargo config at `$CARGO_HOME/cargo.toml` (defaults to `$HOME/.cargo/cargo.toml` on Linux if `$CARGO_HOME` is not set). If you don't already have a Cargo config file you can copy the entire contents of the template; otherwise copy the contents of the `[env]` section into your own config file's `[env]` table. Note that this environment config will only be applied when using Cargo to run the application.
-    1. Modify the values to configure the dependencies you want to use. By default, the template specifies the in-memory mocks. For more information on how to author your own dependencies and configure your environment to use them, see [the documentation on using external libraries](docs/external-libs.md).
-1. Starting from the repo root, build and run the dependency generator application:
-
-```shell
-pushd depgen
-cargo run
-popd
-```
-
-This step only needs to be executed again if the environment variables in your Cargo config change to use different dependencies.
-
-#### Build
-
-Once the pre-build steps are completed, you can build the Freyja application with Cargo:
-
-```shell
-cargo build
-```
-
-### Run
-
-You can run the Freyja application using Cargo:
-
-```shell
-cargo run --bin freyja
-```
-
-Note that the dependencies chosen during the pre-build steps may require other applications to be started as well. In general, everything other than the in-memory libraries will require some kind of external endpoint to be set up.
+For more advanced topics on how to implement and use your own adapters, see the [Custom Adapters Guide](docs/custom-adapters).
 
 <!--alex disable he-she her-him brothers-sisters-->
 ## Why "Freyja"?
