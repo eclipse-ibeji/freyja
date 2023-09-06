@@ -14,7 +14,6 @@ crossbeam = { workspace = true }
 env_logger = { workspace = true }
 freyja-contracts = { workspace = true }
 freyja-common = { workspace = true }
-freyja-deps = { path = "../depgen/__generated" }
 log = { workspace = true }
 proc-macros = { workspace = true }
 provider-proxy-selector = { workspace = true }
