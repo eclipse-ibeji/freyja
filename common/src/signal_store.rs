@@ -145,8 +145,7 @@ impl SignalStore {
     /// Acquires a write lock.
     ///
     /// # Arguments
-    /// - `id`: The id of the signal to edit
-    /// - `adjustment`: The value to subtract from each signal's next_emission_ms value
+    /// - `interval_ms`: The value to subtract from each signal's next_emission_ms value
     pub fn update_emission_times_and_get_all(&self, interval_ms: u64) -> Vec<Signal> {
         let mut signals = self.signals.write().unwrap();
         let mut result = Vec::new();
