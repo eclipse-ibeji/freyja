@@ -97,8 +97,10 @@ pub fn error(ts: TokenStream) -> TokenStream {
 /// 
 /// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
 /// 
-/// Note that the accepted syntax for each of the adapter types is currently only an identifier,
-/// so it may be necessary to import and/or alias the types that you're going to use.
+/// Note that the accepted syntax for each of the adapter types is only an identifier.
+/// This means that fully qualified types like `my_crate::MyAdapter`
+/// and types with generic arguments like `MyGenericAdapter<SomeOtherType>` aren't directly supported.
+/// Instead you will need to import and/or alias the types that you're going to use.
 #[proc_macro]
 pub fn freyja_main(ts: TokenStream) -> TokenStream {
     freyja_main::freyja_main(ts.into()).into()
