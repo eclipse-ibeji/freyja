@@ -30,13 +30,12 @@ impl Parse for FreyjaMainArgs {
     ///
     /// - `input`: the input stream
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let mut args = Punctuated::<Ident, Token![,]>::parse_terminated(input)?
-            .into_iter();
+        let mut args = Punctuated::<Ident, Token![,]>::parse_terminated(input)?.into_iter();
 
         if args.len() != 3 {
             panic!("Expected exactly three arguments to freyja_main");
         }
-        
+
         Ok(FreyjaMainArgs {
             dt_adapter_type: args.next().unwrap(),
             cloud_adapter_type: args.next().unwrap(),
@@ -47,8 +46,8 @@ impl Parse for FreyjaMainArgs {
 
 #[cfg(test)]
 mod use_env_parse_tests {
-    use std::panic::catch_unwind;
     use quote::{format_ident, quote};
+    use std::panic::catch_unwind;
 
     use super::*;
 
@@ -75,8 +74,7 @@ mod use_env_parse_tests {
     }
 
     #[test]
-    fn parse_panics_with_incorrect_number_of_arguments()
-    {
+    fn parse_panics_with_incorrect_number_of_arguments() {
         let foo_ident = format_ident!("Foo");
         let bar_ident = format_ident!("Bar");
         let baz_ident = format_ident!("Baz");

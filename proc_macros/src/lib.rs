@@ -77,26 +77,26 @@ pub fn error(ts: TokenStream) -> TokenStream {
 }
 
 /// Creates the entry point for a Freyja application.
-/// 
+///
 /// # Arguments
 /// - `ts`: a token stream with the following grammatical syntax:
-/// 
+///
 /// *FreyjaMainPredicate*:
-/// 
+///
 /// &nbsp;&nbsp;&nbsp;&nbsp;*DigitalTwinAdapterType* `,` *CloudAdapterType* `,` *MappingClientType*
-/// 
+///
 /// *DigitalTwinAdapterType*:
-/// 
+///
 /// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
-/// 
+///
 /// *CloudAdapterType*:
-/// 
+///
 /// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
-/// 
+///
 /// *MappingClientType*:
-/// 
+///
 /// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
-/// 
+///
 /// Note that the accepted syntax for each of the adapter types is only an identifier.
 /// This means that fully qualified types like `my_crate::MyAdapter`
 /// and types with generic arguments like `MyGenericAdapter<SomeOtherType>` aren't directly supported.

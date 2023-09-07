@@ -30,7 +30,11 @@ use freyja_contracts::{
 
 use provider_proxy_selector::provider_proxy_selector::ProviderProxySelector;
 
-pub async fn freyja_main<TDigitalTwinAdapter: DigitalTwinAdapter, TCloudAdapter: CloudAdapter, TMappingClient: MappingClient>() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+pub async fn freyja_main<
+    TDigitalTwinAdapter: DigitalTwinAdapter,
+    TCloudAdapter: CloudAdapter,
+    TMappingClient: MappingClient,
+>() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let args: HashMap<String, String> = env::args()
         .skip(1)
         .map(|arg| {

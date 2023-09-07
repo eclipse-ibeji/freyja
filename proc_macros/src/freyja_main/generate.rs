@@ -5,8 +5,8 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-use crate::freyja_main::parse::FreyjaMainArgs;
 use super::process::FreyjaMainOutput;
+use crate::freyja_main::parse::FreyjaMainArgs;
 
 /// Generate code for the use_env! macro
 ///
@@ -15,11 +15,12 @@ use super::process::FreyjaMainOutput;
 /// - `ir`: the intermediate representation of the output
 pub(crate) fn generate(ir: FreyjaMainOutput) -> TokenStream {
     let FreyjaMainOutput {
-        args: FreyjaMainArgs {
-            dt_adapter_type,
-            cloud_adapter_type,
-            mapping_client_type,
-        }
+        args:
+            FreyjaMainArgs {
+                dt_adapter_type,
+                cloud_adapter_type,
+                mapping_client_type,
+            },
     } = ir;
 
     quote! {
