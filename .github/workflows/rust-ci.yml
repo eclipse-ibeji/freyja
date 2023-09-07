@@ -27,8 +27,6 @@ jobs:
           components: clippy rustfmt
       - name: Cache Dependencies
         uses: Swatinem/rust-cache@v2
-      - name: Freyja depgen
-        uses: ./.github/actions/freyja-depgen
       - name: Cargo check workspace
         uses: actions-rs/cargo@v1
         with:
@@ -71,8 +69,6 @@ jobs:
         uses: ./.github/actions/install-rust-toolchain
       - name: Cache Dependencies
         uses: Swatinem/rust-cache@v2
-      - name: Freyja depgen
-        uses: ./.github/actions/freyja-depgen
       - name: Build
         uses: actions-rs/cargo@v1
         with:

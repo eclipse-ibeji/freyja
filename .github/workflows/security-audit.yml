@@ -21,8 +21,6 @@ jobs:
           submodules: recursive
       - name: Install Rust toolchain
         uses: ./.github/actions/install-rust-toolchain
-      - name: Freyja depgen
-        uses: ./.github/actions/freyja-depgen
       - name: Cargo audit
         uses: actions-rs/cargo@v1
         with:
