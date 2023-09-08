@@ -15,7 +15,6 @@ members = [
   "digital_twin_adapters/ibeji_adapter",
   "digital_twin_adapters/in_memory_mock_digital_twin_adapter",
   "digital_twin_adapters/mock_digital_twin_adapter",
-  "examples/template_app",
   "freyja",
   "mapping_clients/in_memory_mock_mapping_client",
   "mapping_clients/mock_mapping_service_client",

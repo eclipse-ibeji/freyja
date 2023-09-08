@@ -42,7 +42,7 @@ In-Vehicle Digital Twin|Ibeji and its providers|`DigitalTwinAdapter`|Communicate
 Mapping Service|`MockMappingService`, other customer-provided implementations|`MappingClient`|Communicates with the mapping service
 Cloud Digital Twin|Azure, AWS|`CloudAdapter`|Communicates with the cloud digital twin provider
 
-All of these interfaces are defined as traits with async methods in the `contracts/src` folder. The implementation of each trait is selected via dynamic compilation using Freyja's `use_env!` macro. This repository contains some sample or mock implementations of each trait.
+All of these interfaces are defined as traits with async functions in the `contracts/src` folder. The implementation of each trait is selected via dynamic compilation using Freyja's `use_env!` macro. This repository contains some sample or mock implementations of each trait.
 
 #### In-Vehicle Digital Twin Interface
 

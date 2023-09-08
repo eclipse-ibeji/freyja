@@ -25,13 +25,13 @@ To run this sample, run the following command:
 cargo run --example in-memory
 ```
 
-Note that there is also an `in-memory-with-fn` example with identical behavior. The difference between these two examples is that they show different ways of integrating with the Freyja core components, which is an advanced topic covered in the [Custom Adapters Guide](./custom-adapters.md)
+Note that there is also an `in-memory-with-fn` example with identical behavior. The difference between these two examples is that they show different ways of integrating the same adapters with the Freyja core components, which is an advanced topic covered in the [Custom Adapters Guide](./custom-adapters.md)
 
 ### Mock Services Example
 
 This example uses the Mock Digital Twin Service and Mock Mapping Service. The behavior is very similar to the in-memory example, but with two key differences:
 
-1. With the exception of the cloud adpater, the adapters function as clients to external services, which are mocked as other exectuables running at the same time.
+1. With the exception of the cloud adpater, the adapters function as clients to external services. These external services are mock versions of the mapping and digital twin services which run as binaries on the same device.
 1. The mock services allow for more precise control over when their state changes. Users can advance the state of the applications by interacting with their terminal interfaces.
 
 This example is good when you want to be able to manually control when signals or mappings are added or removed from the application, thus affecting what data gets emitted by Freyja. This example is most commonly used for demo scenarios.
@@ -50,9 +50,11 @@ To run this sample, follow these steps:
 
         cargo run --example mocks
 
-While the example is running, you can switch to the terminal windows for the mock processes and press <kdb>Enter</kbd> to change their state. Changing the state of the Mock Digital Twin Service will add new entites, while chaning the state of the Mock Mapping Service will add new mappings.
+While the example is running, you can switch to the terminal windows for the mock processes and press <kdb>Enter</kbd> to change their state. Changing the state of the Mock Digital Twin Service will add new entites that are queryable with the `find_by_id` API. Changing the state of the Mock Mapping Service will add new mappings which will potentially result in data being emitted by Freyja.
 
 # Appendix A
+
+This appendix lists the sample adapters that are provided in this repository. These are self-contained and don't require anything outside of this repository to be set up. More detailed adapters which interface with external components can be found in the [Ibeji Example Applications repository](https://github.com/eclipse-ibeji/ibeji-example-applications).
 
 ## Digital Twin Adapters
 
