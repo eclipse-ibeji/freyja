@@ -37,7 +37,7 @@ pub trait MappingClient {
         &self,
         _inventory: SendInventoryRequest,
     ) -> Result<SendInventoryResponse, MappingClientError> {
-        Ok(SendInventoryResponse {  })
+        Ok(SendInventoryResponse {})
     }
 
     /// Gets the mapping from the mapping service
