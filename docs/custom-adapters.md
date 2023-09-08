@@ -25,6 +25,6 @@ freyja = { git = "https://github.com/eclipse-ibeji/freyja", rev = "<commit hash>
 tokio = { version = "1.0", features = ["macros"] }
 ```
 
-In most cases, the `main.rs` file can be implemented using the `freyja_main!` macro which will take care of writing some boilerplate code for you. This macro only needs adapter typenames as input and will generate the main function signature and body. For an example of how to use this macro, see the code for the [in-memory example](../freyja/examples/in-memory.rs) or the [mock example](../freyja/examples/mocks.rs).
+In most cases, the `main.rs` file can be implemented using the `freyja_main!` macro which will take care of writing some boilerplate code for you. This macro only needs adapter type names as input and will generate the main function signature and body. For an example of how to use this macro, see the code for the [in-memory example](../freyja/examples/in-memory.rs) or the [mock example](../freyja/examples/mocks.rs).
 
 If you have a more complex scenario that requires some additional setup before running the `freyja_main` function, you can instead invoke it manually without using the macro. For an example of how to use this function and how to manually author the main function, see the code for the [in-memory-with-fn example](../freyja/examples/in-memory-with-fn.rs).

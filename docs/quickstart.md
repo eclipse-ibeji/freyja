@@ -7,7 +7,7 @@ The Freyja project provides some example adapter implementations that can be use
 
 In order to run the examples mentioned in this document, you will first need to build them with the following command:
 
-```
+```shell
 cargo build --examples
 ```
 
@@ -21,7 +21,7 @@ This example is good when you want to get started with minimal effort or configu
 
 To run this sample, run the following command:
 
-```
+```shell
 cargo run --example in-memory
 ```
 
@@ -31,7 +31,7 @@ Note that there is also an `in-memory-with-fn` example with identical behavior. 
 
 This example uses the Mock Digital Twin Service and Mock Mapping Service. The behavior is very similar to the in-memory example, but with two key differences:
 
-1. With the exception of the cloud adpater, the adapters function as clients to external services. These external services are mock versions of the mapping and digital twin services which run as binaries on the same device.
+1. With the exception of the cloud adapter, the adapters function as clients to external services. These external services are mock versions of the mapping and digital twin services which run as binaries on the same device.
 1. The mock services allow for more precise control over when their state changes. Users can advance the state of the applications by interacting with their terminal interfaces.
 
 This example is good when you want to be able to manually control when signals or mappings are added or removed from the application, thus affecting what data gets emitted by Freyja. This example is most commonly used for demo scenarios.
@@ -50,7 +50,7 @@ To run this sample, follow these steps:
 
         cargo run --example mocks
 
-While the example is running, you can switch to the terminal windows for the mock processes and press <kdb>Enter</kbd> to change their state. Changing the state of the Mock Digital Twin Service will add new entites that are queryable with the `find_by_id` API. Changing the state of the Mock Mapping Service will add new mappings which will potentially result in data being emitted by Freyja.
+While the example is running, you can switch to the terminal windows for the mock processes and press <kbd>Enter</kbd> to change their state. Changing the state of the Mock Digital Twin Service will add new entities that are queryable with the `find_by_id` API. Changing the state of the Mock Mapping Service will add new mappings which will potentially result in data being emitted by Freyja.
 
 # Appendix A
 
@@ -59,12 +59,12 @@ This appendix lists the sample adapters that are provided in this repository. Th
 ## Digital Twin Adapters
 
 - [In-Memory Mock Digital Twin Adapter](../digital_twin_adapters/in_memory_mock_digital_twin_adapter/README.md): Emulates a Digital Twin Service entirely within the memory of the Freyja application.
-- [Mock Digital Twin Adapter](../digital_twin_adapters/mock_digital_twin_adapter/README.md): Communicates with the [Mock Digital Twin](../mocks/mock_digital_twin/README.md), which is an executable that mocks the Digital Twin Service. The behavior is very simiar to the in-memory mock, but the application is interactive and allows users to add or remove entities from the mocked digital twin by pressing enter to advance through configurable states.
+- [Mock Digital Twin Adapter](../digital_twin_adapters/mock_digital_twin_adapter/README.md): Communicates with the [Mock Digital Twin](../mocks/mock_digital_twin/README.md), which is an executable that mocks the Digital Twin Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove entities from the mocked digital twin by pressing enter to advance through configurable states.
 
 ## Mapping Clients
 
 - [In-Memory Mock Mapping Client](../mapping_clients/in_memory_mock_mapping_client/README.md): Emulates a mapping service entirely within the memory of the Freyja application.
-- [Mock Mapping Service Client](../mapping_clients/mock_mapping_client/README.md): Communicates with the [Mock Mapping Service](../mocks/mock_mapping_service/README.md), which is an executable that mocks a Mapping Service. The behavior is very simiar to the in-memory mock, but the application is interactive and allows users to add or remove mappings by pressing enter to advance through configurable states.
+- [Mock Mapping Service Client](../mapping_clients/mock_mapping_client/README.md): Communicates with the [Mock Mapping Service](../mocks/mock_mapping_service/README.md), which is an executable that mocks a Mapping Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove mappings by pressing enter to advance through configurable states.
 
 ## Digital Twin Adapters
 

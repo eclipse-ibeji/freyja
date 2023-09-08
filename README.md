@@ -8,8 +8,7 @@
 - [Introduction](#introduction)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
-  - [Build](#build)
-  - [Run](#run)
+  - [Using Freyja](#using-freyja)
 - [Why "Freyja"?](#why-freyja)
 - [Trademarks](#trademarks)
 
@@ -39,9 +38,9 @@ The rust toolchain version is managed by the `rust-toolchain.toml` file, so once
 
 ### Using Freyja
 
-To use Freyja, you will need to implement some adapters and write the main exectuable that will run the Freyja application.
+To use Freyja, you will need to implement some adapters and write the main executable that will run the Freyja application.
 
-For a guide on how to get started quickly by running some minimal examples, see the [Quickstart Guide](docs/quisktart.md).
+For a guide on how to get started quickly by running some minimal examples, see the [Quickstart Guide](docs/quickstart.md).
 
 For more advanced topics on how to implement and use your own adapters, see the [Custom Adapters Guide](docs/custom-adapters).
 

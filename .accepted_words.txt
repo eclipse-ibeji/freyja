@@ -57,6 +57,7 @@ en
 env
 ESDV
 EntityConfig
+fn
 Fólkvangr
 FREYJA
 Freyja
@@ -87,6 +88,7 @@ IoT
 iot
 IsAirConditioningActive
 json
+kbd
 KeyVault
 keygen
 launchSetting
@@ -105,6 +107,7 @@ MQTTProviderProxyImpl
 MSRC
 msrc
 mqtt
+mul
 myADT
 myDigitalTwinsName
 myEventgridNamespace
@@ -135,6 +138,7 @@ PrivateKeyName
 proto
 protobuf
 pushd
+queryable
 quickstart
 repo
 req
@@ -151,6 +155,7 @@ signkey
 snapd
 src
 SSL
+stdout
 STRUCT
 struct
 structs
@@ -158,6 +163,7 @@ sudo
 svg
 Thumbprint
 thumbprint
+tokio
 toml
 toolchain
 URI

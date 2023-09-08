@@ -83,4 +83,4 @@ The reference architecture here specifies the mapping service as a cloud service
 
 Freyja currently only supports device-to-cloud (D2C) scenarios. Cloud-to-device (C2D) scenarios are planned for the future, though there are no current designs for this feature.
 
-In addition, Freyja currently only supports a built-in set of protocols and data schemas for communication with providers. In the future, this will have a pluggbale model similar to other adapters to enable custom protocols.
+In addition, Freyja currently only supports a built-in set of protocols and data schemas for communication with providers. In the future, this will have a pluggable model similar to other adapters to enable custom protocols.
