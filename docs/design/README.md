@@ -42,15 +42,14 @@ In-Vehicle Digital Twin|Ibeji and its providers|`DigitalTwinAdapter`|Communicate
 Mapping Service|`MockMappingService`, other customer-provided implementations|`MappingClient`|Communicates with the mapping service
 Cloud Digital Twin|Azure, AWS|`CloudAdapter`|Communicates with the cloud digital twin provider
 
-All of these interfaces are defined as traits with async functions in the `contracts/src` folder. The implementation of each trait is selected via dynamic compilation using Freyja's `use_env!` macro. This repository contains some sample or mock implementations of each trait.
+All of these interfaces are defined as traits with async functions in the `contracts/src` folder.
 
 #### In-Vehicle Digital Twin Interface
 
-Freyja communicates with the in-vehicle digital twin to get signal values for emission via the `DigitalTwinAdapter` trait. This trait defines the following functions:
+The digital twin adapter interfaces with a digital twin service to get entity information. The [Ibeji Project](https://github.com/eclipse-ibeji/ibeji) is an example of such a service. This interface requires the following function implementations:
 
-- `create_new`: Generates a `Box<dyn DigitalTwinAdapter>` and serves as the integration point for the core Freyja components
-- `find_provider_by_id`: Finds a digital twin provider by id
-- `get_signal_value`: Gets the value of a signal from a provider. Note that this API is subject to change or removal since it is a synchronous request but the overall SDV architecture calls for "asynchronous gets" with a callback. The current API is simplified for easier prototyping
+- `create_new`: Serves as an integration point for the core Freyja components. This function will be called by the `freyja_main` function to create an instance of your adapter.
+- `find_by_id`: Queries the digital twin service for information about the requested entity. This information will later be used to set up clients and/or listeners to communicate with that entity's provider.
 
 Although this component is built with the same pluggable model as other external interfaces, it is being designed closely together with other SDV components. As a result, it is strongly suggested to use the provided SDV implementation of this interface, and this implementation should be sufficient for most production scenarios.
 
@@ -58,19 +57,19 @@ Although this component is built with the same pluggable model as other external
 
 Freyja communicates with a mapping service via the `MappingClient` trait to get information about how to package data during emission. This trait defines the following functions:
 
-- `create_new`: Generates a `Box<dyn MappingClient>` and serves as the integration point for the core Freyja components
-- `check_for_work`: Queries the mapping service to check for pending work
-- `send_inventory`: Sends the current provider inventory to the mapping service so that it can compute a mapping. Note that this API is subject to change or removal since some details of the mapping client request sequence are still under active design. As a result, this API is currently unused by the cartographer but is reserved for potential future use.
-- `get_mapping`: Gets the mapping for this vehicle
+- `create_new`: Serves as an integration point for the core Freyja components. This function will be called by the `freyja_main` function to create an instance of your adapter.
+- `check_for_work`: Because mappings returned from the `get_mapping` API can potentially be large, this method is used to first poll for changes before calling that API. If the result is false, then the cartographer will not invoke the `get_mapping` API until it polls again.
+- `send_inventory`: This API is currently unused. It is reserved for potential future use, but may also be removed. A default empty implementation is provided for convenience so that this function may be omitted from your trait implementation. It is also safe to use the `unimplemented!()` macro since this function will not be called.
+- `get_mapping`: Returns mapping information that will be used by Freyja's emitter
 
 For more information about the mapping service and how this interface is used, see the [Mapping Service](#mapping-service) section.
 
 #### Cloud Digital Twin Interface
 
-Freyja communicates with a the cloud digital twin via the `CloudAdapter` trait. This trait defines the following functions:
+The cloud adapter interfaces with the cloud or a cloud connector to emit data to a digital twin. It's recommended to route communication through a cloud connector on the device to help manage authentication, batching, and other policies that may be useful for automotive scenarios. This interface requires the following function implementations:
 
-- `create_new`: Generates a `Box<dyn CloudAdapter>` and serves as the integration point for the core Freyja components
-- `send_to_cloud`: Sends a data package to the cloud digital twin
+- `create_new`: Serves as an integration point for the core Freyja components. This function will be called by the `freyja_main` function to create an instance of your adapter.
+- `send_to_cloud`: Sends data to the cloud or cloud connector. The request includes a `cloud_signal` property which is a hash map of custom key-value arguments, and the signal value will be converted to a string.
 
 ### Mapping Service
 
@@ -84,4 +83,4 @@ The reference architecture here specifies the mapping service as a cloud service
 
 Freyja currently only supports device-to-cloud (D2C) scenarios. Cloud-to-device (C2D) scenarios are planned for the future, though there are no current designs for this feature.
 
-In addition, Freyja currently only supports a single protocol for communication with providers, as well as a single data schema. In reality, providers in the same vehicle may support multiple protocols and schemas.
+In addition, Freyja currently only supports a built-in set of protocols and data schemas for communication with providers. In the future, this will have a pluggbale model similar to other adapters to enable custom protocols.
