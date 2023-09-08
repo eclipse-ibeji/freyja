@@ -1,6 +1,6 @@
-# In Memory Mock Digital Twin Adapter
+# In-Memory Mock Digital Twin Adapter
 
-The In Memory Mock Digital Twin Adapter mocks the behavior of an in-vehicle digital twin service (such as Ibeji) from within the memory of the Freyja application. This enables a minimal example scenario when working with Freyja. This library contains an implementation of the `DigitalTwinAdapter` trait from the contracts.
+The In-Memory Mock Digital Twin Adapter mocks the behavior of an in-vehicle digital twin service (such as Ibeji) from within the memory of the Freyja application. This enables a minimal example scenario when working with Freyja. This library contains an implementation of the `DigitalTwinAdapter` trait from the contracts.
 
 ## Configuration
 

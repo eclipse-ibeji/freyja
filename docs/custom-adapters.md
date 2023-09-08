@@ -11,8 +11,6 @@ Freyja supports custom implementations of the `DigitalTwinAdapter`, `CloudAdapte
 freyja-contracts = { git = "https://github.com/eclipse-ibeji/freyja", rev = "<commit hash>" }
 ```
 
-Freyja currently requires implementations of the following adapters:
-
 For more information about the adapter interfaces, see [the design doc](./design/README.md#external-interfaces).
 
 ## How to Author a Freyja Application

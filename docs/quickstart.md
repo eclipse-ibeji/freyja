@@ -17,7 +17,7 @@ cargo build --examples
 
 This example uses the in-memory mock adapters to emulate the behavior of external components from entirely within the memory of the Freyja application. This example does not require any other services to be configured or running in order to function properly, and there will be no external API calls made by the Freyja core components.
 
-This example is good when you want to get started with minimal effort or configuration and do not need precise control over how the mocked interfaces behave during runtime. This example is most commonly used for testing scenarios.
+This example is ideal for getting started with minimal effort or configuration. However, it does not offer precise control over how the mocked interfaces behave during runtime. This example is most commonly used for testing scenarios.
 
 To run this sample, run the following command:
 
@@ -34,7 +34,7 @@ This example uses the Mock Digital Twin Service and Mock Mapping Service. The be
 1. With the exception of the cloud adapter, the adapters function as clients to external services. These external services are mock versions of the mapping and digital twin services which run as binaries on the same device.
 1. The mock services allow for more precise control over when their state changes. Users can advance the state of the applications by interacting with their terminal interfaces.
 
-This example is good when you want to be able to manually control when signals or mappings are added or removed from the application, thus affecting what data gets emitted by Freyja. This example is most commonly used for demo scenarios.
+This example is ideal if you need to manually control when signals or mappings are added or removed from the application, thus affecting what data gets emitted by Freyja. This example is most commonly used for demo scenarios.
 
 To run this sample, follow these steps:
 
@@ -54,7 +54,7 @@ While the example is running, you can switch to the terminal windows for the moc
 
 # Appendix A
 
-This appendix lists the sample adapters that are provided in this repository. These are self-contained and don't require anything outside of this repository to be set up. More detailed adapters which interface with external components can be found in the [Ibeji Example Applications repository](https://github.com/eclipse-ibeji/ibeji-example-applications).
+This appendix lists the sample adapters that are provided in this repository. These are self-contained and do not require anything outside of this repository to be set up. More detailed adapters which interface with external components can be found in the [Ibeji Example Applications repository](https://github.com/eclipse-ibeji/ibeji-example-applications).
 
 ## Digital Twin Adapters
 

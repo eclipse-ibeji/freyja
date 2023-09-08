@@ -1,6 +1,6 @@
-# In Memory Mock Mapping Client
+# In-Memory Mock Mapping Client
 
-The In Memory Mock Mapping Client mocks the behavior of a mapping service from within the memory of the Freyja application. This enables a minimal example scenario when working with Freyja. This library contains an implementation of the `MappingClient` trait from the contracts.
+The In-Memory Mock Mapping Client mocks the behavior of a mapping service from within the memory of the Freyja application. This enables a minimal example scenario when working with Freyja. This library contains an implementation of the `MappingClient` trait from the contracts.
 
 ## Configuration
 
