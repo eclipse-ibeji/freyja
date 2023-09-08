@@ -45,7 +45,7 @@ impl Parse for FreyjaMainArgs {
 }
 
 #[cfg(test)]
-mod use_env_parse_tests {
+mod freyja_main_parse_tests {
     use quote::{format_ident, quote};
     use std::panic::catch_unwind;
 

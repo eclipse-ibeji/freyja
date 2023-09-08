@@ -1,7 +1,7 @@
 <!-- language-all: shell -->
 # Freyja Quickstart Guide
 
-The Freyja project provides some example adapter implementations that can be used to get started quickly and experiment with Freyja. For more information about each adapter, including links to documentation on how to configure them for more complex scenarios, see the [Appendix](#appendix-a).
+The Freyja project provides some example adapter implementations that can be used to get started quickly and experiment with Freyja without needing to write any code. For more information about the example adapters that Freyja provides, including links to documentation on how to configure them for more complex scenarios, see the [Appendix](#appendix-a).
 
 ## Build
 
@@ -25,7 +25,7 @@ To run this sample, run the following command:
 cargo run --example in-memory
 ```
 
-Note that there is also an `in-memory-with-fn` example with identical behavior. The difference between these two examples is that they show different ways of integrating the same adapters with the Freyja core components, which is an advanced topic covered in the [Custom Adapters Guide](./custom-adapters.md)
+Note that there is also an `in-memory-with-fn` example with identical behavior. The difference between these two examples is that they show different ways of integrating the same adapters with the Freyja core components, which is an advanced topic covered in the [Custom Adapters Guide](./custom-adapters.md).
 
 ### Mock Services Example
 
