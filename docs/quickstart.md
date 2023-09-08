@@ -64,7 +64,7 @@ This appendix lists the sample adapters that are provided in this repository. Th
 ## Mapping Clients
 
 - [In-Memory Mock Mapping Client](../mapping_clients/in_memory_mock_mapping_client/README.md): Emulates a mapping service entirely within the memory of the Freyja application.
-- [Mock Mapping Service Client](../mapping_clients/mock_mapping_client/README.md): Communicates with the [Mock Mapping Service](../mocks/mock_mapping_service/README.md), which is an executable that mocks a Mapping Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove mappings by pressing enter to advance through configurable states.
+- [Mock Mapping Service Client](../mapping_clients/mock_mapping_service_client/README.md): Communicates with the [Mock Mapping Service](../mocks/mock_mapping_service/README.md), which is an executable that mocks a Mapping Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove mappings by pressing enter to advance through configurable states.
 
 ## Digital Twin Adapters
 

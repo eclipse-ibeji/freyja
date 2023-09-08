@@ -42,7 +42,7 @@ To use Freyja, you will need to implement some adapters and write the main execu
 
 For a guide on how to get started quickly by running some minimal examples, see the [Quickstart Guide](docs/quickstart.md).
 
-For more advanced topics on how to implement and use your own adapters, see the [Custom Adapters Guide](docs/custom-adapters).
+For more advanced topics on how to implement and use your own adapters, see the [Custom Adapters Guide](docs/custom-adapters.md).
 
 <!--alex disable he-she her-him brothers-sisters-->
 ## Why "Freyja"?
