@@ -42,7 +42,7 @@ To run this sample, follow these steps:
 
        cargo run --bin mock-digital-twin
 
-    Note that with the default configuration, the mock is initialized with no entities activated. Whenever you press <kbd>Enter</kbd> in the mock's terminal window, the mock's state will change to include additional entites that will be returned by the `find_by_id` API. Using the default configuration, up to three entities can be added one at a time when pressing <kbd>Enter</kbd>.
+    Note that with the default configuration, the mock is initialized with no entities activated. Whenever you press <kbd>Enter</kbd> in the mock's terminal window, the mock's state will change to include additional entities that will be returned by the `find_by_id` API. Using the default configuration, up to three entities can be added one at a time when pressing <kbd>Enter</kbd>.
 
 1. Run the Mock Mapping Service. To do so, open a new terminal window and run the following:
 

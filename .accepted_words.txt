@@ -101,6 +101,7 @@ MappingClientImpl
 md
 microsoft
 min
+mock's
 MockDigitalTwin
 MockMappingService
 MQTTProviderProxyImpl
