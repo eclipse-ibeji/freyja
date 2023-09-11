@@ -31,7 +31,7 @@ Note that there is also an `in-memory-with-fn` example with identical behavior. 
 
 This example uses the Mock Digital Twin Service and Mock Mapping Service. The behavior is very similar to the in-memory example, but with two key differences:
 
-1. With the exception of the cloud adapter, the adapters function as clients to external services. These external services are mock versions of the mapping and digital twin services which run as binaries on the same device.
+1. The mapping client and digital twin adapter function as clients to external services rather than handling everything in-memory. These external services are mock versions of the mapping and digital twin services which run as binaries on the same device.
 1. The mock services allow for more precise control over when their state changes. Users can advance the state of the applications by interacting with their terminal interfaces.
 
 This example is ideal if you need to manually control when signals or mappings are added or removed from the application, thus affecting what data gets emitted by Freyja. This example is most commonly used for demo scenarios.
@@ -42,15 +42,17 @@ To run this sample, follow these steps:
 
        cargo run --bin mock-digital-twin
 
+    Note that with the default configuration, the mock is initialized with no entities activated. Whenever you press <kbd>Enter</kbd> in the mock's terminal window, the mock's state will change to include additional entites that will be returned by the `find_by_id` API. Using the default configuration, up to three entities can be added one at a time when pressing <kbd>Enter</kbd>.
+
 1. Run the Mock Mapping Service. To do so, open a new terminal window and run the following:
 
         cargo run --bin mock-mapping-service
 
+    Note that with the default configuration, the mock is initialized with no mappings activated. Whenever you press <kbd>Enter</kbd> in the mock's terminal window, the mock's state will change to include additional mappings that will be returned by the `get_mapping` API. Using the default configuration, up to three mappings can be added one at a time when pressing <kbd>Enter</kbd>.
+
 1. Run the example. To do so, run the following in the original terminal window:
 
         cargo run --example mocks
-
-While the example is running, you can switch to the terminal windows for the mock processes and press <kbd>Enter</kbd> to change their state. Changing the state of the Mock Digital Twin Service will add new entities that are queryable with the `find_by_id` API. Changing the state of the Mock Mapping Service will add new mappings which will potentially result in data being emitted by Freyja.
 
 # Appendix A
 
