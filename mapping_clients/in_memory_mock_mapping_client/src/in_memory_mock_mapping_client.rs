@@ -74,18 +74,6 @@ impl MappingClient for InMemoryMockMappingClient {
         })
     }
 
-    /// Sends the provider inventory to the mapping service
-    ///
-    /// # Arguments
-    ///
-    /// - `inventory`: the providers to send
-    async fn send_inventory(
-        &self,
-        _inventory: SendInventoryRequest,
-    ) -> Result<SendInventoryResponse, MappingClientError> {
-        Ok(SendInventoryResponse {})
-    }
-
     /// Gets the mapping from the mapping service
     /// Returns the values that are configured to exist for the current internal count
     async fn get_mapping(

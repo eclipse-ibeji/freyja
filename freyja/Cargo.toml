@@ -14,7 +14,6 @@ crossbeam = { workspace = true }
 env_logger = { workspace = true }
 freyja-contracts = { workspace = true }
 freyja-common = { workspace = true }
-freyja-deps = { path = "../depgen/__generated" }
 log = { workspace = true }
 proc-macros = { workspace = true }
 provider-proxy-selector = { workspace = true }
@@ -22,4 +21,12 @@ time = { workspace = true }
 tokio = { workspace = true }
 
 [dev-dependencies]
+# Dependencies for testing
 mockall = { workspace = true }
+
+# Dependencies for examples
+in-memory-mock-cloud-adapter = { path = "../cloud_adapters/in_memory_mock_cloud_adapter" }
+in-memory-mock-digital-twin-adapter = { path = "../digital_twin_adapters/in_memory_mock_digital_twin_adapter" }
+in-memory-mock-mapping-client = { path = "../mapping_clients/in_memory_mock_mapping_client" }
+mock-digital-twin-adapter = { path = "../digital_twin_adapters/mock_digital_twin_adapter" }
+mock-mapping-service-client = { path = "../mapping_clients/mock_mapping_service_client" }

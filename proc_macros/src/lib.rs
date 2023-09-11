@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 mod error;
+mod freyja_main;
 mod use_env;
 
 use proc_macro::TokenStream;
@@ -34,7 +35,7 @@ use proc_macro::TokenStream;
 ///
 /// `use mock_dt_adapter::DtAdapterImpl;`
 #[proc_macro]
-#[deprecated = "deprecated in favor of using freyja-depgen"]
+#[deprecated = "deprecated in favor of writing a main function which links dependencies together with Freyja"]
 pub fn use_env(ts: TokenStream) -> TokenStream {
     use_env::use_env(ts.into()).into()
 }
@@ -73,4 +74,34 @@ pub fn use_env(ts: TokenStream) -> TokenStream {
 #[proc_macro]
 pub fn error(ts: TokenStream) -> TokenStream {
     error::error(ts.into()).into()
+}
+
+/// Creates the entry point for a Freyja application.
+///
+/// # Arguments
+/// - `ts`: a token stream with the following grammatical syntax:
+///
+/// *FreyjaMainPredicate*:
+///
+/// &nbsp;&nbsp;&nbsp;&nbsp;*DigitalTwinAdapterType* `,` *CloudAdapterType* `,` *MappingClientType*
+///
+/// *DigitalTwinAdapterType*:
+///
+/// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
+///
+/// *CloudAdapterType*:
+///
+/// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
+///
+/// *MappingClientType*:
+///
+/// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
+///
+/// Note that the accepted syntax for each of the adapter types is only an identifier.
+/// This means that fully qualified types like `my_crate::MyAdapter`
+/// and types with generic arguments like `MyGenericAdapter<SomeOtherType>` aren't directly supported.
+/// Instead you will need to import and/or alias the types that you're going to use.
+#[proc_macro]
+pub fn freyja_main(ts: TokenStream) -> TokenStream {
+    freyja_main::freyja_main(ts.into()).into()
 }

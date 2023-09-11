@@ -24,8 +24,6 @@ members = [
   "provider_proxies/in_memory_mock_provider_proxy",
   "provider_proxy_selector",
 ]
-# The workspace will fail to validate before the depgen step, so it must be exlucded in order to run independently
-exclude = ["depgen"]
 
 [workspace.dependencies]
 # Freyja dependencies

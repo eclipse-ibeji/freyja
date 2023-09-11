@@ -35,8 +35,10 @@ pub trait MappingClient {
     /// - `inventory`: the request to send
     async fn send_inventory(
         &self,
-        inventory: SendInventoryRequest,
-    ) -> Result<SendInventoryResponse, MappingClientError>;
+        _inventory: SendInventoryRequest,
+    ) -> Result<SendInventoryResponse, MappingClientError> {
+        Ok(SendInventoryResponse {})
+    }
 
     /// Gets the mapping from the mapping service
     ///

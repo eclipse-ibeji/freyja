@@ -2,6 +2,9 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
+// Re-export this macro for convenience so users don't need to manually import the proc_macros crate
+pub use proc_macros::freyja_main;
+
 mod cartographer;
 mod emitter;
 
@@ -24,11 +27,14 @@ use freyja_contracts::{
         ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
     },
 };
-use freyja_deps::*;
+
 use provider_proxy_selector::provider_proxy_selector::ProviderProxySelector;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+pub async fn freyja_main<
+    TDigitalTwinAdapter: DigitalTwinAdapter,
+    TCloudAdapter: CloudAdapter,
+    TMappingClient: MappingClient,
+>() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let args: HashMap<String, String> = env::args()
         .skip(1)
         .map(|arg| {
@@ -67,8 +73,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let cartographer_poll_interval = Duration::from_secs(5);
     let cartographer = Cartographer::new(
         signal_store.clone(),
-        MappingClientImpl::create_new().unwrap(),
-        DigitalTwinAdapterImpl::create_new().unwrap(),
+        TMappingClient::create_new().unwrap(),
+        TDigitalTwinAdapter::create_new().unwrap(),
         provider_proxy_selector_request_sender.clone(),
         cartographer_poll_interval,
     );
@@ -77,7 +83,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
     let emitter = Emitter::new(
         signal_store.clone(),
-        CloudAdapterImpl::create_new().unwrap(),
+        TCloudAdapter::create_new().unwrap(),
         provider_proxy_selector_request_sender.clone(),
         signal_values_queue.clone(),
     );
