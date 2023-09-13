@@ -9,6 +9,10 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
+config = { workspace = true }
 freyja-contracts = { workspace = true }
+home = { workspace = true }
 log = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 tokio = { workspace = true }

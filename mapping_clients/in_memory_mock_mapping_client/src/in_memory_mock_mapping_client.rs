@@ -4,45 +4,33 @@
 
 use std::path::Path;
 use std::sync::atomic::{AtomicU8, Ordering};
-use std::{env, fs};
+use std::env;
 
 use async_trait::async_trait;
 
-use crate::config::ConfigItem;
-
+use crate::config::Config;
+use freyja_common::config_utils;
 use freyja_contracts::mapping_client::*;
 
-const CONFIG_FILE: &str = "config.json";
+const CONFIG_FILE: &str = "mapping_client_config.json";
+const DEFAULT_CONFIG_FILE: &str = "mapping_client_config.default.json";
 
 /// Mocks a mapping provider in memory
 pub struct InMemoryMockMappingClient {
     /// The mock's config
-    config: Vec<ConfigItem>,
+    config: Config,
 
     /// An internal counter which controls which mappings are available
     counter: AtomicU8,
 }
 
 impl InMemoryMockMappingClient {
-    /// Creates a new InMemoryMockMappingClient with config from the specified file
-    ///
-    /// # Arguments
-    ///
-    /// - `config_path`: the path to the config to use
-    pub fn from_config_file<P: AsRef<Path>>(config_path: P) -> Result<Self, MappingClientError> {
-        let config_contents = fs::read_to_string(config_path).map_err(MappingClientError::io)?;
-        let config: Vec<ConfigItem> = serde_json::from_str(config_contents.as_str())
-            .map_err(MappingClientError::deserialize)?;
-
-        Self::from_config(config)
-    }
-
     /// Creates a new InMemoryMockMappingClient with the specified config
     ///
     /// # Arguments
     ///
     /// - `config_path`: the config to use
-    pub fn from_config(config: Vec<ConfigItem>) -> Result<Self, MappingClientError> {
+    pub fn from_config(config: Config) -> Result<Self, MappingClientError> {
         Ok(Self {
             config,
             counter: AtomicU8::new(0),
@@ -54,7 +42,19 @@ impl InMemoryMockMappingClient {
 impl MappingClient for InMemoryMockMappingClient {
     /// Creates a new instance of an InMemoryMockMappingClient with default settings
     fn create_new() -> Result<Self, MappingClientError> {
-        Self::from_config_file(Path::new(env!("OUT_DIR")).join(CONFIG_FILE))
+        // $OUT_DIR/mapping_client_config.default.json
+        let default_config_path = Path::new(env!("OUT_DIR"))
+            .join(DEFAULT_CONFIG_FILE);
+        let config = config_utils::read_from_files(
+            default_config_path,
+            CONFIG_FILE,
+            MappingClientError::io,
+            MappingClientError::deserialize
+        )?;
+
+        println!("config is {config:#?}");
+
+        Self::from_config(config)
     }
 
     /// Checks for any additional work that the mapping service requires.
@@ -67,7 +67,7 @@ impl MappingClient for InMemoryMockMappingClient {
         let n = self.counter.fetch_add(1, Ordering::SeqCst);
 
         Ok(CheckForWorkResponse {
-            has_work: self.config.iter().any(|c| match c.end {
+            has_work: self.config.values.iter().any(|c| match c.end {
                 Some(end) => n == end || n == c.begin,
                 None => n == c.begin,
             }),
@@ -85,6 +85,7 @@ impl MappingClient for InMemoryMockMappingClient {
         Ok(GetMappingResponse {
             map: self
                 .config
+                .values
                 .iter()
                 .filter_map(|c| match c.end {
                     Some(end) if n >= c.begin && n < end => {
@@ -100,6 +101,8 @@ impl MappingClient for InMemoryMockMappingClient {
 
 #[cfg(test)]
 mod in_memory_mock_mapping_client_tests {
+    use crate::config::ConfigItem;
+
     use super::*;
 
     use std::collections::{HashMap, HashSet};
@@ -107,20 +110,14 @@ mod in_memory_mock_mapping_client_tests {
     use freyja_contracts::{conversion::Conversion, digital_twin_map_entry::DigitalTwinMapEntry};
 
     #[test]
-    fn from_config_file_returns_err_on_nonexistent_file() {
-        let result = InMemoryMockMappingClient::from_config_file("fake_file.foo");
-        assert!(result.is_err());
-    }
-
-    #[test]
-    fn can_get_default_config() {
+    fn can_create_new() {
         let result = InMemoryMockMappingClient::create_new();
         assert!(result.is_ok());
     }
 
     #[tokio::test]
     async fn check_for_work_returns_correct_values() {
-        let config = vec![
+        let config = Config { values: vec![
             ConfigItem {
                 begin: 0,
                 end: None,
@@ -154,7 +151,7 @@ mod in_memory_mock_mapping_client_tests {
                     emit_on_change: false,
                 },
             },
-        ];
+        ]};
 
         let uut = InMemoryMockMappingClient::from_config(config).unwrap();
 
@@ -173,7 +170,7 @@ mod in_memory_mock_mapping_client_tests {
 
     #[tokio::test]
     async fn get_mapping_returns_correct_values() {
-        let config = vec![
+        let config = Config { values: vec![
             ConfigItem {
                 begin: 0,
                 end: None,
@@ -207,7 +204,7 @@ mod in_memory_mock_mapping_client_tests {
                     emit_on_change: false,
                 },
             },
-        ];
+        ]};
 
         let uut = InMemoryMockMappingClient::from_config(config).unwrap();
 
