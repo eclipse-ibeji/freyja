@@ -6,6 +6,11 @@ use serde::{Deserialize, Serialize};
 
 use freyja_contracts::digital_twin_map_entry::DigitalTwinMapEntry;
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Config {
+    pub values: Vec<ConfigItem>,
+}
+
 /// A config item for the mock mapping service
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ConfigItem {

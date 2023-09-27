@@ -4,7 +4,7 @@ The In-Memory Mock Mapping Client mocks the behavior of a mapping service from w
 
 ## Configuration
 
-The adapter's default config is located at `res/mapping_client_config.default.json` and will be copied to the build output automatically. This file is a list of config objects with the following properties:
+The adapter's default config is located at `res/mock_mapping_config.default.json` and will be copied to the build output automatically. This file is a list of config objects with the following properties:
 
 - `begin`: an integer indicating when to enable the mapping value below
 - `end`: an optional integer indicating when to disable the mapping value below. Set to `null` if you never want the value to "turn off"
@@ -15,14 +15,13 @@ The adapter's default config is located at `res/mapping_client_config.default.js
   - `emit_on_change`: a value indicating whether data emission should be skipped if the value hasn't changed since the last emission. Set to true to enable this behavior.
   - `conversion`: a conversion that should be applied. Set to null if no conversion is needed. Otherwise the conversion is configured with the `mul` and `offset` properties, and the value `y` that is emitted is calculated as `y = mul * x + offset`. Note that conversions are only supported for signal values which can be parsed as `f64`.
 
-You can override the default values by defining your own `mapping_client_config.json`. The adapter will probe for and unify config in this order, with values near the end of the list taking higher precedence:
+You can override the default values by defining your own `mock_mapping_config.json`. The adapter will probe for and unify config in this order, with values near the end of the list taking higher precedence:
 
 - The default config
-- A `mapping_client_config.json` file in the working directory of the executable (for example, the directory you were in when you ran the `cargo run` command)
-- `$FREYJA_HOME/config/mapping_config.json`, which defaults to:
-  - Windows: `%USERPROFILE%\.freyja\config\mapping_config.json`
-  - Unix: `$HOME/.freyja/config/mapping_config.json`
-
+- A `mock_mapping_config.json` file in the working directory of the executable (for example, the directory you were in when you ran the `cargo run` command)
+- `$FREYJA_HOME/config/mock_mapping_config.json`, which defaults to:
+  - Unix: `$HOME/.freyja/config/mock_mapping_config.json`
+  - Windows: `%USERPROFILE%\.freyja\config\mock_mapping_config.json` (note that windows support is not guaranteed by Freyja or this adapter)
 
 ## Behavior
 

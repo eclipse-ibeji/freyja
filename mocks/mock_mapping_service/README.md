@@ -4,7 +4,7 @@ The Mock Mapping Service mocks the behavior of a mapping service as a separate a
 
 ## Configuration
 
-The mock can be configured via the `res/config.json` file which is copied to the build output automatically. The schema for this config is identical to that of the [In-Memory Mock Mapping Client](../../mapping_clients/in_memory_mock_mapping_client/README.md).
+The mock's default config is located at  `res/mock_mapping_config.default.json` and will be copied to the build output automatically. The schema for this config is identical to that of the [In-Memory Mock Mapping Client](../../mapping_clients/in_memory_mock_mapping_client/README.md), and the override mechanisms are the same. Note that the config file name is the same, so using an override at `$FREYJA_HOME/config/mock_mapping_config.json` will apply to both this mock and the in-memory mock.
 
 ## Behavior
 

@@ -15,31 +15,33 @@ const FREYJA_HOME: &str = "FREYJA_HOME";
 /// Read config from layered configuration files.
 /// 
 /// # Arguments
-/// - `default_config`: The default configuration setting
-pub fn read_from_files<TPath1, TPath2, TConfig, TError, TIoErrorHandler, TDeserializeErrorHandler>(
-    default_config_path: TPath1,
-    override_config_name: TPath2,
+/// - `default_config_path`: The path to the default configuration
+/// - `overrides_file_name`: The name of the file(s) that contain overrides
+/// - `io_error_handler`: The error handler for IO errors
+/// - `deserialize_error_handler`: The error handler for deserialize errors
+pub fn read_from_files<TConfig, TError, TPath, TIoErrorHandler, TDeserializeErrorHandler>(
+    default_config_path: TPath,
+    overrides_file_name: String,
     io_error_handler: TIoErrorHandler,
     deserialize_error_handler: TDeserializeErrorHandler,
     ) -> Result<TConfig, TError> 
 where
-    TPath1 : AsRef<Path>,
-    TPath2 : AsRef<Path> + Clone,
     TConfig: for<'a> Deserialize<'a>,
+    TPath : AsRef<Path>,
     TIoErrorHandler: Fn(std::io::Error) -> TError,
     TDeserializeErrorHandler: FnOnce(ConfigError) -> TError,
 {
     // <current_dir>/{config}.json
     let current_dir_config_path = env::current_dir()
         .map_err(&io_error_handler)?
-        .join(override_config_name.clone());
+        .join(overrides_file_name.clone());
 
     let freyja_dir_config_path = match env::var(FREYJA_HOME) {
         Ok(freyja_home) => {
             // $FREYJA_HOME/config/{config}.json
             Path::new(&freyja_home)
                 .join(CONFIG_DIR)
-                .join(override_config_name)
+                .join(overrides_file_name)
         },
         Err(_) => {
             // $HOME/.freyja/config/mapping_client_config.json
@@ -47,7 +49,7 @@ where
                 .ok_or(io_error_handler(std::io::Error::new(std::io::ErrorKind::Other, "Could not retrieve home directory")))?
                 .join(DOT_FREYJA_DIR)
                 .join(CONFIG_DIR)
-                .join(override_config_name)
+                .join(overrides_file_name)
         }
     };
 

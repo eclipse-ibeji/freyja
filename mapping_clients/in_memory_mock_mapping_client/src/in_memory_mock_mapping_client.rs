@@ -12,8 +12,8 @@ use crate::config::Config;
 use freyja_common::config_utils;
 use freyja_contracts::mapping_client::*;
 
-const CONFIG_FILE: &str = "mapping_client_config.json";
-const DEFAULT_CONFIG_FILE: &str = "mapping_client_config.default.json";
+const CONFIG_FILE: &str = "mock_mapping_config";
+const CONFIG_EXT: &str = "json";
 
 /// Mocks a mapping provider in memory
 pub struct InMemoryMockMappingClient {
@@ -42,17 +42,16 @@ impl InMemoryMockMappingClient {
 impl MappingClient for InMemoryMockMappingClient {
     /// Creates a new instance of an InMemoryMockMappingClient with default settings
     fn create_new() -> Result<Self, MappingClientError> {
-        // $OUT_DIR/mapping_client_config.default.json
-        let default_config_path = Path::new(env!("OUT_DIR"))
-            .join(DEFAULT_CONFIG_FILE);
+        let default_config_file = format!("{}.default.{}", CONFIG_FILE, CONFIG_EXT);
+        let overrides_file_name = format!("{}.{}", CONFIG_FILE, CONFIG_EXT);
+        // $OUT_DIR/mock_mapping_config.default.json
+        let default_config_path = Path::new(env!("OUT_DIR")).join(default_config_file);
         let config = config_utils::read_from_files(
             default_config_path,
-            CONFIG_FILE,
+            overrides_file_name,
             MappingClientError::io,
             MappingClientError::deserialize
         )?;
-
-        println!("config is {config:#?}");
 
         Self::from_config(config)
     }

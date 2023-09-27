@@ -5,7 +5,7 @@
 mod config;
 
 use std::{
-    fs, io,
+    io,
     net::SocketAddr,
     path::Path,
     sync::{Arc, Mutex},
@@ -19,17 +19,21 @@ use axum::{
     Json, Router, Server,
 };
 use env_logger::Target;
+use freyja_common::config_utils;
 use log::{info, LevelFilter};
 
-use config::ConfigItem;
+use config::Config;
 use freyja_contracts::mapping_client::{
     CheckForWorkResponse, GetMappingResponse, SendInventoryRequest, SendInventoryResponse,
 };
 
+const CONFIG_FILE: &str = "mock_mapping_config";
+const CONFIG_EXT: &str = "json";
+
 struct MappingState {
     count: u8,
     pending_work: bool,
-    config: Vec<ConfigItem>,
+    config: Config,
 }
 
 macro_rules! ok {
@@ -47,10 +51,15 @@ async fn main() {
         .filter(None, LevelFilter::Info)
         .target(Target::Stdout)
         .init();
-
-    let config_contents =
-        fs::read_to_string(Path::new(env!("OUT_DIR")).join("config.json")).unwrap();
-    let config: Vec<ConfigItem> = serde_json::from_str(config_contents.as_str()).unwrap();
+    
+    let default_config_file = format!("{}.default.{}", CONFIG_FILE, CONFIG_EXT);
+    let overrides_file_name = format!("{}.{}", CONFIG_FILE, CONFIG_EXT);
+    let default_config_path = Path::new(env!("OUT_DIR")).join(default_config_file);
+    let config = config_utils::read_from_files(
+        default_config_path,
+        overrides_file_name,
+        |e| log::error!("{}", e),
+        |e| log::error!("{}", e)).unwrap();
 
     const SERVER_ENDPOINT: &str = "127.0.0.1:8888";
 
@@ -86,6 +95,7 @@ async fn main() {
             if state.pending_work {
                 let work_available_state: Vec<String> = state
                     .config
+                    .values
                     .iter()
                     .filter(|c| state.count == c.begin)
                     .map(|v| v.value.source.clone())
@@ -139,6 +149,7 @@ async fn get_mapping(State(state): State<Arc<Mutex<MappingState>>>) -> Response 
     let response = GetMappingResponse {
         map: state
             .config
+            .values
             .iter()
             .filter_map(|c| match c.end {
                 Some(end) if state.count >= c.begin && state.count < end => {
@@ -153,8 +164,8 @@ async fn get_mapping(State(state): State<Arc<Mutex<MappingState>>>) -> Response 
     ok!(response)
 }
 
-fn check_for_work(config: &[ConfigItem], n: u8) -> bool {
-    config.iter().any(|c| match c.end {
+fn check_for_work(config: &Config, n: u8) -> bool {
+    config.values.iter().any(|c| match c.end {
         Some(end) => {
             if n == end {
                 info!("End of {} for mapping", c.value.source);

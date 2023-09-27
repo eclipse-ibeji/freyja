@@ -6,6 +6,7 @@
 # The default resolver for workspaces is different than for regular packages, so use v2 to avoid warnings
 resolver = "2"
 members = [
+  "build_common",
   "cloud_adapters/azure_cloud_connector_adapter",
   "cloud_adapters/in_memory_mock_cloud_adapter",
   "cloud_connectors/azure/mqtt_connector",
@@ -28,6 +29,7 @@ members = [
 [workspace.dependencies]
 # Freyja dependencies
 azure-cloud-connector-proto = { path = "cloud_connectors/azure/proto-build" }
+freyja-build-common = { path = "build_common" }
 freyja-common = { path = "common" }
 freyja-contracts = { path = "contracts" }
 mock-digital-twin = { path = "mocks/mock_digital_twin" }
