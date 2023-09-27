@@ -16,7 +16,7 @@ pub struct InMemoryMockCloudAdapter {}
 impl CloudAdapter for InMemoryMockCloudAdapter {
     /// Creates a new instance of a CloudAdapter with default settings
     fn create_new() -> Result<Self, CloudAdapterError> {
-        Ok(Self{})
+        Ok(Self {})
     }
 
     /// Sends the signal to the cloud

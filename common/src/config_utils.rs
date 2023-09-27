@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{path::Path, env};
+use std::{env, path::Path};
 
 use config::{ConfigError, File};
 use home::home_dir;
@@ -16,7 +16,7 @@ const FREYJA_HOME: &str = "FREYJA_HOME";
 /// Uses `{config_file_name}.default.{config_file_ext}` as the base configuration,
 /// then searches for overrides named `{config_file_name}.{config_file_ext}` in the current directory and `$FREYJA_HOME`.
 /// If `$FREYJA_HOME` is not set, it defaults to `$HOME/.freyja`.
-/// 
+///
 /// # Arguments
 /// - `config_file_name`: The config file name without an extension. This is used to construct the file names to search for
 /// - `config_file_ext`: The config file extension. This is used to construct the file names to search for
@@ -29,10 +29,10 @@ pub fn read_from_files<TConfig, TError, TPath, TIoErrorHandler, TDeserializeErro
     default_config_path: TPath,
     io_error_handler: TIoErrorHandler,
     deserialize_error_handler: TDeserializeErrorHandler,
-    ) -> Result<TConfig, TError> 
+) -> Result<TConfig, TError>
 where
     TConfig: for<'a> Deserialize<'a>,
-    TPath : AsRef<Path>,
+    TPath: AsRef<Path>,
     TIoErrorHandler: Fn(std::io::Error) -> TError,
     TDeserializeErrorHandler: FnOnce(ConfigError) -> TError,
 {
@@ -52,11 +52,14 @@ where
             Path::new(&freyja_home)
                 .join(CONFIG_DIR)
                 .join(overrides_filename)
-        },
+        }
         Err(_) => {
             // $HOME/.freyja/config/mapping_client_config.json
             home_dir()
-                .ok_or(io_error_handler(std::io::Error::new(std::io::ErrorKind::Other, "Could not retrieve home directory")))?
+                .ok_or(io_error_handler(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    "Could not retrieve home directory",
+                )))?
                 .join(DOT_FREYJA_DIR)
                 .join(CONFIG_DIR)
                 .join(overrides_filename)
@@ -70,5 +73,7 @@ where
         .build()
         .unwrap();
 
-    config_store.try_deserialize().map_err(deserialize_error_handler)
+    config_store
+        .try_deserialize()
+        .map_err(deserialize_error_handler)
 }

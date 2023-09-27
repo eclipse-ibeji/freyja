@@ -15,6 +15,6 @@ fn main() {
         .unwrap()
         .join(RES_DIR_NAME)
         .join(DEFAULT_CONFIG_FILE);
-    
+
     copy_to_build_out_dir(config_path, DEFAULT_CONFIG_FILE.to_string());
 }

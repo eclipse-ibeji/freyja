@@ -50,13 +50,15 @@ async fn main() {
         .filter(None, LevelFilter::Info)
         .target(Target::Stdout)
         .init();
-    
+
     let config = config_utils::read_from_files(
         CONFIG_FILE,
         CONFIG_EXT,
         env!("OUT_DIR"),
         |e| log::error!("{}", e),
-        |e| log::error!("{}", e)).unwrap();
+        |e| log::error!("{}", e),
+    )
+    .unwrap();
 
     const SERVER_ENDPOINT: &str = "127.0.0.1:8888";
 

@@ -2,8 +2,8 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::sync::atomic::{AtomicU8, Ordering};
 use std::env;
+use std::sync::atomic::{AtomicU8, Ordering};
 
 use async_trait::async_trait;
 
@@ -46,7 +46,7 @@ impl MappingClient for InMemoryMockMappingClient {
             CONFIG_EXT,
             env!("OUT_DIR"),
             MappingClientError::io,
-            MappingClientError::deserialize
+            MappingClientError::deserialize,
         )?;
 
         Self::from_config(config)
@@ -112,41 +112,43 @@ mod in_memory_mock_mapping_client_tests {
 
     #[tokio::test]
     async fn check_for_work_returns_correct_values() {
-        let config = Config { values: vec![
-            ConfigItem {
-                begin: 0,
-                end: None,
-                value: DigitalTwinMapEntry {
-                    source: String::from("always-active"),
-                    target: HashMap::new(),
-                    interval_ms: 0,
-                    conversion: Conversion::None,
-                    emit_on_change: false,
+        let config = Config {
+            values: vec![
+                ConfigItem {
+                    begin: 0,
+                    end: None,
+                    value: DigitalTwinMapEntry {
+                        source: String::from("always-active"),
+                        target: HashMap::new(),
+                        interval_ms: 0,
+                        conversion: Conversion::None,
+                        emit_on_change: false,
+                    },
                 },
-            },
-            ConfigItem {
-                begin: 10,
-                end: None,
-                value: DigitalTwinMapEntry {
-                    source: String::from("delayed-activaction"),
-                    target: HashMap::new(),
-                    interval_ms: 0,
-                    conversion: Conversion::None,
-                    emit_on_change: false,
+                ConfigItem {
+                    begin: 10,
+                    end: None,
+                    value: DigitalTwinMapEntry {
+                        source: String::from("delayed-activaction"),
+                        target: HashMap::new(),
+                        interval_ms: 0,
+                        conversion: Conversion::None,
+                        emit_on_change: false,
+                    },
                 },
-            },
-            ConfigItem {
-                begin: 0,
-                end: Some(20),
-                value: DigitalTwinMapEntry {
-                    source: String::from("not-always-active"),
-                    target: HashMap::new(),
-                    interval_ms: 0,
-                    conversion: Conversion::None,
-                    emit_on_change: false,
+                ConfigItem {
+                    begin: 0,
+                    end: Some(20),
+                    value: DigitalTwinMapEntry {
+                        source: String::from("not-always-active"),
+                        target: HashMap::new(),
+                        interval_ms: 0,
+                        conversion: Conversion::None,
+                        emit_on_change: false,
+                    },
                 },
-            },
-        ]};
+            ],
+        };
 
         let uut = InMemoryMockMappingClient::from_config(config).unwrap();
 
@@ -165,41 +167,43 @@ mod in_memory_mock_mapping_client_tests {
 
     #[tokio::test]
     async fn get_mapping_returns_correct_values() {
-        let config = Config { values: vec![
-            ConfigItem {
-                begin: 0,
-                end: None,
-                value: DigitalTwinMapEntry {
-                    source: String::from("always-active"),
-                    target: HashMap::new(),
-                    interval_ms: 0,
-                    conversion: Conversion::None,
-                    emit_on_change: false,
+        let config = Config {
+            values: vec![
+                ConfigItem {
+                    begin: 0,
+                    end: None,
+                    value: DigitalTwinMapEntry {
+                        source: String::from("always-active"),
+                        target: HashMap::new(),
+                        interval_ms: 0,
+                        conversion: Conversion::None,
+                        emit_on_change: false,
+                    },
                 },
-            },
-            ConfigItem {
-                begin: 10,
-                end: None,
-                value: DigitalTwinMapEntry {
-                    source: String::from("delayed-activation"),
-                    target: HashMap::new(),
-                    interval_ms: 0,
-                    conversion: Conversion::None,
-                    emit_on_change: false,
+                ConfigItem {
+                    begin: 10,
+                    end: None,
+                    value: DigitalTwinMapEntry {
+                        source: String::from("delayed-activation"),
+                        target: HashMap::new(),
+                        interval_ms: 0,
+                        conversion: Conversion::None,
+                        emit_on_change: false,
+                    },
                 },
-            },
-            ConfigItem {
-                begin: 0,
-                end: Some(20),
-                value: DigitalTwinMapEntry {
-                    source: String::from("not-always-active"),
-                    target: HashMap::new(),
-                    interval_ms: 0,
-                    conversion: Conversion::None,
-                    emit_on_change: false,
+                ConfigItem {
+                    begin: 0,
+                    end: Some(20),
+                    value: DigitalTwinMapEntry {
+                        source: String::from("not-always-active"),
+                        target: HashMap::new(),
+                        interval_ms: 0,
+                        conversion: Conversion::None,
+                        emit_on_change: false,
+                    },
                 },
-            },
-        ]};
+            ],
+        };
 
         let uut = InMemoryMockMappingClient::from_config(config).unwrap();
 
