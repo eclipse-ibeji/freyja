@@ -6,8 +6,10 @@ use serde::{Deserialize, Serialize};
 
 use freyja_contracts::digital_twin_map_entry::DigitalTwinMapEntry;
 
+/// The in-memory mock mapping client's config
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
+    /// The set of config values
     pub values: Vec<ConfigItem>,
 }
 
@@ -16,7 +18,10 @@ pub struct Config {
 pub struct ConfigItem {
     /// Start emitting the value after this many calls to the client
     pub begin: u8,
+
     /// Stop emitting the value after this many calls to the client (or don't stop emitting if None)
     pub end: Option<u8>,
+
+    /// A mapping to apply
     pub value: DigitalTwinMapEntry,
 }

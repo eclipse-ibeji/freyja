@@ -4,7 +4,13 @@
 
 use std::{env, fs, path::Path};
 
-pub fn copy_to_build_out_dir<P: AsRef<Path>>(source: P, dest_filename: String) {
+/// Copies a file to the build output in `OUT_DIR`.
+/// Includes a `cargo:rerun-if-changed` instruction for use in build.rs scripts.
+///
+/// # Arguments:
+/// - `source`: The source file to copy
+/// - `dest_filename`: The filename for the destination
+pub fn copy_to_build_out_dir<P: AsRef<Path>>(source: P, dest_filename: &str) {
     const OUT_DIR: &str = "OUT_DIR";
 
     let target_dir = env::var(OUT_DIR).unwrap();

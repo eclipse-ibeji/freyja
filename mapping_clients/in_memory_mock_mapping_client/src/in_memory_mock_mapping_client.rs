@@ -28,7 +28,7 @@ impl InMemoryMockMappingClient {
     ///
     /// # Arguments
     ///
-    /// - `config_path`: the config to use
+    /// - `config`: the config to use
     pub fn from_config(config: Config) -> Result<Self, MappingClientError> {
         Ok(Self {
             config,
