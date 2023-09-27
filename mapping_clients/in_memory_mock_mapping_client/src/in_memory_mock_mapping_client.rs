@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::path::Path;
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::env;
 
@@ -42,13 +41,10 @@ impl InMemoryMockMappingClient {
 impl MappingClient for InMemoryMockMappingClient {
     /// Creates a new instance of an InMemoryMockMappingClient with default settings
     fn create_new() -> Result<Self, MappingClientError> {
-        let default_config_file = format!("{}.default.{}", CONFIG_FILE, CONFIG_EXT);
-        let overrides_file_name = format!("{}.{}", CONFIG_FILE, CONFIG_EXT);
-        // $OUT_DIR/mock_mapping_config.default.json
-        let default_config_path = Path::new(env!("OUT_DIR")).join(default_config_file);
         let config = config_utils::read_from_files(
-            default_config_path,
-            overrides_file_name,
+            CONFIG_FILE,
+            CONFIG_EXT,
+            env!("OUT_DIR"),
             MappingClientError::io,
             MappingClientError::deserialize
         )?;

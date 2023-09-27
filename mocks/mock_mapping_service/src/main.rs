@@ -7,7 +7,6 @@ mod config;
 use std::{
     io,
     net::SocketAddr,
-    path::Path,
     sync::{Arc, Mutex},
     thread,
 };
@@ -52,12 +51,10 @@ async fn main() {
         .target(Target::Stdout)
         .init();
     
-    let default_config_file = format!("{}.default.{}", CONFIG_FILE, CONFIG_EXT);
-    let overrides_file_name = format!("{}.{}", CONFIG_FILE, CONFIG_EXT);
-    let default_config_path = Path::new(env!("OUT_DIR")).join(default_config_file);
     let config = config_utils::read_from_files(
-        default_config_path,
-        overrides_file_name,
+        CONFIG_FILE,
+        CONFIG_EXT,
+        env!("OUT_DIR"),
         |e| log::error!("{}", e),
         |e| log::error!("{}", e)).unwrap();
 
