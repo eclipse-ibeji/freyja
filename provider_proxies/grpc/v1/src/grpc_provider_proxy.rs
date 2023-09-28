@@ -19,7 +19,7 @@ use samples_protobuf_data_access::sample_grpc::v1::{
 };
 use tonic::transport::{Channel, Server};
 
-use crate::{grpc_client_impl::GRPCClientImpl, config::Config};
+use crate::{config::Config, grpc_client_impl::GRPCClientImpl};
 use freyja_contracts::provider_proxy::{
     OperationKind, ProviderProxy, ProviderProxyError, SignalValue,
 };
@@ -312,7 +312,9 @@ mod grpc_provider_proxy_v1_tests {
             let request_future = async {
                 let client = create_test_grpc_client(bind_path.clone()).await;
                 let grpc_provider_proxy = GRPCProviderProxy {
-                    config: Config { consumer_address: "[::1]:60010".to_string() },
+                    config: Config {
+                        consumer_address: "[::1]:60010".to_string(),
+                    },
                     provider_client: client,
                     entity_operation_map: Arc::new(Mutex::new(HashMap::new())),
                     signal_values_queue: Arc::new(SegQueue::new()),
