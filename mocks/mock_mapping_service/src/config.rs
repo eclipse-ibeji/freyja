@@ -22,6 +22,6 @@ pub struct ConfigItem {
     /// Stop emitting the value after this many calls to the client (or don't stop emitting if None)
     pub end: Option<u8>,
 
-    /// A mapping to apply
+    /// The mapping to apply
     pub value: DigitalTwinMapEntry,
 }

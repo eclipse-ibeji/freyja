@@ -8,18 +8,18 @@ use std::{env, fs, path::Path};
 /// Includes a `cargo:rerun-if-changed` instruction for use in build.rs scripts.
 ///
 /// # Arguments:
-/// - `source`: The source file to copy
+/// - `source_path`: The source file to copy
 /// - `dest_filename`: The filename for the destination
-pub fn copy_to_build_out_dir<P: AsRef<Path>>(source: P, dest_filename: &str) {
+pub fn copy_to_build_out_dir<P: AsRef<Path>>(source_path: P, dest_filename: &str) {
     const OUT_DIR: &str = "OUT_DIR";
 
     let target_dir = env::var(OUT_DIR).unwrap();
     let destination = Path::new(&target_dir).join(dest_filename);
 
-    fs::copy(&source, destination).unwrap();
+    fs::copy(&source_path, destination).unwrap();
 
     println!(
         "cargo:rerun-if-changed={}",
-        source.as_ref().to_str().unwrap()
+        source_path.as_ref().to_str().unwrap()
     );
 }

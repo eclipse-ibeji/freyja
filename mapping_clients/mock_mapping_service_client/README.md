@@ -24,6 +24,6 @@ You can override the default values by defining your own `mock_mapping_client_co
 
 - The default config
 - A `mock_mapping_client_config.json` file in the working directory of the executable (for example, the directory you were in when you ran the `cargo run` command)
-- `$FREYJA_HOME/config/mock_mapping_client_config.json`, which defaults to:
+- `$FREYJA_HOME/config/mock_mapping_client_config.json`. If you have not set a `$FREYJA_HOME` directory, this defaults to:
   - Unix: `$HOME/.freyja/config/mock_mapping_client_config.json`
-  - Windows: `%USERPROFILE%\.freyja\config\mock_mapping_client_config.json` (note that windows support is not guaranteed by Freyja or this adapter)
+  - Windows: `%USERPROFILE%\.freyja\config\mock_mapping_client_config.json` (note that Windows support is not guaranteed by Freyja or this adapter)

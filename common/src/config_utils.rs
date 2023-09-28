@@ -34,27 +34,27 @@ where
     TConfig: for<'a> Deserialize<'a>,
     TPath: AsRef<Path>,
     TIoErrorHandler: Fn(std::io::Error) -> TError,
-    TDeserializeErrorHandler: FnOnce(ConfigError) -> TError,
+    TDeserializeErrorHandler: Fn(ConfigError) -> TError,
 {
     let default_config_filename = format!("{}.default.{}", config_file_name, config_file_ext);
     let default_config_file = default_config_path.as_ref().join(default_config_filename);
 
     let overrides_filename = format!("{}.{}", config_file_name, config_file_ext);
 
-    // <current_dir>/{config}.json
+    // The path below resolves to <current_dir>/{config}.json
     let current_dir_config_path = env::current_dir()
         .map_err(&io_error_handler)?
         .join(overrides_filename.clone());
 
     let freyja_dir_config_path = match env::var(FREYJA_HOME) {
         Ok(freyja_home) => {
-            // $FREYJA_HOME/config/{config}.json
+            // The path below resolves to $FREYJA_HOME/config/{config}.json
             Path::new(&freyja_home)
                 .join(CONFIG_DIR)
                 .join(overrides_filename)
         }
         Err(_) => {
-            // $HOME/.freyja/config/mapping_client_config.json
+            // The path below resolves to $HOME/.freyja/config/{config}.json
             home_dir()
                 .ok_or(io_error_handler(std::io::Error::new(
                     std::io::ErrorKind::Other,
@@ -71,7 +71,7 @@ where
         .add_source(File::from(current_dir_config_path).required(false))
         .add_source(File::from(freyja_dir_config_path).required(false))
         .build()
-        .unwrap();
+        .map_err(&deserialize_error_handler)?;
 
     config_store
         .try_deserialize()
