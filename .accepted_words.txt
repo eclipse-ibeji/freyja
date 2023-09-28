@@ -170,6 +170,7 @@ toolchain
 URI
 uri
 url
+USERPROFILE
 westus
 www
 xamarin

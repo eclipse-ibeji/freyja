@@ -409,7 +409,7 @@ mod signal_store_tests {
         // - emission.next_emission_ms
         // - emission.last_emitted_value
         assert_eq!(updated_signal.value, Default::default());
-        assert_eq!(updated_signal.emission.next_emission_ms, Default::default());
+        assert_eq!(updated_signal.emission.next_emission_ms, u64::default());
         assert_eq!(
             updated_signal.emission.last_emitted_value,
             Default::default()

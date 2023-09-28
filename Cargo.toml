@@ -6,6 +6,7 @@
 # The default resolver for workspaces is different than for regular packages, so use v2 to avoid warnings
 resolver = "2"
 members = [
+  "build_common",
   "cloud_adapters/azure_cloud_connector_adapter",
   "cloud_adapters/in_memory_mock_cloud_adapter",
   "cloud_connectors/azure/mqtt_connector",
@@ -28,6 +29,7 @@ members = [
 [workspace.dependencies]
 # Freyja dependencies
 azure-cloud-connector-proto = { path = "cloud_connectors/azure/proto-build" }
+freyja-build-common = { path = "build_common" }
 freyja-common = { path = "common" }
 freyja-contracts = { path = "contracts" }
 mock-digital-twin = { path = "mocks/mock_digital_twin" }
@@ -42,10 +44,12 @@ service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott"
 # crates.io dependencies
 async-trait = "0.1.64"
 axum = "0.6.12"
+config = "0.13.3"
 convert_case = "0.6.0"
 crossbeam = "0.8.2"
 env_logger = "0.10.0"
 futures = "0.3.28"
+home = "0.5.5"
 httptest = "0.15.4"
 log = "^0.4"
 mockall = "0.11.4"

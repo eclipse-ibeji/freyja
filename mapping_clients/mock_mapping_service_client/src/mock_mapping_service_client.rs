@@ -2,14 +2,17 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{fs, path::Path, time::Duration};
+use std::time::Duration;
 
 use async_trait::async_trait;
 use reqwest::Client;
 
-use crate::mock_mapping_service_client_config::{Config, CONFIG_FILE};
-use freyja_common::utils::execute_with_retry;
+use crate::config::Config;
+use freyja_common::{config_utils, out_dir, retry_utils::execute_with_retry};
 use freyja_contracts::mapping_client::*;
+
+const CONFIG_FILE: &str = "mock_mapping_client_config";
+const CONFIG_EXT: &str = "json";
 
 /// Mocks a mapping provider in memory
 pub struct MockMappingServiceClient {
@@ -27,7 +30,7 @@ pub struct MockMappingServiceClient {
 }
 
 impl MockMappingServiceClient {
-    /// Creates a new instance of a CloudAdapter using a config file.
+    /// Creates a new instance of a MockMappingServiceClient using a config file.
     ///
     /// # Arguments
     /// - `config`: the config
@@ -43,12 +46,15 @@ impl MockMappingServiceClient {
 
 #[async_trait]
 impl MappingClient for MockMappingServiceClient {
-    /// Creates a new instance of a CloudAdapter with default settings
+    /// Creates a new instance of a MockMappingServiceClient with default settings
     fn create_new() -> Result<Self, MappingClientError> {
-        let config_contents = fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE))
-            .map_err(MappingClientError::io)?;
-        let config: Config = serde_json::from_str(config_contents.as_str())
-            .map_err(MappingClientError::deserialize)?;
+        let config = config_utils::read_from_files(
+            CONFIG_FILE,
+            CONFIG_EXT,
+            out_dir!(),
+            MappingClientError::io,
+            MappingClientError::deserialize,
+        )?;
 
         Ok(Self::from_config(config))
     }
