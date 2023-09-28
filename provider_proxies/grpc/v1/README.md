@@ -15,3 +15,4 @@ You can override the default values by defining your own `grpc_proxy_config.json
 - `$FREYJA_HOME/config/grpc_proxy_config.json`. If you have not set a `$FREYJA_HOME` directory, this defaults to:
   - Unix: `$HOME/.freyja/config/grpc_proxy_config.json`
   - Windows: `%USERPROFILE%\.freyja\config\grpc_proxy_config.json` (note that Windows support is not guaranteed by Freyja or this adapter)
+  
