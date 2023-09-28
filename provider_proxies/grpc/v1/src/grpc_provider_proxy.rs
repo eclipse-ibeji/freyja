@@ -10,6 +10,7 @@ use std::{
 
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
+use freyja_common::{config_utils, out_dir};
 use log::info;
 use samples_protobuf_data_access::sample_grpc::v1::{
     digital_twin_consumer::digital_twin_consumer_server::DigitalTwinConsumerServer,
@@ -18,16 +19,21 @@ use samples_protobuf_data_access::sample_grpc::v1::{
 };
 use tonic::transport::{Channel, Server};
 
-use crate::grpc_client_impl::GRPCClientImpl;
+use crate::{grpc_client_impl::GRPCClientImpl, config::Config};
 use freyja_contracts::provider_proxy::{
     OperationKind, ProviderProxy, ProviderProxyError, SignalValue,
 };
 
-const CONSUMER_ADDR: &str = "[::1]:60010";
+const CONFIG_FILE: &str = "grpc_proxy_config";
+const CONFIG_EXT: &str = "json";
 const SUPPORTED_OPERATIONS: &[OperationKind] = &[OperationKind::Get, OperationKind::Subscribe];
 
+/// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
 #[derive(Debug)]
 pub struct GRPCProviderProxy {
+    /// The proxy config
+    config: Config,
+
     /// Client for connecting to a provider
     provider_client: DigitalTwinProviderClient<Channel>,
 
@@ -52,6 +58,14 @@ impl ProviderProxy for GRPCProviderProxy {
     where
         Self: Sized,
     {
+        let config = config_utils::read_from_files(
+            CONFIG_FILE,
+            CONFIG_EXT,
+            out_dir!(),
+            ProviderProxyError::io,
+            ProviderProxyError::deserialize,
+        )?;
+
         let provider_client = futures::executor::block_on(async {
             DigitalTwinProviderClient::connect(String::from(provider_uri))
                 .await
@@ -59,6 +73,7 @@ impl ProviderProxy for GRPCProviderProxy {
         })?;
 
         Ok(GRPCProviderProxy {
+            config,
             provider_client,
             entity_operation_map: Arc::new(Mutex::new(HashMap::new())),
             signal_values_queue,
@@ -70,7 +85,9 @@ impl ProviderProxy for GRPCProviderProxy {
     async fn run(&self) -> Result<(), ProviderProxyError> {
         info!("Started a GRPCProviderProxy!");
 
-        let addr: SocketAddr = CONSUMER_ADDR
+        let addr: SocketAddr = self
+            .config
+            .consumer_address
             .parse()
             .map_err(ProviderProxyError::parse)
             .unwrap();
@@ -94,7 +111,7 @@ impl ProviderProxy for GRPCProviderProxy {
     /// # Arguments
     /// - `entity_id`: the entity id that needs a value
     async fn send_request_to_provider(&self, entity_id: &str) -> Result<(), ProviderProxyError> {
-        let consumer_uri = format!("http://{CONSUMER_ADDR}"); // Devskim: ignore DS137138
+        let consumer_uri = format!("http://{}", self.config.consumer_address); // Devskim: ignore DS137138
 
         let operation_result;
         {
@@ -142,7 +159,7 @@ impl ProviderProxy for GRPCProviderProxy {
             .insert(String::from(entity_id), operation.clone());
 
         if *operation == OperationKind::Subscribe {
-            let consumer_uri = format!("http://{CONSUMER_ADDR}"); // Devskim: ignore DS137138
+            let consumer_uri = format!("http://{}", self.config.consumer_address); // Devskim: ignore DS137138
             let mut client = self.provider_client.clone();
             let request = tonic::Request::new(SubscribeRequest {
                 entity_id: String::from(entity_id),
@@ -295,6 +312,7 @@ mod grpc_provider_proxy_v1_tests {
             let request_future = async {
                 let client = create_test_grpc_client(bind_path.clone()).await;
                 let grpc_provider_proxy = GRPCProviderProxy {
+                    config: Config { consumer_address: "[::1]:60010".to_string() },
                     provider_client: client,
                     entity_operation_map: Arc::new(Mutex::new(HashMap::new())),
                     signal_values_queue: Arc::new(SegQueue::new()),
