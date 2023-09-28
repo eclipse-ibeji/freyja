@@ -6,7 +6,7 @@ The GRPC Provider Proxy interfaces with providers which support GRPC. It acts as
 
 This proxy's default config is located at `res/grpc_proxy_config.default.json` and will be copied to the build output automatically. This proxy supports the following configuration settings:
 
-- `consumer_address`: The listen address for the proxy's consumer
+- `consumer_address`: The address for the proxy's consumer
 
 You can override the default values by defining your own `grpc_proxy_config.json`. The adapter will probe for and unify config in this order, with values near the end of the list taking higher precedence:
 

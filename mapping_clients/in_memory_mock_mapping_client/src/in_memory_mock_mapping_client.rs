@@ -10,8 +10,8 @@ use crate::config::Config;
 use freyja_common::{config_utils, out_dir};
 use freyja_contracts::mapping_client::*;
 
-const CONFIG_FILE: &str = "mock_mapping_config";
-const CONFIG_EXT: &str = "json";
+const CONFIG_FILE_STEM: &str = "mock_mapping_config";
+const CONFIG_FILE_EXT: &str = "json";
 
 /// Mocks a mapping provider in memory
 pub struct InMemoryMockMappingClient {
@@ -41,8 +41,8 @@ impl MappingClient for InMemoryMockMappingClient {
     /// Creates a new instance of an InMemoryMockMappingClient with default settings
     fn create_new() -> Result<Self, MappingClientError> {
         let config = config_utils::read_from_files(
-            CONFIG_FILE,
-            CONFIG_EXT,
+            CONFIG_FILE_STEM,
+            CONFIG_FILE_EXT,
             out_dir!(),
             MappingClientError::io,
             MappingClientError::deserialize,

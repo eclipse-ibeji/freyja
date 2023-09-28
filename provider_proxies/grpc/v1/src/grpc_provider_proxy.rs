@@ -24,8 +24,8 @@ use freyja_contracts::provider_proxy::{
     OperationKind, ProviderProxy, ProviderProxyError, SignalValue,
 };
 
-const CONFIG_FILE: &str = "grpc_proxy_config";
-const CONFIG_EXT: &str = "json";
+const CONFIG_FILE_STEM: &str = "grpc_proxy_config";
+const CONFIG_FILE_EXT: &str = "json";
 const SUPPORTED_OPERATIONS: &[OperationKind] = &[OperationKind::Get, OperationKind::Subscribe];
 
 /// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
@@ -59,8 +59,8 @@ impl ProviderProxy for GRPCProviderProxy {
         Self: Sized,
     {
         let config = config_utils::read_from_files(
-            CONFIG_FILE,
-            CONFIG_EXT,
+            CONFIG_FILE_STEM,
+            CONFIG_FILE_EXT,
             out_dir!(),
             ProviderProxyError::io,
             ProviderProxyError::deserialize,
