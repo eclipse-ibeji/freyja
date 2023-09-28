@@ -8,7 +8,7 @@ use async_trait::async_trait;
 use reqwest::Client;
 
 use crate::config::Config;
-use freyja_common::{config_utils, retry_utils::execute_with_retry};
+use freyja_common::{config_utils, out_dir, retry_utils::execute_with_retry};
 use freyja_contracts::mapping_client::*;
 
 const CONFIG_FILE: &str = "mock_mapping_client_config";
@@ -51,7 +51,7 @@ impl MappingClient for MockMappingServiceClient {
         let config = config_utils::read_from_files(
             CONFIG_FILE,
             CONFIG_EXT,
-            env!("OUT_DIR"),
+            out_dir!(),
             MappingClientError::io,
             MappingClientError::deserialize,
         )?;

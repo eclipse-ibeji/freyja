@@ -18,7 +18,7 @@ use axum::{
     Json, Router, Server,
 };
 use env_logger::Target;
-use freyja_common::config_utils;
+use freyja_common::{config_utils, out_dir};
 use log::{info, LevelFilter};
 
 use config::Config;
@@ -54,7 +54,7 @@ async fn main() {
     let config = config_utils::read_from_files(
         CONFIG_FILE,
         CONFIG_EXT,
-        env!("OUT_DIR"),
+        out_dir!(),
         |e| log::error!("{}", e),
         |e| log::error!("{}", e),
     )

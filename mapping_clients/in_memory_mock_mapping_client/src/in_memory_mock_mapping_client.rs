@@ -2,13 +2,12 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::env;
 use std::sync::atomic::{AtomicU8, Ordering};
 
 use async_trait::async_trait;
 
 use crate::config::Config;
-use freyja_common::config_utils;
+use freyja_common::{config_utils, out_dir};
 use freyja_contracts::mapping_client::*;
 
 const CONFIG_FILE: &str = "mock_mapping_config";
@@ -44,7 +43,7 @@ impl MappingClient for InMemoryMockMappingClient {
         let config = config_utils::read_from_files(
             CONFIG_FILE,
             CONFIG_EXT,
-            env!("OUT_DIR"),
+            out_dir!(),
             MappingClientError::io,
             MappingClientError::deserialize,
         )?;
