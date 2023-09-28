@@ -26,8 +26,8 @@ use freyja_contracts::mapping_client::{
     CheckForWorkResponse, GetMappingResponse, SendInventoryRequest, SendInventoryResponse,
 };
 
-const CONFIG_FILE: &str = "mock_mapping_config";
-const CONFIG_EXT: &str = "json";
+const CONFIG_FILE_STEM: &str = "mock_mapping_config";
+const CONFIG_FILE_EXT: &str = "json";
 
 struct MappingState {
     count: u8,
@@ -52,8 +52,8 @@ async fn main() {
         .init();
 
     let config = config_utils::read_from_files(
-        CONFIG_FILE,
-        CONFIG_EXT,
+        CONFIG_FILE_STEM,
+        CONFIG_FILE_EXT,
         out_dir!(),
         |e| log::error!("{}", e),
         |e| log::error!("{}", e),
