@@ -73,7 +73,5 @@ where
         .build()
         .map_err(&config_error_handler)?;
 
-    config_store
-        .try_deserialize()
-        .map_err(config_error_handler)
+    config_store.try_deserialize().map_err(config_error_handler)
 }
