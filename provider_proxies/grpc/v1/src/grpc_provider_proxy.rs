@@ -37,7 +37,7 @@ pub struct GRPCProviderProxy {
     provider_client: DigitalTwinProviderClient<Channel>,
 
     /// Local cache for keeping track of which entities this provider proxy contains
-    entity_operation_map: Arc<Mutex<HashMap<String, OperationKind>>>,
+    entity_operation_map: Mutex<HashMap<String, OperationKind>>,
 
     /// Shared queue for all proxies to push new signal values of entities
     signal_values_queue: Arc<SegQueue<SignalValue>>,
@@ -74,7 +74,7 @@ impl ProviderProxy for GRPCProviderProxy {
         Ok(GRPCProviderProxy {
             config,
             provider_client,
-            entity_operation_map: Arc::new(Mutex::new(HashMap::new())),
+            entity_operation_map: Mutex::new(HashMap::new()),
             signal_values_queue,
         })
         .map(|r| Box::new(r) as _)
@@ -315,7 +315,7 @@ mod grpc_provider_proxy_v1_tests {
                         consumer_address: "[::1]:60010".to_string(),
                     },
                     provider_client: client,
-                    entity_operation_map: Arc::new(Mutex::new(HashMap::new())),
+                    entity_operation_map: Mutex::new(HashMap::new()),
                     signal_values_queue: Arc::new(SegQueue::new()),
                 };
                 assert!(grpc_provider_proxy
