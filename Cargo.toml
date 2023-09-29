@@ -51,10 +51,8 @@ log = "^0.4"
 mockall = "0.11.4"
 paho-mqtt = "0.12"
 proc-macro2 = "1.0.52"
-prost = "0.11.9"
 quote = "1.0.23"
 reqwest = { version = "0.11.4", features = ["json"] }
-rstest = "0.18.1"
 serde = { version = "1.0.88", features = ["derive"] }
 serde_json = "1.0.88"
 strum = "0.25.0"

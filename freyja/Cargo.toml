@@ -9,7 +9,6 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-async-trait = { workspace = true }
 crossbeam = { workspace = true }
 env_logger = { workspace = true }
 freyja-contracts = { workspace = true }
@@ -23,6 +22,7 @@ tokio = { workspace = true }
 [dev-dependencies]
 # Dependencies for testing
 mockall = { workspace = true }
+async-trait = { workspace = true }
 
 # Dependencies for examples
 in-memory-mock-cloud-adapter = { path = "../cloud_adapters/in_memory_mock_cloud_adapter" }

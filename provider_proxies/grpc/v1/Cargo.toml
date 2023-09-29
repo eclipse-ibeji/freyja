@@ -15,15 +15,15 @@ freyja-common = { workspace = true }
 freyja-contracts = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
-proc-macros = { workspace = true }
 samples-protobuf-data-access  = { workspace = true }
 serde = { workspace = true }
-serde_json = { workspace = true }
 tempfile = { workspace = true }
-tokio = { workspace = true }
-tokio-stream = { workspace = true }
 tonic = { workspace = true }
 tower = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
+tokio-stream = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }
