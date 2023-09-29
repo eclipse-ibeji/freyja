@@ -7,13 +7,9 @@
 resolver = "2"
 members = [
   "build_common",
-  "cloud_adapters/azure_cloud_connector_adapter",
   "cloud_adapters/in_memory_mock_cloud_adapter",
-  "cloud_connectors/azure/mqtt_connector",
-  "cloud_connectors/azure/proto-build",
   "common",
   "contracts",
-  "digital_twin_adapters/ibeji_adapter",
   "digital_twin_adapters/in_memory_mock_digital_twin_adapter",
   "digital_twin_adapters/mock_digital_twin_adapter",
   "freyja",
@@ -29,7 +25,6 @@ members = [
 
 [workspace.dependencies]
 # Freyja dependencies
-azure-cloud-connector-proto = { path = "cloud_connectors/azure/proto-build" }
 freyja-build-common = { path = "build_common" }
 freyja-common = { path = "common" }
 freyja-contracts = { path = "contracts" }
