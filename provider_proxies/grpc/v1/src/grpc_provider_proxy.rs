@@ -25,7 +25,6 @@ use freyja_contracts::provider_proxy::{
 };
 
 const CONFIG_FILE_STEM: &str = "grpc_proxy_config";
-const CONFIG_FILE_EXT: &str = "json";
 const SUPPORTED_OPERATIONS: &[OperationKind] = &[OperationKind::Get, OperationKind::Subscribe];
 
 /// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
@@ -38,7 +37,7 @@ pub struct GRPCProviderProxy {
     provider_client: DigitalTwinProviderClient<Channel>,
 
     /// Local cache for keeping track of which entities this provider proxy contains
-    entity_operation_map: Arc<Mutex<HashMap<String, OperationKind>>>,
+    entity_operation_map: Mutex<HashMap<String, OperationKind>>,
 
     /// Shared queue for all proxies to push new signal values of entities
     signal_values_queue: Arc<SegQueue<SignalValue>>,
@@ -60,7 +59,7 @@ impl ProviderProxy for GRPCProviderProxy {
     {
         let config = config_utils::read_from_files(
             CONFIG_FILE_STEM,
-            CONFIG_FILE_EXT,
+            config_utils::JSON_EXT,
             out_dir!(),
             ProviderProxyError::io,
             ProviderProxyError::deserialize,
@@ -75,7 +74,7 @@ impl ProviderProxy for GRPCProviderProxy {
         Ok(GRPCProviderProxy {
             config,
             provider_client,
-            entity_operation_map: Arc::new(Mutex::new(HashMap::new())),
+            entity_operation_map: Mutex::new(HashMap::new()),
             signal_values_queue,
         })
         .map(|r| Box::new(r) as _)
@@ -316,7 +315,7 @@ mod grpc_provider_proxy_v1_tests {
                         consumer_address: "[::1]:60010".to_string(),
                     },
                     provider_client: client,
-                    entity_operation_map: Arc::new(Mutex::new(HashMap::new())),
+                    entity_operation_map: Mutex::new(HashMap::new()),
                     signal_values_queue: Arc::new(SegQueue::new()),
                 };
                 assert!(grpc_provider_proxy

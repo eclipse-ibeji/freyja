@@ -12,7 +12,6 @@ use freyja_common::{config_utils, out_dir, retry_utils::execute_with_retry};
 use freyja_contracts::mapping_client::*;
 
 const CONFIG_FILE_STEM: &str = "mock_mapping_client_config";
-const CONFIG_FILE_EXT: &str = "json";
 
 /// Mocks a mapping provider in memory
 pub struct MockMappingServiceClient {
@@ -50,7 +49,7 @@ impl MappingClient for MockMappingServiceClient {
     fn create_new() -> Result<Self, MappingClientError> {
         let config = config_utils::read_from_files(
             CONFIG_FILE_STEM,
-            CONFIG_FILE_EXT,
+            config_utils::JSON_EXT,
             out_dir!(),
             MappingClientError::io,
             MappingClientError::deserialize,

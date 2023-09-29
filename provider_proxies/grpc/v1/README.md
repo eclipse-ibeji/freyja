@@ -4,14 +4,8 @@ The GRPC Provider Proxy interfaces with providers which support GRPC. It acts as
 
 ## Configuration
 
-This proxy's default config is located at `res/grpc_proxy_config.default.json` and will be copied to the build output automatically. This proxy supports the following configuration settings:
+This proxy supports the following configuration settings:
 
 - `consumer_address`: The address for the proxy's consumer
 
-You can override the default values by defining your own `grpc_proxy_config.json`. The adapter will probe for and unify config in this order, with values near the end of the list taking higher precedence:
-
-- The default config
-- A `grpc_proxy_config.json` file in the working directory of the executable (for example, the directory you were in when you ran the `cargo run` command)
-- `$FREYJA_HOME/config/grpc_proxy_config.json`. If you have not set a `$FREYJA_HOME` directory, this defaults to:
-  - Unix: `$HOME/.freyja/config/grpc_proxy_config.json`
-  - Windows: `%USERPROFILE%\.freyja\config\grpc_proxy_config.json` (note that Windows support is not guaranteed by Freyja or this adapter)
+This adapter supports [config overrides](../../../docs/config-overrides.md). The override filename is `grpc_proxy_config.json`, and the default config is located at `res/grpc_proxy_config.default.json`.

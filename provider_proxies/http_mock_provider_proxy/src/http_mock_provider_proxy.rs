@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 use std::sync::{Arc, Mutex};
-use std::{collections::HashMap, fs, net::SocketAddr, path::Path, str::FromStr};
+use std::{collections::HashMap, net::SocketAddr, str::FromStr};
 
 use async_trait::async_trait;
 use axum::extract::{Json, State};
@@ -11,16 +11,19 @@ use axum::response::{IntoResponse, Response};
 use axum::routing::post;
 use axum::Router;
 use crossbeam::queue::SegQueue;
+use freyja_common::{config_utils, out_dir};
 use log::{debug, error, info};
 use reqwest::Client;
 
-use crate::config::{Settings, CALLBACK_FOR_VALUES_PATH, CONFIG_FILE};
+use crate::config::Config;
 use freyja_contracts::digital_twin_adapter::{EntityValueRequest, EntityValueResponse};
 use freyja_contracts::provider_proxy::{
     OperationKind, ProviderProxy, ProviderProxyError, SignalValue,
 };
 
+const CONFIG_FILE_STEM: &str = "http_mock_provider_proxy";
 const SUPPORTED_OPERATIONS: &[OperationKind] = &[OperationKind::Get, OperationKind::Subscribe];
+const CALLBACK_FOR_VALUES_PATH: &str = "/value";
 
 macro_rules! ok {
     () => {
@@ -38,62 +41,19 @@ pub struct HttpMockProviderProxy {
     client: Client,
 
     /// Local cache for keeping track of which entities this provider proxy contains
-    entity_operation_map: Arc<Mutex<HashMap<String, OperationKind>>>,
+    entity_operation_map: Mutex<HashMap<String, OperationKind>>,
 
     /// Shared queue for all proxies to push new signal values
     signal_values_queue: Arc<SegQueue<SignalValue>>,
 
-    /// The callback server authority for receiving values from the mock digital twin
-    provider_callback_authority: String,
+    /// The proxy configuration
+    config: Config,
 
     /// The uri of the provider
     provider_uri: String,
 }
 
 impl HttpMockProviderProxy {
-    /// Creates a new HttpProviderProxy with config from the specified file
-    ///
-    /// # Arguments
-    /// - `config_path`: the path to the config file
-    /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
-    /// - `provider_uri`: the provider uri
-    pub fn from_config_file<P: AsRef<Path>>(
-        config_path: P,
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
-        provider_uri: &str,
-    ) -> Result<Self, ProviderProxyError> {
-        let settings_content = fs::read_to_string(config_path).map_err(ProviderProxyError::io)?;
-
-        let settings: Settings = serde_json::from_str(settings_content.as_str())
-            .map_err(ProviderProxyError::deserialize)?;
-
-        Self::new(
-            signal_values_queue,
-            settings.provider_callback_authority,
-            provider_uri,
-        )
-    }
-
-    /// Creates a new HttpProviderProxy
-    ///
-    /// # Arguments
-    /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
-    /// - `provider_callback_authority`: the callback server authority for receiving values from the mock digital twin
-    /// - `provider_uri`: the provider uri
-    pub fn new(
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
-        provider_callback_authority: String,
-        provider_uri: &str,
-    ) -> Result<Self, ProviderProxyError> {
-        Ok(Self {
-            client: reqwest::Client::new(),
-            entity_operation_map: Arc::new(Mutex::new(HashMap::new())),
-            signal_values_queue,
-            provider_callback_authority,
-            provider_uri: String::from(provider_uri),
-        })
-    }
-
     /// Constructs a callback uri using a callback server authority and path
     ///
     /// # Arguments
@@ -132,7 +92,7 @@ impl HttpMockProviderProxy {
         &self,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Result<(), ProviderProxyError> {
-        let server_endpoint_addr = SocketAddr::from_str(&self.provider_callback_authority)
+        let server_endpoint_addr = SocketAddr::from_str(&self.config.proxy_callback_address)
             .map_err(ProviderProxyError::parse)?;
         // Start a listener server to have a digital twin provider push data
         // http://{provider_callback_authority}/value
@@ -152,7 +112,7 @@ impl HttpMockProviderProxy {
 
         info!(
             "Http Provider Proxy listening at http://{}", // Devskim: ignore DS137138
-            self.provider_callback_authority
+            self.config.proxy_callback_address
         );
         Ok(())
     }
@@ -172,11 +132,21 @@ impl ProviderProxy for HttpMockProviderProxy {
     where
         Self: Sized,
     {
-        Self::from_config_file(
-            Path::new(env!("OUT_DIR")).join(CONFIG_FILE),
+        let config = config_utils::read_from_files(
+            CONFIG_FILE_STEM,
+            config_utils::JSON_EXT,
+            out_dir!(),
+            ProviderProxyError::io,
+            ProviderProxyError::deserialize,
+        )?;
+
+        Ok(Self {
             signal_values_queue,
-            provider_uri,
-        )
+            config,
+            provider_uri: provider_uri.to_string(),
+            client: reqwest::Client::new(),
+            entity_operation_map: Mutex::new(HashMap::new()),
+        })
         .map(|r| Box::new(r) as _)
     }
 
@@ -212,7 +182,7 @@ impl ProviderProxy for HttpMockProviderProxy {
 
             let request = EntityValueRequest {
                 entity_id: String::from(entity_id),
-                callback_uri: Self::construct_callback_uri(&self.provider_callback_authority),
+                callback_uri: Self::construct_callback_uri(&self.config.proxy_callback_address),
             };
             let server_endpoint = self.provider_uri.clone();
 
@@ -252,7 +222,7 @@ impl ProviderProxy for HttpMockProviderProxy {
         // Subscribe
         let request = EntityValueRequest {
             entity_id: String::from(entity_id),
-            callback_uri: Self::construct_callback_uri(&self.provider_callback_authority),
+            callback_uri: Self::construct_callback_uri(&self.config.proxy_callback_address),
         };
 
         let subscribe_endpoint_for_entity = self.provider_uri.clone();
