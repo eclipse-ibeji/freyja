@@ -4,12 +4,9 @@
 
 use serde::{Deserialize, Serialize};
 
-pub(crate) const CONFIG_FILE: &str = "config.json";
-pub(crate) const CALLBACK_FOR_VALUES_PATH: &str = "/value";
-
-/// Settings for http provider proxy
+/// Config for the http mock provider proxy
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub(crate) struct Settings {
-    /// the callback server authority for receiving signals from the mock digital twin
-    pub provider_callback_authority: String,
+pub(crate) struct Config {
+    /// The callback address for receiving signals from the mock digital twin
+    pub proxy_callback_address: String,
 }

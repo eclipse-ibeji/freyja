@@ -1,6 +1,6 @@
 {
-    "interval_between_signal_generation_ms": 1000,
-    "entity_configs": [
+    "signal_update_frequency_ms": 1000,
+    "entities": [
         {
             "entity_id": "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1",
             "values": {

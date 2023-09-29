@@ -8,6 +8,8 @@ use config::{ConfigError, File};
 use home::home_dir;
 use serde::Deserialize;
 
+pub const JSON_EXT: &str = "json";
+
 const CONFIG_DIR: &str = "config";
 const DOT_FREYJA_DIR: &str = ".freyja";
 const FREYJA_HOME: &str = "FREYJA_HOME";

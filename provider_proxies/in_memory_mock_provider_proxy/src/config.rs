@@ -4,6 +4,16 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Config for the in-memory mock provider proxy
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Config {
+    /// The frequency between updates to signal values in milliseconds
+    pub signal_update_frequency_ms: u64,
+
+    /// The entites to mock
+    pub entities: Vec<EntityConfig>,
+}
+
 /// Configuration for a entity
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EntityConfig {
@@ -12,13 +22,6 @@ pub struct EntityConfig {
 
     /// The config for the sensor values
     pub values: SensorValueConfig,
-}
-
-/// Settings for in memory mock provider proxy
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Settings {
-    pub interval_between_signal_generation_ms: u64,
-    pub entity_configs: Vec<EntityConfig>,
 }
 
 /// Configuration for a mock sensor

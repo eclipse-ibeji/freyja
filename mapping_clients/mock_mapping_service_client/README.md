@@ -14,16 +14,10 @@ For instructions on other operating systems, see the full documentation [here](h
 
 ## Config
 
-The adapter's default config is located at `res/mock_mapping_client_config.default.json` and will be copied to the build output automatically. This file contains the following properties:
+This adapter supports the following configuration settings:
 
 - `max_retires`: the maximum number of retries permitted when attempting to call the mock service
 - `retry_interval_ms`: the interval between subsequent retry attempts, in milliseconds
 - `mock_mapping_service_url`: the url for the Mock Mapping Service Client
 
-You can override the default values by defining your own `mock_mapping_client_config.json`. The adapter will probe for and unify config in this order, with values near the end of the list taking higher precedence:
-
-- The default config
-- A `mock_mapping_client_config.json` file in the working directory of the executable (for example, the directory you were in when you ran the `cargo run` command)
-- `$FREYJA_HOME/config/mock_mapping_client_config.json`. If you have not set a `$FREYJA_HOME` directory, this defaults to:
-  - Unix: `$HOME/.freyja/config/mock_mapping_client_config.json`
-  - Windows: `%USERPROFILE%\.freyja\config\mock_mapping_client_config.json` (note that Windows support is not guaranteed by Freyja or this adapter)
+This adapter supports [config overrides](../../../docs/config-overrides.md). The override filename is `mock_mapping_client_config.json`, and the default config is located at `res/mock_mapping_client_config.default.json`.
