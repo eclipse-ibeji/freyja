@@ -12,8 +12,8 @@ This adapter supports the following configuration settings:
   - `value`: a mapping that should be emitted at some point during the application's lifetime. This has the following properties:
     - `source`: the ID of the entity that will be used as the source for this mapping. This should match something that's retrievable with the `find_by_id` API of the digital twin adapter that you're using.
     - `target`: a set of key-value pairs that will be passed to the cloud adapter. This is completely free-form, and will potentially be used by the cloud adapter to help with addressing the correct digital twin instance and/or properties for upstream data emissions.
-    - `interval_ms`: the interval at which the entity should be queried for changes
-    - `emit_on_change`: a value indicating whether data emission should be skipped if the value hasn't changed since the last emission. Set to true to enable this behavior.
+    - `interval_ms`: the interval (in milliseconds) at which the entity should be queried for changes
+    - `emit_on_change`: a boolean indicating whether data emission should be skipped if the value hasn't changed since the last emission. Set to `true` to enable this behavior.
     - `conversion`: a conversion that should be applied. Set to `null` if no conversion is needed. Otherwise the conversion is configured with the `mul` and `offset` properties, and the value `y` that is emitted is calculated as `y = mul * x + offset`. Note that conversions are only supported for signal values which can be parsed as `f64`.
 
 This adapter supports [config overrides](../../docs/config-overrides.md). The override filename is `mock_mapping_config.json`, and the default config is located at `res/mock_mapping_config.default.json`.

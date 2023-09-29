@@ -6,7 +6,7 @@ The In-Memory Mock Provider Proxy mocks a provider within the memory of a Freyja
 
 This proxy supports the following configuration settings:
 
-- `signal_update_frequency_ms`: The frequency between updates to signal values. This mimics the publish frequency of a real provider.
+- `signal_update_frequency_ms`: The frequency between updates to signal values in milliseconds. This mimics the publish frequency of a real provider.
 - `entities`: A list of entity configuration items with the following properties:
   - `entity_id`: The id of an entity to mock
   - `values`: defines the values that the entity's signal should take. This can take one of two forms:
