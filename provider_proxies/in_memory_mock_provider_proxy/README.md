@@ -20,8 +20,8 @@ This adapter supports [config overrides](../../../docs/config-overrides.md). The
 
 ## Behavior
 
-The application maintains an internal count for each entity to generate its signal values. An entity's signal value is derived from its count based on the entity's `values` configuation.
+The application maintains an internal count for each entity to generate its signal values. An entity's signal value is derived from its count based on the entity's `values` configuration.
 
 Entities that support the `Subscribe` operation will mock a subscribe operation. The proxy will periodically update signal values and the associated internal counter at the frequency specified by `signal_update_frequency_ms`.
 
-Entites that support the `Get` operation will provide their values on-demand. The internal count for these entities is updated each time the value is requested, and is not based on a set frequency like the `Subscribe` entites.
+Entities that support the `Get` operation will provide their values on-demand. The internal count for these entities is updated each time the value is requested, and is not based on a set frequency like the `Subscribe` entities.
