@@ -6,6 +6,13 @@ use serde::{Deserialize, Serialize};
 
 use freyja_contracts::entity::Entity;
 
+/// The in-memory mock digital twin's config
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Config {
+    /// The set of config values
+    pub values: Vec<EntityConfig>,
+}
+
 /// Configuration for a entity
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EntityConfig {
