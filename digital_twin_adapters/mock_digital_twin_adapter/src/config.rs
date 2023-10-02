@@ -4,11 +4,9 @@
 
 use serde::{Deserialize, Serialize};
 
-pub const CONFIG_FILE: &str = "config.json";
-
-/// Settings for http provider proxy
+/// Config for the mock digital twin adapter
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub(crate) struct Settings {
-    /// the base uri for the digital twin server
-    pub base_uri_for_digital_twin_server: String,
+pub struct Config {
+    /// the base uri for the digital twin service
+    pub digital_twin_service_uri: String,
 }

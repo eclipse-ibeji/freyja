@@ -2,40 +2,39 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{fs, path::Path};
-
 use async_trait::async_trait;
+use freyja_common::{config_utils, out_dir};
 use reqwest::Client;
-use serde_json;
 
-use crate::config::{Settings, CONFIG_FILE};
+use crate::config::Config;
 use freyja_contracts::digital_twin_adapter::{
     DigitalTwinAdapter, DigitalTwinAdapterError, GetDigitalTwinProviderRequest,
     GetDigitalTwinProviderResponse,
 };
-
 use mock_digital_twin::ENTITY_QUERY_PATH;
+
+const CONFIG_FILE_STEM: &str = "mock_digital_twin_adapter_config";
 
 /// Mocks a Digital Twin Adapter that calls the mocks/mock_digital_twin
 /// to get entity access info.
 pub struct MockDigitalTwinAdapter {
-    /// Base uri for finding an entity's info
-    base_uri_for_digital_twin_server: String,
+    /// The adapter config
+    config: Config,
 
     /// Async Reqwest HTTP Client
     client: Client,
 }
 
 impl MockDigitalTwinAdapter {
-    /// Creates a new instance of a MockDigitalTwinAdapter
+    /// Creates a new MockDigitalTwinAdapter with the specified config
     ///
     /// # Arguments
-    /// - `base_uri_for_entity_info`: the base uri for finding entities' access info
-    pub fn with_uri(base_uri_for_entity_info: &str) -> Self {
-        Self {
-            base_uri_for_digital_twin_server: String::from(base_uri_for_entity_info),
-            client: reqwest::Client::new(),
-        }
+    /// - `config`: the config to use
+    pub fn from_config(config: Config) -> Result<Self, DigitalTwinAdapterError> {
+        Ok(Self {
+            config,
+            client: Client::new(),
+        })
     }
 
     /// Helper to map HTTP error codes to our own error type
@@ -56,12 +55,15 @@ impl MockDigitalTwinAdapter {
 impl DigitalTwinAdapter for MockDigitalTwinAdapter {
     /// Creates a new instance of a MockDigitalTwinAdapter
     fn create_new() -> Result<Self, DigitalTwinAdapterError> {
-        let settings_content = fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE))
-            .map_err(DigitalTwinAdapterError::io)?;
-        let settings: Settings = serde_json::from_str(settings_content.as_str())
-            .map_err(DigitalTwinAdapterError::deserialize)?;
+        let config = config_utils::read_from_files(
+            CONFIG_FILE_STEM,
+            config_utils::JSON_EXT,
+            out_dir!(),
+            DigitalTwinAdapterError::io,
+            DigitalTwinAdapterError::deserialize,
+        )?;
 
-        Ok(Self::with_uri(&settings.base_uri_for_digital_twin_server))
+        Self::from_config(config)
     }
 
     /// Gets the info of an entity via an HTTP request.
@@ -74,7 +76,7 @@ impl DigitalTwinAdapter for MockDigitalTwinAdapter {
     ) -> Result<GetDigitalTwinProviderResponse, DigitalTwinAdapterError> {
         let target = format!(
             "{}{ENTITY_QUERY_PATH}{}",
-            self.base_uri_for_digital_twin_server, request.entity_id
+            self.config.digital_twin_service_uri, request.entity_id
         );
 
         self.client

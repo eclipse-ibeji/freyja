@@ -15,6 +15,7 @@ members = [
   "freyja",
   "mapping_clients/in_memory_mock_mapping_client",
   "mapping_clients/mock_mapping_service_client",
+  "mocks/mock_digital_twin",
   "mocks/mock_mapping_service",
   "proc_macros",
   "provider_proxies/grpc/v1",

@@ -2,23 +2,19 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{env, fs, path::Path};
+use std::env;
 
-const OUT_DIR: &str = "OUT_DIR";
-const RESOURCE_DIR: &str = "res";
-const CONFIG_FILE: &str = "config.json";
+use freyja_build_common::copy_to_build_out_dir;
+
+const RES_DIR_NAME: &str = "res";
+const DEFAULT_CONFIG_FILE: &str = "mock_digital_twin_adapter_config.default.json";
 
 fn main() {
     // Current directory of the build script is the package's root directory
     let config_path = env::current_dir()
         .unwrap()
-        .join(RESOURCE_DIR)
-        .join(CONFIG_FILE);
+        .join(RES_DIR_NAME)
+        .join(DEFAULT_CONFIG_FILE);
 
-    let target_dir = env::var(OUT_DIR).unwrap();
-    let dest_path = Path::new(&target_dir).join(CONFIG_FILE);
-
-    fs::copy(&config_path, dest_path).unwrap();
-
-    println!("cargo:rerun-if-changed={}", config_path.to_str().unwrap());
+    copy_to_build_out_dir(config_path, DEFAULT_CONFIG_FILE);
 }

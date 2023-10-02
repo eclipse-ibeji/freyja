@@ -2,48 +2,31 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{fs, path::Path};
-
 use async_trait::async_trait;
 
-use crate::config::EntityConfig;
+use crate::config::Config;
+use freyja_common::{config_utils, out_dir};
 use freyja_contracts::digital_twin_adapter::{
     DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind,
     GetDigitalTwinProviderRequest, GetDigitalTwinProviderResponse,
 };
 
-const CONFIG_FILE: &str = "config.json";
+const CONFIG_FILE_STEM: &str = "in_memory_digital_twin_config";
 
 /// In-memory mock that mocks finding endpoint info about entities
 /// through find by id
 pub struct InMemoryMockDigitalTwinAdapter {
-    /// Stores configs about entities
-    data: Vec<EntityConfig>,
+    /// The adapter config
+    config: Config,
 }
 
 impl InMemoryMockDigitalTwinAdapter {
-    /// Creates a new InMemoryMockDigitalTwinAdapter with config from the specified file
-    ///
-    /// # Arguments
-    /// - `config_path`: the path to the config to use
-    pub fn from_config_file<P: AsRef<Path>>(
-        config_path: P,
-    ) -> Result<Self, DigitalTwinAdapterError> {
-        let config_contents =
-            fs::read_to_string(config_path).map_err(DigitalTwinAdapterError::io)?;
-
-        let config: Vec<EntityConfig> = serde_json::from_str(config_contents.as_str())
-            .map_err(DigitalTwinAdapterError::deserialize)?;
-
-        Self::from_config(config)
-    }
-
     /// Creates a new InMemoryMockDigitalTwinAdapter with the specified config
     ///
     /// # Arguments
     /// - `config`: the config to use
-    pub fn from_config(config: Vec<EntityConfig>) -> Result<Self, DigitalTwinAdapterError> {
-        Ok(Self { data: config })
+    pub fn from_config(config: Config) -> Result<Self, DigitalTwinAdapterError> {
+        Ok(Self { config })
     }
 }
 
@@ -51,7 +34,15 @@ impl InMemoryMockDigitalTwinAdapter {
 impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
     fn create_new() -> Result<Self, DigitalTwinAdapterError> {
-        Self::from_config_file(Path::new(env!("OUT_DIR")).join(CONFIG_FILE))
+        let config = config_utils::read_from_files(
+            CONFIG_FILE_STEM,
+            config_utils::JSON_EXT,
+            out_dir!(),
+            DigitalTwinAdapterError::io,
+            DigitalTwinAdapterError::deserialize,
+        )?;
+
+        Self::from_config(config)
     }
 
     /// Gets the entity information based on the request
@@ -62,7 +53,8 @@ impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
         &self,
         request: GetDigitalTwinProviderRequest,
     ) -> Result<GetDigitalTwinProviderResponse, DigitalTwinAdapterError> {
-        self.data
+        self.config
+            .values
             .iter()
             .find(|entity_config| entity_config.entity.id == request.entity_id)
             .map(|entity_config| GetDigitalTwinProviderResponse {
@@ -76,16 +68,11 @@ impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
 mod in_memory_mock_digital_twin_adapter_tests {
     use super::*;
 
+    use crate::config::EntityConfig;
     use freyja_contracts::{entity::Entity, provider_proxy::OperationKind};
 
     #[test]
-    fn from_config_file_returns_err_on_nonexistent_file() {
-        let result = InMemoryMockDigitalTwinAdapter::from_config_file("fake_file.foo");
-        assert!(result.is_err());
-    }
-
-    #[test]
-    fn can_get_default_config() {
+    fn can_create_new() {
         let result = InMemoryMockDigitalTwinAdapter::create_new();
         assert!(result.is_ok());
     }
@@ -94,18 +81,20 @@ mod in_memory_mock_digital_twin_adapter_tests {
     async fn find_by_id_test() {
         const ENTITY_ID: &str = "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1";
 
-        let data = vec![EntityConfig {
-            entity: Entity {
-                id: String::from(ENTITY_ID),
-                name: None,
-                uri: String::from("http://0.0.0.0:1111"), // Devskim: ignore DS137138
-                description: None,
-                operation: OperationKind::Subscribe,
-                protocol: String::from("in-memory"),
-            },
-        }];
+        let config = Config {
+            values: vec![EntityConfig {
+                entity: Entity {
+                    id: String::from(ENTITY_ID),
+                    name: None,
+                    uri: String::from("http://0.0.0.0:1111"), // Devskim: ignore DS137138
+                    description: None,
+                    operation: OperationKind::Subscribe,
+                    protocol: String::from("in-memory"),
+                },
+            }],
+        };
 
-        let in_memory_digital_twin_adapter = InMemoryMockDigitalTwinAdapter { data };
+        let in_memory_digital_twin_adapter = InMemoryMockDigitalTwinAdapter { config };
         let request = GetDigitalTwinProviderRequest {
             entity_id: String::from(ENTITY_ID),
         };

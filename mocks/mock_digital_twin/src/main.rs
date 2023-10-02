@@ -6,24 +6,25 @@ mod config;
 
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex};
-use std::{fs, io, net::SocketAddr, path::Path, thread, time::Duration};
+use std::{io, net::SocketAddr, thread, time::Duration};
 
 use axum::response::{IntoResponse, Response};
 use axum::routing::{get, post};
 use axum::{extract, extract::State, Json, Router, Server};
 use env_logger::Target;
+use freyja_common::{config_utils, out_dir};
 use log::{debug, error, info, warn, LevelFilter};
 use reqwest::Client;
 use serde::Deserialize;
 use tokio::sync::{mpsc, mpsc::UnboundedSender};
 
-use config::{ConfigItem, Settings, CONFIG_FILE};
+use crate::config::{Config, EntityConfig};
 use freyja_contracts::digital_twin_adapter::{
     EntityValueRequest, EntityValueResponse, GetDigitalTwinProviderResponse,
 };
-use freyja_contracts::entity::Entity;
 use mock_digital_twin::{ENTITY_GET_VALUE_PATH, ENTITY_PATH, ENTITY_SUBSCRIBE_PATH};
 
+const CONFIG_FILE_STEM: &str = "mock_digital_twin_config";
 const GET_OPERATION: &str = "Get";
 const SUBSCRIBE_OPERATION: &str = "Subscribe";
 
@@ -31,7 +32,7 @@ const SUBSCRIBE_OPERATION: &str = "Subscribe";
 /// for getting/subscribing to an entity.
 struct DigitalTwinAdapterState {
     count: u8,
-    entities: Vec<(ConfigItem, u8)>,
+    entities: Vec<(EntityConfig, u8)>,
     subscriptions: HashMap<String, HashSet<String>>,
     response_channel_sender: UnboundedSender<(String, EntityValueResponse)>,
 }
@@ -90,19 +91,24 @@ async fn main() {
         .target(Target::Stdout)
         .init();
 
-    let settings_content =
-        fs::read_to_string(Path::new(env!("OUT_DIR")).join(CONFIG_FILE)).unwrap();
-    let settings: Settings = serde_json::from_str(settings_content.as_str()).unwrap();
-    let config_items = settings.config_items;
+    let config: Config = config_utils::read_from_files(
+        CONFIG_FILE_STEM,
+        config_utils::JSON_EXT,
+        out_dir!(),
+        |e| log::error!("{}", e),
+        |e| log::error!("{}", e),
+    )
+    .unwrap();
 
     let (sender, mut receiver) = mpsc::unbounded_channel::<(String, EntityValueResponse)>();
 
     let state = Arc::new(Mutex::new(DigitalTwinAdapterState {
         count: 0,
-        entities: config_items.iter().map(|c| (c.clone(), 0)).collect(),
-        subscriptions: config_items
+        entities: config.entities.iter().map(|c| (c.clone(), 0)).collect(),
+        subscriptions: config
+            .entities
             .iter()
-            .map(|c| (c.value.entity.id.clone(), HashSet::new()))
+            .map(|c| (c.entity.id.clone(), HashSet::new()))
             .collect(),
         response_channel_sender: sender,
     }));
@@ -216,7 +222,7 @@ async fn main() {
     // HTTP server setup
     info!(
         "Mock Digital Twin Adapter Server starting at {}",
-        settings.digital_twin_server_authority
+        config.digital_twin_server_authority
     );
 
     let app = Router::new()
@@ -226,7 +232,7 @@ async fn main() {
         .with_state(state);
 
     Server::bind(
-        &settings
+        &config
             .digital_twin_server_authority
             .parse::<SocketAddr>()
             .expect("unable to parse socket address"),
@@ -249,23 +255,17 @@ async fn get_entity(
     let state = state.lock().unwrap();
     find_entity(&state, &query.id)
         .map(|(config_item, _)| {
-            let operation_path =
-                if config_item.value.entity.operation.to_string() == SUBSCRIBE_OPERATION {
-                    ENTITY_SUBSCRIBE_PATH
-                } else if config_item.value.entity.operation.to_string() == GET_OPERATION {
-                    ENTITY_GET_VALUE_PATH
-                } else {
-                    return server_error!("Entity didn't have a valid operation");
-                };
-
-            let entity = Entity {
-                id: config_item.value.entity.id.clone(),
-                name: config_item.value.entity.name.clone(),
-                uri: format!("{}{operation_path}", config_item.value.entity.uri),
-                description: config_item.value.entity.description.clone(),
-                operation: config_item.value.entity.operation.clone(),
-                protocol: config_item.value.entity.protocol.clone(),
+            let operation_path = if config_item.entity.operation.to_string() == SUBSCRIBE_OPERATION
+            {
+                ENTITY_SUBSCRIBE_PATH
+            } else if config_item.entity.operation.to_string() == GET_OPERATION {
+                ENTITY_GET_VALUE_PATH
+            } else {
+                return server_error!("Entity didn't have a valid operation");
             };
+
+            let mut entity = config_item.entity.clone();
+            entity.uri = format!("{}{operation_path}", config_item.entity.uri);
 
             ok!(GetDigitalTwinProviderResponse { entity })
         })
@@ -354,11 +354,10 @@ fn get_active_entity_names(state: &DigitalTwinAdapterState) -> Vec<String> {
             if within_bounds(state.count, config_item.begin, config_item.end) {
                 Some(
                     config_item
-                        .value
                         .entity
                         .name
                         .clone()
-                        .unwrap_or_else(|| config_item.value.entity.id.clone()),
+                        .unwrap_or_else(|| config_item.entity.id.clone()),
                 )
             } else {
                 None
@@ -375,12 +374,12 @@ fn get_active_entity_names(state: &DigitalTwinAdapterState) -> Vec<String> {
 fn find_entity<'a>(
     state: &'a DigitalTwinAdapterState,
     id: &'a String,
-) -> Option<&'a (ConfigItem, u8)> {
+) -> Option<&'a (EntityConfig, u8)> {
     state
         .entities
         .iter()
         .filter(|(config_item, _)| within_bounds(state.count, config_item.begin, config_item.end))
-        .find(|(config_item, _)| config_item.value.entity.id == *id)
+        .find(|(config_item, _)| config_item.entity.id == *id)
 }
 
 /// Gets an entity's value
@@ -394,9 +393,9 @@ fn get_entity_value(state: &mut DigitalTwinAdapterState, id: &str) -> Option<Str
         .entities
         .iter_mut()
         .filter(|(config_item, _)| within_bounds(n, config_item.begin, config_item.end))
-        .find(|(config_item, _)| config_item.value.entity.id == *id)
+        .find(|(config_item, _)| config_item.entity.id == *id)
         .map(|p| {
             p.1 += 1;
-            p.0.value.values.get_nth(p.1 - 1)
+            p.0.values.get_nth(p.1 - 1)
         })
 }
