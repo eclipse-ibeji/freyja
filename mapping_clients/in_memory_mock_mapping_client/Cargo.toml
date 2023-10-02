@@ -13,7 +13,6 @@ async-trait = { workspace = true }
 freyja-common = { workspace = true }
 freyja-contracts = { workspace = true }
 serde = { workspace = true }
-serde_json = { workspace = true }
 tokio = { workspace = true }
 
 [build-dependencies]

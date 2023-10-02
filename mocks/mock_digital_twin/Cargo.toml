@@ -11,9 +11,13 @@ license = "MIT"
 [dependencies]
 axum = { workspace = true }
 env_logger = { workspace = true }
+freyja-common = { workspace = true }
 freyja-contracts = { workspace = true }
 log = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true }
+
+[build-dependencies]
+freyja-build-common = { workspace = true }

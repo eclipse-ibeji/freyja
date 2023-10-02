@@ -6,35 +6,26 @@ use serde::{Deserialize, Serialize};
 
 use freyja_contracts::entity::Entity;
 
-pub(crate) const CONFIG_FILE: &str = "config.json";
-
-/// Settings for mock digital twin
+/// Config for the mock digital twin
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Settings {
-    /// the digital twin server authority for hosting a gRPC server
+pub struct Config {
+    /// The digital twin server authority for hosting a gRPC server
     pub digital_twin_server_authority: String,
 
-    /// the config items
-    pub config_items: Vec<ConfigItem>,
+    /// The list of entities
+    pub entities: Vec<EntityConfig>,
 }
 
 /// A config entry for the MockDigitalTwinAdapter
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ConfigItem {
+pub struct EntityConfig {
     /// Start emitting the value after this many calls to the client
     pub begin: u8,
 
     /// Stop emitting the value after this many calls to the client (or don't stop emitting if None)
     pub end: Option<u8>,
 
-    /// The config for the provider
-    pub value: ProviderConfig,
-}
-
-/// Configuration for a mock provider
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct ProviderConfig {
-    // The provider's entity
+    /// The entity to provide
     pub entity: Entity,
 
     /// The config for the sensor values
