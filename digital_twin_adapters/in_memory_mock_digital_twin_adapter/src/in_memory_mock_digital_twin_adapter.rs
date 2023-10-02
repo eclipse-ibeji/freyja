@@ -16,7 +16,7 @@ const CONFIG_FILE_STEM: &str = "in_memory_digital_twin_config";
 /// In-memory mock that mocks finding endpoint info about entities
 /// through find by id
 pub struct InMemoryMockDigitalTwinAdapter {
-    /// Stores configs about entities
+    /// The adapter config
     config: Config,
 }
 

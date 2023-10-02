@@ -7,7 +7,6 @@ on:
       - "**/Cargo.toml"
       - "**/Cargo.lock"
       - ".github/workflows/security-audit.yaml"
-      - "cloud_connector/**"
   schedule:
     - cron: "0 0 * * *" # once a day at midnight UTC
     # NB: that cron trigger on GH actions runs only on the default branch
@@ -26,40 +25,3 @@ jobs:
         with:
           command: audit
           args: --deny warnings
-
-  security_audit_csharp:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'csharp' ]
-    steps:
-      - name: Checkout repository and submodules
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: Install .NET 6.0.119
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 6.0.119
-          global-json-file: cloud_connectors/azure/digital_twins_connector/global.json
-      - name: Cache NuGet dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.nuget/packages
-          # Look to see if there is a cache hit for the corresponding requirements file
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget
-      - name: Check .NET version
-        run: dotnet --info
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: ${{ matrix.language }}
-      - name: Build Digital Twins Connector
-        run: ./cloud_connectors/azure/digital_twins_connector/build.sh
-      - name: Build MQTT Connector's Azure Function
-        run: dotnet build cloud_connectors/azure/mqtt_connector/res/azure_function/src/function.csproj
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2

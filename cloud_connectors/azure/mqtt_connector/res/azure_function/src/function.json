@@ -1,9 +1,0 @@
-{
-    "bindings": [
-        {
-        "type": "eventGridTrigger",
-        "name": "cloudEvent",
-        "direction": "in"
-        }
-    ]
-}
