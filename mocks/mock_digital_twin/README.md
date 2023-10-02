@@ -8,8 +8,8 @@ This mock supports the following configuration:
 
 - `digital_twin_server_authority`: The authority that will be used for hosting the mock digital twin service
 - `entities`: A list of entities with the following properties:
-  - `begin`: An integer indicating when to enable this entity
-  - `end`: An optional integer indicating when to disable this entity. Set to `null` if you never want the entity to "turn off"
+  - `begin`: An integer indicating when to enable this entity (refer to [Behavior](#behavior) for more information on how this value is used)
+  - `end`: An optional integer indicating when to disable this entity. Set to `null` if you never want the entity to "turn off" (refer to [Behavior](#behavior) for more information on how this value is used)
   - `entity`: Describes an entity that should be provided via the `find_by_id` API at some point during the application's lifecycle. The properties of this object are identical to those of the [In-Memory Mock Digital Twin Adapter](../../digital_twin_adapters/in_memory_mock_digital_twin_adapter/README.md) with the following modifications:
     - `protocol`: When using this service, this value should always be `http`
   - `values`: Defines the values that the entity's signal should take. This can take one of two forms:
