@@ -36,10 +36,6 @@ NOTICE_FILENAME="NOTICE"
 echo "Running cargo-about for NOTICE file generation..."
 cargo about generate --workspace tools/cg/about.hbs --config tools/cg/about.toml > $NOTICE_FILENAME
 
-CLOUD_CONNECTORS_AZURE_DIRECTORY="cloud_connectors/azure/"
-echo "Appending Azure Cloud Connectors' .NET Third Party licenses to $NOTICE_FILENAME"
-./tools/dotnet_notice_generation.sh $NOTICE_FILENAME $CLOUD_CONNECTORS_AZURE_DIRECTORY $CLOUD_CONNECTORS_AZURE_DIRECTORY/shared/license_url_to_type.json
-
 if [ -z "$(git diff --name-only $NOTICE_FILENAME)" ]
 then
       echo "File not changed"

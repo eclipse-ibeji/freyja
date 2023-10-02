@@ -9,7 +9,6 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-async-trait = { workspace = true }
 crossbeam = { workspace = true }
 freyja-contracts = { workspace = true }
 grpc-provider-proxy-v1 = { path = "../provider_proxies/grpc/v1" }

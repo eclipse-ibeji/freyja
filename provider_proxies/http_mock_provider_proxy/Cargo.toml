@@ -15,15 +15,8 @@ crossbeam = { workspace = true }
 freyja-common = { workspace = true }
 freyja-contracts = { workspace = true  }
 log = { workspace = true }
-mock-digital-twin = { workspace = true }
-proc-macros = { workspace = true  }
 reqwest = { workspace = true }
 serde = { workspace = true }
-serde_json = { workspace = true }
-tokio = { workspace = true }
-tokio-stream = { workspace = true }
-tonic = { workspace = true }
-tower = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

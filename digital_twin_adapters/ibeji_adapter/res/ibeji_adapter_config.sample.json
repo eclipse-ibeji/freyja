@@ -1,6 +1,0 @@
-{
-    "service_type": "InVehicleDigitalTwinService",
-    "uri": "http://[::1]:50001",
-    "max_retries": 5,
-    "retry_interval_ms": 1000
-}
