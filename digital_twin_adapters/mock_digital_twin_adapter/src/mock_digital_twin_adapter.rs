@@ -31,7 +31,10 @@ impl MockDigitalTwinAdapter {
     /// # Arguments
     /// - `config`: the config to use
     pub fn from_config(config: Config) -> Result<Self, DigitalTwinAdapterError> {
-        Ok(Self { config, client: Client::new() })
+        Ok(Self {
+            config,
+            client: Client::new(),
+        })
     }
 
     /// Helper to map HTTP error codes to our own error type
@@ -59,7 +62,7 @@ impl DigitalTwinAdapter for MockDigitalTwinAdapter {
             DigitalTwinAdapterError::io,
             DigitalTwinAdapterError::deserialize,
         )?;
-        
+
         Self::from_config(config)
     }
 
@@ -73,8 +76,7 @@ impl DigitalTwinAdapter for MockDigitalTwinAdapter {
     ) -> Result<GetDigitalTwinProviderResponse, DigitalTwinAdapterError> {
         let target = format!(
             "{}{ENTITY_QUERY_PATH}{}",
-            self.config.digital_twin_service_uri,
-            request.entity_id
+            self.config.digital_twin_service_uri, request.entity_id
         );
 
         self.client

@@ -58,10 +58,12 @@ where
         Err(_) => {
             // The path below resolves to $HOME/.freyja/config/{overrides_filename}
             home_dir()
-                .ok_or_else(|| io_error_handler(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    "Could not retrieve home directory",
-                )))?
+                .ok_or_else(|| {
+                    io_error_handler(std::io::Error::new(
+                        std::io::ErrorKind::Other,
+                        "Could not retrieve home directory",
+                    ))
+                })?
                 .join(DOT_FREYJA_DIR)
                 .join(CONFIG_DIR)
                 .join(overrides_filename)

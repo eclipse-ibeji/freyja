@@ -41,7 +41,7 @@ impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
             DigitalTwinAdapterError::io,
             DigitalTwinAdapterError::deserialize,
         )?;
-        
+
         Self::from_config(config)
     }
 
@@ -83,15 +83,16 @@ mod in_memory_mock_digital_twin_adapter_tests {
 
         let config = Config {
             values: vec![EntityConfig {
-            entity: Entity {
-                id: String::from(ENTITY_ID),
-                name: None,
-                uri: String::from("http://0.0.0.0:1111"), // Devskim: ignore DS137138
-                description: None,
-                operation: OperationKind::Subscribe,
-                protocol: String::from("in-memory"),
-            },
-        }]};
+                entity: Entity {
+                    id: String::from(ENTITY_ID),
+                    name: None,
+                    uri: String::from("http://0.0.0.0:1111"), // Devskim: ignore DS137138
+                    description: None,
+                    operation: OperationKind::Subscribe,
+                    protocol: String::from("in-memory"),
+                },
+            }],
+        };
 
         let in_memory_digital_twin_adapter = InMemoryMockDigitalTwinAdapter { config };
         let request = GetDigitalTwinProviderRequest {

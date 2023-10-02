@@ -91,21 +91,22 @@ async fn main() {
         .target(Target::Stdout)
         .init();
 
-        let config: Config = config_utils::read_from_files(
-            CONFIG_FILE_STEM,
-            config_utils::JSON_EXT,
-            out_dir!(),
-            |e| log::error!("{}", e),
-            |e| log::error!("{}", e),
-        )
-        .unwrap();
+    let config: Config = config_utils::read_from_files(
+        CONFIG_FILE_STEM,
+        config_utils::JSON_EXT,
+        out_dir!(),
+        |e| log::error!("{}", e),
+        |e| log::error!("{}", e),
+    )
+    .unwrap();
 
     let (sender, mut receiver) = mpsc::unbounded_channel::<(String, EntityValueResponse)>();
 
     let state = Arc::new(Mutex::new(DigitalTwinAdapterState {
         count: 0,
         entities: config.entities.iter().map(|c| (c.clone(), 0)).collect(),
-        subscriptions: config.entities
+        subscriptions: config
+            .entities
             .iter()
             .map(|c| (c.entity.id.clone(), HashSet::new()))
             .collect(),
@@ -254,15 +255,15 @@ async fn get_entity(
     let state = state.lock().unwrap();
     find_entity(&state, &query.id)
         .map(|(config_item, _)| {
-            let operation_path =
-                if config_item.entity.operation.to_string() == SUBSCRIBE_OPERATION {
-                    ENTITY_SUBSCRIBE_PATH
-                } else if config_item.entity.operation.to_string() == GET_OPERATION {
-                    ENTITY_GET_VALUE_PATH
-                } else {
-                    return server_error!("Entity didn't have a valid operation");
-                };
-            
+            let operation_path = if config_item.entity.operation.to_string() == SUBSCRIBE_OPERATION
+            {
+                ENTITY_SUBSCRIBE_PATH
+            } else if config_item.entity.operation.to_string() == GET_OPERATION {
+                ENTITY_GET_VALUE_PATH
+            } else {
+                return server_error!("Entity didn't have a valid operation");
+            };
+
             let mut entity = config_item.entity.clone();
             entity.uri = format!("{}{operation_path}", config_item.entity.uri);
 

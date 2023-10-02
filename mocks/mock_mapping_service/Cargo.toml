@@ -16,7 +16,6 @@ freyja-contracts = { workspace = true }
 log = { workspace = true }
 serde = { workspace = true }
 tokio = { workspace = true }
-home = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }
