@@ -64,6 +64,8 @@ pub async fn freyja_main<
         .init();
 
     let signal_store = Arc::new(SignalStore::new());
+    let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
+    let provider_proxy_selector = Arc::new(ProviderProxySelector::new(signal_values_queue.clone()));
     let (tx_provider_proxy_selector_request, rx_provider_proxy_selector_request) =
         mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
     let provider_proxy_selector_request_sender =
@@ -75,12 +77,11 @@ pub async fn freyja_main<
         signal_store.clone(),
         TMappingClient::create_new().unwrap(),
         TDigitalTwinAdapter::create_new().unwrap(),
-        provider_proxy_selector_request_sender.clone(),
+        provider_proxy_selector.clone(),
         cartographer_poll_interval,
     );
 
     // Setup emitter
-    let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
     let emitter = Emitter::new(
         signal_store.clone(),
         TCloudAdapter::create_new().unwrap(),
@@ -88,11 +89,10 @@ pub async fn freyja_main<
         signal_values_queue.clone(),
     );
 
-    let provider_proxy_selector = ProviderProxySelector::new();
     tokio::select! {
         Err(e) = cartographer.run() => { println!("[main] cartographer terminated with error {e:?}"); Err(e) },
         Err(e) = emitter.run() => { println!("[main] emitter terminated with error {e:?}"); Err(e) },
-        Err(e) = provider_proxy_selector.run(rx_provider_proxy_selector_request, signal_values_queue) => {  Err(e)? }
+        Err(e) = provider_proxy_selector.run(rx_provider_proxy_selector_request) => { println!("[main] provider proxy selector terminated with error {e:?}"); Err(e) }
         else => { println!("[main] all operations terminated successfully"); Ok(()) },
     }
 }
