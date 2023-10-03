@@ -3,20 +3,19 @@
 // SPDX-License-Identifier: MIT
 
 use std::{
-    collections::{hash_map::Entry::Occupied, HashMap},
+    collections::{hash_map::Entry, HashMap},
     str::FromStr,
-    sync::{Arc, Mutex},
+    sync::Arc,
 };
 
+use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
 use log::{debug, info, warn};
 use strum_macros::{Display, EnumString};
-use tokio::{sync::mpsc::UnboundedReceiver, time::Duration};
 
 use freyja_contracts::{
     entity::Entity,
-    provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue},
-    provider_proxy_request::ProviderProxySelectorRequestKind,
+    provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue}, provider_proxy_selector::{ProviderProxySelectorError, ProviderProxySelector},
 };
 use grpc_provider_proxy_v1::grpc_provider_proxy::GRPCProviderProxy;
 use http_mock_provider_proxy::http_mock_provider_proxy::HttpMockProviderProxy;
@@ -127,124 +126,39 @@ impl ProviderProxyKind {
     }
 }
 
-/// The provider proxy selector selects which provider proxy to create based on protocol and operation
-pub struct ProviderProxySelector {
+/// The provider proxy selector selects which provider proxy to create based on protocol and operation.
+/// This struct is **not** thread-safe and should be shared with `Arc<Mutex<ProviderProxySelectorImpl>>`.
+pub struct ProviderProxySelectorImpl {
     /// A map of entity uri to provider proxy
-    pub provider_proxies: Mutex<HashMap<String, ProviderProxyImpl>>,
+    pub provider_proxies: HashMap<String, ProviderProxyImpl>,
 
     /// A map of entity id to provider uri
-    pub entity_map: Mutex<HashMap<String, String>>,
+    pub entity_map: HashMap<String, String>,
 
     /// The signal values queue used for creating the proxies
     pub signal_values_queue: Arc<SegQueue<SignalValue>>,
 }
 
-impl ProviderProxySelector {
+impl ProviderProxySelectorImpl {
     /// Instantiates the provider proxy selector
     pub fn new(signal_values_queue: Arc<SegQueue<SignalValue>>) -> Self {
-        ProviderProxySelector {
-            provider_proxies: Mutex::new(HashMap::new()),
-            entity_map: Mutex::new(HashMap::new()),
+        ProviderProxySelectorImpl {
+            provider_proxies: HashMap::new(),
+            entity_map: HashMap::new(),
             signal_values_queue,
         }
     }
+}
 
-    /// Handles incoming requests to the provider proxy selector
-    ///
-    /// # Arguments
-    /// - `rx_provider_proxy_selector_request`: receiver of the provider proxy selector request channel
-    /// - `signal_values_queue`: shared queue for all provider proxies to push new signal values of entities
-    async fn handle_incoming_requests(
-        &self,
-        mut rx_provider_proxy_selector_request: UnboundedReceiver<ProviderProxySelectorRequestKind>,
-    ) -> Result<(), ProviderProxySelectorError> {
-        loop {
-            let message = rx_provider_proxy_selector_request.recv().await;
-            if message.is_none() {
-                warn!("Channel is closed, aborting receive provider proxy selector request responder...");
-                break;
-            }
-            let message = message.unwrap();
-            debug!("Handling new request {:?}", message);
-
-            match message {
-                ProviderProxySelectorRequestKind::GetEntityValue { entity_id } => {
-                    let provider_uri;
-                    {
-                        let lock = self.entity_map.lock().unwrap();
-                        let entity_uri_option = lock.get(&entity_id);
-                        if entity_uri_option.is_none() {
-                            debug!("Unable to retrieve entity uri for {entity_id}");
-                            continue;
-                        }
-                        provider_uri = String::from(entity_uri_option.unwrap());
-                    }
-
-                    let mut provider_proxy_option: Option<ProviderProxyImpl> = None;
-                    {
-                        let mut provider_proxies = self.provider_proxies.lock().unwrap();
-                        if let Occupied(provider_proxy) = provider_proxies.entry(provider_uri) {
-                            provider_proxy_option = Some(provider_proxy.get().clone());
-                        }
-                    }
-
-                    if provider_proxy_option.is_none() {
-                        warn!("Provider proxy for {entity_id} is not available");
-                        continue;
-                    }
-                    provider_proxy_option
-                        .unwrap()
-                        .send_request_to_provider(&entity_id)
-                        .await
-                        .map_err(ProviderProxySelectorError::communication)?;
-                }
-            }
-
-            tokio::time::sleep(Duration::from_millis(1000)).await;
-        }
-        Ok(())
-    }
-
-    /// Runs the provider proxy selector
-    ///
-    /// # Arguments
-    /// - `rx_provider_proxy_selector_request`: receiver of the provider proxy selector request channel
-    /// - `signal_values_queue`: shared queue for all provider proxies to push new signal values of entities
-    pub async fn run(
-        &self,
-        rx_provider_proxy_selector_request: UnboundedReceiver<ProviderProxySelectorRequestKind>,
-    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        self.handle_incoming_requests(rx_provider_proxy_selector_request)
-            .await
-            .map_err(|e| Box::new(e) as _)
-    }
-
-    /// Retrieves the provider proxy for entity uri
-    ///
-    /// # Arguments
-    /// - `provider_uri`: the provider uri
-    fn retrieve_provider_proxy(&self, provider_uri: &str) -> Option<ProviderProxyImpl> {
-        let provider_proxies = self.provider_proxies.lock().unwrap();
-        provider_proxies.get(provider_uri).cloned()
-    }
-
-    /// Maps the entity id to the provider uri
-    ///
-    /// # Arguments
-    /// - `entity_id`: the entity id is the key
-    /// - `provider_uri`: the provider uri
-    fn insert_entity_id_with_uri_to_entity_map(&self, entity_id: &str, provider_uri: &str) {
-        let mut map = self.entity_map.lock().unwrap();
-        map.insert(String::from(entity_id), String::from(provider_uri));
-    }
-
+#[async_trait]
+impl ProviderProxySelector for ProviderProxySelectorImpl {
     /// Updates an existing proxy for an entity if possible,
     /// otherwise creates a new proxy to handle that entity.
     ///
     /// # Arguments
     /// - `entity`: the entity that the proxy should handle
-    pub async fn create_or_update_proxy(
-        &self,
+    async fn create_or_update_proxy(
+        &mut self,
         entity: &Entity,
     ) -> Result<(), ProviderProxySelectorError> {
         let (entity_id, provider_uri, operation, protocol) =
@@ -252,9 +166,9 @@ impl ProviderProxySelector {
 
         // If a provider proxy already exists for this uri,
         // then we notify that proxy to include this new entity_id
-        if let Some(provider_proxy) = self.retrieve_provider_proxy(provider_uri) {
+        if let Some(provider_proxy) = self.provider_proxies.get(provider_uri).cloned() {
             debug!("A provider proxy for {provider_uri} already exists");
-            self.insert_entity_id_with_uri_to_entity_map(entity_id, provider_uri);
+            self.entity_map.insert(String::from(entity_id), String::from(provider_uri));
             return provider_proxy
                 .register_entity(entity_id, operation)
                 .await
@@ -266,12 +180,9 @@ impl ProviderProxySelector {
 
         // If we're able to create a provider_proxy then map the
         // provider uri to that created proxy
-        {
-            let mut provider_proxies = self.provider_proxies.lock().unwrap();
-            provider_proxies.insert(provider_uri.clone(), provider_proxy.clone());
-        }
+        self.provider_proxies.insert(provider_uri.clone(), provider_proxy.clone());
 
-        self.insert_entity_id_with_uri_to_entity_map(entity_id, provider_uri);
+        self.entity_map.insert(String::from(entity_id), String::from(provider_uri));
 
         let proxy = provider_proxy.clone();
         tokio::spawn(async move {
@@ -283,18 +194,30 @@ impl ProviderProxySelector {
             .await
             .map_err(ProviderProxySelectorError::provider_proxy_error)
     }
-}
 
-proc_macros::error! {
-    ProviderProxySelectorError {
-        ProviderProxyError,
-        ProtocolNotSupported,
-        OperationNotSupported,
-        Io,
-        Serialize,
-        Deserialize,
-        Communication,
-        Unknown
+    /// Requests that the value of an entity be published as soon as possible
+    /// 
+    /// # Arguments
+    /// - `entity_id`: the entity to request
+    async fn request_entity_value(&mut self, entity_id: &String) -> Result<(), ProviderProxySelectorError> {
+        let provider_uri = {
+            self.entity_map.get(entity_id)
+                .ok_or(ProviderProxySelectorError::entity_not_found(format!("Unable to retrieve entity uri for {entity_id}")))?
+                .to_owned()
+        };
+
+        match self.provider_proxies.entry(provider_uri) {
+            Entry::Occupied(provider_proxy) => {
+                provider_proxy
+                    .get()
+                    .send_request_to_provider(&entity_id)
+                    .await
+                    .map_err(ProviderProxySelectorError::communication)
+            }
+            Entry::Vacant(_) => {
+                Err(ProviderProxySelectorError::entity_not_found(format!("Provider proxy for {entity_id} is not available")))
+            }
+        }
     }
 }
 
@@ -302,14 +225,14 @@ proc_macros::error! {
 mod provider_proxy_selector_tests {
     use super::*;
 
-    use freyja_contracts::provider_proxy::OperationKind;
+    use freyja_contracts::{provider_proxy::OperationKind, provider_proxy_selector::ProviderProxySelectorErrorKind};
 
     const AMBIENT_AIR_TEMPERATURE_ID: &str = "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1";
 
     #[tokio::test]
     async fn handle_start_provider_proxy_request_return_err_test() {
         let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
-        let protocol_selector = ProviderProxySelector::new(signal_values_queue);
+        let mut uut = ProviderProxySelectorImpl::new(signal_values_queue);
 
         let entity = Entity {
             id: String::from(AMBIENT_AIR_TEMPERATURE_ID),
@@ -320,12 +243,13 @@ mod provider_proxy_selector_tests {
             protocol: String::from("grpc"),
         };
 
-        let result = protocol_selector
+        let result = uut
             .create_or_update_proxy(&entity)
             .await;
+
         assert!(result.is_err());
         assert_eq!(
-            result.unwrap_err().kind,
+            result.unwrap_err().kind(),
             ProviderProxySelectorErrorKind::Communication
         );
     }

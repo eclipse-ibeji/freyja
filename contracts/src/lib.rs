@@ -9,5 +9,5 @@ pub mod digital_twin_map_entry;
 pub mod entity;
 pub mod mapping_client;
 pub mod provider_proxy;
-pub mod provider_proxy_request;
+pub mod provider_proxy_selector;
 pub mod signal;
