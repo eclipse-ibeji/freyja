@@ -15,7 +15,8 @@ use strum_macros::{Display, EnumString};
 
 use freyja_contracts::{
     entity::Entity,
-    provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue}, provider_proxy_selector::{ProviderProxySelectorError, ProviderProxySelector},
+    provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue},
+    provider_proxy_selector::{ProviderProxySelector, ProviderProxySelectorError},
 };
 use grpc_provider_proxy_v1::grpc_provider_proxy::GRPCProviderProxy;
 use http_mock_provider_proxy::http_mock_provider_proxy::HttpMockProviderProxy;
@@ -168,21 +169,29 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
         // then we notify that proxy to include this new entity_id
         if let Some(provider_proxy) = self.provider_proxies.get(provider_uri).cloned() {
             debug!("A provider proxy for {provider_uri} already exists");
-            self.entity_map.insert(String::from(entity_id), String::from(provider_uri));
+            self.entity_map
+                .insert(String::from(entity_id), String::from(provider_uri));
             return provider_proxy
                 .register_entity(entity_id, operation)
                 .await
                 .map_err(ProviderProxySelectorError::communication);
         }
 
-        let provider_proxy = ProviderProxyKind::create_provider_proxy(protocol, operation, provider_uri, self.signal_values_queue.clone())
-            .await?;
+        let provider_proxy = ProviderProxyKind::create_provider_proxy(
+            protocol,
+            operation,
+            provider_uri,
+            self.signal_values_queue.clone(),
+        )
+        .await?;
 
         // If we're able to create a provider_proxy then map the
         // provider uri to that created proxy
-        self.provider_proxies.insert(provider_uri.clone(), provider_proxy.clone());
+        self.provider_proxies
+            .insert(provider_uri.clone(), provider_proxy.clone());
 
-        self.entity_map.insert(String::from(entity_id), String::from(provider_uri));
+        self.entity_map
+            .insert(String::from(entity_id), String::from(provider_uri));
 
         let proxy = provider_proxy.clone();
         tokio::spawn(async move {
@@ -196,27 +205,31 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
     }
 
     /// Requests that the value of an entity be published as soon as possible
-    /// 
+    ///
     /// # Arguments
     /// - `entity_id`: the entity to request
-    async fn request_entity_value(&mut self, entity_id: &String) -> Result<(), ProviderProxySelectorError> {
+    async fn request_entity_value(
+        &mut self,
+        entity_id: &str,
+    ) -> Result<(), ProviderProxySelectorError> {
         let provider_uri = {
-            self.entity_map.get(entity_id)
-                .ok_or(ProviderProxySelectorError::entity_not_found(format!("Unable to retrieve entity uri for {entity_id}")))?
+            self.entity_map
+                .get(entity_id)
+                .ok_or(ProviderProxySelectorError::entity_not_found(format!(
+                    "Unable to retrieve entity uri for {entity_id}"
+                )))?
                 .to_owned()
         };
 
         match self.provider_proxies.entry(provider_uri) {
-            Entry::Occupied(provider_proxy) => {
-                provider_proxy
-                    .get()
-                    .send_request_to_provider(&entity_id)
-                    .await
-                    .map_err(ProviderProxySelectorError::communication)
-            }
-            Entry::Vacant(_) => {
-                Err(ProviderProxySelectorError::entity_not_found(format!("Provider proxy for {entity_id} is not available")))
-            }
+            Entry::Occupied(provider_proxy) => provider_proxy
+                .get()
+                .send_request_to_provider(entity_id)
+                .await
+                .map_err(ProviderProxySelectorError::communication),
+            Entry::Vacant(_) => Err(ProviderProxySelectorError::entity_not_found(format!(
+                "Provider proxy for {entity_id} is not available"
+            ))),
         }
     }
 }
@@ -225,7 +238,9 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
 mod provider_proxy_selector_tests {
     use super::*;
 
-    use freyja_contracts::{provider_proxy::OperationKind, provider_proxy_selector::ProviderProxySelectorErrorKind};
+    use freyja_contracts::{
+        provider_proxy::OperationKind, provider_proxy_selector::ProviderProxySelectorErrorKind,
+    };
 
     const AMBIENT_AIR_TEMPERATURE_ID: &str = "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1";
 
@@ -243,9 +258,7 @@ mod provider_proxy_selector_tests {
             protocol: String::from("grpc"),
         };
 
-        let result = uut
-            .create_or_update_proxy(&entity)
-            .await;
+        let result = uut.create_or_update_proxy(&entity).await;
 
         assert!(result.is_err());
         assert_eq!(

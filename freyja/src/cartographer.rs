@@ -15,7 +15,8 @@ use freyja_contracts::{
         GetDigitalTwinProviderRequest,
     },
     mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient},
-    signal::{EmissionPolicy, SignalPatch, Target}, provider_proxy_selector::ProviderProxySelector,
+    provider_proxy_selector::ProviderProxySelector,
+    signal::{EmissionPolicy, SignalPatch, Target},
 };
 use tokio::sync::Mutex;
 
@@ -37,8 +38,11 @@ pub struct Cartographer<TMappingClient, TDigitalTwinAdapter, TProviderProxySelec
     poll_interval: Duration,
 }
 
-impl<TMappingClient: MappingClient, TDigitalTwinAdapter: DigitalTwinAdapter, TProviderProxySelector: ProviderProxySelector>
-    Cartographer<TMappingClient, TDigitalTwinAdapter, TProviderProxySelector>
+impl<
+        TMappingClient: MappingClient,
+        TDigitalTwinAdapter: DigitalTwinAdapter,
+        TProviderProxySelector: ProviderProxySelector,
+    > Cartographer<TMappingClient, TDigitalTwinAdapter, TProviderProxySelector>
 {
     /// Create a new instance of a Cartographer
     ///
@@ -187,7 +191,8 @@ impl<TMappingClient: MappingClient, TDigitalTwinAdapter: DigitalTwinAdapter, TPr
 
         {
             let mut provider_proxy_selector = self.provider_proxy_selector.lock().await;
-            provider_proxy_selector.create_or_update_proxy(&signal.source)
+            provider_proxy_selector
+                .create_or_update_proxy(&signal.source)
                 .await
                 .map_err(|e| format!("Error sending request to provider proxy selector: {e}"))?;
         }
@@ -203,7 +208,7 @@ mod cartographer_tests {
     use std::collections::HashMap;
 
     use async_trait::async_trait;
-    use mockall::{*, predicate::eq};
+    use mockall::{predicate::eq, *};
 
     use freyja_contracts::{
         digital_twin_adapter::{DigitalTwinAdapterError, GetDigitalTwinProviderResponse},
@@ -213,7 +218,8 @@ mod cartographer_tests {
             CheckForWorkResponse, GetMappingResponse, MappingClientError, SendInventoryRequest,
             SendInventoryResponse,
         },
-        provider_proxy::OperationKind, provider_proxy_selector::ProviderProxySelectorError,
+        provider_proxy::OperationKind,
+        provider_proxy_selector::ProviderProxySelectorError,
     };
 
     mock! {
@@ -264,7 +270,7 @@ mod cartographer_tests {
         #[async_trait]
         impl ProviderProxySelector for ProviderProxySelector {
             async fn create_or_update_proxy(&mut self, entity: &Entity) -> Result<(), ProviderProxySelectorError>;
-            async fn request_entity_value(&mut self, entity_id: &String) -> Result<(), ProviderProxySelectorError>;
+            async fn request_entity_value(&mut self, entity_id: &str) -> Result<(), ProviderProxySelectorError>;
         }
     }
 
@@ -339,7 +345,8 @@ mod cartographer_tests {
         let test_entity_clone = test_entity.clone();
 
         let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
-        mock_provider_proxy_selector.expect_create_or_update_proxy()
+        mock_provider_proxy_selector
+            .expect_create_or_update_proxy()
             .with(eq(test_entity.clone()))
             .once()
             .returning(|_| Ok(()));

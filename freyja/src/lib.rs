@@ -19,10 +19,8 @@ use cartographer::Cartographer;
 use emitter::Emitter;
 use freyja_common::signal_store::SignalStore;
 use freyja_contracts::{
-    cloud_adapter::CloudAdapter,
-    digital_twin_adapter::DigitalTwinAdapter,
-    mapping_client::MappingClient,
-    provider_proxy::SignalValue,
+    cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter,
+    mapping_client::MappingClient, provider_proxy::SignalValue,
 };
 use provider_proxy_selector::provider_proxy_selector_impl::ProviderProxySelectorImpl;
 
@@ -61,7 +59,9 @@ pub async fn freyja_main<
 
     let signal_store = Arc::new(SignalStore::new());
     let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
-    let provider_proxy_selector = Arc::new(Mutex::new(ProviderProxySelectorImpl::new(signal_values_queue.clone())));
+    let provider_proxy_selector = Arc::new(Mutex::new(ProviderProxySelectorImpl::new(
+        signal_values_queue.clone(),
+    )));
 
     // Setup cartographer
     let cartographer_poll_interval = Duration::from_secs(5);

@@ -7,13 +7,14 @@ use std::{cmp::min, sync::Arc, time::Duration};
 use crossbeam::queue::SegQueue;
 use log::{info, warn};
 use time::OffsetDateTime;
-use tokio::{time::sleep, sync::Mutex};
+use tokio::{sync::Mutex, time::sleep};
 
 use freyja_common::signal_store::SignalStore;
 use freyja_contracts::{
     cloud_adapter::{CloudAdapter, CloudMessageRequest, CloudMessageResponse},
     provider_proxy::SignalValue,
-    signal::Signal, provider_proxy_selector::ProviderProxySelector,
+    provider_proxy_selector::ProviderProxySelector,
+    signal::Signal,
 };
 
 const DEFAULT_SLEEP_INTERVAL_MS: u64 = 1000;
@@ -33,7 +34,9 @@ pub struct Emitter<TCloudAdapter, TProviderProxySelector> {
     signal_values_queue: Arc<SegQueue<SignalValue>>,
 }
 
-impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector> Emitter<TCloudAdapter, TProviderProxySelector> {
+impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector>
+    Emitter<TCloudAdapter, TProviderProxySelector>
+{
     /// Creates a new instance of the Emitter
     ///
     /// # Arguments
@@ -226,7 +229,9 @@ mod emitter_tests {
 
     use freyja_contracts::{
         cloud_adapter::{CloudAdapterError, CloudAdapterErrorKind},
-        signal::{Emission, EmissionPolicy}, entity::Entity, provider_proxy_selector::ProviderProxySelectorError,
+        entity::Entity,
+        provider_proxy_selector::ProviderProxySelectorError,
+        signal::{Emission, EmissionPolicy},
     };
 
     mock! {
@@ -251,7 +256,7 @@ mod emitter_tests {
         #[async_trait]
         impl ProviderProxySelector for ProviderProxySelector {
             async fn create_or_update_proxy(&mut self, entity: &Entity) -> Result<(), ProviderProxySelectorError>;
-            async fn request_entity_value(&mut self, entity_id: &String) -> Result<(), ProviderProxySelectorError>;
+            async fn request_entity_value(&mut self, entity_id: &str) -> Result<(), ProviderProxySelectorError>;
         }
     }
 
@@ -275,7 +280,9 @@ mod emitter_tests {
         const NEXT_EMISSION_MS: u64 = 42;
 
         let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
-        mock_provider_proxy_selector.expect_request_entity_value().never();
+        mock_provider_proxy_selector
+            .expect_request_entity_value()
+            .never();
         let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
 
         let mut mock_cloud_adapter = MockCloudAdapter::new();

@@ -15,13 +15,19 @@ pub trait ProviderProxySelector {
     ///
     /// # Arguments
     /// - `entity`: the entity that the proxy should handle
-    async fn create_or_update_proxy(&mut self, entity: &Entity) -> Result<(), ProviderProxySelectorError>;
+    async fn create_or_update_proxy(
+        &mut self,
+        entity: &Entity,
+    ) -> Result<(), ProviderProxySelectorError>;
 
     /// Requests that the value of an entity be published as soon as possible
-    /// 
+    ///
     /// # Arguments
     /// - `entity_id`: the entity to request
-    async fn request_entity_value(&mut self, entity_id: &String) -> Result<(), ProviderProxySelectorError>;
+    async fn request_entity_value(
+        &mut self,
+        entity_id: &str,
+    ) -> Result<(), ProviderProxySelectorError>;
 }
 
 proc_macros::error! {
