@@ -142,6 +142,9 @@ pub struct ProviderProxySelectorImpl {
 
 impl ProviderProxySelectorImpl {
     /// Instantiates the provider proxy selector
+    /// 
+    /// # Arguments
+    /// - `signal_values_queue`: The queue that is passed to proxies andused to update the emitter
     pub fn new(signal_values_queue: Arc<SegQueue<SignalValue>>) -> Self {
         ProviderProxySelectorImpl {
             provider_proxies: HashMap::new(),
