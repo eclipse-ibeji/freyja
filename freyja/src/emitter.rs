@@ -7,53 +7,53 @@ use std::{cmp::min, sync::Arc, time::Duration};
 use crossbeam::queue::SegQueue;
 use log::{info, warn};
 use time::OffsetDateTime;
-use tokio::time::sleep;
+use tokio::{sync::Mutex, time::sleep};
 
 use freyja_common::signal_store::SignalStore;
 use freyja_contracts::{
     cloud_adapter::{CloudAdapter, CloudMessageRequest, CloudMessageResponse},
     provider_proxy::SignalValue,
-    provider_proxy_request::{
-        ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
-    },
+    provider_proxy_selector::ProviderProxySelector,
     signal::Signal,
 };
 
 const DEFAULT_SLEEP_INTERVAL_MS: u64 = 1000;
 
 /// Emits sensor data at regular intervals as configured in the store
-pub struct Emitter<TCloudAdapter> {
+pub struct Emitter<TCloudAdapter, TProviderProxySelector> {
     /// The shared signal store
     signals: Arc<SignalStore>,
 
     /// The cloud adapter used to emit data to the cloud
     cloud_adapter: TCloudAdapter,
 
-    /// Sends requests to the provider proxy selector
-    provider_proxy_selector_client: ProviderProxySelectorRequestSender,
+    /// The provider proxy selector
+    provider_proxy_selector: Arc<Mutex<TProviderProxySelector>>,
 
     /// Shared message queue for obtaining new signal values
     signal_values_queue: Arc<SegQueue<SignalValue>>,
 }
 
-impl<TCloudAdapter: CloudAdapter> Emitter<TCloudAdapter> {
+impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector>
+    Emitter<TCloudAdapter, TProviderProxySelector>
+{
     /// Creates a new instance of the Emitter
     ///
     /// # Arguments
     /// - `signals`: the shared signal store
     /// - `cloud_adapter`: the cloud adapter used to emit to the cloud
-    /// - `provider_proxy_selector_request_sender`: sends requests to the provider proxy selector
+    /// - `provider_proxy_selector`: the provider proxy selector
     /// - `signal_values_queue`: queue for receiving signal values
     pub fn new(
         signals: Arc<SignalStore>,
         cloud_adapter: TCloudAdapter,
-        provider_proxy_selector_client: ProviderProxySelectorRequestSender,
+        provider_proxy_selector: Arc<Mutex<TProviderProxySelector>>,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Self {
         Self {
             signals,
             cloud_adapter,
-            provider_proxy_selector_client,
+            provider_proxy_selector,
             signal_values_queue,
         }
     }
@@ -120,14 +120,13 @@ impl<TCloudAdapter: CloudAdapter> Emitter<TCloudAdapter> {
                 // Submit a request for a new value for the next iteration.
                 // This approach to requesting signal values introduces an inherent delay in uploading data
                 // of signal.emission.policy.interval_ms and needs to be revisited.
-                let request = ProviderProxySelectorRequestKind::GetEntityValue {
-                    entity_id: signal.id.clone(),
+                let proxy_result = {
+                    let mut provider_proxy_selector = self.provider_proxy_selector.lock().await;
+                    provider_proxy_selector
+                        .request_entity_value(&signal.id)
+                        .await
+                        .map_err(EmitterError::provider_proxy_error)
                 };
-
-                let proxy_result = self
-                    .provider_proxy_selector_client
-                    .send_request_to_provider_proxy_selector(request)
-                    .map_err(EmitterError::provider_proxy_error);
 
                 if proxy_result.is_err() {
                     log::error!("Error submitting request for signal value while processing signal {}: {:?}", signal.id, proxy_result.err());
@@ -224,19 +223,22 @@ proc_macros::error! {
 #[cfg(test)]
 mod emitter_tests {
     use super::*;
+    use mockall::*;
+
     use async_trait::async_trait;
+
     use freyja_contracts::{
         cloud_adapter::{CloudAdapterError, CloudAdapterErrorKind},
+        entity::Entity,
+        provider_proxy_selector::ProviderProxySelectorError,
         signal::{Emission, EmissionPolicy},
     };
-    use mockall::*;
-    use tokio::sync::mpsc;
 
     mock! {
-        pub CloudAdapterImpl {}
+        pub CloudAdapter {}
 
         #[async_trait]
-        impl CloudAdapter for CloudAdapterImpl {
+        impl CloudAdapter for CloudAdapter {
             fn create_new() -> Result<Self, CloudAdapterError>
             where
                 Self: Sized;
@@ -248,14 +250,22 @@ mod emitter_tests {
         }
     }
 
+    mock! {
+        pub ProviderProxySelector {}
+
+        #[async_trait]
+        impl ProviderProxySelector for ProviderProxySelector {
+            async fn create_or_update_proxy(&mut self, entity: &Entity) -> Result<(), ProviderProxySelectorError>;
+            async fn request_entity_value(&mut self, entity_id: &str) -> Result<(), ProviderProxySelectorError>;
+        }
+    }
+
     #[tokio::test]
     async fn emit_data_returns_default_on_empty_input() {
-        let (tx, _) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
         let uut = Emitter {
             signals: Arc::new(SignalStore::new()),
-            cloud_adapter: MockCloudAdapterImpl::new(),
-            provider_proxy_selector_client,
+            cloud_adapter: MockCloudAdapter::new(),
+            provider_proxy_selector: Arc::new(Mutex::new(MockProviderProxySelector::new())),
             signal_values_queue: Arc::new(SegQueue::new()),
         };
 
@@ -269,17 +279,19 @@ mod emitter_tests {
     async fn emit_data_handles_nonzero_next_emission_time() {
         const NEXT_EMISSION_MS: u64 = 42;
 
-        let (tx, mut rx) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
-        let listener_handler = tokio::spawn(async move { rx.recv().await });
+        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
+        mock_provider_proxy_selector
+            .expect_request_entity_value()
+            .never();
+        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
 
-        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter.expect_send_to_cloud().never();
 
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector_client,
+            provider_proxy_selector,
             signal_values_queue: Arc::new(SegQueue::new()),
         };
 
@@ -294,31 +306,24 @@ mod emitter_tests {
         let result = uut.emit_data(vec![test_signal]).await;
 
         uut.cloud_adapter.checkpoint();
+        uut.provider_proxy_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), NEXT_EMISSION_MS);
-
-        // The behavior of listener_handler here is unclear, it either
-        // will still be running because it's never received anything
-        // or will be completed with result None because the sender was dropped.
-        // I've seen both things happen before, so check just in case to avoid indefinite waiting
-        if listener_handler.is_finished() {
-            let listener_result = listener_handler.await;
-            assert!(listener_result.is_ok());
-            let listener_result = listener_result.unwrap();
-            assert!(listener_result.is_none());
-        }
     }
 
     #[tokio::test]
     async fn emit_data_handles_zero_next_emission_time() {
         const INTERVAL: u64 = 42;
 
-        let (tx, mut rx) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
-        let listener_handler = tokio::spawn(async move { rx.recv().await });
+        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
+        mock_provider_proxy_selector
+            .expect_request_entity_value()
+            .once()
+            .returning(|_| Ok(()));
+        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
 
-        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter
             .expect_send_to_cloud()
             .once()
@@ -327,7 +332,7 @@ mod emitter_tests {
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector_client,
+            provider_proxy_selector,
             signal_values_queue: Arc::new(SegQueue::new()),
         };
 
@@ -345,32 +350,32 @@ mod emitter_tests {
         };
 
         let result = uut.emit_data(vec![test_signal]).await;
-        let listener_result = listener_handler.await;
 
         uut.cloud_adapter.checkpoint();
+        uut.provider_proxy_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), INTERVAL);
-        assert!(listener_result.is_ok());
-        let listener_result = listener_result.unwrap();
-        assert!(listener_result.is_some());
     }
 
     #[tokio::test]
     async fn emit_data_doesnt_emit_when_value_empty() {
         const INTERVAL: u64 = 42;
 
-        let (tx, mut rx) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
-        let listener_handler = tokio::spawn(async move { rx.recv().await });
+        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
+        mock_provider_proxy_selector
+            .expect_request_entity_value()
+            .once()
+            .returning(|_| Ok(()));
+        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
 
-        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter.expect_send_to_cloud().never();
 
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector_client,
+            provider_proxy_selector,
             signal_values_queue: Arc::new(SegQueue::new()),
         };
 
@@ -388,32 +393,32 @@ mod emitter_tests {
         };
 
         let result = uut.emit_data(vec![test_signal]).await;
-        let listener_result = listener_handler.await;
 
         uut.cloud_adapter.checkpoint();
+        uut.provider_proxy_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), INTERVAL);
-        assert!(listener_result.is_ok());
-        let listener_result = listener_result.unwrap();
-        assert!(listener_result.is_some());
     }
 
     #[tokio::test]
     async fn emit_data_doesnt_emit_when_value_not_changed() {
         const INTERVAL: u64 = 42;
 
-        let (tx, mut rx) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
-        let listener_handler = tokio::spawn(async move { rx.recv().await });
+        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
+        mock_provider_proxy_selector
+            .expect_request_entity_value()
+            .once()
+            .returning(|_| Ok(()));
+        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
 
-        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter.expect_send_to_cloud().never();
 
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector_client,
+            provider_proxy_selector,
             signal_values_queue: Arc::new(SegQueue::new()),
         };
 
@@ -433,26 +438,26 @@ mod emitter_tests {
         };
 
         let result = uut.emit_data(vec![test_signal]).await;
-        let listener_result = listener_handler.await;
 
         uut.cloud_adapter.checkpoint();
+        uut.provider_proxy_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), INTERVAL);
-        assert!(listener_result.is_ok());
-        let listener_result = listener_result.unwrap();
-        assert!(listener_result.is_some());
     }
 
     #[tokio::test]
     async fn emit_data_emits_when_value_changed() {
         const INTERVAL: u64 = 42;
 
-        let (tx, mut rx) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
-        let listener_handler = tokio::spawn(async move { rx.recv().await });
+        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
+        mock_provider_proxy_selector
+            .expect_request_entity_value()
+            .once()
+            .returning(|_| Ok(()));
+        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
 
-        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter
             .expect_send_to_cloud()
             .once()
@@ -461,7 +466,7 @@ mod emitter_tests {
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector_client,
+            provider_proxy_selector,
             signal_values_queue: Arc::new(SegQueue::new()),
         };
 
@@ -480,26 +485,26 @@ mod emitter_tests {
         };
 
         let result = uut.emit_data(vec![test_signal]).await;
-        let listener_result = listener_handler.await;
 
         uut.cloud_adapter.checkpoint();
+        uut.provider_proxy_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), INTERVAL);
-        assert!(listener_result.is_ok());
-        let listener_result = listener_result.unwrap();
-        assert!(listener_result.is_some());
     }
 
     #[tokio::test]
     async fn emit_data_emits_when_last_value_empty() {
         const INTERVAL: u64 = 42;
 
-        let (tx, mut rx) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
-        let listener_handler = tokio::spawn(async move { rx.recv().await });
+        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
+        mock_provider_proxy_selector
+            .expect_request_entity_value()
+            .once()
+            .returning(|_| Ok(()));
+        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
 
-        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter
             .expect_send_to_cloud()
             .once()
@@ -508,7 +513,7 @@ mod emitter_tests {
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector_client,
+            provider_proxy_selector,
             signal_values_queue: Arc::new(SegQueue::new()),
         };
 
@@ -527,23 +532,24 @@ mod emitter_tests {
         };
 
         let result = uut.emit_data(vec![test_signal]).await;
-        let listener_result = listener_handler.await;
 
         uut.cloud_adapter.checkpoint();
+        uut.provider_proxy_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), INTERVAL);
-        assert!(listener_result.is_ok());
-        let listener_result = listener_result.unwrap();
-        assert!(listener_result.is_some());
     }
 
     #[tokio::test]
     async fn cloud_adapter_error_doesnt_prevent_further_emission_attempts() {
-        let (tx, _) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
+        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
+        mock_provider_proxy_selector
+            .expect_request_entity_value()
+            .times(2)
+            .returning(|_| Ok(()));
+        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
 
-        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter
             .expect_send_to_cloud()
             .times(2)
@@ -552,7 +558,7 @@ mod emitter_tests {
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector_client,
+            provider_proxy_selector,
             signal_values_queue: Arc::new(SegQueue::new()),
         };
 
@@ -564,6 +570,7 @@ mod emitter_tests {
         let result = uut.emit_data(vec![test_signal.clone(), test_signal]).await;
 
         uut.cloud_adapter.checkpoint();
+        uut.provider_proxy_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
     }
@@ -573,10 +580,7 @@ mod emitter_tests {
         const ID: &str = "testid";
         const INTERVAL: u64 = 42;
 
-        let (tx, _) = mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-        let provider_proxy_selector_client = ProviderProxySelectorRequestSender::new(tx);
-
-        let mut mock_cloud_adapter = MockCloudAdapterImpl::new();
+        let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter
             .expect_send_to_cloud()
             .returning(|_| Ok(CloudMessageResponse {}));
@@ -600,7 +604,7 @@ mod emitter_tests {
         let uut = Emitter {
             signals: Arc::new(signals),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector_client,
+            provider_proxy_selector: Arc::new(Mutex::new(MockProviderProxySelector::new())),
             signal_values_queue: Arc::new(SegQueue::new()),
         };
 

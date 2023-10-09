@@ -4,6 +4,7 @@
 
 // Re-export this macro for convenience so users don't need to manually import the proc_macros crate
 pub use proc_macros::freyja_main;
+use tokio::sync::Mutex;
 
 mod cartographer;
 mod emitter;
@@ -13,22 +14,15 @@ use std::{collections::HashMap, env, str::FromStr, sync::Arc, time::Duration};
 use crossbeam::queue::SegQueue;
 use env_logger::Target;
 use log::LevelFilter;
-use tokio::sync::mpsc;
 
 use cartographer::Cartographer;
 use emitter::Emitter;
 use freyja_common::signal_store::SignalStore;
 use freyja_contracts::{
-    cloud_adapter::CloudAdapter,
-    digital_twin_adapter::DigitalTwinAdapter,
-    mapping_client::MappingClient,
-    provider_proxy::SignalValue,
-    provider_proxy_request::{
-        ProviderProxySelectorRequestKind, ProviderProxySelectorRequestSender,
-    },
+    cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter,
+    mapping_client::MappingClient, provider_proxy::SignalValue,
 };
-
-use provider_proxy_selector::provider_proxy_selector::ProviderProxySelector;
+use provider_proxy_selector::provider_proxy_selector_impl::ProviderProxySelectorImpl;
 
 pub async fn freyja_main<
     TDigitalTwinAdapter: DigitalTwinAdapter,
@@ -64,10 +58,10 @@ pub async fn freyja_main<
         .init();
 
     let signal_store = Arc::new(SignalStore::new());
-    let (tx_provider_proxy_selector_request, rx_provider_proxy_selector_request) =
-        mpsc::unbounded_channel::<ProviderProxySelectorRequestKind>();
-    let provider_proxy_selector_request_sender =
-        ProviderProxySelectorRequestSender::new(tx_provider_proxy_selector_request);
+    let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
+    let provider_proxy_selector = Arc::new(Mutex::new(ProviderProxySelectorImpl::new(
+        signal_values_queue.clone(),
+    )));
 
     // Setup cartographer
     let cartographer_poll_interval = Duration::from_secs(5);
@@ -75,24 +69,21 @@ pub async fn freyja_main<
         signal_store.clone(),
         TMappingClient::create_new().unwrap(),
         TDigitalTwinAdapter::create_new().unwrap(),
-        provider_proxy_selector_request_sender.clone(),
+        provider_proxy_selector.clone(),
         cartographer_poll_interval,
     );
 
     // Setup emitter
-    let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
     let emitter = Emitter::new(
         signal_store.clone(),
         TCloudAdapter::create_new().unwrap(),
-        provider_proxy_selector_request_sender.clone(),
+        provider_proxy_selector.clone(),
         signal_values_queue.clone(),
     );
 
-    let provider_proxy_selector = ProviderProxySelector::new();
     tokio::select! {
         Err(e) = cartographer.run() => { println!("[main] cartographer terminated with error {e:?}"); Err(e) },
         Err(e) = emitter.run() => { println!("[main] emitter terminated with error {e:?}"); Err(e) },
-        Err(e) = provider_proxy_selector.run(rx_provider_proxy_selector_request, signal_values_queue) => {  Err(e)? }
         else => { println!("[main] all operations terminated successfully"); Ok(()) },
     }
 }
