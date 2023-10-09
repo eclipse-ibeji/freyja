@@ -14,8 +14,9 @@ jobs:
         with:
           node-version: '16'
       - run: npm install eclint
-      - run: |
-          # Unfortunately, if the "".editorconfig" is present then "eclint"
+      - name: eclint check
+        run: |
+          # Unfortunately, if the ".editorconfig" is present then "eclint"
           # checks for full conformance either irrespective or on top of the
           # check options you given the command-line. By removing the file, only
           # the given options are checked.
