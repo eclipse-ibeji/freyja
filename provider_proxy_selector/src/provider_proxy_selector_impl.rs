@@ -68,7 +68,7 @@ impl ProviderProxyKind {
     /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
     async fn create_provider_proxy(
         protocol: &str,
-        operation: &String,
+        operation: &str,
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Result<ProviderProxyImpl, ProviderProxySelectorError> {

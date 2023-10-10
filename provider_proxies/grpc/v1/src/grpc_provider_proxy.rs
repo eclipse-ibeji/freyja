@@ -326,7 +326,7 @@ mod grpc_provider_proxy_v1_tests {
                 let entity_id = "operation_get_entity_id";
 
                 let result = grpc_provider_proxy
-                    .register_entity(entity_id, &GET_OPERATION.to_string())
+                    .register_entity(entity_id, GET_OPERATION)
                     .await;
                 assert!(result.is_ok());
                 assert!(grpc_provider_proxy
@@ -336,7 +336,7 @@ mod grpc_provider_proxy_v1_tests {
 
                 let entity_id = "operation_subscribe_entity_id";
                 let result = grpc_provider_proxy
-                    .register_entity(entity_id, &SUBSCRIBE_OPERATION.to_string())
+                    .register_entity(entity_id, SUBSCRIBE_OPERATION)
                     .await;
                 assert!(result.is_ok());
                 assert!(grpc_provider_proxy

@@ -254,10 +254,9 @@ async fn get_entity(
     let state = state.lock().unwrap();
     find_entity(&state, &query.id)
         .map(|(config_item, _)| {
-            let operation_path = if config_item.entity.operation.to_string() == SUBSCRIBE_OPERATION
-            {
+            let operation_path = if config_item.entity.operation == SUBSCRIBE_OPERATION {
                 ENTITY_SUBSCRIBE_PATH
-            } else if config_item.entity.operation.to_string() == GET_OPERATION {
+            } else if config_item.entity.operation == GET_OPERATION {
                 ENTITY_GET_VALUE_PATH
             } else {
                 return server_error!("Entity didn't have a valid operation");
