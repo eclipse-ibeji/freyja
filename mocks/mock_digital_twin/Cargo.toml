@@ -17,6 +17,7 @@ log = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 tokio = { workspace = true }
+http-mock-provider-proxy = { path = "../../provider_proxies/http_mock_provider_proxy" }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

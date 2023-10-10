@@ -1,6 +1,6 @@
 # GRPC Provider Proxy
 
-The GRPC Provider Proxy interfaces with providers which support GRPC. It acts as a consumer for digital twin providers. This proxy supports the operations `Get` and `Subscribe` as defined for the [Ibeji mixed sample](https://github.com/eclipse-ibeji/ibeji/tree/main/samples/mixed). To use this proxy with other providers, those providers will need to support the same APIs as the provider in the Ibeji mixed sample.
+The GRPC Provider Proxy interfaces with providers which support GRPC. It acts as a consumer for digital twin providers. This proxy supports the `Get` and `Subscribe` operations as defined for the [Ibeji mixed sample](https://github.com/eclipse-ibeji/ibeji/tree/main/samples/mixed). To use this proxy with other providers, those providers will need to support the same API(s) as the provider in that sample.
 
 ## Configuration
 

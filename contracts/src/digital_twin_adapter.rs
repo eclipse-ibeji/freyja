@@ -39,26 +39,6 @@ pub struct GetDigitalTwinProviderResponse {
     pub entity: Entity,
 }
 
-/// A request for an entity's value
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct EntityValueRequest {
-    /// The entity's ID
-    pub entity_id: String,
-
-    /// The callback uri for a provider to send data back
-    pub callback_uri: String,
-}
-
-/// A response for an entity's value
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct EntityValueResponse {
-    // The id of the entity
-    pub entity_id: String,
-
-    /// The value of the entity
-    pub value: String,
-}
-
 proc_macros::error! {
     DigitalTwinAdapterError {
         EntityNotFound,

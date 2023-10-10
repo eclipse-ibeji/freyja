@@ -4,10 +4,8 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::provider_proxy::OperationKind;
-
 /// Represents an entity
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Entity {
     /// The entity's id
     pub id: String,
@@ -22,21 +20,8 @@ pub struct Entity {
     pub description: Option<String>,
 
     /// The operation that we will use for this entity
-    pub operation: OperationKind,
+    pub operation: String,
 
     /// The protocol to use to contact this entity
     pub protocol: String,
-}
-
-impl Default for Entity {
-    fn default() -> Self {
-        Self {
-            id: Default::default(),
-            name: Default::default(),
-            uri: Default::default(),
-            description: Default::default(),
-            operation: OperationKind::Get,
-            protocol: Default::default(),
-        }
-    }
 }

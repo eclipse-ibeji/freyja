@@ -6,19 +6,8 @@ use std::{fmt::Debug, sync::Arc};
 
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
-use serde::{Deserialize, Serialize};
-use strum_macros::{Display, EnumString};
 
-#[derive(Debug, EnumString, Display, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[strum(ascii_case_insensitive)]
-pub enum OperationKind {
-    #[strum(serialize = "Get")]
-    Get,
-    #[strum(serialize = "Subscribe")]
-    Subscribe,
-}
-
-/// Represesnts a new signal value
+/// Represents a signal value
 pub struct SignalValue {
     /// The entity's id
     pub entity_id: String,
@@ -59,14 +48,14 @@ pub trait ProviderProxy: Debug {
     async fn register_entity(
         &self,
         entity_id: &str,
-        operation: &OperationKind,
+        operation: &String,
     ) -> Result<(), ProviderProxyError>;
 
     /// Checks if this operation is supported
     ///
     /// # Arguments
     /// - `operation`: check to see if this operation is supported by this provider proxy
-    fn is_operation_supported(operation: &OperationKind) -> bool
+    fn is_operation_supported(operation: &String) -> bool
     where
         Self: Sized + Send + Sync;
 }
@@ -80,31 +69,5 @@ proc_macros::error! {
         Communication,
         EntityNotFound,
         Unknown
-    }
-}
-
-#[cfg(test)]
-mod provider_proxy_tests {
-    use super::*;
-
-    use std::str::FromStr;
-
-    #[test]
-    fn provider_proxy_kind_match_test() {
-        let mut subscribe = String::from("sUbScriBe");
-        let mut operation_kind = OperationKind::from_str(&subscribe).unwrap();
-        assert_eq!(operation_kind, OperationKind::Subscribe);
-
-        subscribe = String::from("Subscribe");
-        operation_kind = OperationKind::from_str(&subscribe).unwrap();
-        assert_eq!(operation_kind, OperationKind::Subscribe);
-
-        let mut get = String::from("gET");
-        operation_kind = OperationKind::from_str(&get).unwrap();
-        assert_eq!(operation_kind, OperationKind::Get);
-
-        get = String::from("Get");
-        operation_kind = OperationKind::from_str(&get).unwrap();
-        assert_eq!(operation_kind, OperationKind::Get);
     }
 }
