@@ -150,14 +150,14 @@ impl ProviderProxy for GRPCProviderProxy {
     async fn register_entity(
         &self,
         entity_id: &str,
-        operation: &String,
+        operation: &str,
     ) -> Result<(), ProviderProxyError> {
         self.entity_operation_map
             .lock()
             .unwrap()
-            .insert(String::from(entity_id), operation.clone());
+            .insert(String::from(entity_id), String::from(operation));
 
-        if *operation == SUBSCRIBE_OPERATION {
+        if operation == SUBSCRIBE_OPERATION {
             let consumer_uri = format!("http://{}", self.config.consumer_address); // Devskim: ignore DS137138
             let mut client = self.provider_client.clone();
             let request = tonic::Request::new(SubscribeRequest {
@@ -183,8 +183,8 @@ impl ProviderProxy for GRPCProviderProxy {
     ///
     /// # Arguments
     /// - `operation`: check to see if this operation is supported by this provider proxy
-    fn is_operation_supported(operation: &String) -> bool {
-        SUPPORTED_OPERATIONS.contains(&operation.as_str())
+    fn is_operation_supported(operation: &str) -> bool {
+        SUPPORTED_OPERATIONS.contains(&operation)
     }
 }
 

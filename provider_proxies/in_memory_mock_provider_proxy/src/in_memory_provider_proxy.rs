@@ -182,12 +182,12 @@ impl ProviderProxy for InMemoryMockProviderProxy {
     async fn register_entity(
         &self,
         entity_id: &str,
-        operation: &String,
+        operation: &str,
     ) -> Result<(), ProviderProxyError> {
         self.entity_operation_map
             .lock()
             .unwrap()
-            .insert(String::from(entity_id), operation.clone());
+            .insert(String::from(entity_id), String::from(operation));
         Ok(())
     }
 
@@ -195,8 +195,8 @@ impl ProviderProxy for InMemoryMockProviderProxy {
     ///
     /// # Arguments
     /// - `operation`: check to see if this operation is supported by this provider proxy
-    fn is_operation_supported(operation: &String) -> bool {
-        SUPPORTED_OPERATIONS.contains(&operation.as_str())
+    fn is_operation_supported(operation: &str) -> bool {
+        SUPPORTED_OPERATIONS.contains(&operation)
     }
 }
 

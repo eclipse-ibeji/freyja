@@ -228,14 +228,14 @@ impl ProviderProxy for HttpMockProviderProxy {
     async fn register_entity(
         &self,
         entity_id: &str,
-        operation: &String,
+        operation: &str,
     ) -> Result<(), ProviderProxyError> {
         self.entity_operation_map
             .lock()
             .unwrap()
-            .insert(String::from(entity_id), operation.clone());
+            .insert(String::from(entity_id), String::from(operation));
 
-        if *operation != SUBSCRIBE_OPERATION {
+        if operation != SUBSCRIBE_OPERATION {
             return Ok(());
         }
 
@@ -269,7 +269,7 @@ impl ProviderProxy for HttpMockProviderProxy {
     ///
     /// # Arguments
     /// - `operation`: check to see if this operation is supported by this provider proxy
-    fn is_operation_supported(operation: &String) -> bool {
-        SUPPORTED_OPERATIONS.contains(&operation.as_str())
+    fn is_operation_supported(operation: &str) -> bool {
+        SUPPORTED_OPERATIONS.contains(&operation)
     }
 }

@@ -48,14 +48,14 @@ pub trait ProviderProxy: Debug {
     async fn register_entity(
         &self,
         entity_id: &str,
-        operation: &String,
+        operation: &str,
     ) -> Result<(), ProviderProxyError>;
 
     /// Checks if this operation is supported
     ///
     /// # Arguments
     /// - `operation`: check to see if this operation is supported by this provider proxy
-    fn is_operation_supported(operation: &String) -> bool
+    fn is_operation_supported(operation: &str) -> bool
     where
         Self: Sized + Send + Sync;
 }
