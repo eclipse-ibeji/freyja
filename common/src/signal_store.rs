@@ -297,7 +297,7 @@ mod signal_store_tests {
                 name: Some(INCOMING.to_string()),
                 uri: INCOMING.to_string(),
                 description: Some(INCOMING.to_string()),
-                operation: String::from("FooOperation"),
+                operation: "FooOperation".to_string(),
                 protocol: INCOMING.to_string(),
             },
             target: Target {
