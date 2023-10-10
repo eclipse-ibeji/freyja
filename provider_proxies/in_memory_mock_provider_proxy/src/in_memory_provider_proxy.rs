@@ -16,12 +16,12 @@ use freyja_common::{config_utils, out_dir};
 use log::info;
 
 use crate::config::{Config, EntityConfig};
-use freyja_contracts::provider_proxy::{
-    OperationKind, ProviderProxy, ProviderProxyError, SignalValue,
-};
+use freyja_contracts::provider_proxy::{ProviderProxy, ProviderProxyError, SignalValue};
 
 const CONFIG_FILE_STEM: &str = "in_memory_mock_proxy_config";
-const SUPPORTED_OPERATIONS: &[OperationKind] = &[OperationKind::Get, OperationKind::Subscribe];
+const GET_OPERATION: &str = "Get";
+const SUBSCRIBE_OPERATION: &str = "Subscribe";
+const SUPPORTED_OPERATIONS: &[&str] = &[GET_OPERATION, SUBSCRIBE_OPERATION];
 
 #[derive(Debug)]
 pub struct InMemoryMockProviderProxy {
@@ -29,7 +29,7 @@ pub struct InMemoryMockProviderProxy {
     data: HashMap<String, (EntityConfig, AtomicU8)>,
 
     /// Local cache for keeping track of which entities this provider proxy contains
-    entity_operation_map: Mutex<HashMap<String, OperationKind>>,
+    entity_operation_map: Mutex<HashMap<String, String>>,
 
     /// Shared queue for all proxies to push new signal values of entities
     signal_values_queue: Arc<SegQueue<SignalValue>>,
@@ -126,7 +126,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
                     .unwrap()
                     .clone()
                     .into_iter()
-                    .filter(|(_, operation)| *operation == OperationKind::Subscribe)
+                    .filter(|(_, operation)| *operation == SUBSCRIBE_OPERATION)
                     .map(|(entity_id, _)| entity_id)
                     .collect();
             }
@@ -162,7 +162,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
 
         // Only need to handle Get operations since subscribe has already happened
         let operation = operation_result.unwrap();
-        if operation == OperationKind::Get {
+        if operation == GET_OPERATION {
             let _ = Self::generate_signal_value(
                 entity_id,
                 self.signal_values_queue.clone(),
@@ -182,12 +182,12 @@ impl ProviderProxy for InMemoryMockProviderProxy {
     async fn register_entity(
         &self,
         entity_id: &str,
-        operation: &OperationKind,
+        operation: &str,
     ) -> Result<(), ProviderProxyError> {
         self.entity_operation_map
             .lock()
             .unwrap()
-            .insert(String::from(entity_id), operation.clone());
+            .insert(String::from(entity_id), String::from(operation));
         Ok(())
     }
 
@@ -195,8 +195,8 @@ impl ProviderProxy for InMemoryMockProviderProxy {
     ///
     /// # Arguments
     /// - `operation`: check to see if this operation is supported by this provider proxy
-    fn is_operation_supported(operation: &OperationKind) -> bool {
-        SUPPORTED_OPERATIONS.contains(operation)
+    fn is_operation_supported(operation: &str) -> bool {
+        SUPPORTED_OPERATIONS.contains(&operation)
     }
 }
 

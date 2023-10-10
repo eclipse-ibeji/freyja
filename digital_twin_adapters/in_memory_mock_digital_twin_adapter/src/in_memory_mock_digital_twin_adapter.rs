@@ -69,7 +69,9 @@ mod in_memory_mock_digital_twin_adapter_tests {
     use super::*;
 
     use crate::config::EntityConfig;
-    use freyja_contracts::{entity::Entity, provider_proxy::OperationKind};
+    use freyja_contracts::entity::Entity;
+
+    const OPERATION: &str = "Subscribe";
 
     #[test]
     fn can_create_new() {
@@ -88,7 +90,7 @@ mod in_memory_mock_digital_twin_adapter_tests {
                     name: None,
                     uri: String::from("http://0.0.0.0:1111"), // Devskim: ignore DS137138
                     description: None,
-                    operation: OperationKind::Subscribe,
+                    operation: OPERATION.to_string(),
                     protocol: String::from("in-memory"),
                 },
             }],
@@ -103,6 +105,6 @@ mod in_memory_mock_digital_twin_adapter_tests {
             .await
             .unwrap();
         assert_eq!(response.entity.id, ENTITY_ID);
-        assert_eq!(response.entity.operation, OperationKind::Subscribe);
+        assert_eq!(response.entity.operation, OPERATION);
     }
 }

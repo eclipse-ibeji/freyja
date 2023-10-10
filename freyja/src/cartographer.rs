@@ -218,7 +218,6 @@ mod cartographer_tests {
             CheckForWorkResponse, GetMappingResponse, MappingClientError, SendInventoryRequest,
             SendInventoryResponse,
         },
-        provider_proxy::OperationKind,
         provider_proxy_selector::ProviderProxySelectorError,
     };
 
@@ -333,7 +332,7 @@ mod cartographer_tests {
             name: Some("name".to_string()),
             uri: "uri".to_string(),
             description: Some("description".to_string()),
-            operation: OperationKind::Get,
+            operation: "FooOperation".to_string(),
             protocol: "in-memory".to_string(),
         };
 

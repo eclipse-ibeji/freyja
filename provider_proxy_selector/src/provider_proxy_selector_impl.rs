@@ -15,7 +15,7 @@ use strum_macros::{Display, EnumString};
 
 use freyja_contracts::{
     entity::Entity,
-    provider_proxy::{OperationKind, ProviderProxy, ProviderProxyError, SignalValue},
+    provider_proxy::{ProviderProxy, ProviderProxyError, SignalValue},
     provider_proxy_selector::{ProviderProxySelector, ProviderProxySelectorError},
 };
 use grpc_provider_proxy_v1::grpc_provider_proxy::GRPCProviderProxy;
@@ -68,7 +68,7 @@ impl ProviderProxyKind {
     /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
     async fn create_provider_proxy(
         protocol: &str,
-        operation: &OperationKind,
+        operation: &str,
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Result<ProviderProxyImpl, ProviderProxySelectorError> {
@@ -241,11 +241,10 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
 mod provider_proxy_selector_tests {
     use super::*;
 
-    use freyja_contracts::{
-        provider_proxy::OperationKind, provider_proxy_selector::ProviderProxySelectorErrorKind,
-    };
+    use freyja_contracts::provider_proxy_selector::ProviderProxySelectorErrorKind;
 
     const AMBIENT_AIR_TEMPERATURE_ID: &str = "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1";
+    const OPERATION: &str = "Subscribe";
 
     #[tokio::test]
     async fn handle_start_provider_proxy_request_return_err_test() {
@@ -257,7 +256,7 @@ mod provider_proxy_selector_tests {
             uri: String::new(),
             name: None,
             description: None,
-            operation: OperationKind::Subscribe,
+            operation: OPERATION.to_string(),
             protocol: String::from("grpc"),
         };
 

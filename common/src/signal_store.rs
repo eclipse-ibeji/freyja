@@ -168,16 +168,17 @@ impl Default for SignalStore {
 
 #[cfg(test)]
 mod signal_store_tests {
+    use super::*;
+
     use std::collections::HashSet;
 
     use freyja_contracts::{
         conversion::Conversion,
         entity::Entity,
-        provider_proxy::OperationKind,
         signal::{Emission, EmissionPolicy, Target},
     };
 
-    use super::*;
+    const GET_OPERATION: &str = "Get";
 
     #[test]
     fn get_returns_existing_signal() {
@@ -267,7 +268,7 @@ mod signal_store_tests {
                 name: Some(ORIGINAL.to_string()),
                 uri: ORIGINAL.to_string(),
                 description: Some(ORIGINAL.to_string()),
-                operation: OperationKind::Get,
+                operation: GET_OPERATION.to_string(),
                 protocol: ORIGINAL.to_string(),
             },
             target: Target {
@@ -296,7 +297,7 @@ mod signal_store_tests {
                 name: Some(INCOMING.to_string()),
                 uri: INCOMING.to_string(),
                 description: Some(INCOMING.to_string()),
-                operation: OperationKind::Subscribe,
+                operation: "FooOperation".to_string(),
                 protocol: INCOMING.to_string(),
             },
             target: Target {
@@ -366,7 +367,7 @@ mod signal_store_tests {
                 name: Some(INCOMING.to_string()),
                 uri: INCOMING.to_string(),
                 description: Some(INCOMING.to_string()),
-                operation: OperationKind::Subscribe,
+                operation: GET_OPERATION.to_string(),
                 protocol: INCOMING.to_string(),
             },
             target: Target {
@@ -429,7 +430,7 @@ mod signal_store_tests {
                 name: Some(ORIGINAL.to_string()),
                 uri: ORIGINAL.to_string(),
                 description: Some(ORIGINAL.to_string()),
-                operation: OperationKind::Get,
+                operation: GET_OPERATION.to_string(),
                 protocol: ORIGINAL.to_string(),
             },
             target: Target {

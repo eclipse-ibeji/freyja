@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 
-/// The in-memory mock mapping client's config
+/// The GRPC provider proxy config
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
     /// The set of config values

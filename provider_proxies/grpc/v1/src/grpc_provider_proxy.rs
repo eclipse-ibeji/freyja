@@ -20,12 +20,12 @@ use samples_protobuf_data_access::sample_grpc::v1::{
 use tonic::transport::{Channel, Server};
 
 use crate::{config::Config, grpc_client_impl::GRPCClientImpl};
-use freyja_contracts::provider_proxy::{
-    OperationKind, ProviderProxy, ProviderProxyError, SignalValue,
-};
+use freyja_contracts::provider_proxy::{ProviderProxy, ProviderProxyError, SignalValue};
 
 const CONFIG_FILE_STEM: &str = "grpc_proxy_config";
-const SUPPORTED_OPERATIONS: &[OperationKind] = &[OperationKind::Get, OperationKind::Subscribe];
+const GET_OPERATION: &str = "Get";
+const SUBSCRIBE_OPERATION: &str = "Subscribe";
+const SUPPORTED_OPERATIONS: &[&str] = &[GET_OPERATION, SUBSCRIBE_OPERATION];
 
 /// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
 #[derive(Debug)]
@@ -37,7 +37,7 @@ pub struct GRPCProviderProxy {
     provider_client: DigitalTwinProviderClient<Channel>,
 
     /// Local cache for keeping track of which entities this provider proxy contains
-    entity_operation_map: Mutex<HashMap<String, OperationKind>>,
+    entity_operation_map: Mutex<HashMap<String, String>>,
 
     /// Shared queue for all proxies to push new signal values of entities
     signal_values_queue: Arc<SegQueue<SignalValue>>,
@@ -126,7 +126,7 @@ impl ProviderProxy for GRPCProviderProxy {
 
         // Only need to handle Get operations since subscribe has already happened
         let operation = operation_result.unwrap();
-        if operation == OperationKind::Get {
+        if operation == GET_OPERATION {
             let mut client = self.provider_client.clone();
             let request = tonic::Request::new(GetRequest {
                 entity_id: String::from(entity_id),
@@ -150,14 +150,14 @@ impl ProviderProxy for GRPCProviderProxy {
     async fn register_entity(
         &self,
         entity_id: &str,
-        operation: &OperationKind,
+        operation: &str,
     ) -> Result<(), ProviderProxyError> {
         self.entity_operation_map
             .lock()
             .unwrap()
-            .insert(String::from(entity_id), operation.clone());
+            .insert(String::from(entity_id), String::from(operation));
 
-        if *operation == OperationKind::Subscribe {
+        if operation == SUBSCRIBE_OPERATION {
             let consumer_uri = format!("http://{}", self.config.consumer_address); // Devskim: ignore DS137138
             let mut client = self.provider_client.clone();
             let request = tonic::Request::new(SubscribeRequest {
@@ -183,8 +183,8 @@ impl ProviderProxy for GRPCProviderProxy {
     ///
     /// # Arguments
     /// - `operation`: check to see if this operation is supported by this provider proxy
-    fn is_operation_supported(operation: &OperationKind) -> bool {
-        SUPPORTED_OPERATIONS.contains(operation)
+    fn is_operation_supported(operation: &str) -> bool {
+        SUPPORTED_OPERATIONS.contains(&operation)
     }
 }
 
@@ -326,7 +326,7 @@ mod grpc_provider_proxy_v1_tests {
                 let entity_id = "operation_get_entity_id";
 
                 let result = grpc_provider_proxy
-                    .register_entity(entity_id, &OperationKind::Get)
+                    .register_entity(entity_id, GET_OPERATION)
                     .await;
                 assert!(result.is_ok());
                 assert!(grpc_provider_proxy
@@ -336,7 +336,7 @@ mod grpc_provider_proxy_v1_tests {
 
                 let entity_id = "operation_subscribe_entity_id";
                 let result = grpc_provider_proxy
-                    .register_entity(entity_id, &OperationKind::Subscribe)
+                    .register_entity(entity_id, SUBSCRIBE_OPERATION)
                     .await;
                 assert!(result.is_ok());
                 assert!(grpc_provider_proxy

@@ -12,16 +12,15 @@ use axum::response::{IntoResponse, Response};
 use axum::routing::{get, post};
 use axum::{extract, extract::State, Json, Router, Server};
 use env_logger::Target;
-use freyja_common::{config_utils, out_dir};
 use log::{debug, error, info, warn, LevelFilter};
 use reqwest::Client;
 use serde::Deserialize;
 use tokio::sync::{mpsc, mpsc::UnboundedSender};
 
 use crate::config::{Config, EntityConfig};
-use freyja_contracts::digital_twin_adapter::{
-    EntityValueRequest, EntityValueResponse, GetDigitalTwinProviderResponse,
-};
+use freyja_common::{config_utils, out_dir};
+use freyja_contracts::digital_twin_adapter::GetDigitalTwinProviderResponse;
+use http_mock_provider_proxy::http_mock_provider_proxy::{EntityValueRequest, EntityValueResponse};
 use mock_digital_twin::{ENTITY_GET_VALUE_PATH, ENTITY_PATH, ENTITY_SUBSCRIBE_PATH};
 
 const CONFIG_FILE_STEM: &str = "mock_digital_twin_config";
@@ -255,10 +254,9 @@ async fn get_entity(
     let state = state.lock().unwrap();
     find_entity(&state, &query.id)
         .map(|(config_item, _)| {
-            let operation_path = if config_item.entity.operation.to_string() == SUBSCRIBE_OPERATION
-            {
+            let operation_path = if config_item.entity.operation == SUBSCRIBE_OPERATION {
                 ENTITY_SUBSCRIBE_PATH
-            } else if config_item.entity.operation.to_string() == GET_OPERATION {
+            } else if config_item.entity.operation == GET_OPERATION {
                 ENTITY_GET_VALUE_PATH
             } else {
                 return server_error!("Entity didn't have a valid operation");
