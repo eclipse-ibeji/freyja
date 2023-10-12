@@ -33,10 +33,10 @@ mock-digital-twin = { path = "mocks/mock_digital_twin" }
 proc-macros = { path = "proc_macros" }
 provider-proxy-selector = { path = "provider_proxy_selector" }
 
-# Other SDV projects (revisions are from the main branch as of 28 Aug 2023)
-core-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji", rev = "370a4f5ae529239607a383f5260966959f55cf3f" }
-samples-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji", rev = "370a4f5ae529239607a383f5260966959f55cf3f" }
-service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott", rev = "01bba85097f8efabd1f7ea2ed5275da54598d3a5" }
+# Other SDV projects. Versioning is handled by the Cargo.lock file
+core-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji" }
+samples-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji" }
+service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott" }
 
 # crates.io dependencies
 async-trait = "0.1.64"
@@ -62,6 +62,6 @@ tempfile = "3.5.0"
 time = "0.3.20"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "time", "sync", "test-util"] }
 tokio-stream = { version = "0.1.8", features = ["net"] }
-tonic = "0.9.2"
-tonic-build = "0.9.2"
+tonic = "0.10.0"
+tonic-build = "0.10.0"
 tower = { version = "0.4", features = ["util"] }

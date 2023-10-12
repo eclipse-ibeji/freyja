@@ -351,6 +351,3 @@ MigrationBackup/
 
 # Rust build artifacts
 target/
-
-# Cargo.lock isn't checked in because it doesn't work well with how dependencies are being managed
-Cargo.lock
