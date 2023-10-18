@@ -95,9 +95,6 @@ impl<
             if mapping_client_result.unwrap().has_work {
                 info!("Cartographer detected mapping work");
 
-                // TODO: will this notion of checking and sending inventory exist?
-                // self.mapping_client.send_inventory(SendInventoryRequest { inventory: self.known_providers.clone() }).await?;
-
                 let patches_result = self.get_mapping_as_signal_patches().await;
                 if patches_result.is_err() {
                     let error = patches_result.err().unwrap();
