@@ -26,13 +26,13 @@ This guide uses `apt` as the package manager in the examples. You may need to su
 
 1. Install git and rust:
 
-```shell
-sudo apt update
-sudo apt install -y git snapd
-sudo snap install rustup --classic
-```
+    ```shell
+    sudo apt update
+    sudo apt install -y git snapd
+    sudo snap install rustup --classic
+    ```
 
-The rust toolchain version is managed by the `rust-toolchain.toml` file, so once you install `rustup` there is no need to manually install a toolchain or set a default.
+    The rust toolchain version is managed by the `rust-toolchain.toml` file, so once you install `rustup` there is no need to manually install a toolchain or set a default.
 
 1. Clone this repository with `git clone`
 
