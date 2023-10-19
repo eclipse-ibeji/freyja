@@ -39,7 +39,7 @@ samples-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji" 
 service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott" }
 
 # crates.io dependencies
-async-trait = "0.1.64"
+async-trait = "0.1.74"
 axum = "0.6.12"
 config = "0.13.3"
 convert_case = "0.6.0"
@@ -50,17 +50,17 @@ home = "0.5.5"
 log = "^0.4"
 mockall = "0.11.4"
 paho-mqtt = "0.12"
-proc-macro2 = "1.0.52"
+proc-macro2 = "1.0.69"
 quote = "1.0.23"
-reqwest = { version = "0.11.4", features = ["json"] }
-serde = { version = "1.0.88", features = ["derive"] }
-serde_json = "1.0.88"
+reqwest = { version = "0.11.22", features = ["json"] }
+serde = { version = "1.0.189", features = ["derive"] }
+serde_json = "1.0.107"
 strum = "0.25.0"
-strum_macros = "0.25.1"
-syn = { version = "2.0.8", features = ["extra-traits", "full"] }
+strum_macros = "0.25.3"
+syn = { version = "2.0.38", features = ["extra-traits", "full"] }
 tempfile = "3.5.0"
-time = "0.3.20"
-tokio = { version = "1.0", features = ["macros", "rt-multi-thread", "time", "sync", "test-util"] }
+time = "0.3.30"
+tokio = { version = "1.33", features = ["macros", "rt-multi-thread", "time", "sync", "test-util"] }
 tokio-stream = { version = "0.1.8", features = ["net"] }
 tonic = "0.10.0"
 tonic-build = "0.10.0"
