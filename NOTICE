@@ -1693,7 +1693,7 @@ This page lists the licenses of the projects used in cargo-about.
 
 #### Used by
 
-- [ipnet]( https://github.com/krisprice/ipnet ) 2.8.0
+- [ipnet]( https://github.com/krisprice/ipnet ) 2.9.0
 
 #### License
 
@@ -2342,7 +2342,7 @@ This page lists the licenses of the projects used in cargo-about.
 - [anyhow]( https://github.com/dtolnay/anyhow ) 1.0.75
 - [async-trait]( https://github.com/dtolnay/async-trait ) 0.1.74
 - [itoa]( https://github.com/dtolnay/itoa ) 1.0.9
-- [libc]( https://github.com/rust-lang/libc ) 0.2.147
+- [libc]( https://github.com/rust-lang/libc ) 0.2.149
 - [prettyplease]( https://github.com/dtolnay/prettyplease ) 0.2.15
 - [proc-macro2]( https://github.com/dtolnay/proc-macro2 ) 1.0.69
 - [quote]( https://github.com/dtolnay/quote ) 1.0.33
@@ -2354,9 +2354,9 @@ This page lists the licenses of the projects used in cargo-about.
 - [serde_path_to_error]( https://github.com/dtolnay/path-to-error ) 0.1.14
 - [serde_urlencoded]( https://github.com/nox/serde_urlencoded ) 0.7.1
 - [syn]( https://github.com/dtolnay/syn ) 2.0.38
-- [thiserror]( https://github.com/dtolnay/thiserror ) 1.0.48
-- [thiserror-impl]( https://github.com/dtolnay/thiserror ) 1.0.48
-- [unicode-ident]( https://github.com/dtolnay/unicode-ident ) 1.0.11
+- [thiserror]( https://github.com/dtolnay/thiserror ) 1.0.50
+- [thiserror-impl]( https://github.com/dtolnay/thiserror ) 1.0.50
+- [unicode-ident]( https://github.com/dtolnay/unicode-ident ) 1.0.12
 
 #### License
 
@@ -4469,14 +4469,14 @@ limitations under the License.
 #### Used by
 
 - [addr2line]( https://github.com/gimli-rs/addr2line ) 0.21.0
-- [ahash]( https://github.com/tkaitchuck/ahash ) 0.7.6
+- [ahash]( https://github.com/tkaitchuck/ahash ) 0.7.7
 - [autocfg]( https://github.com/cuviper/autocfg ) 1.1.0
 - [backtrace]( https://github.com/rust-lang/backtrace-rs ) 0.3.69
 - [base64]( https://github.com/marshallpierce/rust-base64 ) 0.13.1
-- [base64]( https://github.com/marshallpierce/rust-base64 ) 0.21.3
+- [base64]( https://github.com/marshallpierce/rust-base64 ) 0.21.5
 - [bitflags]( https://github.com/bitflags/bitflags ) 1.3.2
-- [bitflags]( https://github.com/bitflags/bitflags ) 2.4.0
-- [bumpalo]( https://github.com/fitzgen/bumpalo ) 3.13.0
+- [bitflags]( https://github.com/bitflags/bitflags ) 2.4.1
+- [bumpalo]( https://github.com/fitzgen/bumpalo ) 3.14.0
 - [cc]( https://github.com/rust-lang/cc-rs ) 1.0.83
 - [cfg-if]( https://github.com/alexcrichton/cfg-if ) 1.0.0
 - [core-foundation]( https://github.com/servo/core-foundation-rs ) 0.9.3
@@ -4489,57 +4489,58 @@ limitations under the License.
 - [either]( https://github.com/bluss/either ) 1.9.0
 - [env_logger]( https://github.com/rust-cli/env_logger/ ) 0.10.0
 - [equivalent]( https://github.com/cuviper/equivalent ) 1.0.1
-- [fastrand]( https://github.com/smol-rs/fastrand ) 2.0.0
+- [fastrand]( https://github.com/smol-rs/fastrand ) 2.0.1
 - [fixedbitset]( https://github.com/petgraph/fixedbitset ) 0.4.2
 - [fnv]( https://github.com/servo/rust-fnv ) 1.0.7
 - [form_urlencoded]( https://github.com/servo/rust-url ) 1.2.0
 - [gimli]( https://github.com/gimli-rs/gimli ) 0.28.0
 - [hashbrown]( https://github.com/rust-lang/hashbrown ) 0.12.3
-- [hashbrown]( https://github.com/rust-lang/hashbrown ) 0.14.0
+- [hashbrown]( https://github.com/rust-lang/hashbrown ) 0.14.2
 - [heck]( https://github.com/withoutboats/heck ) 0.4.1
-- [hermit-abi]( https://github.com/hermitcore/rusty-hermit ) 0.3.2
+- [hermit-abi]( https://github.com/hermitcore/hermit-rs ) 0.3.3
 - [httparse]( https://github.com/seanmonstar/httparse ) 1.8.0
 - [hyper-timeout]( https://github.com/hjr3/hyper-timeout ) 0.4.1
 - [hyper-tls]( https://github.com/hyperium/hyper-tls ) 0.5.0
 - [idna]( https://github.com/servo/rust-url/ ) 0.4.0
 - [indexmap]( https://github.com/bluss/indexmap ) 1.9.3
-- [indexmap]( https://github.com/bluss/indexmap ) 2.0.0
+- [indexmap]( https://github.com/bluss/indexmap ) 2.0.2
 - [itertools]( https://github.com/rust-itertools/itertools ) 0.10.5
+- [itertools]( https://github.com/rust-itertools/itertools ) 0.11.0
 - [js-sys]( https://github.com/rustwasm/wasm-bindgen/tree/master/crates/js-sys ) 0.3.64
 - [lazy_static]( https://github.com/rust-lang-nursery/lazy-static.rs ) 1.4.0
-- [linux-raw-sys]( https://github.com/sunfishcode/linux-raw-sys ) 0.4.5
+- [linux-raw-sys]( https://github.com/sunfishcode/linux-raw-sys ) 0.4.10
 - [log]( https://github.com/rust-lang/log ) 0.4.20
 - [mime]( https://github.com/hyperium/mime ) 0.3.17
 - [mockall]( https://github.com/asomers/mockall ) 0.11.4
 - [mockall_derive]( https://github.com/asomers/mockall ) 0.11.4
 - [multimap]( https://github.com/havarnov/multimap ) 0.8.3
-- [num-traits]( https://github.com/rust-num/num-traits ) 0.2.16
+- [num-traits]( https://github.com/rust-num/num-traits ) 0.2.17
 - [num_cpus]( https://github.com/seanmonstar/num_cpus ) 1.16.0
 - [object]( https://github.com/gimli-rs/object ) 0.32.1
 - [once_cell]( https://github.com/matklad/once_cell ) 1.18.0
 - [openssl-probe]( https://github.com/alexcrichton/openssl-probe ) 0.1.5
 - [percent-encoding]( https://github.com/servo/rust-url/ ) 2.3.0
-- [pest]( https://github.com/pest-parser/pest ) 2.7.4
-- [pest_derive]( https://github.com/pest-parser/pest ) 2.7.4
-- [pest_generator]( https://github.com/pest-parser/pest ) 2.7.4
-- [pest_meta]( https://github.com/pest-parser/pest ) 2.7.4
+- [pest]( https://github.com/pest-parser/pest ) 2.7.5
+- [pest_derive]( https://github.com/pest-parser/pest ) 2.7.5
+- [pest_generator]( https://github.com/pest-parser/pest ) 2.7.5
+- [pest_meta]( https://github.com/pest-parser/pest ) 2.7.5
 - [petgraph]( https://github.com/petgraph/petgraph ) 0.6.4
 - [pkg-config]( https://github.com/rust-lang/pkg-config-rs ) 0.3.27
 - [prost]( https://github.com/tokio-rs/prost ) 0.12.1
 - [prost-build]( https://github.com/tokio-rs/prost ) 0.12.1
 - [prost-derive]( https://github.com/tokio-rs/prost ) 0.12.1
 - [prost-types]( https://github.com/tokio-rs/prost ) 0.12.1
-- [regex]( https://github.com/rust-lang/regex ) 1.9.5
-- [regex-automata]( https://github.com/rust-lang/regex/tree/master/regex-automata ) 0.3.8
-- [regex-syntax]( https://github.com/rust-lang/regex/tree/master/regex-syntax ) 0.7.5
+- [regex]( https://github.com/rust-lang/regex ) 1.10.2
+- [regex-automata]( https://github.com/rust-lang/regex/tree/master/regex-automata ) 0.4.3
+- [regex-syntax]( https://github.com/rust-lang/regex/tree/master/regex-syntax ) 0.8.2
 - [ron]( https://github.com/ron-rs/ron ) 0.7.1
 - [rustc-demangle]( https://github.com/alexcrichton/rustc-demangle ) 0.1.23
-- [rustix]( https://github.com/bytecodealliance/rustix ) 0.38.11
+- [rustix]( https://github.com/bytecodealliance/rustix ) 0.38.20
 - [scopeguard]( https://github.com/bluss/scopeguard ) 1.2.0
 - [security-framework]( https://github.com/kornelski/rust-security-framework ) 2.9.2
 - [security-framework-sys]( https://github.com/kornelski/rust-security-framework ) 2.9.1
-- [socket2]( https://github.com/rust-lang/socket2 ) 0.4.9
-- [socket2]( https://github.com/rust-lang/socket2 ) 0.5.3
+- [socket2]( https://github.com/rust-lang/socket2 ) 0.4.10
+- [socket2]( https://github.com/rust-lang/socket2 ) 0.5.5
 - [syn]( https://github.com/dtolnay/syn ) 1.0.109
 - [tempfile]( https://github.com/Stebalien/tempfile ) 3.8.0
 - [toml]( https://github.com/toml-rs/toml ) 0.5.11
@@ -4985,7 +4986,7 @@ limitations under the License.
 #### Used by
 
 - [block-buffer]( https://github.com/RustCrypto/utils ) 0.10.4
-- [cpufeatures]( https://github.com/RustCrypto/utils ) 0.2.9
+- [cpufeatures]( https://github.com/RustCrypto/utils ) 0.2.10
 - [crypto-common]( https://github.com/RustCrypto/traits ) 0.1.6
 - [digest]( https://github.com/RustCrypto/traits ) 0.10.7
 - [sha2]( https://github.com/RustCrypto/hashes ) 0.10.8
@@ -6684,7 +6685,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #### Used by
 
-- [matchit]( https://github.com/ibraheemdev/matchit ) 0.7.2
+- [matchit]( https://github.com/ibraheemdev/matchit ) 0.7.3
 
 #### License
 
@@ -6825,7 +6826,7 @@ DEALINGS IN THE SOFTWARE.
 
 #### Used by
 
-- [mio]( https://github.com/tokio-rs/mio ) 0.8.8
+- [mio]( https://github.com/tokio-rs/mio ) 0.8.9
 
 #### License
 
@@ -7164,7 +7165,7 @@ DEALINGS IN THE SOFTWARE.
 
 #### Used by
 
-- [bytes]( https://github.com/tokio-rs/bytes ) 1.4.0
+- [bytes]( https://github.com/tokio-rs/bytes ) 1.5.0
 
 #### License
 
@@ -7442,9 +7443,9 @@ DEALINGS IN THE SOFTWARE.
 #### Used by
 
 - [tokio-native-tls]( https://github.com/tokio-rs/tls ) 0.3.1
-- [tracing]( https://github.com/tokio-rs/tracing ) 0.1.37
-- [tracing-attributes]( https://github.com/tokio-rs/tracing ) 0.1.26
-- [tracing-core]( https://github.com/tokio-rs/tracing ) 0.1.31
+- [tracing]( https://github.com/tokio-rs/tracing ) 0.1.40
+- [tracing-attributes]( https://github.com/tokio-rs/tracing ) 0.1.27
+- [tracing-core]( https://github.com/tokio-rs/tracing ) 0.1.32
 
 #### License
 
@@ -7554,7 +7555,7 @@ THE SOFTWARE.
 
 - [tokio]( https://github.com/tokio-rs/tokio ) 1.33.0
 - [tokio-stream]( https://github.com/tokio-rs/tokio ) 0.1.14
-- [tokio-util]( https://github.com/tokio-rs/tokio ) 0.7.8
+- [tokio-util]( https://github.com/tokio-rs/tokio ) 0.7.9
 
 #### License
 
@@ -7736,7 +7737,7 @@ SOFTWARE.
 
 #### Used by
 
-- [matchit]( https://github.com/ibraheemdev/matchit ) 0.7.2
+- [matchit]( https://github.com/ibraheemdev/matchit ) 0.7.3
 
 #### License
 
@@ -7897,7 +7898,7 @@ DEALINGS IN THE SOFTWARE.
 
 #### Used by
 
-- [tracing-core]( https://github.com/tokio-rs/tracing ) 0.1.31
+- [tracing-core]( https://github.com/tokio-rs/tracing ) 0.1.32
 
 #### License
 
@@ -7951,9 +7952,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #### Used by
 
-- [aho-corasick]( https://github.com/BurntSushi/aho-corasick ) 1.0.5
-- [memchr]( https://github.com/BurntSushi/memchr ) 2.6.3
-- [termcolor]( https://github.com/BurntSushi/termcolor ) 1.2.0
+- [aho-corasick]( https://github.com/BurntSushi/aho-corasick ) 1.1.2
+- [memchr]( https://github.com/BurntSushi/memchr ) 2.6.4
+- [termcolor]( https://github.com/BurntSushi/termcolor ) 1.3.0
 
 #### License
 
@@ -7986,7 +7987,7 @@ THE SOFTWARE.
 
 #### Used by
 
-- [winapi-util]( https://github.com/BurntSushi/winapi-util ) 0.1.5
+- [winapi-util]( https://github.com/BurntSushi/winapi-util ) 0.1.6
 
 #### License
 
@@ -8051,10 +8052,10 @@ SOFTWARE.
 
 #### Used by
 
-- [aho-corasick]( https://github.com/BurntSushi/aho-corasick ) 1.0.5
-- [memchr]( https://github.com/BurntSushi/memchr ) 2.6.3
-- [termcolor]( https://github.com/BurntSushi/termcolor ) 1.2.0
-- [winapi-util]( https://github.com/BurntSushi/winapi-util ) 0.1.5
+- [aho-corasick]( https://github.com/BurntSushi/aho-corasick ) 1.1.2
+- [memchr]( https://github.com/BurntSushi/memchr ) 2.6.4
+- [termcolor]( https://github.com/BurntSushi/termcolor ) 1.3.0
+- [winapi-util]( https://github.com/BurntSushi/winapi-util ) 0.1.6
 
 #### License
 
@@ -8069,7 +8070,7 @@ You may use this code under the terms of either license.
 
 #### Used by
 
-- [unicode-ident]( https://github.com/dtolnay/unicode-ident ) 1.0.11
+- [unicode-ident]( https://github.com/dtolnay/unicode-ident ) 1.0.12
 
 #### License
 
