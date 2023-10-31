@@ -15,8 +15,14 @@ use crossbeam::queue::SegQueue;
 use freyja_common::{config_utils, out_dir};
 use log::info;
 
-use crate::{config::{Config, EntityConfig}, GET_OPERATION, SUBSCRIBE_OPERATION};
-use freyja_contracts::{provider_proxy::{ProviderProxy, ProviderProxyError, SignalValue, ProviderProxyErrorKind}, entity::EntityEndpoint};
+use crate::{
+    config::{Config, EntityConfig},
+    GET_OPERATION, SUBSCRIBE_OPERATION,
+};
+use freyja_contracts::{
+    entity::EntityEndpoint,
+    provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue},
+};
 
 const CONFIG_FILE_STEM: &str = "in_memory_mock_proxy_config";
 
@@ -193,10 +199,11 @@ impl ProviderProxy for InMemoryMockProviderProxy {
                     result = Some(GET_OPERATION);
                 }
             }
-            
-            result.ok_or::<ProviderProxyError>(ProviderProxyErrorKind::OperationNotSupported.into())?
+
+            result
+                .ok_or::<ProviderProxyError>(ProviderProxyErrorKind::OperationNotSupported.into())?
         };
-        
+
         self.entity_operation_map
             .lock()
             .unwrap()

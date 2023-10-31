@@ -24,10 +24,8 @@ pub trait ProviderProxySelector {
     ///
     /// # Arguments
     /// - `entity_id`: the entity to request
-    async fn request_entity_value(
-        &self,
-        entity_id: &str,
-    ) -> Result<(), ProviderProxySelectorError>;
+    async fn request_entity_value(&self, entity_id: &str)
+        -> Result<(), ProviderProxySelectorError>;
 }
 
 proc_macros::error! {

@@ -17,9 +17,11 @@ use log::{debug, error, info};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
-use crate::{GET_OPERATION, SUBSCRIBE_OPERATION};
 use crate::config::Config;
-use freyja_contracts::provider_proxy::{ProviderProxy, ProviderProxyError, SignalValue, ProviderProxyErrorKind};
+use crate::{GET_OPERATION, SUBSCRIBE_OPERATION};
+use freyja_contracts::provider_proxy::{
+    ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
+};
 
 const CONFIG_FILE_STEM: &str = "http_mock_provider_proxy";
 const CALLBACK_FOR_VALUES_PATH: &str = "/value";
@@ -241,10 +243,11 @@ impl ProviderProxy for HttpMockProviderProxy {
                     result = Some(GET_OPERATION);
                 }
             }
-            
-            result.ok_or::<ProviderProxyError>(ProviderProxyErrorKind::OperationNotSupported.into())?
+
+            result
+                .ok_or::<ProviderProxyError>(ProviderProxyErrorKind::OperationNotSupported.into())?
         };
-        
+
         self.entity_operation_map
             .lock()
             .unwrap()
@@ -255,7 +258,7 @@ impl ProviderProxy for HttpMockProviderProxy {
                 entity_id: String::from(entity_id),
                 callback_uri: Self::construct_callback_uri(&self.config.proxy_callback_address),
             };
-    
+
             let subscribe_endpoint_for_entity = self.provider_uri.clone();
             let result = self
                 .client
@@ -266,7 +269,7 @@ impl ProviderProxy for HttpMockProviderProxy {
                 .map_err(ProviderProxyError::communication)?
                 .error_for_status()
                 .map_err(ProviderProxyError::unknown);
-    
+
             // Remove from map if the subscribe operation fails
             if result.is_err() {
                 error!("Cannot subscribe to {entity_id} due to {result:?}");

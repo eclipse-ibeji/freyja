@@ -7,7 +7,7 @@ use std::{fmt::Debug, sync::Arc};
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
 
-use crate::entity::{EntityEndpoint, Entity};
+use crate::entity::{Entity, EntityEndpoint};
 
 /// Represents a signal value
 pub struct SignalValue {
@@ -57,7 +57,11 @@ pub trait ProviderProxy: Debug {
 pub trait ProviderProxyFactory {
     fn is_supported(&self, entity: &Entity) -> Option<EntityEndpoint>;
 
-    fn create_proxy(&self, provider_uri: &str, signal_values_queue: Arc<SegQueue<SignalValue>>) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>;
+    fn create_proxy(
+        &self,
+        provider_uri: &str,
+        signal_values_queue: Arc<SegQueue<SignalValue>>,
+    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>;
 }
 
 proc_macros::error! {

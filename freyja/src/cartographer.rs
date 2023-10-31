@@ -331,7 +331,7 @@ mod cartographer_tests {
                 operations: vec!["FooOperation".to_string()],
                 protocol: "in-memory".to_string(),
                 uri: "uri".to_string(),
-            }]
+            }],
         };
 
         let test_signal_patch = &mut SignalPatch {

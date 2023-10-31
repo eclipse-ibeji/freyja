@@ -5,12 +5,17 @@
 use std::sync::Arc;
 
 use crossbeam::queue::SegQueue;
-use freyja_contracts::{entity::{Entity, EntityEndpoint}, provider_proxy::{ProviderProxy, SignalValue, ProviderProxyError, ProviderProxyFactory}};
+use freyja_contracts::{
+    entity::{Entity, EntityEndpoint},
+    provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyFactory, SignalValue},
+};
 
-use crate::{http_mock_provider_proxy::HttpMockProviderProxy, HTTP_PROTOCOL, GET_OPERATION, SUBSCRIBE_OPERATION};
+use crate::{
+    http_mock_provider_proxy::HttpMockProviderProxy, GET_OPERATION, HTTP_PROTOCOL,
+    SUBSCRIBE_OPERATION,
+};
 
-pub struct HttpMockProviderProxyFactory {
-}
+pub struct HttpMockProviderProxyFactory {}
 
 impl ProviderProxyFactory for HttpMockProviderProxyFactory {
     fn is_supported(&self, entity: &Entity) -> Option<EntityEndpoint> {
@@ -29,7 +34,11 @@ impl ProviderProxyFactory for HttpMockProviderProxyFactory {
         None
     }
 
-    fn create_proxy(&self, provider_uri: &str, signal_values_queue: Arc<SegQueue<SignalValue>>) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError> {
+    fn create_proxy(
+        &self,
+        provider_uri: &str,
+        signal_values_queue: Arc<SegQueue<SignalValue>>,
+    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError> {
         HttpMockProviderProxy::create_new(provider_uri, signal_values_queue)
     }
 }

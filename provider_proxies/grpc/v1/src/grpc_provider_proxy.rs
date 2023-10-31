@@ -20,7 +20,10 @@ use samples_protobuf_data_access::sample_grpc::v1::{
 use tonic::transport::{Channel, Server};
 
 use crate::{config::Config, grpc_client_impl::GRPCClientImpl, GET_OPERATION, SUBSCRIBE_OPERATION};
-use freyja_contracts::{provider_proxy::{ProviderProxy, ProviderProxyError, SignalValue, ProviderProxyErrorKind}, entity::EntityEndpoint};
+use freyja_contracts::{
+    entity::EntityEndpoint,
+    provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue},
+};
 
 const CONFIG_FILE_STEM: &str = "grpc_proxy_config";
 
@@ -161,8 +164,9 @@ impl ProviderProxy for GRPCProviderProxy {
                     result = Some(GET_OPERATION);
                 }
             }
-            
-            result.ok_or::<ProviderProxyError>(ProviderProxyErrorKind::OperationNotSupported.into())?
+
+            result
+                .ok_or::<ProviderProxyError>(ProviderProxyErrorKind::OperationNotSupported.into())?
         };
 
         self.entity_operation_map
@@ -333,7 +337,14 @@ mod grpc_provider_proxy_v1_tests {
                 let entity_id = "operation_get_entity_id";
 
                 let result = grpc_provider_proxy
-                    .register_entity(entity_id, &EntityEndpoint { protocol: GRPC_PROTOCOL.to_string(), operations: vec![GET_OPERATION.to_string()], uri: "foo".to_string() })
+                    .register_entity(
+                        entity_id,
+                        &EntityEndpoint {
+                            protocol: GRPC_PROTOCOL.to_string(),
+                            operations: vec![GET_OPERATION.to_string()],
+                            uri: "foo".to_string(),
+                        },
+                    )
                     .await;
                 assert!(result.is_ok());
                 assert!(grpc_provider_proxy
@@ -343,7 +354,14 @@ mod grpc_provider_proxy_v1_tests {
 
                 let entity_id = "operation_subscribe_entity_id";
                 let result = grpc_provider_proxy
-                    .register_entity(entity_id, &EntityEndpoint { protocol: GRPC_PROTOCOL.to_string(), operations: vec![SUBSCRIBE_OPERATION.to_string()], uri: "foo".to_string() })
+                    .register_entity(
+                        entity_id,
+                        &EntityEndpoint {
+                            protocol: GRPC_PROTOCOL.to_string(),
+                            operations: vec![SUBSCRIBE_OPERATION.to_string()],
+                            uri: "foo".to_string(),
+                        },
+                    )
                     .await;
                 assert!(result.is_ok());
                 assert!(grpc_provider_proxy

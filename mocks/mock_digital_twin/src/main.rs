@@ -252,7 +252,9 @@ async fn get_entity(
     let state = state.lock().unwrap();
     find_entity(&state, &query.id)
         .map(|(config_item, _)| {
-            ok!(FindByIdResponse { entity: config_item.entity.clone() })
+            ok!(FindByIdResponse {
+                entity: config_item.entity.clone()
+            })
         })
         .unwrap_or(not_found!())
 }

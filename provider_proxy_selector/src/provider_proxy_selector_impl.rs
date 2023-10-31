@@ -13,8 +13,10 @@ use log::debug;
 
 use freyja_contracts::{
     entity::Entity,
-    provider_proxy::{ProviderProxy, SignalValue, ProviderProxyFactory},
-    provider_proxy_selector::{ProviderProxySelector, ProviderProxySelectorError, ProviderProxySelectorErrorKind},
+    provider_proxy::{ProviderProxy, ProviderProxyFactory, SignalValue},
+    provider_proxy_selector::{
+        ProviderProxySelector, ProviderProxySelectorError, ProviderProxySelectorErrorKind,
+    },
 };
 use grpc_provider_proxy_v1::grpc_provider_proxy_factory::GRPCProviderProxyFactory;
 use http_mock_provider_proxy::http_mock_provider_proxy_factory::HttpMockProviderProxyFactory;
@@ -23,7 +25,7 @@ use tokio::sync::Mutex;
 
 /// The provider proxy selector selects which provider proxy to create based on protocol and operation.
 /// This struct is **not** thread-safe and should be shared with `Arc<Mutex<ProviderProxySelectorImpl>>`.
-/// 
+///
 /// Note: This struct makes use of two separate mutexes. To avoid deadlocking,
 /// you MUST ensure that the entity_map mutex is only acquired if the provider_proxies map has also been acquired
 pub struct ProviderProxySelectorImpl {
@@ -80,7 +82,7 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
         for endpoint in entity.endpoints.iter() {
             if let Some(provider_proxy) = provider_proxies.get(&endpoint.uri) {
                 debug!("A provider proxy for {} already exists", &endpoint.uri);
-                    
+
                 entity_map.insert(String::from(&entity.id), String::from(&endpoint.uri));
 
                 return provider_proxy
@@ -95,13 +97,16 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
             let mut result = None;
             for factory in self.factories.iter() {
                 if let Some(endpoint) = factory.is_supported(entity) {
-                    let proxy = factory.create_proxy(&endpoint.uri, self.signal_values_queue.clone())
+                    let proxy = factory
+                        .create_proxy(&endpoint.uri, self.signal_values_queue.clone())
                         .map_err(ProviderProxySelectorError::provider_proxy_error)?;
                     result = Some((proxy, endpoint));
                 }
             }
 
-            result.ok_or::<ProviderProxySelectorError>(ProviderProxySelectorErrorKind::OperationNotSupported.into())?
+            result.ok_or::<ProviderProxySelectorError>(
+                ProviderProxySelectorErrorKind::OperationNotSupported.into(),
+            )?
         };
 
         // If we're able to create a provider_proxy then map the
@@ -159,7 +164,9 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
 mod provider_proxy_selector_tests {
     use super::*;
 
-    use freyja_contracts::{provider_proxy_selector::ProviderProxySelectorErrorKind, entity::EntityEndpoint};
+    use freyja_contracts::{
+        entity::EntityEndpoint, provider_proxy_selector::ProviderProxySelectorErrorKind,
+    };
 
     const AMBIENT_AIR_TEMPERATURE_ID: &str = "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1";
     const OPERATION: &str = "Subscribe";
@@ -178,7 +185,7 @@ mod provider_proxy_selector_tests {
                 // Emtpy URI for GRPC will cause the test to fail when creating a new proxy
                 uri: String::new(),
                 protocol: String::from("grpc"),
-            }]
+            }],
         };
 
         let result = uut.create_or_update_proxy(&entity).await;
