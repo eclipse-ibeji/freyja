@@ -84,7 +84,7 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
                 entity_map.insert(String::from(&entity.id), String::from(&endpoint.uri));
 
                 return provider_proxy
-                    .register_entity(&entity.id, &endpoint)
+                    .register_entity(&entity.id, endpoint)
                     .await
                     .map_err(ProviderProxySelectorError::communication);
             }
@@ -107,7 +107,7 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
         // If we're able to create a provider_proxy then map the
         // provider uri to that created proxy
 
-        entity_map.insert(String::from(entity.id.clone()), String::from(endpoint.uri.clone()));
+        entity_map.insert(entity.id.clone(), endpoint.uri.clone());
 
         let provider_proxy_clone = provider_proxy.clone();
         tokio::spawn(async move {
