@@ -21,20 +21,20 @@ pub trait DigitalTwinAdapter {
     /// - `request`: the request for finding an entity's access information
     async fn find_by_id(
         &self,
-        request: GetDigitalTwinProviderRequest,
-    ) -> Result<GetDigitalTwinProviderResponse, DigitalTwinAdapterError>;
+        request: FindByIdRequest,
+    ) -> Result<FindByIdResponse, DigitalTwinAdapterError>;
 }
 
 /// A request for digital twin providers
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GetDigitalTwinProviderRequest {
+pub struct FindByIdRequest {
     /// The entity's id to inquire about
     pub entity_id: String,
 }
 
 /// The response for digital twin providers
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GetDigitalTwinProviderResponse {
+pub struct FindByIdResponse {
     /// Entity information
     pub entity: Entity,
 }

@@ -11,8 +11,7 @@ use log::{info, warn};
 use freyja_contracts::{
     conversion::Conversion,
     digital_twin_adapter::{
-        DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind,
-        GetDigitalTwinProviderRequest,
+        DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind, FindByIdRequest,
     },
     mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient},
     provider_proxy_selector::ProviderProxySelector,
@@ -180,7 +179,7 @@ impl<
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         signal.source = self
             .digital_twin_client
-            .find_by_id(GetDigitalTwinProviderRequest {
+            .find_by_id(FindByIdRequest {
                 entity_id: signal.id.clone(),
             })
             .await?
@@ -208,7 +207,7 @@ mod cartographer_tests {
     use mockall::{predicate::eq, *};
 
     use freyja_contracts::{
-        digital_twin_adapter::{DigitalTwinAdapterError, GetDigitalTwinProviderResponse},
+        digital_twin_adapter::{DigitalTwinAdapterError, FindByIdResponse},
         digital_twin_map_entry::DigitalTwinMapEntry,
         entity::Entity,
         mapping_client::{
@@ -229,8 +228,8 @@ mod cartographer_tests {
 
             async fn find_by_id(
                 &self,
-                request: GetDigitalTwinProviderRequest,
-            ) -> Result<GetDigitalTwinProviderResponse, DigitalTwinAdapterError>;
+                request: FindByIdRequest,
+            ) -> Result<FindByIdResponse, DigitalTwinAdapterError>;
         }
     }
 
@@ -350,7 +349,7 @@ mod cartographer_tests {
 
         let mut mock_dt_adapter = MockDigitalTwinAdapterImpl::new();
         mock_dt_adapter.expect_find_by_id().returning(move |_| {
-            Ok(GetDigitalTwinProviderResponse {
+            Ok(FindByIdResponse {
                 entity: test_entity_clone.clone(),
             })
         });

@@ -7,8 +7,8 @@ use async_trait::async_trait;
 use crate::config::Config;
 use freyja_common::{config_utils, out_dir};
 use freyja_contracts::digital_twin_adapter::{
-    DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind,
-    GetDigitalTwinProviderRequest, GetDigitalTwinProviderResponse,
+    DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind, FindByIdRequest,
+    FindByIdResponse,
 };
 
 const CONFIG_FILE_STEM: &str = "in_memory_digital_twin_config";
@@ -51,13 +51,13 @@ impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
     /// - `request`: the request to send
     async fn find_by_id(
         &self,
-        request: GetDigitalTwinProviderRequest,
-    ) -> Result<GetDigitalTwinProviderResponse, DigitalTwinAdapterError> {
+        request: FindByIdRequest,
+    ) -> Result<FindByIdResponse, DigitalTwinAdapterError> {
         self.config
             .values
             .iter()
             .find(|entity_config| entity_config.entity.id == request.entity_id)
-            .map(|entity_config| GetDigitalTwinProviderResponse {
+            .map(|entity_config| FindByIdResponse {
                 entity: entity_config.entity.clone(),
             })
             .ok_or(DigitalTwinAdapterErrorKind::EntityNotFound.into())
@@ -97,7 +97,7 @@ mod in_memory_mock_digital_twin_adapter_tests {
         };
 
         let in_memory_digital_twin_adapter = InMemoryMockDigitalTwinAdapter { config };
-        let request = GetDigitalTwinProviderRequest {
+        let request = FindByIdRequest {
             entity_id: String::from(ENTITY_ID),
         };
         let response = in_memory_digital_twin_adapter

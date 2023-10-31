@@ -19,7 +19,7 @@ use tokio::sync::{mpsc, mpsc::UnboundedSender};
 
 use crate::config::{Config, EntityConfig};
 use freyja_common::{config_utils, out_dir};
-use freyja_contracts::digital_twin_adapter::GetDigitalTwinProviderResponse;
+use freyja_contracts::digital_twin_adapter::FindByIdResponse;
 use http_mock_provider_proxy::http_mock_provider_proxy::{EntityValueRequest, EntityValueResponse};
 use mock_digital_twin::{ENTITY_GET_VALUE_PATH, ENTITY_PATH, ENTITY_SUBSCRIBE_PATH};
 
@@ -265,7 +265,7 @@ async fn get_entity(
             let mut entity = config_item.entity.clone();
             entity.uri = format!("{}{operation_path}", config_item.entity.uri);
 
-            ok!(GetDigitalTwinProviderResponse { entity })
+            ok!(FindByIdResponse { entity })
         })
         .unwrap_or(not_found!())
 }

@@ -8,8 +8,7 @@ use reqwest::Client;
 
 use crate::config::Config;
 use freyja_contracts::digital_twin_adapter::{
-    DigitalTwinAdapter, DigitalTwinAdapterError, GetDigitalTwinProviderRequest,
-    GetDigitalTwinProviderResponse,
+    DigitalTwinAdapter, DigitalTwinAdapterError, FindByIdRequest, FindByIdResponse,
 };
 use mock_digital_twin::ENTITY_QUERY_PATH;
 
@@ -72,8 +71,8 @@ impl DigitalTwinAdapter for MockDigitalTwinAdapter {
     /// - `request`: the request to send to the mock digital twin server
     async fn find_by_id(
         &self,
-        request: GetDigitalTwinProviderRequest,
-    ) -> Result<GetDigitalTwinProviderResponse, DigitalTwinAdapterError> {
+        request: FindByIdRequest,
+    ) -> Result<FindByIdResponse, DigitalTwinAdapterError> {
         let target = format!(
             "{}{ENTITY_QUERY_PATH}{}",
             self.config.digital_twin_service_uri, request.entity_id
@@ -86,7 +85,7 @@ impl DigitalTwinAdapter for MockDigitalTwinAdapter {
             .map_err(DigitalTwinAdapterError::communication)?
             .error_for_status()
             .map_err(Self::map_status_err)?
-            .json::<GetDigitalTwinProviderResponse>()
+            .json::<FindByIdResponse>()
             .await
             .map_err(DigitalTwinAdapterError::deserialize)
     }
