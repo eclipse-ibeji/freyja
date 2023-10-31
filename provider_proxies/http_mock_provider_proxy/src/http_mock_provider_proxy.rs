@@ -12,17 +12,16 @@ use axum::routing::post;
 use axum::Router;
 use crossbeam::queue::SegQueue;
 use freyja_common::{config_utils, out_dir};
+use freyja_contracts::entity::EntityEndpoint;
 use log::{debug, error, info};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
+use crate::{GET_OPERATION, SUBSCRIBE_OPERATION};
 use crate::config::Config;
-use freyja_contracts::provider_proxy::{ProviderProxy, ProviderProxyError, SignalValue};
+use freyja_contracts::provider_proxy::{ProviderProxy, ProviderProxyError, SignalValue, ProviderProxyErrorKind};
 
 const CONFIG_FILE_STEM: &str = "http_mock_provider_proxy";
-const GET_OPERATION: &str = "Get";
-const SUBSCRIBE_OPERATION: &str = "Subscribe";
-const SUPPORTED_OPERATIONS: &[&str] = &[GET_OPERATION, SUBSCRIBE_OPERATION];
 const CALLBACK_FOR_VALUES_PATH: &str = "/value";
 
 macro_rules! ok {
@@ -148,7 +147,7 @@ impl ProviderProxy for HttpMockProviderProxy {
     fn create_new(
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
-    ) -> Result<Box<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
+    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
     where
         Self: Sized,
     {
@@ -167,7 +166,7 @@ impl ProviderProxy for HttpMockProviderProxy {
             client: reqwest::Client::new(),
             entity_operation_map: Mutex::new(HashMap::new()),
         })
-        .map(|r| Box::new(r) as _)
+        .map(|r| Arc::new(r) as _)
     }
 
     /// Runs a provider proxy
@@ -224,52 +223,57 @@ impl ProviderProxy for HttpMockProviderProxy {
     ///
     /// # Arguments
     /// - `entity_id`: the entity id to add
-    /// - `operation`: the operation that this entity supports
+    /// - `endpoint`: the endpoint that this entity supports
     async fn register_entity(
         &self,
         entity_id: &str,
-        operation: &str,
+        endpoint: &EntityEndpoint,
     ) -> Result<(), ProviderProxyError> {
+        // Prefer subscribe if present
+        let selected_operation = {
+            let mut result = None;
+            for operation in endpoint.operations.iter() {
+                if operation == SUBSCRIBE_OPERATION {
+                    result = Some(SUBSCRIBE_OPERATION);
+                    break;
+                } else if operation == GET_OPERATION {
+                    // Set result, but don't break the loop in case there's a subscribe operation later in the list
+                    result = Some(GET_OPERATION);
+                }
+            }
+            
+            result.ok_or::<ProviderProxyError>(ProviderProxyErrorKind::OperationNotSupported.into())?
+        };
+        
         self.entity_operation_map
             .lock()
             .unwrap()
-            .insert(String::from(entity_id), String::from(operation));
+            .insert(String::from(entity_id), String::from(selected_operation));
 
-        if operation != SUBSCRIBE_OPERATION {
-            return Ok(());
-        }
-
-        // Subscribe
-        let request = EntityValueRequest {
-            entity_id: String::from(entity_id),
-            callback_uri: Self::construct_callback_uri(&self.config.proxy_callback_address),
-        };
-
-        let subscribe_endpoint_for_entity = self.provider_uri.clone();
-        let result = self
-            .client
-            .post(&subscribe_endpoint_for_entity)
-            .json(&request)
-            .send()
-            .await
-            .map_err(ProviderProxyError::communication)?
-            .error_for_status()
-            .map_err(ProviderProxyError::unknown);
-
-        // Remove from map if the subscribe operation fails
-        if result.is_err() {
-            error!("Cannot subscribe to {entity_id} due to {result:?}");
-            self.entity_operation_map.lock().unwrap().remove(entity_id);
+        if selected_operation == SUBSCRIBE_OPERATION {
+            let request = EntityValueRequest {
+                entity_id: String::from(entity_id),
+                callback_uri: Self::construct_callback_uri(&self.config.proxy_callback_address),
+            };
+    
+            let subscribe_endpoint_for_entity = self.provider_uri.clone();
+            let result = self
+                .client
+                .post(&subscribe_endpoint_for_entity)
+                .json(&request)
+                .send()
+                .await
+                .map_err(ProviderProxyError::communication)?
+                .error_for_status()
+                .map_err(ProviderProxyError::unknown);
+    
+            // Remove from map if the subscribe operation fails
+            if result.is_err() {
+                error!("Cannot subscribe to {entity_id} due to {result:?}");
+                self.entity_operation_map.lock().unwrap().remove(entity_id);
+            }
         }
 
         Ok(())
-    }
-
-    /// Checks if the operation is supported
-    ///
-    /// # Arguments
-    /// - `operation`: check to see if this operation is supported by this provider proxy
-    fn is_operation_supported(operation: &str) -> bool {
-        SUPPORTED_OPERATIONS.contains(&operation)
     }
 }

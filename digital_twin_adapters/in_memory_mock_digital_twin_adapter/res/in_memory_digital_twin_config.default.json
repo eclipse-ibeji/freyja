@@ -4,30 +4,42 @@
             "entity": {
                 "id": "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1",
                 "name": "AmbientAirTemperature",
-                "uri": "http://0.0.0.0:1111",
-                "description": "The immediate surroundings air temperature (in Fahrenheit).",
-                "operation": "Get",
-                "protocol": "in-memory"
+                "description": "The air temperature of the immediate surroundings (in Fahrenheit).",
+                "endpoints": [
+                    {
+                        "protocol": "in-memory",
+                        "operations": ["Get"],
+                        "uri": "http://0.0.0.0:1111"
+                    }
+                ]
             }
         },
         {
             "entity": {
                 "id": "dtmi:sdv:Vehicle:Cabin:HVAC:IsAirConditioningActive;1",
                 "name": "IsAirConditioningActive",
-                "uri": "http://0.0.0.0:1111",
                 "description": "Is air conditioning active?",
-                "operation": "Subscribe",
-                "protocol": "in-memory"
+                "endpoints": [
+                    {
+                        "protocol": "in-memory",
+                        "operations": ["Subscribe"],
+                        "uri": "http://0.0.0.0:1111"
+                    }
+                ]
             }
         },
         {
             "entity": {
                 "id": "dtmi:sdv:Vehicle:OBD:HybridBatteryRemaining;1",
                 "name": "HybridBatteryRemaining",
-                "uri": "http://0.0.0.0:1111",
                 "description": "Percentage of the hybrid battery remaining",
-                "operation": "Subscribe",
-                "protocol": "in-memory"
+                "endpoints": [
+                    {
+                        "protocol": "in-memory",
+                        "operations": ["Subscribe"],
+                        "uri": "http://0.0.0.0:1111"
+                    }
+                ]
             }
         }
     ]

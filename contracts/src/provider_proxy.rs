@@ -7,6 +7,8 @@ use std::{fmt::Debug, sync::Arc};
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
 
+use crate::entity::{EntityEndpoint, Entity};
+
 /// Represents a signal value
 pub struct SignalValue {
     /// The entity's id
@@ -26,11 +28,11 @@ pub trait ProviderProxy: Debug {
     fn create_new(
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
-    ) -> Result<Box<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
+    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
     where
         Self: Sized;
 
-    /// Runs a provider proxy
+    /// Runs a provider proxy.
     async fn run(&self) -> Result<(), ProviderProxyError>;
 
     /// Sends a request to a provider for obtaining the value of an entity
@@ -44,20 +46,18 @@ pub trait ProviderProxy: Debug {
     ///
     /// # Arguments
     /// - `entity_id`: the entity id to add
-    /// - `operation`: the operation that this entity supports
+    /// - `endpoint`: the endpoint that this entity supports
     async fn register_entity(
         &self,
         entity_id: &str,
-        operation: &str,
+        endpoint: &EntityEndpoint,
     ) -> Result<(), ProviderProxyError>;
+}
 
-    /// Checks if this operation is supported
-    ///
-    /// # Arguments
-    /// - `operation`: check to see if this operation is supported by this provider proxy
-    fn is_operation_supported(operation: &str) -> bool
-    where
-        Self: Sized + Send + Sync;
+pub trait ProviderProxyFactory {
+    fn is_supported(&self, entity: &Entity) -> Option<EntityEndpoint>;
+
+    fn create_proxy(&self, provider_uri: &str, signal_values_queue: Arc<SegQueue<SignalValue>>) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>;
 }
 
 proc_macros::error! {
@@ -68,6 +68,7 @@ proc_macros::error! {
         Deserialize,
         Communication,
         EntityNotFound,
+        OperationNotSupported,
         Unknown
     }
 }

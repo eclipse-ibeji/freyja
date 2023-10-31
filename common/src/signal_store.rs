@@ -174,7 +174,7 @@ mod signal_store_tests {
 
     use freyja_contracts::{
         conversion::Conversion,
-        entity::Entity,
+        entity::{Entity, EntityEndpoint},
         signal::{Emission, EmissionPolicy, Target},
     };
 
@@ -264,12 +264,14 @@ mod signal_store_tests {
             id: ID.to_string(),
             value: Some(ORIGINAL.to_string()),
             source: Entity {
-                id: ID.to_string(),
                 name: Some(ORIGINAL.to_string()),
-                uri: ORIGINAL.to_string(),
+                id: ID.to_string(),
                 description: Some(ORIGINAL.to_string()),
-                operation: GET_OPERATION.to_string(),
-                protocol: ORIGINAL.to_string(),
+                endpoints: vec![EntityEndpoint {
+                    protocol: ORIGINAL.to_string(),
+                    operations: vec![GET_OPERATION.to_string()],
+                    uri: ORIGINAL.to_string(),
+                }],
             },
             target: Target {
                 metadata: [(ORIGINAL.to_string(), ORIGINAL.to_string())]
@@ -293,12 +295,14 @@ mod signal_store_tests {
             id: ID.to_string(),
             value: Some(INCOMING.to_string()),
             source: Entity {
-                id: ID.to_string(),
                 name: Some(INCOMING.to_string()),
-                uri: INCOMING.to_string(),
+                id: ID.to_string(),
                 description: Some(INCOMING.to_string()),
-                operation: "FooOperation".to_string(),
-                protocol: INCOMING.to_string(),
+                endpoints: vec![EntityEndpoint {
+                    protocol: INCOMING.to_string(),
+                    operations: vec!["FooOperation".to_string()],
+                    uri: INCOMING.to_string(),
+                }],
             },
             target: Target {
                 metadata: [(INCOMING.to_string(), INCOMING.to_string())]
@@ -363,12 +367,14 @@ mod signal_store_tests {
             id: ID.to_string(),
             value: Some(INCOMING.to_string()),
             source: Entity {
-                id: ID.to_string(),
                 name: Some(INCOMING.to_string()),
-                uri: INCOMING.to_string(),
+                id: ID.to_string(),
                 description: Some(INCOMING.to_string()),
-                operation: GET_OPERATION.to_string(),
-                protocol: INCOMING.to_string(),
+                endpoints: vec![EntityEndpoint {
+                    protocol: INCOMING.to_string(),
+                    operations: vec![GET_OPERATION.to_string()],
+                    uri: INCOMING.to_string(),
+                }],
             },
             target: Target {
                 metadata: [(INCOMING.to_string(), INCOMING.to_string())]
@@ -426,12 +432,14 @@ mod signal_store_tests {
             id: ID.to_string(),
             value: Some(ORIGINAL.to_string()),
             source: Entity {
-                id: ID.to_string(),
                 name: Some(ORIGINAL.to_string()),
-                uri: ORIGINAL.to_string(),
+                id: ID.to_string(),
                 description: Some(ORIGINAL.to_string()),
-                operation: GET_OPERATION.to_string(),
-                protocol: ORIGINAL.to_string(),
+                endpoints: vec![EntityEndpoint {
+                    protocol: ORIGINAL.to_string(),
+                    operations: vec![GET_OPERATION.to_string()],
+                    uri: ORIGINAL.to_string(),
+                }],
             },
             target: Target {
                 metadata: [(ORIGINAL.to_string(), ORIGINAL.to_string())]

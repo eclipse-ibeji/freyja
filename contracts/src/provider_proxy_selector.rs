@@ -16,7 +16,7 @@ pub trait ProviderProxySelector {
     /// # Arguments
     /// - `entity`: the entity that the proxy should handle
     async fn create_or_update_proxy(
-        &mut self,
+        &self,
         entity: &Entity,
     ) -> Result<(), ProviderProxySelectorError>;
 
@@ -25,7 +25,7 @@ pub trait ProviderProxySelector {
     /// # Arguments
     /// - `entity_id`: the entity to request
     async fn request_entity_value(
-        &mut self,
+        &self,
         entity_id: &str,
     ) -> Result<(), ProviderProxySelectorError>;
 }

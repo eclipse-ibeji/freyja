@@ -121,7 +121,7 @@ impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector>
                 // This approach to requesting signal values introduces an inherent delay in uploading data
                 // of signal.emission.policy.interval_ms and needs to be revisited.
                 let proxy_result = {
-                    let mut provider_proxy_selector = self.provider_proxy_selector.lock().await;
+                    let provider_proxy_selector = self.provider_proxy_selector.lock().await;
                     provider_proxy_selector
                         .request_entity_value(&signal.id)
                         .await
@@ -255,8 +255,8 @@ mod emitter_tests {
 
         #[async_trait]
         impl ProviderProxySelector for ProviderProxySelector {
-            async fn create_or_update_proxy(&mut self, entity: &Entity) -> Result<(), ProviderProxySelectorError>;
-            async fn request_entity_value(&mut self, entity_id: &str) -> Result<(), ProviderProxySelectorError>;
+            async fn create_or_update_proxy(&self, entity: &Entity) -> Result<(), ProviderProxySelectorError>;
+            async fn request_entity_value(&self, entity_id: &str) -> Result<(), ProviderProxySelectorError>;
         }
     }
 

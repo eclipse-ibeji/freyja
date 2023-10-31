@@ -69,7 +69,7 @@ mod in_memory_mock_digital_twin_adapter_tests {
     use super::*;
 
     use crate::config::EntityConfig;
-    use freyja_contracts::entity::Entity;
+    use freyja_contracts::entity::{Entity, EntityEndpoint};
 
     const OPERATION: &str = "Subscribe";
 
@@ -86,12 +86,14 @@ mod in_memory_mock_digital_twin_adapter_tests {
         let config = Config {
             values: vec![EntityConfig {
                 entity: Entity {
-                    id: String::from(ENTITY_ID),
                     name: None,
-                    uri: String::from("http://0.0.0.0:1111"), // Devskim: ignore DS137138
+                    id: ENTITY_ID.to_string(),
                     description: None,
-                    operation: OPERATION.to_string(),
-                    protocol: String::from("in-memory"),
+                    endpoints: vec![EntityEndpoint {
+                        protocol: String::from("in-memory"),
+                        operations: vec![OPERATION.to_string()],
+                        uri: String::from("http://0.0.0.0:1111"), // Devskim: ignore DS137138
+                    }],
                 },
             }],
         };
@@ -100,11 +102,17 @@ mod in_memory_mock_digital_twin_adapter_tests {
         let request = FindByIdRequest {
             entity_id: String::from(ENTITY_ID),
         };
+
         let response = in_memory_digital_twin_adapter
             .find_by_id(request)
             .await
             .unwrap();
+
         assert_eq!(response.entity.id, ENTITY_ID);
-        assert_eq!(response.entity.operation, OPERATION);
+        assert_eq!(response.entity.endpoints.len(), 1);
+        let endpoint = response.entity.endpoints.first().unwrap();
+        assert_eq!(endpoint.operations.len(), 1);
+        let operation = endpoint.operations.first().unwrap();
+        assert_eq!(operation, OPERATION);
     }
 }
