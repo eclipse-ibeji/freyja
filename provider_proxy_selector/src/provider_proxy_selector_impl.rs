@@ -175,17 +175,19 @@ mod provider_proxy_selector_tests {
             description: None,
             endpoints: vec![EntityEndpoint {
                 operations: vec![OPERATION.to_string()],
+                // Emtpy URI for GRPC will cause the test to fail when creating a new proxy
                 uri: String::new(),
                 protocol: String::from("grpc"),
             }]
         };
 
         let result = uut.create_or_update_proxy(&entity).await;
+        println!("{result:?}");
 
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err().kind(),
-            ProviderProxySelectorErrorKind::Communication
+            ProviderProxySelectorErrorKind::ProviderProxyError
         );
     }
 }
