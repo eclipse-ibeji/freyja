@@ -117,9 +117,8 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
             )?
         };
 
-        // If we're able to create a provider_proxy then map the
+        // If we're able to create a proxy then map the
         // provider uri to that created proxy
-
         state
             .entity_map
             .insert(entity.id.clone(), endpoint.uri.clone());
