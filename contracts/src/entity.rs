@@ -32,3 +32,25 @@ pub struct EntityEndpoint {
     /// The provider's uri
     pub uri: String,
 }
+
+impl Entity {
+    /// Checks to see if this entity supports the requested protocol(s) and operation(s).
+    /// Returns the first endpoint that satisfies the requirements.
+    ///
+    /// # Arguments
+    /// - `protocols`: the list of protocols to check
+    /// - `operations`: the list of operations to check
+    pub fn is_supported(&self, protocols: &[&str], operations: &[&str]) -> Option<EntityEndpoint> {
+        for endpoint in self.endpoints.iter() {
+            if protocols.contains(&endpoint.protocol.as_str()) {
+                for operation in endpoint.operations.iter() {
+                    if operations.contains(&operation.as_str()) {
+                        return Some(endpoint.clone());
+                    }
+                }
+            }
+        }
+
+        None
+    }
+}

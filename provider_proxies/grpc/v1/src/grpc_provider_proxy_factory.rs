@@ -14,25 +14,24 @@ use crate::{
     grpc_provider_proxy::GRPCProviderProxy, GET_OPERATION, GRPC_PROTOCOL, SUBSCRIBE_OPERATION,
 };
 
+/// Factory for creating GRPCProviderProxies
 pub struct GRPCProviderProxyFactory {}
 
 impl ProviderProxyFactory for GRPCProviderProxyFactory {
+    /// Check to see whether this factory can create a proxy for the requested entity.
+    /// Returns the first endpoint found that is supported by this factory.
+    ///
+    /// # Arguments
+    /// - `entity`: the entity to check for compatibility
     fn is_supported(&self, entity: &Entity) -> Option<EntityEndpoint> {
-        for endpoint in entity.endpoints.iter() {
-            if endpoint.protocol == GRPC_PROTOCOL {
-                for operation in endpoint.operations.iter() {
-                    if operation == GET_OPERATION || operation == SUBSCRIBE_OPERATION {
-                        // This entity is supported! The proxy will worry about how to handle operations,
-                        // right now we just need to know if it can do anything at all with this entity.
-                        return Some(endpoint.clone());
-                    }
-                }
-            }
-        }
-
-        None
+        entity.is_supported(&[GRPC_PROTOCOL], &[GET_OPERATION, SUBSCRIBE_OPERATION])
     }
 
+    /// Create a new proxy
+    ///
+    /// # Arguments
+    /// - `provider_uri`: The provider URI to associate with this proxy
+    /// - `signal_values_queue`: The queue into which new signal values wil lbe published
     fn create_proxy(
         &self,
         provider_uri: &str,

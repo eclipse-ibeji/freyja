@@ -10,6 +10,7 @@ use std::{
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
 use log::debug;
+use tokio::sync::Mutex;
 
 use freyja_contracts::{
     entity::Entity,
@@ -21,22 +22,24 @@ use freyja_contracts::{
 use grpc_provider_proxy_v1::grpc_provider_proxy_factory::GRPCProviderProxyFactory;
 use http_mock_provider_proxy::http_mock_provider_proxy_factory::HttpMockProviderProxyFactory;
 use in_memory_mock_provider_proxy::in_memory_mock_provider_proxy_factory::InMemoryMockProviderProxyFactory;
-use tokio::sync::Mutex;
+
+/// Represents the state of teh ProviderProxySelector and allows for simplified access through a mutex
+struct ProviderProxySelectorState {
+    /// A map of entity uri to provider proxy
+    provider_proxies: HashMap<String, Arc<dyn ProviderProxy + Send + Sync>>,
+
+    /// A map of entity id to provider uri
+    entity_map: HashMap<String, String>,
+}
 
 /// The provider proxy selector selects which provider proxy to create based on protocol and operation.
 /// This struct is **not** thread-safe and should be shared with `Arc<Mutex<ProviderProxySelectorImpl>>`.
-///
-/// Note: This struct makes use of two separate mutexes. To avoid deadlocking,
-/// you MUST ensure that the entity_map mutex is only acquired if the provider_proxies map has also been acquired
 pub struct ProviderProxySelectorImpl {
     /// The set of factories that have been registered
     factories: Vec<Box<dyn ProviderProxyFactory + Send + Sync>>,
 
-    /// A map of entity uri to provider proxy
-    provider_proxies: Mutex<HashMap<String, Arc<dyn ProviderProxy + Send + Sync>>>,
-
-    /// A map of entity id to provider uri
-    entity_map: Mutex<HashMap<String, String>>,
+    /// The ProviderPrxySelector's state
+    state: Mutex<ProviderProxySelectorState>,
 
     /// The signal values queue used for creating the proxies
     signal_values_queue: Arc<SegQueue<SignalValue>>,
@@ -56,8 +59,10 @@ impl ProviderProxySelectorImpl {
 
         ProviderProxySelectorImpl {
             factories,
-            provider_proxies: Mutex::new(HashMap::new()),
-            entity_map: Mutex::new(HashMap::new()),
+            state: Mutex::new(ProviderProxySelectorState {
+                provider_proxies: HashMap::new(),
+                entity_map: HashMap::new(),
+            }),
             signal_values_queue,
         }
     }
@@ -74,21 +79,24 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
         &self,
         entity: &Entity,
     ) -> Result<(), ProviderProxySelectorError> {
-        let mut provider_proxies = self.provider_proxies.lock().await;
-        let mut entity_map = self.entity_map.lock().await;
+        let mut state = self.state.lock().await;
 
         // If a provider proxy already exists for one of this entity's uris,
         // then we notify that proxy to include this new entity
         for endpoint in entity.endpoints.iter() {
-            if let Some(provider_proxy) = provider_proxies.get(&endpoint.uri) {
+            if let Some(provider_proxy) = state.provider_proxies.get(&endpoint.uri) {
                 debug!("A provider proxy for {} already exists", &endpoint.uri);
 
-                entity_map.insert(String::from(&entity.id), String::from(&endpoint.uri));
-
-                return provider_proxy
+                let result = provider_proxy
                     .register_entity(&entity.id, endpoint)
                     .await
                     .map_err(ProviderProxySelectorError::communication);
+
+                state
+                    .entity_map
+                    .insert(String::from(&entity.id), String::from(&endpoint.uri));
+
+                return result;
             }
         }
 
@@ -112,7 +120,9 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
         // If we're able to create a provider_proxy then map the
         // provider uri to that created proxy
 
-        entity_map.insert(entity.id.clone(), endpoint.uri.clone());
+        state
+            .entity_map
+            .insert(entity.id.clone(), endpoint.uri.clone());
 
         let provider_proxy_clone = provider_proxy.clone();
         tokio::spawn(async move {
@@ -124,7 +134,9 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
             .await
             .map_err(ProviderProxySelectorError::provider_proxy_error)?;
 
-        provider_proxies.insert(endpoint.uri.clone(), provider_proxy);
+        state
+            .provider_proxies
+            .insert(endpoint.uri.clone(), provider_proxy);
 
         Ok(())
     }
@@ -137,17 +149,17 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
         &self,
         entity_id: &str,
     ) -> Result<(), ProviderProxySelectorError> {
-        let mut provider_proxies = self.provider_proxies.lock().await;
-        let entity_map = self.entity_map.lock().await;
+        let mut state = self.state.lock().await;
 
-        let provider_uri = entity_map
+        let provider_uri = state
+            .entity_map
             .get(entity_id)
             .ok_or(ProviderProxySelectorError::entity_not_found(format!(
                 "Unable to retrieve entity uri for {entity_id}"
             )))?
             .to_owned();
 
-        match provider_proxies.entry(provider_uri) {
+        match state.provider_proxies.entry(provider_uri) {
             Entry::Occupied(provider_proxy) => provider_proxy
                 .get()
                 .send_request_to_provider(entity_id)

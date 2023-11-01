@@ -18,8 +18,9 @@ pub struct SignalValue {
     pub value: String,
 }
 
+/// Consumes data from a provider and acts as a proxy for its interface
 #[async_trait]
-pub trait ProviderProxy: Debug {
+pub trait ProviderProxy {
     /// Creates a provider proxy
     ///
     /// # Arguments
@@ -54,9 +55,20 @@ pub trait ProviderProxy: Debug {
     ) -> Result<(), ProviderProxyError>;
 }
 
+/// Factory for creating ProviderProxies
 pub trait ProviderProxyFactory {
+    /// Check to see whether this factory can create a proxy for the requested entity.
+    /// Returns the first endpoint found that is supported by this factory.
+    ///
+    /// # Arguments
+    /// - `entity`: the entity to check for compatibility
     fn is_supported(&self, entity: &Entity) -> Option<EntityEndpoint>;
 
+    /// Create a new proxy
+    ///
+    /// # Arguments
+    /// - `provider_uri`: The provider URI to associate with this proxy
+    /// - `signal_values_queue`: The queue into which new signal values wil lbe published
     fn create_proxy(
         &self,
         provider_uri: &str,
