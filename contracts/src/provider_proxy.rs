@@ -68,7 +68,7 @@ pub trait ProviderProxyFactory {
     ///
     /// # Arguments
     /// - `provider_uri`: The provider URI to associate with this proxy
-    /// - `signal_values_queue`: The queue into which new signal values wil lbe published
+    /// - `signal_values_queue`: The queue into which new signal values will be published
     fn create_proxy(
         &self,
         provider_uri: &str,

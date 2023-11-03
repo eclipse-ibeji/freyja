@@ -23,7 +23,7 @@ use grpc_provider_proxy_v1::grpc_provider_proxy_factory::GRPCProviderProxyFactor
 use http_mock_provider_proxy::http_mock_provider_proxy_factory::HttpMockProviderProxyFactory;
 use in_memory_mock_provider_proxy::in_memory_mock_provider_proxy_factory::InMemoryMockProviderProxyFactory;
 
-/// Represents the state of teh ProviderProxySelector and allows for simplified access through a mutex
+/// Represents the state of the ProviderProxySelector and allows for simplified access through a mutex
 struct ProviderProxySelectorState {
     /// A map of entity uri to provider proxy
     provider_proxies: HashMap<String, Arc<dyn ProviderProxy + Send + Sync>>,
@@ -100,7 +100,7 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
             }
         }
 
-        // If there's not a proxy we can resuse, find the right factory to create a new one
+        // If there's not a proxy we can reuse, find the right factory to create a new one
         let (provider_proxy, endpoint) = {
             let mut result = None;
             for factory in self.factories.iter() {
