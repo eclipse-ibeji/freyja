@@ -190,7 +190,7 @@ impl<
             provider_proxy_selector
                 .create_or_update_proxy(&signal.source)
                 .await
-                .map_err(|e| format!("Error sending request to provider proxy selector: {e}"))?;
+                .map_err(|e| format!("Error sending request to provider proxy selector: {e:?}"))?;
         }
 
         Ok(())

@@ -11,19 +11,19 @@ use axum::response::{IntoResponse, Response};
 use axum::routing::post;
 use axum::Router;
 use crossbeam::queue::SegQueue;
-use freyja_common::{config_utils, out_dir};
-use freyja_contracts::entity::EntityEndpoint;
 use log::{debug, error, info};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 use crate::config::Config;
 use crate::{GET_OPERATION, SUBSCRIBE_OPERATION};
+use freyja_build_common::config_file_stem;
+use freyja_common::{config_utils, out_dir};
+use freyja_contracts::entity::EntityEndpoint;
 use freyja_contracts::provider_proxy::{
     ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
 };
 
-const CONFIG_FILE_STEM: &str = "http_mock_provider_proxy";
 const CALLBACK_FOR_VALUES_PATH: &str = "/value";
 
 macro_rules! ok {
@@ -154,7 +154,7 @@ impl ProviderProxy for HttpMockProviderProxy {
         Self: Sized,
     {
         let config = config_utils::read_from_files(
-            CONFIG_FILE_STEM,
+            config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
             ProviderProxyError::io,

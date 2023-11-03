@@ -10,7 +10,6 @@ use std::{
 
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
-use freyja_common::{config_utils, out_dir};
 use log::info;
 use samples_protobuf_data_access::sample_grpc::v1::{
     digital_twin_consumer::digital_twin_consumer_server::DigitalTwinConsumerServer,
@@ -20,12 +19,12 @@ use samples_protobuf_data_access::sample_grpc::v1::{
 use tonic::transport::{Channel, Server};
 
 use crate::{config::Config, grpc_client_impl::GRPCClientImpl, GET_OPERATION, SUBSCRIBE_OPERATION};
+use freyja_build_common::config_file_stem;
+use freyja_common::{config_utils, out_dir};
 use freyja_contracts::{
     entity::EntityEndpoint,
     provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue},
 };
-
-const CONFIG_FILE_STEM: &str = "grpc_proxy_config";
 
 /// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
 #[derive(Debug)]
@@ -58,7 +57,7 @@ impl ProviderProxy for GRPCProviderProxy {
         Self: Sized,
     {
         let config = config_utils::read_from_files(
-            CONFIG_FILE_STEM,
+            config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
             ProviderProxyError::io,

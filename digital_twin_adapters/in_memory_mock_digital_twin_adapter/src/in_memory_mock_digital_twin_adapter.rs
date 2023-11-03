@@ -5,13 +5,12 @@
 use async_trait::async_trait;
 
 use crate::config::Config;
+use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, out_dir};
 use freyja_contracts::digital_twin_adapter::{
     DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind, FindByIdRequest,
     FindByIdResponse,
 };
-
-const CONFIG_FILE_STEM: &str = "in_memory_digital_twin_config";
 
 /// In-memory mock that mocks finding endpoint info about entities
 /// through find by id
@@ -35,7 +34,7 @@ impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
     fn create_new() -> Result<Self, DigitalTwinAdapterError> {
         let config = config_utils::read_from_files(
-            CONFIG_FILE_STEM,
+            config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
             DigitalTwinAdapterError::io,

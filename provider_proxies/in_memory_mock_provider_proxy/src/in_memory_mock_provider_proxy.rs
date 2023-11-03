@@ -19,12 +19,11 @@ use crate::{
     config::{Config, EntityConfig},
     GET_OPERATION, SUBSCRIBE_OPERATION,
 };
+use freyja_build_common::config_file_stem;
 use freyja_contracts::{
     entity::EntityEndpoint,
     provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue},
 };
-
-const CONFIG_FILE_STEM: &str = "in_memory_mock_proxy_config";
 
 #[derive(Debug)]
 pub struct InMemoryMockProviderProxy {
@@ -105,7 +104,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
         Self: Sized,
     {
         let config = config_utils::read_from_files(
-            CONFIG_FILE_STEM,
+            config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
             ProviderProxyError::io,

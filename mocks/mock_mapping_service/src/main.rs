@@ -18,15 +18,14 @@ use axum::{
     Json, Router, Server,
 };
 use env_logger::Target;
-use freyja_common::{config_utils, out_dir};
 use log::{info, LevelFilter};
 
 use config::Config;
+use freyja_build_common::config_file_stem;
+use freyja_common::{config_utils, out_dir};
 use freyja_contracts::mapping_client::{
     CheckForWorkResponse, GetMappingResponse, SendInventoryRequest, SendInventoryResponse,
 };
-
-const CONFIG_FILE_STEM: &str = "mock_mapping_config";
 
 struct MappingState {
     count: u8,
@@ -51,7 +50,7 @@ async fn main() {
         .init();
 
     let config = config_utils::read_from_files(
-        CONFIG_FILE_STEM,
+        config_file_stem!(),
         config_utils::JSON_EXT,
         out_dir!(),
         |e| log::error!("{}", e),

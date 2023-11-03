@@ -18,12 +18,11 @@ use serde::Deserialize;
 use tokio::sync::{mpsc, mpsc::UnboundedSender};
 
 use crate::config::{Config, EntityConfig};
+use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, out_dir};
 use freyja_contracts::digital_twin_adapter::FindByIdResponse;
 use http_mock_provider_proxy::http_mock_provider_proxy::{EntityValueRequest, EntityValueResponse};
 use mock_digital_twin::{ENTITY_GET_VALUE_PATH, ENTITY_PATH, ENTITY_SUBSCRIBE_PATH};
-
-const CONFIG_FILE_STEM: &str = "mock_digital_twin_config";
 
 /// Stores the state of active entities, subscribers, and relays responses
 /// for getting/subscribing to an entity.
@@ -89,7 +88,7 @@ async fn main() {
         .init();
 
     let config: Config = config_utils::read_from_files(
-        CONFIG_FILE_STEM,
+        config_file_stem!(),
         config_utils::JSON_EXT,
         out_dir!(),
         |e| log::error!("{}", e),

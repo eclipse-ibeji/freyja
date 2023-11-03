@@ -7,10 +7,9 @@ use std::sync::atomic::{AtomicU8, Ordering};
 use async_trait::async_trait;
 
 use crate::config::Config;
+use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, out_dir};
 use freyja_contracts::mapping_client::*;
-
-const CONFIG_FILE_STEM: &str = "mock_mapping_config";
 
 /// Mocks a mapping provider in memory
 pub struct InMemoryMockMappingClient {
@@ -40,7 +39,7 @@ impl MappingClient for InMemoryMockMappingClient {
     /// Creates a new instance of an InMemoryMockMappingClient with default settings
     fn create_new() -> Result<Self, MappingClientError> {
         let config = config_utils::read_from_files(
-            CONFIG_FILE_STEM,
+            config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
             MappingClientError::io,
