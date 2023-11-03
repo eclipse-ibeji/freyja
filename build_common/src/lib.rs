@@ -19,14 +19,6 @@ macro_rules! config_file_stem {
     };
 }
 
-/// Copies a file to the build output in `OUT_DIR`.
-/// Includes a `cargo:rerun-if-changed` instruction for use in `build.rs` scripts.
-/// This will likely panic outside of a build script and is not recommended for use in services.
-///
-/// # Arguments:
-/// - `source_path`: The source file to copy
-/// - `dest_filename`: The filename for the destination
-
 /// Copies a config file to the build output in `OUT_DIR`.
 /// Includes a `cargo:rerun-if-changed` instruction for use in `build.rs` scripts.
 /// Also includes a `cargo:rustc-env` instruction to set the `CONFIG_FILE_STEM` enivornment variable,
