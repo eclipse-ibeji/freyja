@@ -19,7 +19,6 @@ macro_rules! config_file_stem {
     };
 }
 
-
 /// Copies a file to the build output in `OUT_DIR`.
 /// Includes a `cargo:rerun-if-changed` instruction for use in `build.rs` scripts.
 /// This will likely panic outside of a build script and is not recommended for use in services.
@@ -33,13 +32,12 @@ macro_rules! config_file_stem {
 /// Also includes a `cargo:rustc-env` instruction to set the `CONFIG_FILE_STEM` enivornment variable,
 /// which makes it possible to define the config stem in one place (the build script)
 /// and share it with the source code via the `config_file_stem!` macro.
-/// 
+///
 /// This will likely panic outside of a build script and is not recommended for use in services.
-/// 
+///
 /// # Arguments
 /// - `config_file_stem`: the config filename without an extension.
 pub fn copy_config(config_file_stem: &str) {
-
     let default_config_filename = format!("{config_file_stem}{DEFAULT_CONFIG_EXT}");
 
     // Current directory of the build script is the package's root directory
