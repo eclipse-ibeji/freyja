@@ -34,18 +34,22 @@ pub struct EntityEndpoint {
 }
 
 impl Entity {
-    /// Checks to see if this entity supports the requested protocol(s) and operation(s).
+    /// Checks to see if this entity supports one of the requested protocols and operations.
     /// Returns the first endpoint found that contains one of the requested protocols and operations,
     /// or `None` if no such endpoint could be found.
     ///
     /// # Arguments
-    /// - `protocols`: the list of protocols to check
-    /// - `operations`: the list of operations to check
-    pub fn is_supported(&self, protocols: &[&str], operations: &[&str]) -> Option<EntityEndpoint> {
+    /// - `protocols`: the list of protocols which are acceptable
+    /// - `operations`: the list of operations which are acceptable
+    pub fn is_supported(
+        &self,
+        accepted_protocols: &[&str],
+        accepted_operations: &[&str],
+    ) -> Option<EntityEndpoint> {
         for endpoint in self.endpoints.iter() {
-            if protocols.contains(&endpoint.protocol.as_str()) {
+            if accepted_protocols.contains(&endpoint.protocol.as_str()) {
                 for operation in endpoint.operations.iter() {
-                    if operations.contains(&operation.as_str()) {
+                    if accepted_operations.contains(&operation.as_str()) {
                         return Some(endpoint.clone());
                     }
                 }
