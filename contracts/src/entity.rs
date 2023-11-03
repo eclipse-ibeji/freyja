@@ -35,7 +35,8 @@ pub struct EntityEndpoint {
 
 impl Entity {
     /// Checks to see if this entity supports the requested protocol(s) and operation(s).
-    /// Returns the first endpoint that satisfies the requirements.
+    /// Returns the first endpoint found that contains one of the requested protocols and operations,
+    /// or `None` if no such endpoint could be found.
     ///
     /// # Arguments
     /// - `protocols`: the list of protocols to check
