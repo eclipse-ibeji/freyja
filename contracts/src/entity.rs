@@ -39,8 +39,8 @@ impl Entity {
     /// or `None` if no such endpoint could be found.
     ///
     /// # Arguments
-    /// - `protocols`: the list of protocols which are acceptable
-    /// - `operations`: the list of operations which are acceptable
+    /// - `accepted_protocols`: the list of protocols which are acceptable
+    /// - `accepted_operations`: the list of operations which are acceptable
     pub fn is_supported(
         &self,
         accepted_protocols: &[&str],
