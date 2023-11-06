@@ -2348,8 +2348,8 @@ This page lists the licenses of the projects used in cargo-about.
 - [quote]( https://github.com/dtolnay/quote ) 1.0.33
 - [rustversion]( https://github.com/dtolnay/rustversion ) 1.0.14
 - [ryu]( https://github.com/dtolnay/ryu ) 1.0.15
-- [serde]( https://github.com/serde-rs/serde ) 1.0.189
-- [serde_derive]( https://github.com/serde-rs/serde ) 1.0.189
+- [serde]( https://github.com/serde-rs/serde ) 1.0.190
+- [serde_derive]( https://github.com/serde-rs/serde ) 1.0.190
 - [serde_json]( https://github.com/serde-rs/json ) 1.0.107
 - [serde_path_to_error]( https://github.com/dtolnay/path-to-error ) 0.1.14
 - [serde_urlencoded]( https://github.com/nox/serde_urlencoded ) 0.7.1
@@ -2544,15 +2544,15 @@ END OF TERMS AND CONDITIONS
 
 #### Used by
 
-- [futures]( https://github.com/rust-lang/futures-rs ) 0.3.28
-- [futures-channel]( https://github.com/rust-lang/futures-rs ) 0.3.28
-- [futures-core]( https://github.com/rust-lang/futures-rs ) 0.3.28
-- [futures-executor]( https://github.com/rust-lang/futures-rs ) 0.3.28
-- [futures-io]( https://github.com/rust-lang/futures-rs ) 0.3.28
-- [futures-macro]( https://github.com/rust-lang/futures-rs ) 0.3.28
-- [futures-sink]( https://github.com/rust-lang/futures-rs ) 0.3.28
-- [futures-task]( https://github.com/rust-lang/futures-rs ) 0.3.28
-- [futures-util]( https://github.com/rust-lang/futures-rs ) 0.3.28
+- [futures]( https://github.com/rust-lang/futures-rs ) 0.3.29
+- [futures-channel]( https://github.com/rust-lang/futures-rs ) 0.3.29
+- [futures-core]( https://github.com/rust-lang/futures-rs ) 0.3.29
+- [futures-executor]( https://github.com/rust-lang/futures-rs ) 0.3.29
+- [futures-io]( https://github.com/rust-lang/futures-rs ) 0.3.29
+- [futures-macro]( https://github.com/rust-lang/futures-rs ) 0.3.29
+- [futures-sink]( https://github.com/rust-lang/futures-rs ) 0.3.29
+- [futures-task]( https://github.com/rust-lang/futures-rs ) 0.3.29
+- [futures-util]( https://github.com/rust-lang/futures-rs ) 0.3.29
 
 #### License
 
@@ -4505,7 +4505,6 @@ limitations under the License.
 - [indexmap]( https://github.com/bluss/indexmap ) 1.9.3
 - [indexmap]( https://github.com/bluss/indexmap ) 2.0.2
 - [itertools]( https://github.com/rust-itertools/itertools ) 0.10.5
-- [itertools]( https://github.com/rust-itertools/itertools ) 0.11.0
 - [js-sys]( https://github.com/rustwasm/wasm-bindgen/tree/master/crates/js-sys ) 0.3.64
 - [lazy_static]( https://github.com/rust-lang-nursery/lazy-static.rs ) 1.4.0
 - [linux-raw-sys]( https://github.com/sunfishcode/linux-raw-sys ) 0.4.10
@@ -4535,14 +4534,14 @@ limitations under the License.
 - [regex-syntax]( https://github.com/rust-lang/regex/tree/master/regex-syntax ) 0.8.2
 - [ron]( https://github.com/ron-rs/ron ) 0.7.1
 - [rustc-demangle]( https://github.com/alexcrichton/rustc-demangle ) 0.1.23
-- [rustix]( https://github.com/bytecodealliance/rustix ) 0.38.20
+- [rustix]( https://github.com/bytecodealliance/rustix ) 0.38.21
 - [scopeguard]( https://github.com/bluss/scopeguard ) 1.2.0
 - [security-framework]( https://github.com/kornelski/rust-security-framework ) 2.9.2
 - [security-framework-sys]( https://github.com/kornelski/rust-security-framework ) 2.9.1
 - [socket2]( https://github.com/rust-lang/socket2 ) 0.4.10
 - [socket2]( https://github.com/rust-lang/socket2 ) 0.5.5
 - [syn]( https://github.com/dtolnay/syn ) 1.0.109
-- [tempfile]( https://github.com/Stebalien/tempfile ) 3.8.0
+- [tempfile]( https://github.com/Stebalien/tempfile ) 3.8.1
 - [toml]( https://github.com/toml-rs/toml ) 0.5.11
 - [ucd-trie]( https://github.com/BurntSushi/ucd-generate ) 0.1.6
 - [unicode-bidi]( https://github.com/servo/unicode-bidi ) 0.3.13
@@ -7094,7 +7093,7 @@ SOFTWARE.
 
 #### Used by
 
-- [redox_syscall]( https://gitlab.redox-os.org/redox-os/syscall ) 0.3.5
+- [redox_syscall]( https://gitlab.redox-os.org/redox-os/syscall ) 0.4.1
 
 #### License
 
