@@ -18,14 +18,11 @@ use serde::Deserialize;
 use tokio::sync::{mpsc, mpsc::UnboundedSender};
 
 use crate::config::{Config, EntityConfig};
+use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, out_dir};
-use freyja_contracts::digital_twin_adapter::GetDigitalTwinProviderResponse;
+use freyja_contracts::digital_twin_adapter::FindByIdResponse;
 use http_mock_provider_proxy::http_mock_provider_proxy::{EntityValueRequest, EntityValueResponse};
 use mock_digital_twin::{ENTITY_GET_VALUE_PATH, ENTITY_PATH, ENTITY_SUBSCRIBE_PATH};
-
-const CONFIG_FILE_STEM: &str = "mock_digital_twin_config";
-const GET_OPERATION: &str = "Get";
-const SUBSCRIBE_OPERATION: &str = "Subscribe";
 
 /// Stores the state of active entities, subscribers, and relays responses
 /// for getting/subscribing to an entity.
@@ -91,7 +88,7 @@ async fn main() {
         .init();
 
     let config: Config = config_utils::read_from_files(
-        CONFIG_FILE_STEM,
+        config_file_stem!(),
         config_utils::JSON_EXT,
         out_dir!(),
         |e| log::error!("{}", e),
@@ -254,18 +251,9 @@ async fn get_entity(
     let state = state.lock().unwrap();
     find_entity(&state, &query.id)
         .map(|(config_item, _)| {
-            let operation_path = if config_item.entity.operation == SUBSCRIBE_OPERATION {
-                ENTITY_SUBSCRIBE_PATH
-            } else if config_item.entity.operation == GET_OPERATION {
-                ENTITY_GET_VALUE_PATH
-            } else {
-                return server_error!("Entity didn't have a valid operation");
-            };
-
-            let mut entity = config_item.entity.clone();
-            entity.uri = format!("{}{operation_path}", config_item.entity.uri);
-
-            ok!(GetDigitalTwinProviderResponse { entity })
+            ok!(FindByIdResponse {
+                entity: config_item.entity.clone()
+            })
         })
         .unwrap_or(not_found!())
 }

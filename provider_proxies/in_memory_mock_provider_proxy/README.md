@@ -9,12 +9,12 @@ This proxy supports the following configuration settings:
 - `signal_update_frequency_ms`: The frequency between updates to signal values in milliseconds. This mimics the publish frequency of a real provider.
 - `entities`: A list of entity configuration items with the following properties:
   - `entity_id`: The id of an entity to mock
-  - `values`: defines the values that the entity's signal should take. This can take one of two forms:
-    - `Static`: the signal's value is a constant, configured as a string
-    - `Stepwise`: the signal's value will change, increasing and decreasing cyclically by a set value between and upper and lower bound. When using this setting the following additional configuration is required:
-      - `start`: the starting value of the signal. This can be either the upper or lower bound.
-      - `end`: the other bound for the signal value
-      - `delta`: the amount to add to the signal value at each iteration. If this operation would exceed the specified bounds, then the signal value saturates at the boundary value.
+  - `values`: Defines the values that the entity's signal should take. This can take one of two forms:
+    - `Static`: The signal's value is a constant, configured as a string
+    - `Stepwise`: The signal's value will change, increasing and decreasing cyclically by a set value between upper and lower bounds. When using this setting the following additional configuration is required:
+      - `start`: The starting value of the signal. This can be either the upper or lower bound.
+      - `end`: The other bound for the signal value
+      - `delta`: The amount to add to the signal value at each iteration. If this operation would exceed the specified bounds, then the signal value saturates at the boundary value.
 
 This adapter supports [config overrides](../../docs/config-overrides.md). The override filename is `in_memory_mock_proxy_config.json`, and the default config is located at `res/in_memory_mock_proxy_config.default.json`.
 

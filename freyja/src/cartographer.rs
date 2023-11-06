@@ -11,8 +11,7 @@ use log::{info, warn};
 use freyja_contracts::{
     conversion::Conversion,
     digital_twin_adapter::{
-        DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind,
-        GetDigitalTwinProviderRequest,
+        DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind, FindByIdRequest,
     },
     mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient},
     provider_proxy_selector::ProviderProxySelector,
@@ -180,18 +179,18 @@ impl<
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         signal.source = self
             .digital_twin_client
-            .find_by_id(GetDigitalTwinProviderRequest {
+            .find_by_id(FindByIdRequest {
                 entity_id: signal.id.clone(),
             })
             .await?
             .entity;
 
         {
-            let mut provider_proxy_selector = self.provider_proxy_selector.lock().await;
+            let provider_proxy_selector = self.provider_proxy_selector.lock().await;
             provider_proxy_selector
                 .create_or_update_proxy(&signal.source)
                 .await
-                .map_err(|e| format!("Error sending request to provider proxy selector: {e}"))?;
+                .map_err(|e| format!("Error sending request to provider proxy selector: {e:?}"))?;
         }
 
         Ok(())
@@ -208,9 +207,9 @@ mod cartographer_tests {
     use mockall::{predicate::eq, *};
 
     use freyja_contracts::{
-        digital_twin_adapter::{DigitalTwinAdapterError, GetDigitalTwinProviderResponse},
+        digital_twin_adapter::{DigitalTwinAdapterError, FindByIdResponse},
         digital_twin_map_entry::DigitalTwinMapEntry,
-        entity::Entity,
+        entity::{Entity, EntityEndpoint},
         mapping_client::{
             CheckForWorkResponse, GetMappingResponse, MappingClientError, SendInventoryRequest,
             SendInventoryResponse,
@@ -229,8 +228,8 @@ mod cartographer_tests {
 
             async fn find_by_id(
                 &self,
-                request: GetDigitalTwinProviderRequest,
-            ) -> Result<GetDigitalTwinProviderResponse, DigitalTwinAdapterError>;
+                request: FindByIdRequest,
+            ) -> Result<FindByIdResponse, DigitalTwinAdapterError>;
         }
     }
 
@@ -265,8 +264,8 @@ mod cartographer_tests {
 
         #[async_trait]
         impl ProviderProxySelector for ProviderProxySelector {
-            async fn create_or_update_proxy(&mut self, entity: &Entity) -> Result<(), ProviderProxySelectorError>;
-            async fn request_entity_value(&mut self, entity_id: &str) -> Result<(), ProviderProxySelectorError>;
+            async fn create_or_update_proxy(&self, entity: &Entity) -> Result<(), ProviderProxySelectorError>;
+            async fn request_entity_value(&self, entity_id: &str) -> Result<(), ProviderProxySelectorError>;
         }
     }
 
@@ -327,10 +326,12 @@ mod cartographer_tests {
         let test_entity = Entity {
             id: ID.to_string(),
             name: Some("name".to_string()),
-            uri: "uri".to_string(),
             description: Some("description".to_string()),
-            operation: "FooOperation".to_string(),
-            protocol: "in-memory".to_string(),
+            endpoints: vec![EntityEndpoint {
+                operations: vec!["FooOperation".to_string()],
+                protocol: "in-memory".to_string(),
+                uri: "uri".to_string(),
+            }],
         };
 
         let test_signal_patch = &mut SignalPatch {
@@ -350,7 +351,7 @@ mod cartographer_tests {
 
         let mut mock_dt_adapter = MockDigitalTwinAdapterImpl::new();
         mock_dt_adapter.expect_find_by_id().returning(move |_| {
-            Ok(GetDigitalTwinProviderResponse {
+            Ok(FindByIdResponse {
                 entity: test_entity_clone.clone(),
             })
         });

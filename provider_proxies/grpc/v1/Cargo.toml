@@ -11,6 +11,7 @@ license = "MIT"
 [dependencies]
 async-trait = { workspace = true }
 crossbeam = { workspace = true }
+freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
 freyja-contracts = { workspace = true }
 futures = { workspace = true }

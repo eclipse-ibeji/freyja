@@ -10,7 +10,6 @@ use std::{
 
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
-use freyja_common::{config_utils, out_dir};
 use log::info;
 use samples_protobuf_data_access::sample_grpc::v1::{
     digital_twin_consumer::digital_twin_consumer_server::DigitalTwinConsumerServer,
@@ -19,13 +18,13 @@ use samples_protobuf_data_access::sample_grpc::v1::{
 };
 use tonic::transport::{Channel, Server};
 
-use crate::{config::Config, grpc_client_impl::GRPCClientImpl};
-use freyja_contracts::provider_proxy::{ProviderProxy, ProviderProxyError, SignalValue};
-
-const CONFIG_FILE_STEM: &str = "grpc_proxy_config";
-const GET_OPERATION: &str = "Get";
-const SUBSCRIBE_OPERATION: &str = "Subscribe";
-const SUPPORTED_OPERATIONS: &[&str] = &[GET_OPERATION, SUBSCRIBE_OPERATION];
+use crate::{config::Config, grpc_client_impl::GRPCClientImpl, GET_OPERATION, SUBSCRIBE_OPERATION};
+use freyja_build_common::config_file_stem;
+use freyja_common::{config_utils, out_dir};
+use freyja_contracts::{
+    entity::EntityEndpoint,
+    provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue},
+};
 
 /// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
 #[derive(Debug)]
@@ -53,12 +52,12 @@ impl ProviderProxy for GRPCProviderProxy {
     fn create_new(
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
-    ) -> Result<Box<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
+    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
     where
         Self: Sized,
     {
         let config = config_utils::read_from_files(
-            CONFIG_FILE_STEM,
+            config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
             ProviderProxyError::io,
@@ -77,7 +76,7 @@ impl ProviderProxy for GRPCProviderProxy {
             entity_operation_map: Mutex::new(HashMap::new()),
             signal_values_queue,
         })
-        .map(|r| Box::new(r) as _)
+        .map(|r| Arc::new(r) as _)
     }
 
     /// Runs a provider proxy
@@ -146,18 +145,35 @@ impl ProviderProxy for GRPCProviderProxy {
     ///
     /// # Arguments
     /// - `entity_id`: the entity id to add
-    /// - `operation`: the operation that this entity supports
+    /// - `endpoint`: the endpoint that this entity supports
     async fn register_entity(
         &self,
         entity_id: &str,
-        operation: &str,
+        endpoint: &EntityEndpoint,
     ) -> Result<(), ProviderProxyError> {
+        // Prefer subscribe if present
+        let selected_operation = {
+            let mut result = None;
+            for operation in endpoint.operations.iter() {
+                if operation == SUBSCRIBE_OPERATION {
+                    result = Some(SUBSCRIBE_OPERATION);
+                    break;
+                } else if operation == GET_OPERATION {
+                    // Set result, but don't break the loop in case there's a subscribe operation later in the list
+                    result = Some(GET_OPERATION);
+                }
+            }
+
+            result
+                .ok_or::<ProviderProxyError>(ProviderProxyErrorKind::OperationNotSupported.into())?
+        };
+
         self.entity_operation_map
             .lock()
             .unwrap()
-            .insert(String::from(entity_id), String::from(operation));
+            .insert(String::from(entity_id), String::from(selected_operation));
 
-        if operation == SUBSCRIBE_OPERATION {
+        if selected_operation == SUBSCRIBE_OPERATION {
             let consumer_uri = format!("http://{}", self.config.consumer_address); // Devskim: ignore DS137138
             let mut client = self.provider_client.clone();
             let request = tonic::Request::new(SubscribeRequest {
@@ -177,14 +193,6 @@ impl ProviderProxy for GRPCProviderProxy {
         }
 
         Ok(())
-    }
-
-    /// Checks if the operation is supported
-    ///
-    /// # Arguments
-    /// - `operation`: check to see if this operation is supported by this provider proxy
-    fn is_operation_supported(operation: &str) -> bool {
-        SUPPORTED_OPERATIONS.contains(&operation)
     }
 }
 
@@ -261,6 +269,8 @@ mod grpc_provider_proxy_v1_tests {
     /// so you would need to set an arbitrary port per test for TCP/IP sockets.
     #[cfg(unix)]
     mod unix_tests {
+        use crate::GRPC_PROTOCOL;
+
         use super::*;
 
         use std::sync::Arc;
@@ -326,7 +336,14 @@ mod grpc_provider_proxy_v1_tests {
                 let entity_id = "operation_get_entity_id";
 
                 let result = grpc_provider_proxy
-                    .register_entity(entity_id, GET_OPERATION)
+                    .register_entity(
+                        entity_id,
+                        &EntityEndpoint {
+                            protocol: GRPC_PROTOCOL.to_string(),
+                            operations: vec![GET_OPERATION.to_string()],
+                            uri: "foo".to_string(),
+                        },
+                    )
                     .await;
                 assert!(result.is_ok());
                 assert!(grpc_provider_proxy
@@ -336,7 +353,14 @@ mod grpc_provider_proxy_v1_tests {
 
                 let entity_id = "operation_subscribe_entity_id";
                 let result = grpc_provider_proxy
-                    .register_entity(entity_id, SUBSCRIBE_OPERATION)
+                    .register_entity(
+                        entity_id,
+                        &EntityEndpoint {
+                            protocol: GRPC_PROTOCOL.to_string(),
+                            operations: vec![SUBSCRIBE_OPERATION.to_string()],
+                            uri: "foo".to_string(),
+                        },
+                    )
                     .await;
                 assert!(result.is_ok());
                 assert!(grpc_provider_proxy

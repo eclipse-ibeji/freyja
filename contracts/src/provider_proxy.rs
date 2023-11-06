@@ -7,6 +7,8 @@ use std::{fmt::Debug, sync::Arc};
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
 
+use crate::entity::{Entity, EntityEndpoint};
+
 /// Represents a signal value
 pub struct SignalValue {
     /// The entity's id
@@ -16,8 +18,9 @@ pub struct SignalValue {
     pub value: String,
 }
 
+/// Consumes data from a provider and acts as a proxy for its interface
 #[async_trait]
-pub trait ProviderProxy: Debug {
+pub trait ProviderProxy {
     /// Creates a provider proxy
     ///
     /// # Arguments
@@ -26,11 +29,11 @@ pub trait ProviderProxy: Debug {
     fn create_new(
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
-    ) -> Result<Box<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
+    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
     where
         Self: Sized;
 
-    /// Runs a provider proxy
+    /// Runs a provider proxy.
     async fn run(&self) -> Result<(), ProviderProxyError>;
 
     /// Sends a request to a provider for obtaining the value of an entity
@@ -44,20 +47,33 @@ pub trait ProviderProxy: Debug {
     ///
     /// # Arguments
     /// - `entity_id`: the entity id to add
-    /// - `operation`: the operation that this entity supports
+    /// - `endpoint`: the endpoint that this entity supports
     async fn register_entity(
         &self,
         entity_id: &str,
-        operation: &str,
+        endpoint: &EntityEndpoint,
     ) -> Result<(), ProviderProxyError>;
+}
 
-    /// Checks if this operation is supported
+/// Factory for creating ProviderProxies
+pub trait ProviderProxyFactory {
+    /// Check to see whether this factory can create a proxy for the requested entity.
+    /// Returns the first endpoint found that is supported by this factory.
     ///
     /// # Arguments
-    /// - `operation`: check to see if this operation is supported by this provider proxy
-    fn is_operation_supported(operation: &str) -> bool
-    where
-        Self: Sized + Send + Sync;
+    /// - `entity`: the entity to check for compatibility
+    fn is_supported(&self, entity: &Entity) -> Option<EntityEndpoint>;
+
+    /// Create a new proxy
+    ///
+    /// # Arguments
+    /// - `provider_uri`: The provider URI to associate with this proxy
+    /// - `signal_values_queue`: The queue into which new signal values will be published
+    fn create_proxy(
+        &self,
+        provider_uri: &str,
+        signal_values_queue: Arc<SegQueue<SignalValue>>,
+    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>;
 }
 
 proc_macros::error! {
@@ -68,6 +84,7 @@ proc_macros::error! {
         Deserialize,
         Communication,
         EntityNotFound,
+        OperationNotSupported,
         Unknown
     }
 }

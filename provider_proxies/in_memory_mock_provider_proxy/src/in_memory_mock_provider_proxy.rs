@@ -15,13 +15,15 @@ use crossbeam::queue::SegQueue;
 use freyja_common::{config_utils, out_dir};
 use log::info;
 
-use crate::config::{Config, EntityConfig};
-use freyja_contracts::provider_proxy::{ProviderProxy, ProviderProxyError, SignalValue};
-
-const CONFIG_FILE_STEM: &str = "in_memory_mock_proxy_config";
-const GET_OPERATION: &str = "Get";
-const SUBSCRIBE_OPERATION: &str = "Subscribe";
-const SUPPORTED_OPERATIONS: &[&str] = &[GET_OPERATION, SUBSCRIBE_OPERATION];
+use crate::{
+    config::{Config, EntityConfig},
+    GET_OPERATION, SUBSCRIBE_OPERATION,
+};
+use freyja_build_common::config_file_stem;
+use freyja_contracts::{
+    entity::EntityEndpoint,
+    provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue},
+};
 
 #[derive(Debug)]
 pub struct InMemoryMockProviderProxy {
@@ -97,19 +99,19 @@ impl ProviderProxy for InMemoryMockProviderProxy {
     fn create_new(
         _provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
-    ) -> Result<Box<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
+    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
     where
         Self: Sized,
     {
         let config = config_utils::read_from_files(
-            CONFIG_FILE_STEM,
+            config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
             ProviderProxyError::io,
             ProviderProxyError::deserialize,
         )?;
 
-        Self::from_config(config, signal_values_queue).map(|r| Box::new(r) as _)
+        Self::from_config(config, signal_values_queue).map(|r| Arc::new(r) as _)
     }
 
     /// Runs a provider proxy
@@ -178,25 +180,35 @@ impl ProviderProxy for InMemoryMockProviderProxy {
     ///
     /// # Arguments
     /// - `entity_id`: the entity id to add
-    /// - `operation`: the operation that this entity supports
+    /// - `endpoint`: the endpoint that this entity supports
     async fn register_entity(
         &self,
         entity_id: &str,
-        operation: &str,
+        endpoint: &EntityEndpoint,
     ) -> Result<(), ProviderProxyError> {
+        // Prefer subscribe if present
+        let selected_operation = {
+            let mut result = None;
+            for operation in endpoint.operations.iter() {
+                if operation == SUBSCRIBE_OPERATION {
+                    result = Some(SUBSCRIBE_OPERATION);
+                    break;
+                } else if operation == GET_OPERATION {
+                    // Set result, but don't break the loop in case there's a subscribe operation later in the list
+                    result = Some(GET_OPERATION);
+                }
+            }
+
+            result
+                .ok_or::<ProviderProxyError>(ProviderProxyErrorKind::OperationNotSupported.into())?
+        };
+
         self.entity_operation_map
             .lock()
             .unwrap()
-            .insert(String::from(entity_id), String::from(operation));
-        Ok(())
-    }
+            .insert(String::from(entity_id), String::from(selected_operation));
 
-    /// Checks if the operation is supported
-    ///
-    /// # Arguments
-    /// - `operation`: check to see if this operation is supported by this provider proxy
-    fn is_operation_supported(operation: &str) -> bool {
-        SUPPORTED_OPERATIONS.contains(&operation)
+        Ok(())
     }
 }
 

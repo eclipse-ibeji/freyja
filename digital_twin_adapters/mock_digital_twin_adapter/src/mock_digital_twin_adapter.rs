@@ -3,17 +3,15 @@
 // SPDX-License-Identifier: MIT
 
 use async_trait::async_trait;
-use freyja_common::{config_utils, out_dir};
 use reqwest::Client;
 
 use crate::config::Config;
+use freyja_build_common::config_file_stem;
+use freyja_common::{config_utils, out_dir};
 use freyja_contracts::digital_twin_adapter::{
-    DigitalTwinAdapter, DigitalTwinAdapterError, GetDigitalTwinProviderRequest,
-    GetDigitalTwinProviderResponse,
+    DigitalTwinAdapter, DigitalTwinAdapterError, FindByIdRequest, FindByIdResponse,
 };
 use mock_digital_twin::ENTITY_QUERY_PATH;
-
-const CONFIG_FILE_STEM: &str = "mock_digital_twin_adapter_config";
 
 /// Mocks a Digital Twin Adapter that calls the mocks/mock_digital_twin
 /// to get entity access info.
@@ -56,7 +54,7 @@ impl DigitalTwinAdapter for MockDigitalTwinAdapter {
     /// Creates a new instance of a MockDigitalTwinAdapter
     fn create_new() -> Result<Self, DigitalTwinAdapterError> {
         let config = config_utils::read_from_files(
-            CONFIG_FILE_STEM,
+            config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
             DigitalTwinAdapterError::io,
@@ -72,8 +70,8 @@ impl DigitalTwinAdapter for MockDigitalTwinAdapter {
     /// - `request`: the request to send to the mock digital twin server
     async fn find_by_id(
         &self,
-        request: GetDigitalTwinProviderRequest,
-    ) -> Result<GetDigitalTwinProviderResponse, DigitalTwinAdapterError> {
+        request: FindByIdRequest,
+    ) -> Result<FindByIdResponse, DigitalTwinAdapterError> {
         let target = format!(
             "{}{ENTITY_QUERY_PATH}{}",
             self.config.digital_twin_service_uri, request.entity_id
@@ -86,7 +84,7 @@ impl DigitalTwinAdapter for MockDigitalTwinAdapter {
             .map_err(DigitalTwinAdapterError::communication)?
             .error_for_status()
             .map_err(Self::map_status_err)?
-            .json::<GetDigitalTwinProviderResponse>()
+            .json::<FindByIdResponse>()
             .await
             .map_err(DigitalTwinAdapterError::deserialize)
     }
