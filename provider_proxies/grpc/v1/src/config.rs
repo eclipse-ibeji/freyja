@@ -20,6 +20,8 @@ impl Config {
     /// Returns the value of `self.advertised_consumer_address` if it's not `None`,
     /// otherwise returns `self.consumer_address`.
     pub fn get_advertised_address(&self) -> &String {
-        self.advertised_consumer_address.as_ref().unwrap_or(&self.consumer_address)
+        self.advertised_consumer_address
+            .as_ref()
+            .unwrap_or(&self.consumer_address)
     }
 }
