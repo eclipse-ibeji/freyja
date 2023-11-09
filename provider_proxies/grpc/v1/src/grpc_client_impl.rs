@@ -17,18 +17,6 @@ use samples_protobuf_data_access::sample_grpc::v1::digital_twin_consumer::{
 
 const METADATA_KEY: &str = "$metadata";
 
-macro_rules! unwrap_or_return {
-    ($opt:expr, $ret:expr, $msg:literal) => {
-        match $opt {
-            Some(v) => v,
-            None => {
-                warn!($msg);
-                return $ret;
-            }
-        }
-    };
-}
-
 /// Struct which implements the DigitalTwinConsumer trait for GRPC clients
 #[derive(Debug, Default)]
 pub struct GRPCClientImpl {
@@ -49,8 +37,10 @@ impl GRPCClientImpl {
     /// ```
     ///
     /// Note that `{propertyName}` is replaced by the name of the property that the provider published.
-    /// This method assumes that the first property not called `$metadata` is the one we're interested in,
-    /// and will attempt to extract and return the value of that property.
+    /// This function will extract the value from the first property satisfying the following conditions:
+    /// - The property is not named `$metadata`
+    /// - The property value is a non-null primitive JSON type (string, bool, or number)
+    /// 
     /// If any part of parsing fails, a warning is logged and the original value is returned.
     ///
     /// # Arguments
@@ -58,31 +48,49 @@ impl GRPCClientImpl {
     fn parse_value(value: String) -> String {
         match serde_json::from_str::<Value>(&value) {
             Ok(v) => {
-                let property_map =
-                    unwrap_or_return!(v.as_object(), value, "Could not parse value as JSON object");
-
-                let selected_property = unwrap_or_return!(
-                    property_map.iter().find(|(k, _)| k != &METADATA_KEY),
-                    value,
-                    "Could not find a property not called {METADATA_KEY}"
-                );
-
-                let metadata_descriptor = if property_map.contains_key(&METADATA_KEY.to_string()) {
-                    "has"
-                } else {
-                    "doesn't have"
+                let property_map = match v.as_object() {
+                    Some(o) => o,
+                    None => {
+                        warn!("Could not parse value as JSON object");
+                        return value;
+                    }
                 };
 
-                debug!(
-                    "Value contained {} properties and {metadata_descriptor} a $metadata property. Selecting property with key {} as the signal value",
-                    property_map.len(),
-                    selected_property.0
-                );
+                let mut selected_property = None;
+                for property in property_map.iter() {
+                    if property.0 == METADATA_KEY {
+                        continue;
+                    }
 
-                match selected_property.1 {
-                    Value::String(s) => s.clone(),
-                    _ => {
-                        warn!("Property did not have a string value");
+                    let selected_value = match property.1 {
+                        Value::String(s) => s.clone(),
+                        Value::Bool(b) => b.to_string(),
+                        Value::Number(n) => n.to_string(),
+                        _ => continue,
+                    };
+
+                    selected_property = Some((property.0, selected_value));
+                    break;
+                }
+
+                match selected_property {
+                    Some((k,v)) => {
+                        let metadata_descriptor = if property_map.contains_key(&METADATA_KEY.to_string()) {
+                            "has"
+                        } else {
+                            "doesn't have"
+                        };
+
+                        debug!(
+                            "Value contained {} properties and {metadata_descriptor} a $metadata property. Selecting property with key {} as the signal value",
+                            property_map.len(),
+                            k
+                        );
+
+                        v
+                    },
+                    None => {
+                        warn!("Could not find a property that was parseable as a value");
                         value
                     }
                 }
@@ -190,9 +198,36 @@ mod grpc_client_impl_tests {
     }
 
     #[test]
-    fn parse_value_returns_correct_value() {
+    fn parse_value_returns_correct_value_for_strings() {
         let expected_value = "value";
         let input = format!(r#"{{"property": "{expected_value}", "{METADATA_KEY}": "foo"}}"#);
+        let result = GRPCClientImpl::parse_value(input.to_string());
+
+        assert_eq!(result, expected_value);
+    }
+
+    #[test]
+    fn parse_value_returns_correct_value_for_bools() {
+        let expected_value = "true";
+        let input = format!(r#"{{"property": {expected_value}, "{METADATA_KEY}": "foo"}}"#);
+        let result = GRPCClientImpl::parse_value(input.to_string());
+
+        assert_eq!(result, expected_value);
+    }
+
+    #[test]
+    fn parse_value_returns_correct_value_for_numbers() {
+        let expected_value = "123.456";
+        let input = format!(r#"{{"property": {expected_value}, "{METADATA_KEY}": "foo"}}"#);
+        let result = GRPCClientImpl::parse_value(input.to_string());
+
+        assert_eq!(result, expected_value);
+    }
+
+    #[test]
+    fn parse_value_skips_non_primitive_properties() {
+        let expected_value = "value";
+        let input = format!(r#"{{"foo": ["bar"], "property": "{expected_value}", "{METADATA_KEY}": "foo"}}"#);
         let result = GRPCClientImpl::parse_value(input.to_string());
 
         assert_eq!(result, expected_value);
