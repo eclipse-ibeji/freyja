@@ -21,7 +21,9 @@ This proxy supports the `Publish` API as [defined by the Ibeji samples](https://
 ```json
 {
     "AmbientAirTemperature": "42",
-    "$metadata": {...}
+    "$metadata": {
+        "foo": "bar",
+    }
 }
 ```
 
