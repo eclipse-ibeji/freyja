@@ -15,7 +15,7 @@ This adapter supports [config overrides](../../../docs/config-overrides.md). The
 This proxy supports the `Publish` API as [defined by the Ibeji samples](https://github.com/eclipse-ibeji/ibeji/blob/main/samples/interfaces/sample_grpc/v1/digital_twin_consumer.proto). In addition, the `value` property of the `PublishRequest` message that providers publish must conform to one of the following structures in order to properly extract the signal value:
 
 - A raw value as a string. For example, `"42"` or `"\"foo\""`.
-<!--alex ignore primitive-->
+<!--alex ignore savage-->
 - A serialized JSON object with a property not named `$metadata` containing the signal value as a JSON primitive. If there is more than one property that meets these criteria, the first one will be used. For example:
 
     ```json

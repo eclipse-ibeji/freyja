@@ -139,6 +139,7 @@ pre
 PrivateKeyName
 proto
 protobuf
+PublishRequest
 pushd
 queryable
 quickstart
