@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 use crossbeam::queue::SegQueue;
 use log::{debug, warn};
+use serde_json::Value;
 use tonic::{Request, Response, Status};
 
 use freyja_contracts::provider_proxy::SignalValue;
@@ -17,6 +18,12 @@ use samples_protobuf_data_access::sample_grpc::v1::digital_twin_consumer::{
 #[derive(Debug, Default)]
 pub struct GRPCClientImpl {
     pub signal_values_queue: Arc<SegQueue<SignalValue>>,
+}
+
+impl GRPCClientImpl {
+    fn parse_value(value: String) -> String {
+        
+    }
 }
 
 #[tonic::async_trait]
@@ -32,6 +39,15 @@ impl DigitalTwinConsumer for GRPCClientImpl {
         let PublishRequest { entity_id, value } = request.into_inner();
 
         debug!("Received a publish for entity id {entity_id} with the value {value}");
+
+        let deserialize_result = serde_json::from_str::<Value>(value);
+
+        let value = match deserialize_result {
+            Ok(v) => {
+                // Get the first property not called "$metadata" and assume that's the correct property
+                let foo = v.as_object()
+            }
+        }
 
         let new_signal_value = SignalValue { entity_id, value };
         self.signal_values_queue.push(new_signal_value);
