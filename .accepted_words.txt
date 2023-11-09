@@ -59,6 +59,7 @@ ESDV
 EntityConfig
 fn
 Fólkvangr
+foo
 FREYJA
 Freyja
 Freyja's

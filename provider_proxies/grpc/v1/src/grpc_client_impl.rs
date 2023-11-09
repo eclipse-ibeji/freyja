@@ -40,7 +40,7 @@ impl GRPCClientImpl {
     /// This function will extract the value from the first property satisfying the following conditions:
     /// - The property is not named `$metadata`
     /// - The property value is a non-null primitive JSON type (string, bool, or number)
-    /// 
+    ///
     /// If any part of parsing fails, a warning is logged and the original value is returned.
     ///
     /// # Arguments
@@ -74,12 +74,13 @@ impl GRPCClientImpl {
                 }
 
                 match selected_property {
-                    Some((k,v)) => {
-                        let metadata_descriptor = if property_map.contains_key(&METADATA_KEY.to_string()) {
-                            "has"
-                        } else {
-                            "doesn't have"
-                        };
+                    Some((k, v)) => {
+                        let metadata_descriptor =
+                            if property_map.contains_key(&METADATA_KEY.to_string()) {
+                                "has"
+                            } else {
+                                "doesn't have"
+                            };
 
                         debug!(
                             "Value contained {} properties and {metadata_descriptor} a $metadata property. Selecting property with key {} as the signal value",
@@ -88,7 +89,7 @@ impl GRPCClientImpl {
                         );
 
                         v
-                    },
+                    }
                     None => {
                         warn!("Could not find a property that was parseable as a value");
                         value
@@ -236,7 +237,9 @@ mod grpc_client_impl_tests {
     #[test]
     fn parse_value_skips_non_primitive_properties() {
         let expected_value = "value";
-        let input = format!(r#"{{"foo": ["bar"], "property": "{expected_value}", "{METADATA_KEY}": "foo"}}"#);
+        let input = format!(
+            r#"{{"foo": ["bar"], "property": "{expected_value}", "{METADATA_KEY}": "foo"}}"#
+        );
         let result = GRPCClientImpl::parse_value(input.to_string());
 
         assert_eq!(result, expected_value);
