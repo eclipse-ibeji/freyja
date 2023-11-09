@@ -1,6 +1,6 @@
 # GRPC Provider Proxy
 
-The GRPC Provider Proxy interfaces with providers which support GRPC. It acts as a consumer for digital twin providers. This proxy supports the `Get` and `Subscribe` operations as defined for the [Ibeji mixed sample](https://github.com/eclipse-ibeji/ibeji/tree/main/samples/mixed). To use this proxy with other providers, those providers will need to support the same API(s) as the provider in that sample.
+The GRPC Provider Proxy interfaces with providers which support GRPC. It acts as a consumer for digital twin providers. This proxy supports the `Get` and `Subscribe` operations as defined for the [Ibeji mixed sample](https://github.com/eclipse-ibeji/ibeji/tree/main/samples/mixed). To use this proxy with other providers, those providers will need to support the same API(s) as the provider in that sample (see [Integrating with this Proxy](#integrating-with-this-proxy) for more information).
 
 ## Configuration
 
@@ -9,3 +9,20 @@ This proxy supports the following configuration settings:
 - `consumer_address`: The address for the proxy's consumer
 
 This adapter supports [config overrides](../../../docs/config-overrides.md). The override filename is `grpc_proxy_config.json`, and the default config is located at `res/grpc_proxy_config.default.json`.
+
+## Integrating with this Proxy
+
+This proxy supports the `Publish` API as [defined by the Ibeji samples](https://github.com/eclipse-ibeji/ibeji/blob/main/samples/interfaces/sample_grpc/v1/digital_twin_consumer.proto). In addition, the `value` property of the `PublishRequest` message that providers publish must conform to one of the following structures in order to properly extract the signal value:
+
+- A raw value as a string. For example:
+    - `"42"`
+    - `"\"foo\""`
+- A serialized JSON object with a property not named `$metadata` containing the signal value as a string. If there is more than one propery not named `$metadata`, the first one will be used. For example:
+```json
+{
+    "AmbientAirTemperature": "42",
+    "$metadata": {...}
+}
+```
+
+In the above example, this proxy would extract the value `"42"`.
