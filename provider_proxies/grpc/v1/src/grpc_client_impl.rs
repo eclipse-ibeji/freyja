@@ -225,6 +225,15 @@ mod grpc_client_impl_tests {
     }
 
     #[test]
+    fn parse_value_skips_metadata_property() {
+        let expected_value = "value";
+        let input = format!(r#"{{"{METADATA_KEY}": "foo", "property": "{expected_value}"}}"#);
+        let result = GRPCClientImpl::parse_value(input.to_string());
+
+        assert_eq!(result, expected_value);
+    }
+
+    #[test]
     fn parse_value_skips_non_primitive_properties() {
         let expected_value = "value";
         let input = format!(r#"{{"foo": ["bar"], "property": "{expected_value}", "{METADATA_KEY}": "foo"}}"#);
