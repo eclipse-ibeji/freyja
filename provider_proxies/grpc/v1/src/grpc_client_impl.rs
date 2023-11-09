@@ -26,13 +26,13 @@ macro_rules! unwrap_or_return {
                 return $ret;
             }
         }
-    }
+    };
 }
 
 /// Struct which implements the DigitalTwinConsumer trait for GRPC clients
 #[derive(Debug, Default)]
 pub struct GRPCClientImpl {
-    /// The queue on which incoming signal values shoudl be published
+    /// The queue on which incoming signal values should be published
     pub signal_values_queue: Arc<SegQueue<SignalValue>>,
 }
 
@@ -40,33 +40,32 @@ impl GRPCClientImpl {
     /// Parses the value published by a provider.
     /// The current implementation is a workaround for the current Ibeji sample provider implementation,
     /// which uses a non-consistent contract as follows:
-    /// 
+    ///
     /// ```ignore
     /// {
     ///     "{propertyName}": "value",
     ///     "$metadata": {...}
     /// }
     /// ```
-    /// 
+    ///
     /// Note that `{propertyName}` is replaced by the name of the property that the provider published.
     /// This method assumes that the first property not called `$metadata` is the one we're interested in,
     /// and will attempt to extract and return the value of that property.
     /// If any part of parsing fails, a warning is logged and the original value is returned.
-    /// 
+    ///
     /// # Arguments
     /// - `value`: the value to attempt to parse
     fn parse_value(value: String) -> String {
         match serde_json::from_str::<Value>(&value) {
             Ok(v) => {
-                let property_map = unwrap_or_return!(
-                    v.as_object(),
-                    value,
-                    "Could not parse value as JSON object");
+                let property_map =
+                    unwrap_or_return!(v.as_object(), value, "Could not parse value as JSON object");
 
                 let selected_property = unwrap_or_return!(
                     property_map.iter().find(|(k, _)| k != &METADATA_KEY),
                     value,
-                    "Could not find a property not called {METADATA_KEY}");
+                    "Could not find a property not called {METADATA_KEY}"
+                );
 
                 let metadata_descriptor = if property_map.contains_key(&METADATA_KEY.to_string()) {
                     "has"
@@ -87,7 +86,7 @@ impl GRPCClientImpl {
                         value
                     }
                 }
-            },
+            }
             Err(e) => {
                 warn!("Failed to parse value: {e}");
                 value
