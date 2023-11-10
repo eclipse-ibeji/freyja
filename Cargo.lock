@@ -1165,14 +1165,11 @@ dependencies = [
  "freyja-build-common",
  "freyja-common",
  "freyja-contracts",
- "futures",
  "log",
  "paho-mqtt",
  "serde",
  "serde_json",
- "tempfile",
  "tokio",
- "tokio-stream",
  "uuid",
 ]
 

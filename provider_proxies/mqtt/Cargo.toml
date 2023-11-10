@@ -14,17 +14,14 @@ crossbeam = { workspace = true }
 freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
 freyja-contracts = { workspace = true }
-futures = { workspace = true }
 log = { workspace = true }
 paho-mqtt = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-tempfile = { workspace = true }
 tokio = { workspace = true }
 uuid = { workspace = true, features = ["v4"]}
 
 [dev-dependencies]
-tokio-stream = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

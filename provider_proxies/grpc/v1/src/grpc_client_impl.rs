@@ -6,7 +6,6 @@ use std::sync::Arc;
 
 use crossbeam::queue::SegQueue;
 use log::{debug, warn};
-use serde_json::Value;
 use tonic::{Request, Response, Status};
 
 use freyja_contracts::provider_proxy::SignalValue;
@@ -46,7 +45,7 @@ impl GRPCClientImpl {
     /// # Arguments
     /// - `value`: the value to attempt to parse
     fn parse_value(value: String) -> String {
-        match serde_json::from_str::<Value>(&value) {
+        match serde_json::from_str::<serde_json::Value>(&value) {
             Ok(v) => {
                 let property_map = match v.as_object() {
                     Some(o) => o,
@@ -56,45 +55,36 @@ impl GRPCClientImpl {
                     }
                 };
 
-                let mut selected_property = None;
                 for property in property_map.iter() {
                     if property.0 == METADATA_KEY {
                         continue;
                     }
 
                     let selected_value = match property.1 {
-                        Value::String(s) => s.clone(),
-                        Value::Bool(b) => b.to_string(),
-                        Value::Number(n) => n.to_string(),
+                        serde_json::Value::String(s) => s.clone(),
+                        serde_json::Value::Bool(b) => b.to_string(),
+                        serde_json::Value::Number(n) => n.to_string(),
                         _ => continue,
                     };
 
-                    selected_property = Some((property.0, selected_value));
-                    break;
+                    let metadata_descriptor =
+                        if property_map.contains_key(&METADATA_KEY.to_string()) {
+                            "has"
+                        } else {
+                            "does not have"
+                        };
+
+                    debug!(
+                        "Value contained {} properties and {metadata_descriptor} a {METADATA_KEY} property. Selecting property with key {} as the signal value",
+                        property_map.len(),
+                        property.0
+                    );
+
+                    return selected_value;
                 }
 
-                match selected_property {
-                    Some((k, v)) => {
-                        let metadata_descriptor =
-                            if property_map.contains_key(&METADATA_KEY.to_string()) {
-                                "has"
-                            } else {
-                                "does not have"
-                            };
-
-                        debug!(
-                            "Value contained {} properties and {metadata_descriptor} a {METADATA_KEY} property. Selecting property with key {} as the signal value",
-                            property_map.len(),
-                            k
-                        );
-
-                        v
-                    }
-                    None => {
-                        warn!("Could not find a property that was parseable as a value");
-                        value
-                    }
-                }
+                warn!("Could not find a property that was parseable as a value");
+                value
             }
             Err(e) => {
                 warn!("Failed to parse value: {e}");
