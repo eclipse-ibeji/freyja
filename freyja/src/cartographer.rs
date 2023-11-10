@@ -331,6 +331,7 @@ mod cartographer_tests {
                 operations: vec!["FooOperation".to_string()],
                 protocol: "in-memory".to_string(),
                 uri: "uri".to_string(),
+                context: "context".to_string(),
             }],
         };
 

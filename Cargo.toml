@@ -21,6 +21,7 @@ members = [
   "provider_proxies/grpc/v1",
   "provider_proxies/http_mock_provider_proxy",
   "provider_proxies/in_memory_mock_provider_proxy",
+  "provider_proxies/mqtt",
   "provider_proxy_selector",
 ]
 
@@ -65,3 +66,4 @@ tokio-stream = { version = "0.1.8", features = ["net"] }
 tonic = "0.10.0"
 tonic-build = "0.10.0"
 tower = { version = "0.4", features = ["util"] }
+uuid = "1.5.0"

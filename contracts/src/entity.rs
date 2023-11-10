@@ -31,6 +31,9 @@ pub struct EntityEndpoint {
 
     /// The provider's uri
     pub uri: String,
+
+    /// Additional context provided by the endpoint
+    pub context: String,
 }
 
 impl Entity {

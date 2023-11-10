@@ -343,6 +343,7 @@ mod grpc_provider_proxy_v1_tests {
                             protocol: GRPC_PROTOCOL.to_string(),
                             operations: vec![GET_OPERATION.to_string()],
                             uri: "foo".to_string(),
+                            context: String::from("context"),
                         },
                     )
                     .await;
@@ -360,6 +361,7 @@ mod grpc_provider_proxy_v1_tests {
                             protocol: GRPC_PROTOCOL.to_string(),
                             operations: vec![SUBSCRIBE_OPERATION.to_string()],
                             uri: "foo".to_string(),
+                            context: String::from("context"),
                         },
                     )
                     .await;

@@ -196,6 +196,7 @@ mod provider_proxy_selector_tests {
                 // Emtpy URI for GRPC will cause the test to fail when creating a new proxy
                 uri: String::new(),
                 protocol: String::from("grpc"),
+                context: String::from("context"),
             }],
         };
 
