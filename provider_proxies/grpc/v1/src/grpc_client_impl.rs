@@ -17,7 +17,7 @@ use samples_protobuf_data_access::sample_grpc::v1::digital_twin_consumer::{
 
 const METADATA_KEY: &str = "$metadata";
 
-/// Struct which implements the DigitalTwinConsumer trait for GRPC clients
+/// Struct which implements the DigitalTwinConsumer trait for gRPC clients
 #[derive(Debug, Default)]
 pub struct GRPCClientImpl {
     /// The queue on which incoming signal values should be published
@@ -79,11 +79,11 @@ impl GRPCClientImpl {
                             if property_map.contains_key(&METADATA_KEY.to_string()) {
                                 "has"
                             } else {
-                                "doesn't have"
+                                "does not have"
                             };
 
                         debug!(
-                            "Value contained {} properties and {metadata_descriptor} a $metadata property. Selecting property with key {} as the signal value",
+                            "Value contained {} properties and {metadata_descriptor} a {METADATA_KEY} property. Selecting property with key {} as the signal value",
                             property_map.len(),
                             k
                         );
