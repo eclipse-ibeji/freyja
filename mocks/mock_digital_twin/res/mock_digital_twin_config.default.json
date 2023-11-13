@@ -12,7 +12,8 @@
                     {
                         "protocol": "http",
                         "operations": ["Get"],
-                        "uri": "http://127.0.0.1:8800/request-value"
+                        "uri": "http://127.0.0.1:8800/request-value",
+                        "context": "context"
                     }
                 ]
             },
@@ -31,7 +32,8 @@
                     {
                         "protocol": "http",
                         "operations": ["Get"],
-                        "uri": "http://127.0.0.1:8800/request-value"
+                        "uri": "http://127.0.0.1:8800/request-value",
+                        "context": "context"
                     }
                 ]
             },
@@ -50,7 +52,8 @@
                     {
                         "protocol": "http",
                         "operations": ["Subscribe"],
-                        "uri": "http://127.0.0.1:8800/subscribe"
+                        "uri": "http://127.0.0.1:8800/subscribe",
+                        "context": "context"
                     }
                 ]
             },
