@@ -177,6 +177,7 @@ mod provider_proxy_selector_tests {
     use freyja_contracts::{
         entity::EntityEndpoint, provider_proxy_selector::ProviderProxySelectorErrorKind,
     };
+    use grpc_provider_proxy_v1::grpc_provider_proxy_factory::GRPCProviderProxyFactory;
 
     const AMBIENT_AIR_TEMPERATURE_ID: &str = "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1";
     const OPERATION: &str = "Subscribe";
@@ -184,7 +185,8 @@ mod provider_proxy_selector_tests {
     #[tokio::test]
     async fn handle_start_provider_proxy_request_return_err_test() {
         let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
-        let uut = ProviderProxySelectorImpl::new(signal_values_queue);
+        let mut uut = ProviderProxySelectorImpl::new(signal_values_queue);
+        uut.register::<GRPCProviderProxyFactory>().unwrap();
 
         let entity = Entity {
             id: String::from(AMBIENT_AIR_TEMPERATURE_ID),

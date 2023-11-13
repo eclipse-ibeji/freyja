@@ -1570,6 +1570,7 @@ dependencies = [
  "async-trait",
  "crossbeam",
  "freyja-contracts",
+ "grpc-provider-proxy-v1",
  "log",
  "tokio",
 ]

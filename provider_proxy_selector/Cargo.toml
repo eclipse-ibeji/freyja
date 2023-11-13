@@ -14,3 +14,6 @@ crossbeam = { workspace = true }
 freyja-contracts = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true }
+
+[dev-dependencies]
+grpc-provider-proxy-v1 = { path = "../provider_proxies/grpc/v1" }
