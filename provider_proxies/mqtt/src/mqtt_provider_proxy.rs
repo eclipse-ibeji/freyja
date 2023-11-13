@@ -108,7 +108,7 @@ impl MqttProviderProxy {
                 value
             }
             Err(e) => {
-                warn!("Failed to parse value: {e}");
+                warn!("Failed to parse value |{value}|: {e}");
                 value
             }
         }
@@ -184,12 +184,13 @@ impl ProviderProxy for MqttProviderProxy {
 
         // Start the thread for handling publishes from providers
         tokio::spawn(async move {
+            info!("Started MQTT listener");
             for msg in receiver.iter() {
                 if let Some(m) = msg {
                     let subsciptions = subscriptions.lock().await;
                     let entity_id = subsciptions.get(m.topic()).unwrap().clone();
                     // TODO: additional parsing for value?
-                    let value = Self::parse_value(m.to_string());
+                    let value = Self::parse_value(m.payload_str().to_string());
                     signal_values_queue.push(SignalValue { entity_id, value });
                 } else {
                     let client = client.lock().await;
@@ -260,6 +261,8 @@ impl ProviderProxy for MqttProviderProxy {
         
         // Topic comes from the endpoint context
         let topic = endpoint.context.clone();
+        debug!("Subscribing to topic {topic}");
+        
         let client = self.client.lock().await;
         client.subscribe(&topic, QOS_1).map_err(ProviderProxyError::communication)?;
         let mut subscriptions = self.subscriptions.lock().await;

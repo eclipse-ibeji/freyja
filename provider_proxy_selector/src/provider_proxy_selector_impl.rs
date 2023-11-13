@@ -10,6 +10,7 @@ use std::{
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
 use log::debug;
+use mqtt_provider_proxy::mqtt_provider_proxy_factory::MqttProviderProxyFactory;
 use tokio::sync::Mutex;
 
 use freyja_contracts::{
@@ -55,6 +56,7 @@ impl ProviderProxySelectorImpl {
             Box::new(GRPCProviderProxyFactory {}),
             Box::new(HttpMockProviderProxyFactory {}),
             Box::new(InMemoryMockProviderProxyFactory {}),
+            Box::new(MqttProviderProxyFactory {}),
         ];
 
         ProviderProxySelectorImpl {
@@ -126,7 +128,7 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
         let provider_proxy_clone = provider_proxy.clone();
         tokio::spawn(async move {
             let _ = provider_proxy_clone.run().await;
-        });
+        }).await.map_err(ProviderProxySelectorError::provider_proxy_error)?;
 
         provider_proxy
             .register_entity(&entity.id, &endpoint)

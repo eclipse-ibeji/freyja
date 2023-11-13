@@ -1568,6 +1568,7 @@ dependencies = [
  "http-mock-provider-proxy",
  "in-memory-mock-provider-proxy",
  "log",
+ "mqtt-provider-proxy",
  "tokio",
 ]
 
