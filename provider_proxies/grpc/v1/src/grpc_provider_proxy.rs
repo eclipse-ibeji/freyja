@@ -79,10 +79,8 @@ impl ProviderProxy for GRPCProviderProxy {
         .map(|r| Arc::new(r) as _)
     }
 
-    /// Runs a provider proxy
-    async fn run(&self) -> Result<(), ProviderProxyError> {
-        info!("Started a GRPCProviderProxy!");
-
+    /// Starts a provider proxy
+    async fn start(&self) -> Result<(), ProviderProxyError> {
         let addr: SocketAddr = self
             .config
             .consumer_address
@@ -97,9 +95,13 @@ impl ProviderProxy for GRPCProviderProxy {
         let server_future = Server::builder()
             .add_service(DigitalTwinConsumerServer::new(consumer_impl))
             .serve(addr);
-        let _ = server_future
-            .await
-            .map_err(ProviderProxyError::communication);
+
+        tokio::spawn(async move {
+            let _ = server_future
+                .await;
+        });
+
+        info!("Started a GRPCProviderProxy!");
 
         Ok(())
     }

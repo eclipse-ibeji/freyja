@@ -10,7 +10,6 @@ use std::{
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
 use log::debug;
-use mqtt_provider_proxy::mqtt_provider_proxy_factory::MqttProviderProxyFactory;
 use tokio::sync::Mutex;
 
 use freyja_contracts::{
@@ -20,9 +19,6 @@ use freyja_contracts::{
         ProviderProxySelector, ProviderProxySelectorError, ProviderProxySelectorErrorKind,
     },
 };
-use grpc_provider_proxy_v1::grpc_provider_proxy_factory::GRPCProviderProxyFactory;
-use http_mock_provider_proxy::http_mock_provider_proxy_factory::HttpMockProviderProxyFactory;
-use in_memory_mock_provider_proxy::in_memory_mock_provider_proxy_factory::InMemoryMockProviderProxyFactory;
 
 /// Represents the state of the ProviderProxySelector and allows for simplified access through a mutex
 struct ProviderProxySelectorState {
@@ -52,15 +48,8 @@ impl ProviderProxySelectorImpl {
     /// # Arguments
     /// - `signal_values_queue`: The queue that is passed to proxies andused to update the emitter
     pub fn new(signal_values_queue: Arc<SegQueue<SignalValue>>) -> Self {
-        let factories: Vec<Box<dyn ProviderProxyFactory + Send + Sync>> = vec![
-            Box::new(GRPCProviderProxyFactory {}),
-            Box::new(HttpMockProviderProxyFactory {}),
-            Box::new(InMemoryMockProviderProxyFactory {}),
-            Box::new(MqttProviderProxyFactory {}),
-        ];
-
         ProviderProxySelectorImpl {
-            factories,
+            factories: Vec::new(),
             state: Mutex::new(ProviderProxySelectorState {
                 provider_proxies: HashMap::new(),
                 entity_map: HashMap::new(),
@@ -72,6 +61,12 @@ impl ProviderProxySelectorImpl {
 
 #[async_trait]
 impl ProviderProxySelector for ProviderProxySelectorImpl {
+    /// Registers a `ProviderProxyFactory` with this selector.
+    fn register<TFactory: ProviderProxyFactory + Send + Sync + 'static>(&mut self) -> Result<(), ProviderProxySelectorError> {
+        self.factories.push(Box::new(TFactory::new()) as _);
+        Ok(())
+    }
+
     /// Updates an existing proxy for an entity if possible,
     /// otherwise creates a new proxy to handle that entity.
     ///
@@ -125,12 +120,10 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
             .entity_map
             .insert(entity.id.clone(), endpoint.uri.clone());
 
-        let provider_proxy_clone = provider_proxy.clone();
-        tokio::spawn(async move {
-            let _ = provider_proxy_clone.run().await;
-        })
-        .await
-        .map_err(ProviderProxySelectorError::provider_proxy_error)?;
+        provider_proxy
+            .start()
+            .await
+            .map_err(ProviderProxySelectorError::provider_proxy_error)?;
 
         provider_proxy
             .register_entity(&entity.id, &endpoint)

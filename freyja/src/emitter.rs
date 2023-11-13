@@ -231,7 +231,7 @@ mod emitter_tests {
         cloud_adapter::{CloudAdapterError, CloudAdapterErrorKind},
         entity::Entity,
         provider_proxy_selector::ProviderProxySelectorError,
-        signal::{Emission, EmissionPolicy},
+        signal::{Emission, EmissionPolicy}, provider_proxy::ProviderProxyFactory,
     };
 
     mock! {
@@ -255,6 +255,7 @@ mod emitter_tests {
 
         #[async_trait]
         impl ProviderProxySelector for ProviderProxySelector {
+            fn register<TFactory: ProviderProxyFactory + Send + Sync + 'static>(&mut self) -> Result<(), ProviderProxySelectorError>;
             async fn create_or_update_proxy(&self, entity: &Entity) -> Result<(), ProviderProxySelectorError>;
             async fn request_entity_value(&self, entity_id: &str) -> Result<(), ProviderProxySelectorError>;
         }

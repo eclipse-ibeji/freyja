@@ -33,8 +33,10 @@ pub trait ProviderProxy {
     where
         Self: Sized;
 
-    /// Runs a provider proxy.
-    async fn run(&self) -> Result<(), ProviderProxyError>;
+    /// Starts a provider proxy.
+    /// This should not block once intialization is complete, so anything that needs to run indefinitely
+    /// (such as a server or a listener) should spawn its own task.
+    async fn start(&self) -> Result<(), ProviderProxyError>;
 
     /// Sends a request to a provider for obtaining the value of an entity
     ///
@@ -57,6 +59,11 @@ pub trait ProviderProxy {
 
 /// Factory for creating ProviderProxies
 pub trait ProviderProxyFactory {
+    /// Create a new factory
+    fn new() -> Self
+    where
+        Self: Sized;
+
     /// Check to see whether this factory can create a proxy for the requested entity.
     /// Returns the first endpoint found that is supported by this factory.
     ///

@@ -518,13 +518,17 @@ dependencies = [
  "env_logger",
  "freyja-common",
  "freyja-contracts",
+ "grpc-provider-proxy-v1",
+ "http-mock-provider-proxy",
  "in-memory-mock-cloud-adapter",
  "in-memory-mock-digital-twin-adapter",
  "in-memory-mock-mapping-client",
+ "in-memory-mock-provider-proxy",
  "log",
  "mock-digital-twin-adapter",
  "mock-mapping-service-client",
  "mockall",
+ "mqtt-provider-proxy",
  "proc-macros",
  "provider-proxy-selector",
  "time",
@@ -791,6 +795,7 @@ dependencies = [
  "log",
  "reqwest",
  "serde",
+ "tokio",
 ]
 
 [[package]]
@@ -1565,11 +1570,7 @@ dependencies = [
  "async-trait",
  "crossbeam",
  "freyja-contracts",
- "grpc-provider-proxy-v1",
- "http-mock-provider-proxy",
- "in-memory-mock-provider-proxy",
  "log",
- "mqtt-provider-proxy",
  "tokio",
 ]
 

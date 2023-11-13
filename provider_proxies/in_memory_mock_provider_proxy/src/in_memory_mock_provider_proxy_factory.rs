@@ -19,6 +19,11 @@ use crate::{
 pub struct InMemoryMockProviderProxyFactory {}
 
 impl ProviderProxyFactory for InMemoryMockProviderProxyFactory {
+    /// Create a new `GRPCProviderProxyFactory`
+    fn new() -> Self {
+        Self {  }
+    }
+
     /// Check to see whether this factory can create a proxy for the requested entity.
     /// Returns the first endpoint found that is supported by this factory.
     ///

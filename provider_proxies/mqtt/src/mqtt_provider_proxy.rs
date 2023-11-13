@@ -79,10 +79,8 @@ impl ProviderProxy for MqttProviderProxy {
         .map(|r| Arc::new(r) as _)
     }
 
-    /// Runs a provider proxy
-    async fn run(&self) -> Result<(), ProviderProxyError> {
-        info!("Started an MQTTProviderProxy!");
-
+    /// Starts a provider proxy
+    async fn start(&self) -> Result<(), ProviderProxyError> {
         let lwt = paho_mqtt::MessageBuilder::new()
             .topic("test")
             .payload("Receiver lost connection")
@@ -153,6 +151,8 @@ impl ProviderProxy for MqttProviderProxy {
                 }
             }
         });
+
+        info!("Started an MQTTProviderProxy!");
 
         Ok(())
     }
