@@ -97,8 +97,7 @@ impl ProviderProxy for GRPCProviderProxy {
             .serve(addr);
 
         tokio::spawn(async move {
-            let _ = server_future
-                .await;
+            let _ = server_future.await;
         });
 
         info!("Started a GRPCProviderProxy!");

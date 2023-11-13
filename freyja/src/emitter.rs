@@ -230,8 +230,9 @@ mod emitter_tests {
     use freyja_contracts::{
         cloud_adapter::{CloudAdapterError, CloudAdapterErrorKind},
         entity::Entity,
+        provider_proxy::ProviderProxyFactory,
         provider_proxy_selector::ProviderProxySelectorError,
-        signal::{Emission, EmissionPolicy}, provider_proxy::ProviderProxyFactory,
+        signal::{Emission, EmissionPolicy},
     };
 
     mock! {

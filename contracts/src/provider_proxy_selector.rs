@@ -11,7 +11,9 @@ use crate::{entity::Entity, provider_proxy::ProviderProxyFactory};
 #[async_trait]
 pub trait ProviderProxySelector {
     /// Registers a `ProviderProxyFactory` with this selector.
-    fn register<TFactory: ProviderProxyFactory + Send + Sync + 'static>(&mut self) -> Result<(), ProviderProxySelectorError>;
+    fn register<TFactory: ProviderProxyFactory + Send + Sync + 'static>(
+        &mut self,
+    ) -> Result<(), ProviderProxySelectorError>;
 
     /// Updates an existing proxy for an entity if possible,
     /// otherwise creates a new proxy to handle that entity.

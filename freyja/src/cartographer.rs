@@ -214,7 +214,8 @@ mod cartographer_tests {
             CheckForWorkResponse, GetMappingResponse, MappingClientError, SendInventoryRequest,
             SendInventoryResponse,
         },
-        provider_proxy_selector::ProviderProxySelectorError, provider_proxy::ProviderProxyFactory,
+        provider_proxy::ProviderProxyFactory,
+        provider_proxy_selector::ProviderProxySelectorError,
     };
 
     mock! {

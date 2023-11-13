@@ -120,7 +120,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
     async fn start(&self) -> Result<(), ProviderProxyError> {
         let entity_operation_map = self.entity_operation_map.clone();
         let signal_values_queue = self.signal_values_queue.clone();
-        let signal_update_frequency = self.signal_update_frequency.clone();
+        let signal_update_frequency = self.signal_update_frequency;
         let data = self.data.clone();
 
         tokio::spawn(async move {
@@ -140,11 +140,8 @@ impl ProviderProxy for InMemoryMockProviderProxy {
 
                 let data = data.lock().await;
                 for entity_id in entities_with_subscribe {
-                    let _ = Self::generate_signal_value(
-                        &entity_id,
-                        signal_values_queue.clone(),
-                        &data,
-                    );
+                    let _ =
+                        Self::generate_signal_value(&entity_id, signal_values_queue.clone(), &data);
                 }
 
                 tokio::time::sleep(signal_update_frequency).await;
@@ -178,11 +175,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
 
         let data = self.data.lock().await;
         if operation == GET_OPERATION {
-            let _ = Self::generate_signal_value(
-                entity_id,
-                self.signal_values_queue.clone(),
-                &data,
-            );
+            let _ = Self::generate_signal_value(entity_id, self.signal_values_queue.clone(), &data);
         }
 
         Ok(())

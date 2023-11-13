@@ -155,9 +155,7 @@ impl ProviderProxy for HttpMockProviderProxy {
             .map_err(ProviderProxyError::communication)?;
 
         tokio::spawn(async move {
-            let _ = builder
-                .serve(router.into_make_service())
-                .await;
+            let _ = builder.serve(router.into_make_service()).await;
         });
 
         info!(

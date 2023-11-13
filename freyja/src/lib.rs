@@ -24,7 +24,8 @@ use emitter::Emitter;
 use freyja_common::signal_store::SignalStore;
 use freyja_contracts::{
     cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter,
-    mapping_client::MappingClient, provider_proxy::SignalValue, provider_proxy_selector::ProviderProxySelector,
+    mapping_client::MappingClient, provider_proxy::SignalValue,
+    provider_proxy_selector::ProviderProxySelector,
 };
 use provider_proxy_selector::provider_proxy_selector_impl::ProviderProxySelectorImpl;
 

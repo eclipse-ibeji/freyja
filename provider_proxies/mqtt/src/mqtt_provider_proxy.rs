@@ -24,7 +24,6 @@ const MQTT_CLIENT_ID_PREFIX: &str = "freyja-mqtt-proxy";
 /// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
 /// Note that the current implementation works on the assumption that there is a
 /// one-to-one mapping of topic to entity id.
-/// TODO: can this deadlock?
 pub struct MqttProviderProxy {
     /// The proxy config
     config: Config,
@@ -112,7 +111,6 @@ impl ProviderProxy for MqttProviderProxy {
                 if let Some(m) = msg {
                     let subsciptions = subscriptions.lock().await;
                     let entity_id = subsciptions.get(m.topic()).unwrap().clone();
-                    // TODO: additional parsing for value?
                     let value = message_utils::parse_value(m.payload_str().to_string());
                     signal_values_queue.push(SignalValue { entity_id, value });
                 } else {
