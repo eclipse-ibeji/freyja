@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use log::{warn, debug};
+use log::{debug, warn};
 
 const METADATA_KEY: &str = "$metadata";
 
@@ -49,12 +49,11 @@ pub fn parse_value(value: String) -> String {
                     _ => continue,
                 };
 
-                let metadata_descriptor =
-                    if property_map.contains_key(&METADATA_KEY.to_string()) {
-                        "has"
-                    } else {
-                        "does not have"
-                    };
+                let metadata_descriptor = if property_map.contains_key(&METADATA_KEY.to_string()) {
+                    "has"
+                } else {
+                    "does not have"
+                };
 
                 debug!(
                     "Value contained {} properties and {metadata_descriptor} a {METADATA_KEY} property. Selecting property with key {} as the signal value",

@@ -10,9 +10,7 @@ use freyja_contracts::{
     provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyFactory, SignalValue},
 };
 
-use crate::{
-    mqtt_provider_proxy::MqttProviderProxy, MQTT_PROTOCOL, SUBSCRIBE_OPERATION,
-};
+use crate::{mqtt_provider_proxy::MqttProviderProxy, MQTT_PROTOCOL, SUBSCRIBE_OPERATION};
 
 /// Factory for creating MqttProviderProxies
 pub struct MqttProviderProxyFactory {}

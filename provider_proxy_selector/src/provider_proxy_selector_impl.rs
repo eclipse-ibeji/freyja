@@ -128,7 +128,9 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
         let provider_proxy_clone = provider_proxy.clone();
         tokio::spawn(async move {
             let _ = provider_proxy_clone.run().await;
-        }).await.map_err(ProviderProxySelectorError::provider_proxy_error)?;
+        })
+        .await
+        .map_err(ProviderProxySelectorError::provider_proxy_error)?;
 
         provider_proxy
             .register_entity(&entity.id, &endpoint)

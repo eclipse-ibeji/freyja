@@ -2,21 +2,18 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{
-    collections::HashMap,
-    sync::Arc, time::Duration,
-};
+use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
-use log::{info, debug};
+use log::{debug, info};
 use paho_mqtt::{Client, QOS_1};
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
-use crate::{config::Config, SUBSCRIBE_OPERATION, MQTT_PROTOCOL};
+use crate::{config::Config, MQTT_PROTOCOL, SUBSCRIBE_OPERATION};
 use freyja_build_common::config_file_stem;
-use freyja_common::{config_utils, out_dir, message_utils};
+use freyja_common::{config_utils, message_utils, out_dir};
 use freyja_contracts::{
     entity::EntityEndpoint,
     provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue},
@@ -31,7 +28,7 @@ const MQTT_CLIENT_ID_PREFIX: &str = "freyja-mqtt-proxy";
 pub struct MqttProviderProxy {
     /// The proxy config
     config: Config,
-    
+
     /// The MQTT client
     client: Arc<Mutex<Client>>,
 
@@ -70,8 +67,8 @@ impl ProviderProxy for MqttProviderProxy {
             .client_id(client_id)
             .finalize();
 
-        let client = paho_mqtt::Client::new(create_options)
-            .map_err(ProviderProxyError::communication)?;
+        let client =
+            paho_mqtt::Client::new(create_options).map_err(ProviderProxyError::communication)?;
 
         Ok(MqttProviderProxy {
             config,
@@ -96,12 +93,13 @@ impl ProviderProxy for MqttProviderProxy {
             .clean_session(false)
             .will_message(lwt)
             .finalize();
-        
+
         let receiver;
         {
             let client = self.client.lock().await;
             receiver = client.start_consuming();
-            let _ = client.connect(connection_options)
+            let _ = client
+                .connect(connection_options)
                 .map_err(ProviderProxyError::communication);
         }
 
@@ -130,7 +128,7 @@ impl ProviderProxy for MqttProviderProxy {
                                         log::error!("Error resubscribing to topic {topic}: {e}");
                                     }
                                 }
-                            },
+                            }
                             Err(e) => {
                                 log::error!("Fatal error trying to reconnect to mqtt client: {e}");
                                 break;
@@ -182,16 +180,22 @@ impl ProviderProxy for MqttProviderProxy {
         // Verify that the endpoint has the expected data.
         // This shouldn't be necessary since it's first verified by the factory,
         // but this ensures we don't get hit by an edge case
-        if endpoint.protocol != MQTT_PROTOCOL || !endpoint.operations.contains(&SUBSCRIBE_OPERATION.to_string()) {
+        if endpoint.protocol != MQTT_PROTOCOL
+            || !endpoint
+                .operations
+                .contains(&SUBSCRIBE_OPERATION.to_string())
+        {
             return Err(ProviderProxyErrorKind::OperationNotSupported.into());
         }
-        
+
         // Topic comes from the endpoint context
         let topic = endpoint.context.clone();
         debug!("Subscribing to topic {topic}");
 
         let client = self.client.lock().await;
-        client.subscribe(&topic, QOS_1).map_err(ProviderProxyError::communication)?;
+        client
+            .subscribe(&topic, QOS_1)
+            .map_err(ProviderProxyError::communication)?;
         let mut subscriptions = self.subscriptions.lock().await;
         subscriptions.insert(topic, entity_id.to_string());
 
