@@ -544,6 +544,7 @@ dependencies = [
  "home",
  "log",
  "serde",
+ "serde_json",
  "tokio",
 ]
 

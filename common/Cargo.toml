@@ -14,4 +14,5 @@ freyja-contracts = { workspace = true }
 home = { workspace = true }
 log = { workspace = true }
 serde = { workspace = true }
+serde_json = { workspace = true }
 tokio = { workspace = true }

@@ -9,20 +9,19 @@ use std::{
 
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
-use log::{info, debug, warn};
+use log::{info, debug};
 use paho_mqtt::{Client, QOS_1};
 use tokio::sync::Mutex;
 use uuid::Uuid;
 
 use crate::{config::Config, SUBSCRIBE_OPERATION, MQTT_PROTOCOL};
 use freyja_build_common::config_file_stem;
-use freyja_common::{config_utils, out_dir};
+use freyja_common::{config_utils, out_dir, message_utils};
 use freyja_contracts::{
     entity::EntityEndpoint,
     provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue},
 };
 
-const METADATA_KEY: &str = "$metadata";
 const MQTT_CLIENT_ID_PREFIX: &str = "freyja-mqtt-proxy";
 
 /// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
@@ -41,78 +40,6 @@ pub struct MqttProviderProxy {
 
     /// Shared queue for all proxies to push new signal values of entities
     signal_values_queue: Arc<SegQueue<SignalValue>>,
-}
-
-// TODO: make this common?
-impl MqttProviderProxy {
-    /// Parses the value published by a provider.
-    /// The current implementation is a workaround for the current Ibeji sample provider implementation,
-    /// which uses a non-consistent contract as follows:
-    ///
-    /// ```ignore
-    /// {
-    ///     "{propertyName}": "value",
-    ///     "$metadata": {...}
-    /// }
-    /// ```
-    ///
-    /// Note that `{propertyName}` is replaced by the name of the property that the provider published.
-    /// This function will extract the value from the first property satisfying the following conditions:
-    /// - The property is not named `$metadata`
-    /// - The property value is a non-null primitive JSON type (string, bool, or number)
-    ///
-    /// If any part of parsing fails, a warning is logged and the original value is returned.
-    ///
-    /// # Arguments
-    /// - `value`: the value to attempt to parse
-    fn parse_value(value: String) -> String {
-        match serde_json::from_str::<serde_json::Value>(&value) {
-            Ok(v) => {
-                let property_map = match v.as_object() {
-                    Some(o) => o,
-                    None => {
-                        warn!("Could not parse value as JSON object");
-                        return value;
-                    }
-                };
-
-                for property in property_map.iter() {
-                    if property.0 == METADATA_KEY {
-                        continue;
-                    }
-
-                    let selected_value = match property.1 {
-                        serde_json::Value::String(s) => s.clone(),
-                        serde_json::Value::Bool(b) => b.to_string(),
-                        serde_json::Value::Number(n) => n.to_string(),
-                        _ => continue,
-                    };
-
-                    let metadata_descriptor =
-                        if property_map.contains_key(&METADATA_KEY.to_string()) {
-                            "has"
-                        } else {
-                            "does not have"
-                        };
-
-                    debug!(
-                        "Value contained {} properties and {metadata_descriptor} a {METADATA_KEY} property. Selecting property with key {} as the signal value",
-                        property_map.len(),
-                        property.0
-                    );
-
-                    return selected_value;
-                }
-
-                warn!("Could not find a property that was parseable as a value");
-                value
-            }
-            Err(e) => {
-                warn!("Failed to parse value |{value}|: {e}");
-                value
-            }
-        }
-    }
 }
 
 #[async_trait]
@@ -190,7 +117,7 @@ impl ProviderProxy for MqttProviderProxy {
                     let subsciptions = subscriptions.lock().await;
                     let entity_id = subsciptions.get(m.topic()).unwrap().clone();
                     // TODO: additional parsing for value?
-                    let value = Self::parse_value(m.payload_str().to_string());
+                    let value = message_utils::parse_value(m.payload_str().to_string());
                     signal_values_queue.push(SignalValue { entity_id, value });
                 } else {
                     let client = client.lock().await;
@@ -262,7 +189,7 @@ impl ProviderProxy for MqttProviderProxy {
         // Topic comes from the endpoint context
         let topic = endpoint.context.clone();
         debug!("Subscribing to topic {topic}");
-        
+
         let client = self.client.lock().await;
         client.subscribe(&topic, QOS_1).map_err(ProviderProxyError::communication)?;
         let mut subscriptions = self.subscriptions.lock().await;
