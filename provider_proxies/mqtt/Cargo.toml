@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 [package]
-name = "grpc-provider-proxy-v1"
+name = "mqtt-provider-proxy"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
@@ -14,17 +14,13 @@ crossbeam = { workspace = true }
 freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
 freyja-contracts = { workspace = true }
-futures = { workspace = true }
 log = { workspace = true }
-samples-protobuf-data-access  = { workspace = true }
+paho-mqtt = { workspace = true }
 serde = { workspace = true }
-tempfile = { workspace = true }
 tokio = { workspace = true }
-tonic = { workspace = true }
-tower = { workspace = true }
+uuid = { workspace = true, features = ["v4"]}
 
 [dev-dependencies]
-tokio-stream = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

@@ -21,8 +21,14 @@ use freyja_common::signal_store::SignalStore;
 use freyja_contracts::{
     cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter,
     mapping_client::MappingClient, provider_proxy::SignalValue,
+    provider_proxy_selector::ProviderProxySelector,
 };
 use provider_proxy_selector::provider_proxy_selector_impl::ProviderProxySelectorImpl;
+
+use grpc_provider_proxy_v1::grpc_provider_proxy_factory::GRPCProviderProxyFactory;
+use http_mock_provider_proxy::http_mock_provider_proxy_factory::HttpMockProviderProxyFactory;
+use in_memory_mock_provider_proxy::in_memory_mock_provider_proxy_factory::InMemoryMockProviderProxyFactory;
+use mqtt_provider_proxy::mqtt_provider_proxy_factory::MqttProviderProxyFactory;
 
 pub async fn freyja_main<
     TDigitalTwinAdapter: DigitalTwinAdapter,
@@ -59,9 +65,14 @@ pub async fn freyja_main<
 
     let signal_store = Arc::new(SignalStore::new());
     let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
-    let provider_proxy_selector = Arc::new(Mutex::new(ProviderProxySelectorImpl::new(
-        signal_values_queue.clone(),
-    )));
+
+    let mut provider_proxy_selector = ProviderProxySelectorImpl::new(signal_values_queue.clone());
+    provider_proxy_selector.register::<GRPCProviderProxyFactory>()?;
+    provider_proxy_selector.register::<HttpMockProviderProxyFactory>()?;
+    provider_proxy_selector.register::<InMemoryMockProviderProxyFactory>()?;
+    provider_proxy_selector.register::<MqttProviderProxyFactory>()?;
+
+    let provider_proxy_selector = Arc::new(Mutex::new(provider_proxy_selector));
 
     // Setup cartographer
     let cartographer_poll_interval = Duration::from_secs(5);

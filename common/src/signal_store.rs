@@ -271,6 +271,7 @@ mod signal_store_tests {
                     protocol: ORIGINAL.to_string(),
                     operations: vec![GET_OPERATION.to_string()],
                     uri: ORIGINAL.to_string(),
+                    context: ORIGINAL.to_string(),
                 }],
             },
             target: Target {
@@ -302,6 +303,7 @@ mod signal_store_tests {
                     protocol: INCOMING.to_string(),
                     operations: vec!["FooOperation".to_string()],
                     uri: INCOMING.to_string(),
+                    context: INCOMING.to_string(),
                 }],
             },
             target: Target {
@@ -374,6 +376,7 @@ mod signal_store_tests {
                     protocol: INCOMING.to_string(),
                     operations: vec![GET_OPERATION.to_string()],
                     uri: INCOMING.to_string(),
+                    context: INCOMING.to_string(),
                 }],
             },
             target: Target {
@@ -439,6 +442,7 @@ mod signal_store_tests {
                     protocol: ORIGINAL.to_string(),
                     operations: vec![GET_OPERATION.to_string()],
                     uri: ORIGINAL.to_string(),
+                    context: ORIGINAL.to_string(),
                 }],
             },
             target: Target {

@@ -12,8 +12,8 @@ license = "MIT"
 async-trait = { workspace = true }
 crossbeam = { workspace = true }
 freyja-contracts = { workspace = true }
-grpc-provider-proxy-v1 = { path = "../provider_proxies/grpc/v1" }
-http-mock-provider-proxy = { path = "../provider_proxies/http_mock_provider_proxy" }
-in-memory-mock-provider-proxy = { path = "../provider_proxies/in_memory_mock_provider_proxy" }
 log = { workspace = true }
 tokio = { workspace = true }
+
+[dev-dependencies]
+grpc-provider-proxy-v1 = { path = "../provider_proxies/grpc/v1" }

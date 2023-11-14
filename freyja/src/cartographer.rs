@@ -214,6 +214,7 @@ mod cartographer_tests {
             CheckForWorkResponse, GetMappingResponse, MappingClientError, SendInventoryRequest,
             SendInventoryResponse,
         },
+        provider_proxy::ProviderProxyFactory,
         provider_proxy_selector::ProviderProxySelectorError,
     };
 
@@ -264,6 +265,7 @@ mod cartographer_tests {
 
         #[async_trait]
         impl ProviderProxySelector for ProviderProxySelector {
+            fn register<TFactory: ProviderProxyFactory + Send + Sync + 'static>(&mut self) -> Result<(), ProviderProxySelectorError>;
             async fn create_or_update_proxy(&self, entity: &Entity) -> Result<(), ProviderProxySelectorError>;
             async fn request_entity_value(&self, entity_id: &str) -> Result<(), ProviderProxySelectorError>;
         }
@@ -331,6 +333,7 @@ mod cartographer_tests {
                 operations: vec!["FooOperation".to_string()],
                 protocol: "in-memory".to_string(),
                 uri: "uri".to_string(),
+                context: "context".to_string(),
             }],
         };
 

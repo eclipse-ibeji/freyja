@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 pub mod config_utils;
+pub mod message_utils;
 pub mod retry_utils;
 pub mod signal_store;
 

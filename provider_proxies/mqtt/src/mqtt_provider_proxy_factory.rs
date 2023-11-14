@@ -10,15 +10,12 @@ use freyja_contracts::{
     provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyFactory, SignalValue},
 };
 
-use crate::{
-    http_mock_provider_proxy::HttpMockProviderProxy, GET_OPERATION, HTTP_PROTOCOL,
-    SUBSCRIBE_OPERATION,
-};
+use crate::{mqtt_provider_proxy::MqttProviderProxy, MQTT_PROTOCOL, SUBSCRIBE_OPERATION};
 
-/// Factory for creating HttpMockProviderProxies
-pub struct HttpMockProviderProxyFactory {}
+/// Factory for creating MqttProviderProxies
+pub struct MqttProviderProxyFactory {}
 
-impl ProviderProxyFactory for HttpMockProviderProxyFactory {
+impl ProviderProxyFactory for MqttProviderProxyFactory {
     /// Create a new `GRPCProviderProxyFactory`
     fn new() -> Self {
         Self {}
@@ -30,7 +27,7 @@ impl ProviderProxyFactory for HttpMockProviderProxyFactory {
     /// # Arguments
     /// - `entity`: the entity to check for compatibility
     fn is_supported(&self, entity: &Entity) -> Option<EntityEndpoint> {
-        entity.is_supported(&[HTTP_PROTOCOL], &[GET_OPERATION, SUBSCRIBE_OPERATION])
+        entity.is_supported(&[MQTT_PROTOCOL], &[SUBSCRIBE_OPERATION])
     }
 
     /// Create a new proxy
@@ -43,6 +40,6 @@ impl ProviderProxyFactory for HttpMockProviderProxyFactory {
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError> {
-        HttpMockProviderProxy::create_new(provider_uri, signal_values_queue)
+        MqttProviderProxy::create_new(provider_uri, signal_values_queue)
     }
 }

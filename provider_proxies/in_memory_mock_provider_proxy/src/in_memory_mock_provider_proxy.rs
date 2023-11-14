@@ -6,7 +6,6 @@ use std::{
     collections::HashMap,
     sync::atomic::{AtomicU8, Ordering},
     sync::Arc,
-    sync::Mutex,
     time::Duration,
 };
 
@@ -14,6 +13,7 @@ use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
 use freyja_common::{config_utils, out_dir};
 use log::info;
+use tokio::sync::Mutex;
 
 use crate::{
     config::{Config, EntityConfig},
@@ -28,10 +28,10 @@ use freyja_contracts::{
 #[derive(Debug)]
 pub struct InMemoryMockProviderProxy {
     /// Maps the number of calls to each provider so we can mock changing behavior
-    data: HashMap<String, (EntityConfig, AtomicU8)>,
+    data: Arc<Mutex<HashMap<String, (EntityConfig, AtomicU8)>>>,
 
     /// Local cache for keeping track of which entities this provider proxy contains
-    entity_operation_map: Mutex<HashMap<String, String>>,
+    entity_operation_map: Arc<Mutex<HashMap<String, String>>>,
 
     /// Shared queue for all proxies to push new signal values of entities
     signal_values_queue: Arc<SegQueue<SignalValue>>,
@@ -51,13 +51,15 @@ impl InMemoryMockProviderProxy {
         config: Config,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Result<Self, ProviderProxyError> {
+        let data = config
+            .entities
+            .into_iter()
+            .map(|c| (c.entity_id.clone(), (c, AtomicU8::new(0))))
+            .collect();
+
         Ok(Self {
-            entity_operation_map: Mutex::new(HashMap::new()),
-            data: config
-                .entities
-                .into_iter()
-                .map(|c| (c.entity_id.clone(), (c, AtomicU8::new(0))))
-                .collect(),
+            entity_operation_map: Arc::new(Mutex::new(HashMap::new())),
+            data: Arc::new(Mutex::new(data)),
             signal_values_queue,
             signal_update_frequency: Duration::from_millis(config.signal_update_frequency_ms),
         })
@@ -114,35 +116,46 @@ impl ProviderProxy for InMemoryMockProviderProxy {
         Self::from_config(config, signal_values_queue).map(|r| Arc::new(r) as _)
     }
 
-    /// Runs a provider proxy
-    async fn run(&self) -> Result<(), ProviderProxyError> {
+    /// Starts a provider proxy
+    async fn start(&self) -> Result<(), ProviderProxyError> {
+        let entity_operation_map = self.entity_operation_map.clone();
+        let signal_values_queue = self.signal_values_queue.clone();
+        let signal_update_frequency = self.signal_update_frequency;
+        let data = self.data.clone();
+
+        tokio::spawn(async move {
+            loop {
+                let entities_with_subscribe: Vec<String>;
+
+                {
+                    entities_with_subscribe = entity_operation_map
+                        .lock()
+                        .await
+                        .clone()
+                        .into_iter()
+                        .filter(|(_, operation)| *operation == SUBSCRIBE_OPERATION)
+                        .map(|(entity_id, _)| entity_id)
+                        .collect();
+                }
+
+                {
+                    let data = data.lock().await;
+                    for entity_id in entities_with_subscribe {
+                        let _ = Self::generate_signal_value(
+                            &entity_id,
+                            signal_values_queue.clone(),
+                            &data,
+                        );
+                    }
+                }
+
+                tokio::time::sleep(signal_update_frequency).await;
+            }
+        });
+
         info!("Started an InMemoryMockProviderProxy!");
 
-        loop {
-            let entities_with_subscribe: Vec<String>;
-
-            {
-                entities_with_subscribe = self
-                    .entity_operation_map
-                    .lock()
-                    .unwrap()
-                    .clone()
-                    .into_iter()
-                    .filter(|(_, operation)| *operation == SUBSCRIBE_OPERATION)
-                    .map(|(entity_id, _)| entity_id)
-                    .collect();
-            }
-
-            for entity_id in entities_with_subscribe {
-                let _ = Self::generate_signal_value(
-                    &entity_id,
-                    self.signal_values_queue.clone(),
-                    &self.data,
-                );
-            }
-
-            tokio::time::sleep(self.signal_update_frequency).await;
-        }
+        Ok(())
     }
 
     /// Sends a request to a provider for obtaining the value of an entity
@@ -152,7 +165,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
     async fn send_request_to_provider(&self, entity_id: &str) -> Result<(), ProviderProxyError> {
         let operation_result;
         {
-            let lock = self.entity_operation_map.lock().unwrap();
+            let lock = self.entity_operation_map.lock().await;
             operation_result = lock.get(entity_id).cloned();
         }
 
@@ -164,12 +177,10 @@ impl ProviderProxy for InMemoryMockProviderProxy {
 
         // Only need to handle Get operations since subscribe has already happened
         let operation = operation_result.unwrap();
+
+        let data = self.data.lock().await;
         if operation == GET_OPERATION {
-            let _ = Self::generate_signal_value(
-                entity_id,
-                self.signal_values_queue.clone(),
-                &self.data,
-            );
+            let _ = Self::generate_signal_value(entity_id, self.signal_values_queue.clone(), &data);
         }
 
         Ok(())
@@ -205,7 +216,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
 
         self.entity_operation_map
             .lock()
-            .unwrap()
+            .await
             .insert(String::from(entity_id), String::from(selected_operation));
 
         Ok(())
@@ -262,11 +273,12 @@ mod in_memory_mock_digital_twin_adapter_tests {
 
         // First for loop, we generate signal values for each entity until we've reached the end value of each
         // entity that has the stepwise functionality configured.
+        let data = in_memory_mock_provider_proxy.data.lock().await;
         for i in 0..END_OF_SENSOR_VALUE_CONFIG_ITERATION {
             let result = InMemoryMockProviderProxy::generate_signal_value(
                 STATIC_ID,
                 signal_values_queue.clone(),
-                &in_memory_mock_provider_proxy.data,
+                &data,
             );
             assert!(result.is_ok());
 
@@ -277,7 +289,7 @@ mod in_memory_mock_digital_twin_adapter_tests {
             let result = InMemoryMockProviderProxy::generate_signal_value(
                 INCREASING_ID,
                 signal_values_queue.clone(),
-                &in_memory_mock_provider_proxy.data,
+                &data,
             );
             assert!(result.is_ok());
 
@@ -291,7 +303,7 @@ mod in_memory_mock_digital_twin_adapter_tests {
             let result = InMemoryMockProviderProxy::generate_signal_value(
                 DECREASING_ID,
                 signal_values_queue.clone(),
-                &in_memory_mock_provider_proxy.data,
+                &data,
             );
             assert!(result.is_ok());
 
@@ -308,7 +320,7 @@ mod in_memory_mock_digital_twin_adapter_tests {
             let result = InMemoryMockProviderProxy::generate_signal_value(
                 STATIC_ID,
                 signal_values_queue.clone(),
-                &in_memory_mock_provider_proxy.data,
+                &data,
             );
             assert!(result.is_ok());
 
@@ -319,7 +331,7 @@ mod in_memory_mock_digital_twin_adapter_tests {
             let result = InMemoryMockProviderProxy::generate_signal_value(
                 INCREASING_ID,
                 signal_values_queue.clone(),
-                &in_memory_mock_provider_proxy.data,
+                &data,
             );
             assert!(result.is_ok());
 
@@ -330,7 +342,7 @@ mod in_memory_mock_digital_twin_adapter_tests {
             let result = InMemoryMockProviderProxy::generate_signal_value(
                 DECREASING_ID,
                 signal_values_queue.clone(),
-                &in_memory_mock_provider_proxy.data,
+                &data,
             );
             assert!(result.is_ok());
 

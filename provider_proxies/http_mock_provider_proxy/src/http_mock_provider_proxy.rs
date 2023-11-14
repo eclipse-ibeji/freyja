@@ -104,39 +104,6 @@ impl HttpMockProviderProxy {
 
         ok!()
     }
-
-    /// Run a listener, so the providers' server can publish data back
-    ///
-    /// # Arguments
-    /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
-    async fn run_signal_values_listener(
-        &self,
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
-    ) -> Result<(), ProviderProxyError> {
-        let server_endpoint_addr = SocketAddr::from_str(&self.config.proxy_callback_address)
-            .map_err(ProviderProxyError::parse)?;
-        // Start a listener server to have a digital twin provider push data
-        // http://{provider_callback_authority}/value
-        // POST request where the json body is GetSignalValueResponse
-        // Set up router path
-        let router = Router::new()
-            .route(CALLBACK_FOR_VALUES_PATH, post(Self::receive_value_handler))
-            .with_state(signal_values_queue);
-
-        // Run the listener
-        let builder = axum::Server::try_bind(&server_endpoint_addr)
-            .map_err(ProviderProxyError::communication)?;
-        builder
-            .serve(router.into_make_service())
-            .await
-            .map_err(ProviderProxyError::communication)?;
-
-        info!(
-            "Http Provider Proxy listening at http://{}", // Devskim: ignore DS137138
-            self.config.proxy_callback_address
-        );
-        Ok(())
-    }
 }
 
 #[async_trait]
@@ -171,11 +138,31 @@ impl ProviderProxy for HttpMockProviderProxy {
         .map(|r| Arc::new(r) as _)
     }
 
-    /// Runs a provider proxy
-    async fn run(&self) -> Result<(), ProviderProxyError> {
-        info!("Started an HttpProviderProxy!");
-        self.run_signal_values_listener(self.signal_values_queue.clone())
-            .await?;
+    /// Starts a provider proxy
+    async fn start(&self) -> Result<(), ProviderProxyError> {
+        let server_endpoint_addr = SocketAddr::from_str(&self.config.proxy_callback_address)
+            .map_err(ProviderProxyError::parse)?;
+        // Start a listener server to have a digital twin provider push data
+        // http://{provider_callback_authority}/value
+        // POST request where the json body is GetSignalValueResponse
+        // Set up router path
+        let router = Router::new()
+            .route(CALLBACK_FOR_VALUES_PATH, post(Self::receive_value_handler))
+            .with_state(self.signal_values_queue.clone());
+
+        // Run the listener
+        let builder = axum::Server::try_bind(&server_endpoint_addr)
+            .map_err(ProviderProxyError::communication)?;
+
+        tokio::spawn(async move {
+            let _ = builder.serve(router.into_make_service()).await;
+        });
+
+        info!(
+            "Http Provider Proxy listening at http://{}", // Devskim: ignore DS137138
+            self.config.proxy_callback_address
+        );
+
         Ok(())
     }
 

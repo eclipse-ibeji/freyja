@@ -9,7 +9,8 @@
                     {
                         "protocol": "in-memory",
                         "operations": ["Get"],
-                        "uri": "http://1.2.3.4:1111"
+                        "uri": "http://1.2.3.4:1111",
+                        "context": "context"
                     }
                 ]
             }
@@ -23,7 +24,8 @@
                     {
                         "protocol": "in-memory",
                         "operations": ["Subscribe"],
-                        "uri": "http://0.0.0.0:1111"
+                        "uri": "http://0.0.0.0:1111",
+                        "context": "context"
                     }
                 ]
             }
@@ -37,7 +39,8 @@
                     {
                         "protocol": "in-memory",
                         "operations": ["Subscribe"],
-                        "uri": "http://0.0.0.0:1111"
+                        "uri": "http://0.0.0.0:1111",
+                        "context": "context"
                     }
                 ]
             }

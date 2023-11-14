@@ -19,9 +19,6 @@ use freyja_contracts::{
         ProviderProxySelector, ProviderProxySelectorError, ProviderProxySelectorErrorKind,
     },
 };
-use grpc_provider_proxy_v1::grpc_provider_proxy_factory::GRPCProviderProxyFactory;
-use http_mock_provider_proxy::http_mock_provider_proxy_factory::HttpMockProviderProxyFactory;
-use in_memory_mock_provider_proxy::in_memory_mock_provider_proxy_factory::InMemoryMockProviderProxyFactory;
 
 /// Represents the state of the ProviderProxySelector and allows for simplified access through a mutex
 struct ProviderProxySelectorState {
@@ -51,14 +48,8 @@ impl ProviderProxySelectorImpl {
     /// # Arguments
     /// - `signal_values_queue`: The queue that is passed to proxies andused to update the emitter
     pub fn new(signal_values_queue: Arc<SegQueue<SignalValue>>) -> Self {
-        let factories: Vec<Box<dyn ProviderProxyFactory + Send + Sync>> = vec![
-            Box::new(GRPCProviderProxyFactory {}),
-            Box::new(HttpMockProviderProxyFactory {}),
-            Box::new(InMemoryMockProviderProxyFactory {}),
-        ];
-
         ProviderProxySelectorImpl {
-            factories,
+            factories: Vec::new(),
             state: Mutex::new(ProviderProxySelectorState {
                 provider_proxies: HashMap::new(),
                 entity_map: HashMap::new(),
@@ -70,6 +61,14 @@ impl ProviderProxySelectorImpl {
 
 #[async_trait]
 impl ProviderProxySelector for ProviderProxySelectorImpl {
+    /// Registers a `ProviderProxyFactory` with this selector.
+    fn register<TFactory: ProviderProxyFactory + Send + Sync + 'static>(
+        &mut self,
+    ) -> Result<(), ProviderProxySelectorError> {
+        self.factories.push(Box::new(TFactory::new()) as _);
+        Ok(())
+    }
+
     /// Updates an existing proxy for an entity if possible,
     /// otherwise creates a new proxy to handle that entity.
     ///
@@ -123,10 +122,10 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
             .entity_map
             .insert(entity.id.clone(), endpoint.uri.clone());
 
-        let provider_proxy_clone = provider_proxy.clone();
-        tokio::spawn(async move {
-            let _ = provider_proxy_clone.run().await;
-        });
+        provider_proxy
+            .start()
+            .await
+            .map_err(ProviderProxySelectorError::provider_proxy_error)?;
 
         provider_proxy
             .register_entity(&entity.id, &endpoint)
@@ -178,6 +177,7 @@ mod provider_proxy_selector_tests {
     use freyja_contracts::{
         entity::EntityEndpoint, provider_proxy_selector::ProviderProxySelectorErrorKind,
     };
+    use grpc_provider_proxy_v1::grpc_provider_proxy_factory::GRPCProviderProxyFactory;
 
     const AMBIENT_AIR_TEMPERATURE_ID: &str = "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1";
     const OPERATION: &str = "Subscribe";
@@ -185,7 +185,8 @@ mod provider_proxy_selector_tests {
     #[tokio::test]
     async fn handle_start_provider_proxy_request_return_err_test() {
         let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
-        let uut = ProviderProxySelectorImpl::new(signal_values_queue);
+        let mut uut = ProviderProxySelectorImpl::new(signal_values_queue);
+        uut.register::<GRPCProviderProxyFactory>().unwrap();
 
         let entity = Entity {
             id: String::from(AMBIENT_AIR_TEMPERATURE_ID),
@@ -196,6 +197,7 @@ mod provider_proxy_selector_tests {
                 // Emtpy URI for GRPC will cause the test to fail when creating a new proxy
                 uri: String::new(),
                 protocol: String::from("grpc"),
+                context: String::from("context"),
             }],
         };
 
