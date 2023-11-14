@@ -2,10 +2,6 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use grpc_provider_proxy_v1::grpc_provider_proxy_factory::GRPCProviderProxyFactory;
-use http_mock_provider_proxy::http_mock_provider_proxy_factory::HttpMockProviderProxyFactory;
-use in_memory_mock_provider_proxy::in_memory_mock_provider_proxy_factory::InMemoryMockProviderProxyFactory;
-use mqtt_provider_proxy::mqtt_provider_proxy_factory::MqttProviderProxyFactory;
 // Re-export this macro for convenience so users don't need to manually import the proc_macros crate
 pub use proc_macros::freyja_main;
 use tokio::sync::Mutex;
@@ -28,6 +24,11 @@ use freyja_contracts::{
     provider_proxy_selector::ProviderProxySelector,
 };
 use provider_proxy_selector::provider_proxy_selector_impl::ProviderProxySelectorImpl;
+
+use grpc_provider_proxy_v1::grpc_provider_proxy_factory::GRPCProviderProxyFactory;
+use http_mock_provider_proxy::http_mock_provider_proxy_factory::HttpMockProviderProxyFactory;
+use in_memory_mock_provider_proxy::in_memory_mock_provider_proxy_factory::InMemoryMockProviderProxyFactory;
+use mqtt_provider_proxy::mqtt_provider_proxy_factory::MqttProviderProxyFactory;
 
 pub async fn freyja_main<
     TDigitalTwinAdapter: DigitalTwinAdapter,

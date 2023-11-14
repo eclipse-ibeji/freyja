@@ -18,7 +18,6 @@ futures = { workspace = true }
 log = { workspace = true }
 samples-protobuf-data-access  = { workspace = true }
 serde = { workspace = true }
-serde_json = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true }
 tonic = { workspace = true }

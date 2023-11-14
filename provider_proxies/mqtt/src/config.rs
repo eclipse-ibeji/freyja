@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 
-/// The GRPC provider proxy config
+/// The MQTT provider proxy config
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
     /// The keep alive interval in seconds

@@ -697,7 +697,6 @@ dependencies = [
  "log",
  "samples-protobuf-data-access",
  "serde",
- "serde_json",
  "tempfile",
  "tokio",
  "tokio-stream",
@@ -1174,7 +1173,6 @@ dependencies = [
  "log",
  "paho-mqtt",
  "serde",
- "serde_json",
  "tokio",
  "uuid",
 ]

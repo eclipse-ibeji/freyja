@@ -138,10 +138,12 @@ impl ProviderProxy for InMemoryMockProviderProxy {
                         .collect();
                 }
 
-                let data = data.lock().await;
-                for entity_id in entities_with_subscribe {
-                    let _ =
-                        Self::generate_signal_value(&entity_id, signal_values_queue.clone(), &data);
+                {
+                    let data = data.lock().await;
+                    for entity_id in entities_with_subscribe {
+                        let _ =
+                            Self::generate_signal_value(&entity_id, signal_values_queue.clone(), &data);
+                    }
                 }
 
                 tokio::time::sleep(signal_update_frequency).await;
