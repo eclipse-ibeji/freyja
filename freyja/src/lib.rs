@@ -56,7 +56,7 @@ pub async fn freyja_main<
         .collect();
 
     // Setup logging
-    let log_level = LevelFilter::from_str(args.get("log-level").unwrap_or(&"info".to_owned()))
+    let log_level = LevelFilter::from_str(args.get("--log-level").unwrap_or(&"info".to_owned()))
         .expect("Could not parse log level");
     env_logger::Builder::new()
         .filter(None, log_level)

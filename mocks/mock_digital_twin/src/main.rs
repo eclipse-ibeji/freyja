@@ -5,6 +5,8 @@
 mod config;
 
 use std::collections::{HashMap, HashSet};
+use std::env;
+use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 use std::{io, net::SocketAddr, thread, time::Duration};
 
@@ -31,6 +33,7 @@ struct DigitalTwinAdapterState {
     entities: Vec<(EntityConfig, u8)>,
     subscriptions: HashMap<String, HashSet<String>>,
     response_channel_sender: UnboundedSender<(String, EntityValueResponse)>,
+    interactive: bool,
 }
 
 /// Used for deserializing a query parameter for /entity?id=...
@@ -82,10 +85,37 @@ macro_rules! server_error {
 /// - An HTTP listener to accept incoming requests
 #[tokio::main]
 async fn main() {
+    let args: HashMap<String, Option<String>> = env::args()
+        .skip(1)
+        .map(|arg| {
+            let mut split = arg.split('=');
+            let key = split
+                .next()
+                .expect("Couldn't parse argument key")
+                .to_owned();
+            let val = split.next().map(|v| v.to_owned());
+
+            if split.next().is_some() {
+                panic!("Too many pieces in argument");
+            }
+
+            (key, val)
+        })
+        .collect();
+
+    // Setup logging
+    let log_level = args.get("--log-level")
+        .cloned()
+        .unwrap_or(Some(String::from("info")))
+        .expect("No log-level value provided");
+    let log_level = LevelFilter::from_str(log_level.as_str())
+        .expect("Could not parse log level");
     env_logger::Builder::new()
-        .filter(None, LevelFilter::Info)
+        .filter(None, log_level)
         .target(Target::Stdout)
         .init();
+
+    let interactive = args.get("--interactive").is_some();
 
     let config: Config = config_utils::read_from_files(
         config_file_stem!(),
@@ -107,6 +137,7 @@ async fn main() {
             .map(|c| (c.entity.id.clone(), HashSet::new()))
             .collect(),
         response_channel_sender: sender,
+        interactive,
     }));
 
     let console_listener_state = state.clone();
@@ -120,21 +151,23 @@ async fn main() {
         );
     }
 
-    // stdin setup
-    thread::spawn(move || -> std::io::Result<usize> {
-        let mut buffer = String::new();
-        loop {
-            io::stdin().read_line(&mut buffer)?;
-
-            let mut state = console_listener_state.lock().unwrap();
-            state.count += 1;
-            info!(
-                "New count: {}. Active entities {:?}",
-                state.count,
-                get_active_entity_names(&state)
-            );
-        }
-    });
+    if interactive {
+        // stdin setup
+        thread::spawn(move || -> std::io::Result<usize> {
+            let mut buffer = String::new();
+            loop {
+                io::stdin().read_line(&mut buffer)?;
+    
+                let mut state = console_listener_state.lock().unwrap();
+                state.count += 1;
+                info!(
+                    "New count: {}. Active entities {:?}",
+                    state.count,
+                    get_active_entity_names(&state)
+                );
+            }
+        });
+    }
 
     // Get responder setup
     tokio::spawn(async move {
@@ -321,8 +354,9 @@ async fn request_value(
 /// - `value`: the value to check within bounds
 /// - `begin`: the start of a boundary
 /// - `end`: the end of a boundary
-fn within_bounds(value: u8, begin: u8, end: Option<u8>) -> bool {
-    match end {
+/// - `interactive`: whether or not the application is running in interactive mode
+fn within_bounds(value: u8, begin: u8, end: Option<u8>, interactive: bool) -> bool {
+    !interactive || match end {
         Some(end) => value >= begin && value < end,
         None => value >= begin,
     }
@@ -337,7 +371,7 @@ fn get_active_entity_names(state: &DigitalTwinAdapterState) -> Vec<String> {
         .entities
         .iter()
         .filter_map(|(config_item, _)| {
-            if within_bounds(state.count, config_item.begin, config_item.end) {
+            if within_bounds(state.count, config_item.begin, config_item.end, state.interactive) {
                 Some(
                     config_item
                         .entity
@@ -364,7 +398,7 @@ fn find_entity<'a>(
     state
         .entities
         .iter()
-        .filter(|(config_item, _)| within_bounds(state.count, config_item.begin, config_item.end))
+        .filter(|(config_item, _)| within_bounds(state.count, config_item.begin, config_item.end, state.interactive))
         .find(|(config_item, _)| config_item.entity.id == *id)
 }
 
@@ -378,7 +412,7 @@ fn get_entity_value(state: &mut DigitalTwinAdapterState, id: &str) -> Option<Str
     state
         .entities
         .iter_mut()
-        .filter(|(config_item, _)| within_bounds(n, config_item.begin, config_item.end))
+        .filter(|(config_item, _)| within_bounds(n, config_item.begin, config_item.end, state.interactive))
         .find(|(config_item, _)| config_item.entity.id == *id)
         .map(|p| {
             p.1 += 1;
