@@ -141,8 +141,11 @@ impl ProviderProxy for InMemoryMockProviderProxy {
                 {
                     let data = data.lock().await;
                     for entity_id in entities_with_subscribe {
-                        let _ =
-                            Self::generate_signal_value(&entity_id, signal_values_queue.clone(), &data);
+                        let _ = Self::generate_signal_value(
+                            &entity_id,
+                            signal_values_queue.clone(),
+                            &data,
+                        );
                     }
                 }
 
