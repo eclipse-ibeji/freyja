@@ -11,7 +11,7 @@ use core_protobuf_data_access::module::managed_subscribe::v1::{
     managed_subscribe_client::ManagedSubscribeClient, Constraint, SubscriptionInfoRequest,
 };
 use crossbeam::queue::SegQueue;
-use log::info;
+use log::{debug, info};
 use tonic::transport::Channel;
 
 use crate::{
@@ -148,7 +148,8 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
             endpoints: vec![endpoint],
         };
 
-        info!("Requesting loopback with Entity: {new_entity:?}");
+        info!("Loopback requested.");
+        debug!("Looback request contains Entity: {new_entity:?}");
 
         Ok(EntityRegistration::Loopback(new_entity))
     }
