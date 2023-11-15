@@ -1,0 +1,4 @@
+{
+    "frequency_constraint_type": "frequency_ms",
+    "freqyency_constraint_value": "10000"
+}

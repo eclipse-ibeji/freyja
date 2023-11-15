@@ -28,6 +28,7 @@ use provider_proxy_selector::provider_proxy_selector_impl::ProviderProxySelector
 use grpc_provider_proxy_v1::grpc_provider_proxy_factory::GRPCProviderProxyFactory;
 use http_mock_provider_proxy::http_mock_provider_proxy_factory::HttpMockProviderProxyFactory;
 use in_memory_mock_provider_proxy::in_memory_mock_provider_proxy_factory::InMemoryMockProviderProxyFactory;
+use managed_subscribe_provider_proxy::managed_subscribe_provider_proxy_factory::ManagedSubscribeProviderProxyFactory;
 use mqtt_provider_proxy::mqtt_provider_proxy_factory::MqttProviderProxyFactory;
 
 pub async fn freyja_main<
@@ -70,6 +71,7 @@ pub async fn freyja_main<
     provider_proxy_selector.register::<GRPCProviderProxyFactory>()?;
     provider_proxy_selector.register::<HttpMockProviderProxyFactory>()?;
     provider_proxy_selector.register::<InMemoryMockProviderProxyFactory>()?;
+    provider_proxy_selector.register::<ManagedSubscribeProviderProxyFactory>()?;
     provider_proxy_selector.register::<MqttProviderProxyFactory>()?;
 
     let provider_proxy_selector = Arc::new(Mutex::new(provider_proxy_selector));

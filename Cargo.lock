@@ -538,6 +538,7 @@ dependencies = [
  "in-memory-mock-mapping-client",
  "in-memory-mock-provider-proxy",
  "log",
+ "managed-subscribe-provider-proxy",
  "mock-digital-twin-adapter",
  "mock-mapping-service-client",
  "mockall",
