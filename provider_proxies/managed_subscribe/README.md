@@ -9,7 +9,7 @@ This proxy supports the following configuration settings:
 - `frequency_constraint_type`: The type of frequency constraint to use. Defaults to `frequency_ms`.
 - `frequency_constraint_value`: The frequency at which the data is transferred. Defaults to `3000` ms.
 
-The above values define the frequency at which the proxy requests a provider to publish at.
+The above values define the frequency at which the proxy requests a provider to transfer data.
 
 This adapter supports [config overrides](../../docs/config-overrides.md). The override filename is `managed_subscribe_proxy_config.json`, and the default config is located at `res/managed_subscribe_proxy_config.default.json`.
 
