@@ -18,6 +18,11 @@ pub struct SignalValue {
     pub value: String,
 }
 
+pub enum EntityRegistration {
+    Registered,
+    Loopback(Entity),
+}
+
 /// Consumes data from a provider and acts as a proxy for its interface
 #[async_trait]
 pub trait ProviderProxy {
@@ -54,7 +59,7 @@ pub trait ProviderProxy {
         &self,
         entity_id: &str,
         endpoint: &EntityEndpoint,
-    ) -> Result<(), ProviderProxyError>;
+    ) -> Result<EntityRegistration, ProviderProxyError>;
 }
 
 /// Factory for creating ProviderProxies

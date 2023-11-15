@@ -16,7 +16,9 @@ use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, message_utils, out_dir};
 use freyja_contracts::{
     entity::EntityEndpoint,
-    provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue},
+    provider_proxy::{
+        EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
+    },
 };
 
 const MQTT_CLIENT_ID_PREFIX: &str = "freyja-mqtt-proxy";
@@ -174,7 +176,7 @@ impl ProviderProxy for MqttProviderProxy {
         &self,
         entity_id: &str,
         endpoint: &EntityEndpoint,
-    ) -> Result<(), ProviderProxyError> {
+    ) -> Result<EntityRegistration, ProviderProxyError> {
         // Verify that the endpoint has the expected data.
         // This shouldn't be necessary since it's first verified by the factory,
         // but this ensures we don't get hit by an edge case
@@ -197,6 +199,6 @@ impl ProviderProxy for MqttProviderProxy {
         let mut subscriptions = self.subscriptions.lock().await;
         subscriptions.insert(topic, entity_id.to_string());
 
-        Ok(())
+        Ok(EntityRegistration::Registered)
     }
 }
