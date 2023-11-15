@@ -21,7 +21,7 @@ use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, out_dir};
 use freyja_contracts::entity::EntityEndpoint;
 use freyja_contracts::provider_proxy::{
-    ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
+    EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
 };
 
 const CALLBACK_FOR_VALUES_PATH: &str = "/value";
@@ -217,7 +217,7 @@ impl ProviderProxy for HttpMockProviderProxy {
         &self,
         entity_id: &str,
         endpoint: &EntityEndpoint,
-    ) -> Result<(), ProviderProxyError> {
+    ) -> Result<EntityRegistration, ProviderProxyError> {
         // Prefer subscribe if present
         let selected_operation = {
             let mut result = None;
@@ -264,6 +264,6 @@ impl ProviderProxy for HttpMockProviderProxy {
             }
         }
 
-        Ok(())
+        Ok(EntityRegistration::Registered)
     }
 }

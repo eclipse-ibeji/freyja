@@ -280,6 +280,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e496a50fda8aacccc86d7529e2c1e0892dbd0f898a6b5645b5561b89c3210efa"
 
 [[package]]
+name = "core-protobuf-data-access"
+version = "0.1.0"
+source = "git+https://github.com/eclipse-ibeji/ibeji#56ddbafaf73bde471d23d2680c01e818008068cf"
+dependencies = [
+ "prost",
+ "prost-types",
+ "serde",
+ "tokio",
+ "tonic",
+ "tonic-build",
+]
+
+[[package]]
 name = "cpufeatures"
 version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -525,6 +538,7 @@ dependencies = [
  "in-memory-mock-mapping-client",
  "in-memory-mock-provider-proxy",
  "log",
+ "managed-subscribe-provider-proxy",
  "mock-digital-twin-adapter",
  "mock-mapping-service-client",
  "mockall",
@@ -560,6 +574,8 @@ dependencies = [
  "crossbeam",
  "proc-macros",
  "serde",
+ "strum",
+ "strum_macros",
 ]
 
 [[package]]
@@ -1025,6 +1041,25 @@ name = "log"
 version = "0.4.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
+
+[[package]]
+name = "managed-subscribe-provider-proxy"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "core-protobuf-data-access",
+ "crossbeam",
+ "freyja-build-common",
+ "freyja-common",
+ "freyja-contracts",
+ "futures",
+ "log",
+ "paho-mqtt",
+ "serde",
+ "tokio",
+ "tonic",
+ "uuid",
+]
 
 [[package]]
 name = "matchit"
@@ -1743,7 +1778,7 @@ checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
 [[package]]
 name = "samples-protobuf-data-access"
 version = "1.0.0"
-source = "git+https://github.com/eclipse-ibeji/ibeji#195997098563ef1fad53cb103f25a99195965021"
+source = "git+https://github.com/eclipse-ibeji/ibeji#56ddbafaf73bde471d23d2680c01e818008068cf"
 dependencies = [
  "prost",
  "prost-types",
@@ -1882,6 +1917,25 @@ checksum = "7b5fac59a5cb5dd637972e5fca70daf0523c9067fcdc4842f053dae04a18f8e9"
 dependencies = [
  "libc",
  "windows-sys",
+]
+
+[[package]]
+name = "strum"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "290d54ea6f91c969195bdbcd7442c8c2a2ba87da8bf60a7ee86a235d4bc1e125"
+
+[[package]]
+name = "strum_macros"
+version = "0.25.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "23dc1fa9ac9c169a78ba62f0b841814b7abae11bdd047b9c58f893439e309ea0"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "rustversion",
+ "syn 2.0.39",
 ]
 
 [[package]]

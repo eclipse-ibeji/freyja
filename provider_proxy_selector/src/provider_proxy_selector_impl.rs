@@ -14,11 +14,13 @@ use tokio::sync::Mutex;
 
 use freyja_contracts::{
     entity::Entity,
-    provider_proxy::{ProviderProxy, ProviderProxyFactory, SignalValue},
+    provider_proxy::{EntityRegistration, ProviderProxy, ProviderProxyFactory, SignalValue},
     provider_proxy_selector::{
         ProviderProxySelector, ProviderProxySelectorError, ProviderProxySelectorErrorKind,
     },
 };
+
+use crate::PROXY_SELECTOR_LOOPBACK_MAX;
 
 /// Represents the state of the ProviderProxySelector and allows for simplified access through a mutex
 struct ProviderProxySelectorState {
@@ -78,65 +80,110 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
         &self,
         entity: &Entity,
     ) -> Result<(), ProviderProxySelectorError> {
-        let mut state = self.state.lock().await;
+        // Keeps track of max depth loopback can reach.
+        let mut loopback_count = 0;
+        let mut current_entity = entity.to_owned();
 
-        // If a provider proxy already exists for one of this entity's uris,
-        // then we notify that proxy to include this new entity
-        for endpoint in entity.endpoints.iter() {
-            if let Some(provider_proxy) = state.provider_proxies.get(&endpoint.uri) {
-                debug!("A provider proxy for {} already exists", &endpoint.uri);
+        // Proxy selector will loop (up to max attempts) until a proxy registers the entity.
+        // Will break out of loop on an error.
+        'loopback: while loopback_count < PROXY_SELECTOR_LOOPBACK_MAX {
+            let mut state = self.state.lock().await;
 
-                let result = provider_proxy
-                    .register_entity(&entity.id, endpoint)
-                    .await
-                    .map_err(ProviderProxySelectorError::communication);
+            // If a provider proxy already exists for one of this entity's uris,
+            // then we notify that proxy to include this new entity
+            for endpoint in current_entity.endpoints.iter() {
+                if let Some(provider_proxy) = state.provider_proxies.get(&endpoint.uri) {
+                    debug!("A provider proxy for {} already exists", &endpoint.uri);
 
-                state
-                    .entity_map
-                    .insert(String::from(&entity.id), String::from(&endpoint.uri));
+                    let entity_registration = provider_proxy
+                        .register_entity(&current_entity.id, endpoint)
+                        .await
+                        .map_err(ProviderProxySelectorError::communication)?;
 
-                return result;
-            }
-        }
+                    match entity_registration {
+                        EntityRegistration::Registered => {
+                            // There was a successful registration of the entity.
+                            // The entity is added to the map and the selector returns.
+                            state.entity_map.insert(
+                                String::from(&current_entity.id),
+                                String::from(&endpoint.uri),
+                            );
 
-        // If there's not a proxy we can reuse, find the right factory to create a new one
-        let (provider_proxy, endpoint) = {
-            let mut result = None;
-            for factory in self.factories.iter() {
-                if let Some(endpoint) = factory.is_supported(entity) {
-                    let proxy = factory
-                        .create_proxy(&endpoint.uri, self.signal_values_queue.clone())
-                        .map_err(ProviderProxySelectorError::provider_proxy_error)?;
-                    result = Some((proxy, endpoint));
+                            return Ok(());
+                        }
+                        EntityRegistration::Loopback(new_entity) => {
+                            // The proxy is requesting a loopback with new entity information
+                            current_entity = new_entity.to_owned();
+                            loopback_count += 1;
+
+                            debug!("Loopback requested with: {current_entity:?}. Loopback count is: {loopback_count}.");
+
+                            continue 'loopback;
+                        }
+                    }
                 }
             }
 
-            result.ok_or::<ProviderProxySelectorError>(
-                ProviderProxySelectorErrorKind::OperationNotSupported.into(),
-            )?
-        };
+            // If there's not a proxy we can reuse, find the right factory to create a new one
+            let (provider_proxy, endpoint) = {
+                let mut result = None;
+                for factory in self.factories.iter() {
+                    if let Some(endpoint) = factory.is_supported(&current_entity) {
+                        let proxy = factory
+                            .create_proxy(&endpoint.uri, self.signal_values_queue.clone())
+                            .map_err(ProviderProxySelectorError::provider_proxy_error)?;
+                        result = Some((proxy, endpoint));
+                    }
+                }
 
-        // If we're able to create a proxy then map the
-        // provider uri to that created proxy
-        state
-            .entity_map
-            .insert(entity.id.clone(), endpoint.uri.clone());
+                result.ok_or::<ProviderProxySelectorError>(
+                    ProviderProxySelectorErrorKind::OperationNotSupported.into(),
+                )?
+            };
 
-        provider_proxy
-            .start()
-            .await
-            .map_err(ProviderProxySelectorError::provider_proxy_error)?;
+            // Start the provider proxy
+            provider_proxy
+                .start()
+                .await
+                .map_err(ProviderProxySelectorError::provider_proxy_error)?;
 
-        provider_proxy
-            .register_entity(&entity.id, &endpoint)
-            .await
-            .map_err(ProviderProxySelectorError::provider_proxy_error)?;
+            // Register the entity with the provider proxy
+            let entity_registration = provider_proxy
+                .register_entity(&current_entity.id, &endpoint)
+                .await
+                .map_err(ProviderProxySelectorError::provider_proxy_error)?;
 
-        state
-            .provider_proxies
-            .insert(endpoint.uri.clone(), provider_proxy);
+            // As long as there was not an error with registration, add proxy to map
+            state
+                .provider_proxies
+                .insert(endpoint.uri.clone(), provider_proxy);
 
-        Ok(())
+            match entity_registration {
+                EntityRegistration::Registered => {
+                    // There was a successful registration of the entity.
+                    // The entity is added to the map and the selector returns.
+                    state.entity_map.insert(
+                        String::from(&current_entity.id),
+                        String::from(&endpoint.uri),
+                    );
+
+                    return Ok(());
+                }
+                EntityRegistration::Loopback(new_entity) => {
+                    // The proxy is requesting a loopback with new entity information
+                    current_entity = new_entity.to_owned();
+                    loopback_count += 1;
+
+                    debug!("Loopback requested with: {current_entity:?}. Loopback count is: {loopback_count}.");
+
+                    continue 'loopback;
+                }
+            }
+        }
+
+        Err(ProviderProxySelectorError::provider_proxy_error(format!(
+            "Unable to select proxy, reached max attempts of: {PROXY_SELECTOR_LOOPBACK_MAX}."
+        )))
     }
 
     /// Requests that the value of an entity be published as soon as possible

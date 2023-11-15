@@ -6,6 +6,7 @@ use std::{fmt::Debug, sync::Arc};
 
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
+use strum_macros::Display;
 
 use crate::entity::{Entity, EntityEndpoint};
 
@@ -16,6 +17,15 @@ pub struct SignalValue {
 
     /// The entity's value
     pub value: String,
+}
+
+#[derive(Clone, Debug, Display, Eq, PartialEq)]
+/// Return options for when a proxy attempts to register an entity
+pub enum EntityRegistration {
+    /// The Entity has been successfully registered by the proxy
+    Registered,
+    /// The proxy has requested a loopback with new information for the proxy selector
+    Loopback(Entity),
 }
 
 /// Consumes data from a provider and acts as a proxy for its interface
@@ -46,6 +56,7 @@ pub trait ProviderProxy {
 
     /// Registers an entity id to a local cache inside a provider proxy to keep track of which entities a provider proxy contains.
     /// If the operation is Subscribe for an entity, the expectation is subscribe will happen in this function after registering an entity.
+    /// Some proxies may return a 'Loopback' with new entity information for the proxy selector to use to select a different proxy.
     ///
     /// # Arguments
     /// - `entity_id`: the entity id to add
@@ -54,7 +65,7 @@ pub trait ProviderProxy {
         &self,
         entity_id: &str,
         endpoint: &EntityEndpoint,
-    ) -> Result<(), ProviderProxyError>;
+    ) -> Result<EntityRegistration, ProviderProxyError>;
 }
 
 /// Factory for creating ProviderProxies
