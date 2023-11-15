@@ -6,6 +6,7 @@ use std::{fmt::Debug, sync::Arc};
 
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
+use strum_macros::Display;
 
 use crate::entity::{Entity, EntityEndpoint};
 
@@ -18,6 +19,7 @@ pub struct SignalValue {
     pub value: String,
 }
 
+#[derive(Clone, Debug, Display, Eq, PartialEq)]
 pub enum EntityRegistration {
     Registered,
     Loopback(Entity),

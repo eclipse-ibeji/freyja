@@ -21,6 +21,7 @@ members = [
   "provider_proxies/grpc/v1",
   "provider_proxies/http_mock_provider_proxy",
   "provider_proxies/in_memory_mock_provider_proxy",
+  "provider_proxies/managed_subscribe",
   "provider_proxies/mqtt",
   "provider_proxy_selector",
 ]
