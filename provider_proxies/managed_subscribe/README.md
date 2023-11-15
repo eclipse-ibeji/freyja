@@ -7,7 +7,7 @@ The Managed Subscribe Provider Proxy interfaces with providers which support gRP
 This proxy supports the following configuration settings:
 
 - `frequency_constraint_type`: The type of frequency constraint to use. Defaults to `frequency_ms`.
-- `frequency_constraint_value`: The frequency at which to get data at. Defaults to `3000` ms.
+- `frequency_constraint_value`: The frequency at which is the data is transferred. Defaults to `3000` ms.
 
 The above values define the frequency at which the proxy requests a provider to publish at.
 
