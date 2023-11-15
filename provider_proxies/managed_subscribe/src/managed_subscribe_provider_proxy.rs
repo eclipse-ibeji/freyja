@@ -70,8 +70,8 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
 
     /// Starts a provider proxy
     async fn start(&self) -> Result<(), ProviderProxyError> {
-        // Not relevant for this proxy as the proxy is retrieving where to subscribe to and has no
-        // persistent state.
+        // Not relevant for this proxy as the proxy is just retrieving the subscription information
+        // and has no persistent state.
         Ok(())
     }
 
@@ -84,11 +84,11 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
         Ok(())
     }
 
-    /// Calls the 'Managed Subscribe' module in Ibeji to retrieve correct subscription endpoint and
-    /// returns a Loopback request to proxy selector
+    /// Calls the `Managed Subscribe` module in Ibeji to retrieve correct subscription information
+    /// and returns a `Loopback` request to the proxy selector
     ///
     /// # Arguments
-    /// - `entity_id`: the entity id to add
+    /// - `entity_id`: the entity id to get information for
     /// - `endpoint`: the endpoint that this entity supports
     async fn register_entity(
         &self,

@@ -20,7 +20,7 @@ pub struct SignalValue {
 }
 
 #[derive(Clone, Debug, Display, Eq, PartialEq)]
-/// Successful return types when a proxy registers an entity
+/// Return options for when a proxy attempts to register an entity
 pub enum EntityRegistration {
     /// The Entity has been successfully registered by the proxy
     Registered,
