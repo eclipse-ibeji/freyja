@@ -9,7 +9,7 @@ use std::{
 
 use async_trait::async_trait;
 use crossbeam::queue::SegQueue;
-use log::{debug, info};
+use log::debug;
 use tokio::sync::Mutex;
 
 use freyja_contracts::{
@@ -84,6 +84,8 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
         let mut loopback_count = 0;
         let mut current_entity = entity.to_owned();
 
+        // Proxy selector will loop (up to max attempts) until a proxy registers the entity.
+        // Will break out of loop on an error.
         'loopback: while loopback_count < PROXY_SELECTOR_LOOPBACK_MAX {
             let mut state = self.state.lock().await;
 
@@ -98,11 +100,10 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
                         .await
                         .map_err(ProviderProxySelectorError::communication)?;
 
-                    info!("Existing Register Entity result is: {entity_registration}.");
-
                     match entity_registration {
                         EntityRegistration::Registered => {
-                            // There was a successful registration of the entity and can return from the loop.
+                            // There was a successful registration of the entity.
+                            // The entity is added to the map and the selector returns.
                             state
                                 .entity_map
                                 .insert(String::from(&current_entity.id), String::from(&endpoint.uri));
@@ -110,10 +111,11 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
                             return Ok(())
                         },
                         EntityRegistration::Loopback(new_entity) => {
+                            // The proxy is requesting a loopback with new entity information
                             current_entity = new_entity.to_owned();
                             loopback_count += 1;
 
-                            info!("Hit existing loopback with new entity: {current_entity:?}");
+                            debug!("Loopback requested with: {current_entity:?}. Loopback count is: {loopback_count}.");
 
                             continue 'loopback;
                         }
@@ -144,22 +146,21 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
                 .await
                 .map_err(ProviderProxySelectorError::provider_proxy_error)?;
 
-            // Register the entity with the provider proxy.
+            // Register the entity with the provider proxy
             let entity_registration = provider_proxy
                 .register_entity(&current_entity.id, &endpoint)
                 .await
                 .map_err(ProviderProxySelectorError::provider_proxy_error)?;
 
-            // As long as there was not an error with registration, add proxy to map.
+            // As long as there was not an error with registration, add proxy to map
             state
                 .provider_proxies
                 .insert(endpoint.uri.clone(), provider_proxy);
 
-            info!("New Register Entity result is: {entity_registration}.");
-
             match entity_registration {
                 EntityRegistration::Registered => {
-                    // There was a successful registration of the entity and can return from the loop.
+                    // There was a successful registration of the entity.
+                    // The entity is added to the map and the selector returns.
                     state
                         .entity_map
                         .insert(String::from(&current_entity.id), String::from(&endpoint.uri));
@@ -167,17 +168,18 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
                     return Ok(())
                 },
                 EntityRegistration::Loopback(new_entity) => {
+                    // The proxy is requesting a loopback with new entity information
                     current_entity = new_entity.to_owned();
                     loopback_count += 1;
 
-                    info!("Hit new loopback with new entity: {current_entity:?}");
+                    debug!("Loopback requested with: {current_entity:?}. Loopback count is: {loopback_count}.");
 
                     continue 'loopback;
                 }
             }
         }
 
-        Err(ProviderProxySelectorError::provider_proxy_error(format!("Unable to select proxy, reached loopback max of: {PROXY_SELECTOR_LOOPBACK_MAX}.")))
+        Err(ProviderProxySelectorError::provider_proxy_error(format!("Unable to select proxy, reached max attempts of: {PROXY_SELECTOR_LOOPBACK_MAX}.")))
     }
 
     /// Requests that the value of an entity be published as soon as possible

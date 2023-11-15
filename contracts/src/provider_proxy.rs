@@ -20,8 +20,11 @@ pub struct SignalValue {
 }
 
 #[derive(Clone, Debug, Display, Eq, PartialEq)]
+/// Successful return types when a proxy registers an entity
 pub enum EntityRegistration {
+    /// The Entity has been successfully registered by the proxy
     Registered,
+    /// The proxy has requested a loopback with new information for the proxy selector
     Loopback(Entity),
 }
 
@@ -53,6 +56,7 @@ pub trait ProviderProxy {
 
     /// Registers an entity id to a local cache inside a provider proxy to keep track of which entities a provider proxy contains.
     /// If the operation is Subscribe for an entity, the expectation is subscribe will happen in this function after registering an entity.
+    /// Some proxies may return a 'Loopback' with new entity information for the proxy selector to use to select a different proxy.
     ///
     /// # Arguments
     /// - `entity_id`: the entity id to add

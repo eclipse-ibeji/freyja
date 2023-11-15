@@ -22,8 +22,8 @@ use freyja_contracts::{
     provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue, EntityRegistration},
 };
 
-/// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
-/// Note that the current implementation works on the assumption that there is a
+/// Interfaces with providers which utilize 'Managed Subscribe'. Based on the Ibeji managed
+/// subscribe sample. Note that the current implementation works on the assumption that there is a
 /// one-to-one mapping of topic to entity id.
 pub struct ManagedSubscribeProviderProxy {
     /// The proxy config
@@ -70,7 +70,8 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
 
     /// Starts a provider proxy
     async fn start(&self) -> Result<(), ProviderProxyError> {
-        // Not relevant for this proxy, so passthrough.
+        // Not relevant for this proxy as the proxy is retrieving where to subscribe to and has no
+        // persistent state.
         Ok(())
     }
 
@@ -83,7 +84,8 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
         Ok(())
     }
 
-    /// Loopback proxy that calls the 'Managed Subscribe' module in Ibeji to retrieve correct subscription endpoint.
+    /// Calls the 'Managed Subscribe' module in Ibeji to retrieve correct subscription endpoint and
+    /// returns a Loopback request to proxy selector
     ///
     /// # Arguments
     /// - `entity_id`: the entity id to add
@@ -106,6 +108,7 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
 
         let mut client = self.client.clone();
 
+        // Set the default frequency to recieve data at
         let default_freq_constraint = Constraint {
             r#type: self.config.frequency_constraint_type.clone(),
             value: self.config.frequency_constraint_value.clone(),
@@ -116,23 +119,20 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
             constraints: vec![default_freq_constraint],
         });
 
-        info!("Calling Managed Subscribe with {request:?}.");
-
         let result = client
             .get_subscription_info(request)
             .await
             .map_err(ProviderProxyError::communication)?;
 
-        info!("Managed Subscribe returned {result:?}.");
-
         let sub_info = result.into_inner();
 
+        // The mqtt proxy supports v5 and v3 so do not need to make a distinction
         let mut protocol = sub_info.protocol;
-
         if protocol.contains(MQTT_PROTOCOL) {
             protocol = MQTT_PROTOCOL.to_string();
         }
 
+        // Construct endpoint information from returned result
         let endpoint = EntityEndpoint {
             protocol,
             operations: vec![SUBSCRIBE_OPERATION.to_string()],
@@ -140,6 +140,7 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
             context: sub_info.context,
         };
 
+        // Create new entity object with updated endpoint information.
         let new_entity = Entity {
             name: Some(entity_id.to_string()),
             id: entity_id.to_string(),
@@ -147,7 +148,7 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
             endpoints: vec![endpoint],
         };
 
-        info!("New Entity constructed: {new_entity:?}");
+        info!("Requesting loopback with Entity: {new_entity:?}");
 
         Ok(EntityRegistration::Loopback(new_entity))
     }
