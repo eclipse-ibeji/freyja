@@ -14,7 +14,7 @@ use tokio::sync::Mutex;
 
 use freyja_contracts::{
     entity::Entity,
-    provider_proxy::{ProviderProxy, ProviderProxyFactory, SignalValue, EntityRegistration},
+    provider_proxy::{EntityRegistration, ProviderProxy, ProviderProxyFactory, SignalValue},
     provider_proxy_selector::{
         ProviderProxySelector, ProviderProxySelectorError, ProviderProxySelectorErrorKind,
     },
@@ -104,12 +104,13 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
                         EntityRegistration::Registered => {
                             // There was a successful registration of the entity.
                             // The entity is added to the map and the selector returns.
-                            state
-                                .entity_map
-                                .insert(String::from(&current_entity.id), String::from(&endpoint.uri));
+                            state.entity_map.insert(
+                                String::from(&current_entity.id),
+                                String::from(&endpoint.uri),
+                            );
 
-                            return Ok(())
-                        },
+                            return Ok(());
+                        }
                         EntityRegistration::Loopback(new_entity) => {
                             // The proxy is requesting a loopback with new entity information
                             current_entity = new_entity.to_owned();
@@ -161,12 +162,13 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
                 EntityRegistration::Registered => {
                     // There was a successful registration of the entity.
                     // The entity is added to the map and the selector returns.
-                    state
-                        .entity_map
-                        .insert(String::from(&current_entity.id), String::from(&endpoint.uri));
+                    state.entity_map.insert(
+                        String::from(&current_entity.id),
+                        String::from(&endpoint.uri),
+                    );
 
-                    return Ok(())
-                },
+                    return Ok(());
+                }
                 EntityRegistration::Loopback(new_entity) => {
                     // The proxy is requesting a loopback with new entity information
                     current_entity = new_entity.to_owned();
@@ -179,7 +181,9 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
             }
         }
 
-        Err(ProviderProxySelectorError::provider_proxy_error(format!("Unable to select proxy, reached max attempts of: {PROXY_SELECTOR_LOOPBACK_MAX}.")))
+        Err(ProviderProxySelectorError::provider_proxy_error(format!(
+            "Unable to select proxy, reached max attempts of: {PROXY_SELECTOR_LOOPBACK_MAX}."
+        )))
     }
 
     /// Requests that the value of an entity be published as soon as possible

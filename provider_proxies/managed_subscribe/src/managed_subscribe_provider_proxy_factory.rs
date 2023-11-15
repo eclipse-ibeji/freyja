@@ -10,7 +10,10 @@ use freyja_contracts::{
     provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyFactory, SignalValue},
 };
 
-use crate::{managed_subscribe_provider_proxy::ManagedSubscribeProviderProxy, GRPC_PROTOCOL, MANAGED_SUBSCRIBE_OPERATION};
+use crate::{
+    managed_subscribe_provider_proxy::ManagedSubscribeProviderProxy, GRPC_PROTOCOL,
+    MANAGED_SUBSCRIBE_OPERATION,
+};
 
 /// Factory for creating ManagedSubscribeProviderProxies
 pub struct ManagedSubscribeProviderProxyFactory {}

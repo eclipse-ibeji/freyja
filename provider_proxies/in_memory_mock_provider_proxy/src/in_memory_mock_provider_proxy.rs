@@ -22,7 +22,9 @@ use crate::{
 use freyja_build_common::config_file_stem;
 use freyja_contracts::{
     entity::EntityEndpoint,
-    provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue, EntityRegistration},
+    provider_proxy::{
+        EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
+    },
 };
 
 #[derive(Debug)]

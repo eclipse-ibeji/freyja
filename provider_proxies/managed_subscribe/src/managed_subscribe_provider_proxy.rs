@@ -7,19 +7,23 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use core_protobuf_data_access::module::managed_subscribe::v1::{
+    managed_subscribe_client::ManagedSubscribeClient, Constraint, SubscriptionInfoRequest,
+};
 use crossbeam::queue::SegQueue;
 use log::info;
-use core_protobuf_data_access::module::managed_subscribe::v1::{
-    managed_subscribe_client::ManagedSubscribeClient, SubscriptionInfoRequest, Constraint,
-};
 use tonic::transport::Channel;
 
-use crate::{config::Config, GRPC_PROTOCOL, MQTT_PROTOCOL, MANAGED_SUBSCRIBE_OPERATION, SUBSCRIBE_OPERATION};
+use crate::{
+    config::Config, GRPC_PROTOCOL, MANAGED_SUBSCRIBE_OPERATION, MQTT_PROTOCOL, SUBSCRIBE_OPERATION,
+};
 use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, out_dir};
 use freyja_contracts::{
-    entity::{EntityEndpoint, Entity},
-    provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue, EntityRegistration},
+    entity::{Entity, EntityEndpoint},
+    provider_proxy::{
+        EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
+    },
 };
 
 /// Interfaces with providers which utilize 'Managed Subscribe'. Based on the Ibeji managed
@@ -61,11 +65,7 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
                 .map_err(ProviderProxyError::communication)
         })?;
 
-        Ok(ManagedSubscribeProviderProxy {
-            config,
-            client,
-        })
-        .map(|r| Arc::new(r) as _)
+        Ok(ManagedSubscribeProviderProxy { config, client }).map(|r| Arc::new(r) as _)
     }
 
     /// Starts a provider proxy
