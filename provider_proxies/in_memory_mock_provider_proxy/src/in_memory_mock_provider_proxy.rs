@@ -103,7 +103,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
     fn create_new(
         _provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
-    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
+    ) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,
     {
@@ -115,7 +115,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
             ProviderProxyError::deserialize,
         )?;
 
-        Self::from_config(config, signal_values_queue).map(|r| Arc::new(r) as _)
+        Self::from_config(config, signal_values_queue)
     }
 
     /// Starts a provider proxy

@@ -47,7 +47,7 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
     fn create_new(
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
-    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
+    ) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,
     {
@@ -65,7 +65,7 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
                 .map_err(ProviderProxyError::communication)
         })?;
 
-        Ok(ManagedSubscribeProviderProxy { config, client }).map(|r| Arc::new(r) as _)
+        Ok(ManagedSubscribeProviderProxy { config, client })
     }
 
     /// Starts a provider proxy

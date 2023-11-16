@@ -2,26 +2,41 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::sync::Arc;
+use std::sync::{Arc, atomic::{AtomicU16, Ordering}};
 
 use crossbeam::queue::SegQueue;
+
+use freyja_build_common::config_file_stem;
+use freyja_common::{config_utils, out_dir};
 use freyja_contracts::{
     entity::{Entity, EntityEndpoint},
     provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyFactory, SignalValue},
 };
-
 use crate::{
     http_mock_provider_proxy::HttpMockProviderProxy, GET_OPERATION, HTTP_PROTOCOL,
-    SUBSCRIBE_OPERATION,
+    SUBSCRIBE_OPERATION, config::Config,
 };
 
 /// Factory for creating HttpMockProviderProxies
-pub struct HttpMockProviderProxyFactory {}
+pub struct HttpMockProviderProxyFactory {
+    /// The current port to use for a new proxy
+    current_port: AtomicU16,
+}
 
 impl ProviderProxyFactory for HttpMockProviderProxyFactory {
     /// Create a new `GRPCProviderProxyFactory`
     fn new() -> Self {
-        Self {}
+        let config: Config = config_utils::read_from_files(
+            config_file_stem!(),
+            config_utils::JSON_EXT,
+            out_dir!(),
+            ProviderProxyError::io,
+            ProviderProxyError::deserialize,
+        ).unwrap();
+
+        Self {
+            current_port: AtomicU16::new(config.starting_port),
+        }
     }
 
     /// Check to see whether this factory can create a proxy for the requested entity.
@@ -43,6 +58,8 @@ impl ProviderProxyFactory for HttpMockProviderProxyFactory {
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError> {
-        HttpMockProviderProxy::create_new(provider_uri, signal_values_queue)
+        let mut proxy = HttpMockProviderProxy::create_new(provider_uri, signal_values_queue)?;
+        proxy.set_server_port(self.current_port.fetch_add(1, Ordering::SeqCst));
+        Ok(Arc::new(proxy))
     }
 }

@@ -72,6 +72,9 @@ pub struct HttpMockProviderProxy {
 
     /// The uri of the provider
     provider_uri: String,
+
+    /// The port for the callback server 
+    server_port: u16,
 }
 
 impl HttpMockProviderProxy {
@@ -104,6 +107,14 @@ impl HttpMockProviderProxy {
 
         ok!()
     }
+
+    /// Set the port for the callback server.
+    /// 
+    /// # Arguments
+    /// - `port`: The new port to use
+    pub fn set_server_port(&mut self, port: u16) {
+        self.server_port = port;
+    }
 }
 
 #[async_trait]
@@ -116,11 +127,11 @@ impl ProviderProxy for HttpMockProviderProxy {
     fn create_new(
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
-    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
+    ) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,
     {
-        let config = config_utils::read_from_files(
+        let config: Config = config_utils::read_from_files(
             config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
@@ -130,20 +141,21 @@ impl ProviderProxy for HttpMockProviderProxy {
 
         Ok(Self {
             signal_values_queue,
+            server_port: config.starting_port,
             config,
             provider_uri: provider_uri.to_string(),
             client: reqwest::Client::new(),
             entity_operation_map: Mutex::new(HashMap::new()),
         })
-        .map(|r| Arc::new(r) as _)
     }
 
     /// Starts a provider proxy
     async fn start(&self) -> Result<(), ProviderProxyError> {
-        let server_endpoint_addr = SocketAddr::from_str(&self.config.proxy_callback_address)
+        let address = format!("{}:{}", self.config.proxy_callback_address, self.server_port);
+        let server_endpoint_addr = SocketAddr::from_str(&address)
             .map_err(ProviderProxyError::parse)?;
-        // Start a listener server to have a digital twin provider push data
-        // http://{provider_callback_authority}/value
+        // Start a listener server to have a digital twin provider push data to the callback address
+        // http://{proxy_callback_address}:{server_port}/value
         // POST request where the json body is GetSignalValueResponse
         // Set up router path
         let router = Router::new()
@@ -159,8 +171,7 @@ impl ProviderProxy for HttpMockProviderProxy {
         });
 
         info!(
-            "Http Provider Proxy listening at http://{}", // Devskim: ignore DS137138
-            self.config.proxy_callback_address
+            "Http Provider Proxy listening at http://{address}", // Devskim: ignore DS137138
         );
 
         Ok(())

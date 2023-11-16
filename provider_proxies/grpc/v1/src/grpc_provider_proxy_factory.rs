@@ -42,6 +42,7 @@ impl ProviderProxyFactory for GRPCProviderProxyFactory {
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError> {
-        GRPCProviderProxy::create_new(provider_uri, signal_values_queue)
+        let proxy = GRPCProviderProxy::create_new(provider_uri, signal_values_queue)?;
+        Ok(Arc::new(proxy))
     }
 }

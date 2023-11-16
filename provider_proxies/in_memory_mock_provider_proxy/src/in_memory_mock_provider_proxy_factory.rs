@@ -43,6 +43,7 @@ impl ProviderProxyFactory for InMemoryMockProviderProxyFactory {
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError> {
-        InMemoryMockProviderProxy::create_new(provider_uri, signal_values_queue)
+        let proxy = InMemoryMockProviderProxy::create_new(provider_uri, signal_values_queue)?;
+        Ok(Arc::new(proxy))
     }
 }

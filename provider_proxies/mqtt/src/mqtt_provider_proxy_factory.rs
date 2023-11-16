@@ -40,6 +40,7 @@ impl ProviderProxyFactory for MqttProviderProxyFactory {
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError> {
-        MqttProviderProxy::create_new(provider_uri, signal_values_queue)
+        let proxy = MqttProviderProxy::create_new(provider_uri, signal_values_queue)?;
+        Ok(Arc::new(proxy))
     }
 }
