@@ -82,10 +82,11 @@ impl HttpMockProviderProxy {
     ///
     /// # Arguments
     /// - `provider_callback_authority`: the callback server authority for receiving values from the mock digital twin
-    fn construct_callback_uri(provider_callback_authority: &str) -> String {
+    fn construct_callback_uri(&self) -> String {
         format!(
-            "http://{}{CALLBACK_FOR_VALUES_PATH}", // Devskim: ignore DS137138
-            String::from(provider_callback_authority)
+            "http://{}:{}{CALLBACK_FOR_VALUES_PATH}", // Devskim: ignore DS137138
+            self.config.proxy_callback_address,
+            self.server_port,
         )
     }
 
@@ -201,7 +202,7 @@ impl ProviderProxy for HttpMockProviderProxy {
 
             let request = EntityValueRequest {
                 entity_id: String::from(entity_id),
-                callback_uri: Self::construct_callback_uri(&self.config.proxy_callback_address),
+                callback_uri: self.construct_callback_uri(),
             };
             let server_endpoint = self.provider_uri.clone();
 
@@ -254,7 +255,7 @@ impl ProviderProxy for HttpMockProviderProxy {
         if selected_operation == SUBSCRIBE_OPERATION {
             let request = EntityValueRequest {
                 entity_id: String::from(entity_id),
-                callback_uri: Self::construct_callback_uri(&self.config.proxy_callback_address),
+                callback_uri: self.construct_callback_uri(),
             };
 
             let subscribe_endpoint_for_entity = self.provider_uri.clone();
