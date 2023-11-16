@@ -67,7 +67,8 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
     fn register<TFactory: ProviderProxyFactory + Send + Sync + 'static>(
         &mut self,
     ) -> Result<(), ProviderProxySelectorError> {
-        let factory = TFactory::create_new().map_err(ProviderProxySelectorError::provider_proxy_error)?;
+        let factory =
+            TFactory::create_new().map_err(ProviderProxySelectorError::provider_proxy_error)?;
         self.factories.push(Box::new(factory));
         Ok(())
     }

@@ -2,19 +2,22 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::sync::{Arc, atomic::{AtomicU16, Ordering}};
+use std::sync::{
+    atomic::{AtomicU16, Ordering},
+    Arc,
+};
 
 use crossbeam::queue::SegQueue;
 
+use crate::{
+    config::Config, http_mock_provider_proxy::HttpMockProviderProxy, GET_OPERATION, HTTP_PROTOCOL,
+    SUBSCRIBE_OPERATION,
+};
 use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, out_dir};
 use freyja_contracts::{
     entity::{Entity, EntityEndpoint},
     provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyFactory, SignalValue},
-};
-use crate::{
-    http_mock_provider_proxy::HttpMockProviderProxy, GET_OPERATION, HTTP_PROTOCOL,
-    SUBSCRIBE_OPERATION, config::Config,
 };
 
 /// Factory for creating HttpMockProviderProxies

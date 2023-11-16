@@ -73,7 +73,7 @@ pub struct HttpMockProviderProxy {
     /// The uri of the provider
     provider_uri: String,
 
-    /// The port for the callback server 
+    /// The port for the callback server
     server_port: u16,
 }
 
@@ -85,8 +85,7 @@ impl HttpMockProviderProxy {
     fn construct_callback_uri(&self) -> String {
         format!(
             "http://{}:{}{CALLBACK_FOR_VALUES_PATH}", // Devskim: ignore DS137138
-            self.config.proxy_callback_address,
-            self.server_port,
+            self.config.proxy_callback_address, self.server_port,
         )
     }
 
@@ -110,7 +109,7 @@ impl HttpMockProviderProxy {
     }
 
     /// Set the port for the callback server.
-    /// 
+    ///
     /// # Arguments
     /// - `port`: The new port to use
     pub fn set_server_port(&mut self, port: u16) {
@@ -152,9 +151,12 @@ impl ProviderProxy for HttpMockProviderProxy {
 
     /// Starts a provider proxy
     async fn start(&self) -> Result<(), ProviderProxyError> {
-        let address = format!("{}:{}", self.config.proxy_callback_address, self.server_port);
-        let server_endpoint_addr = SocketAddr::from_str(&address)
-            .map_err(ProviderProxyError::parse)?;
+        let address = format!(
+            "{}:{}",
+            self.config.proxy_callback_address, self.server_port
+        );
+        let server_endpoint_addr =
+            SocketAddr::from_str(&address).map_err(ProviderProxyError::parse)?;
         // Start a listener server to have a digital twin provider push data to the callback address
         // http://{proxy_callback_address}:{server_port}/value
         // POST request where the json body is GetSignalValueResponse
@@ -171,9 +173,7 @@ impl ProviderProxy for HttpMockProviderProxy {
             let _ = builder.serve(router.into_make_service()).await;
         });
 
-        info!(
-            "Http Provider Proxy listening at http://{address}", // Devskim: ignore DS137138
-        );
+        info!("Http Provider Proxy listening at http://{address}"); // Devskim: ignore DS137138
 
         Ok(())
     }
