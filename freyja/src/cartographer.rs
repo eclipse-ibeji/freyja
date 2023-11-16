@@ -68,15 +68,18 @@ impl<
     }
 
     /// Run the cartographer. This will do the following in a loop:
-    ///
-    /// 1. Retry previously failed attempts. For each such attempt, do the following:
-    ///     1. Query the digital twin service for entity information
-    ///     1. Create or update provider proxies for the new entities
-    ///     1. Update the signal store with the new data
-    /// 1. Check to see if the mapping service has more work. If there is work, do the following:
-    ///     1. ~~Send the new inventory to the mapping service~~
-    ///     1. Get the new mapping from the mapping service
-    ///     1. Execute the substeps listed above
+    /// 
+    /// 1. Check to see if the mapping service has more work
+    ///     - If there is work, do the following:
+    ///         1. Clear the list of previously failed attempts
+    ///         1. ~~Send the new inventory to the mapping service~~
+    ///         1. Get the new mapping from the mapping service
+    ///         1. Query the digital twin service for entity information
+    ///         1. Create or update provider proxies for the new entities
+    ///         1. Update the signal store with the new data and track any failed attempts for future iterations
+    ///     - If there is no work but previous attempts to start up proxies failed,
+    ///         execute the steps above starting from step 4 for these failed cases
+    ///     - If the check failed, log the error
     /// 1. Sleep until the next iteration
     pub async fn run(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let mut failed_attempts: Vec<SignalPatch> = Vec::new();
@@ -97,7 +100,7 @@ impl<
                             // We clear the failed attempts here because the incoming mapping is used as the source of truth,
                             // so anything lect over from previous mappings shouldn't get used.
                             failed_attempts.clear();
-                            self.handle_signal_patches(&p, &mut successes, &mut failed_attempts).await;
+                            self.process_signal_patches(&p, &mut successes, &mut failed_attempts).await;
                             self.signals.sync(successes.into_iter());
                         },
                         Err(e) => log::error!("Failed to get mapping from mapping client: {e}"),
@@ -108,7 +111,7 @@ impl<
 
                     // Retry previously failed attempts
                     let mut failures = Vec::new();
-                    self.handle_signal_patches(
+                    self.process_signal_patches(
                         &failed_attempts,
                         &mut successes,
                         &mut failures)
@@ -125,7 +128,14 @@ impl<
         }
     }
 
-    async fn handle_signal_patches(&self, patches: &Vec<SignalPatch>, successes: &mut Vec<SignalPatch>, failures: &mut Vec<SignalPatch>) {
+    /// Processes a list of signal patches by calling `populate_source` for each one.
+    /// The signals for which this call succeeds are pushed into `successes`, while others are put into `failures`.
+    /// 
+    /// # Arguments
+    /// - `patches`: the list of signal patches to process
+    /// - `successes`: the list to update with successful signals
+    /// - `failures`: the list to update with failed signals
+    async fn process_signal_patches(&self, patches: &Vec<SignalPatch>, successes: &mut Vec<SignalPatch>, failures: &mut Vec<SignalPatch>) {
         for patch in patches.iter() {
             // Many of the API calls in populate_entity are probably unnecessary, but this code gets executed
             // infrequently enough that the sub-optimal performance is not a major concern.
