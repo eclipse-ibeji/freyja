@@ -71,18 +71,18 @@ impl<
     ///
     /// 1. Check to see if the mapping service has more work
     ///     - If there is work, do the following:
-    ///         1. Clear the list of previously failed attempts
+    ///         1. Clear the list of previously failed signals
     ///         1. ~~Send the new inventory to the mapping service~~
     ///         1. Get the new mapping from the mapping service
     ///         1. Query the digital twin service for entity information
     ///         1. Create or update provider proxies for the new entities
-    ///         1. Update the signal store with the new data and track any failed attempts for future iterations
+    ///         1. Update the signal store with the new data and track any failed signals for future iterations
     ///     - If there is no work but previous attempts to start up proxies failed,
     ///         execute the steps above starting from step 4 for these failed cases
     ///     - If the check failed, log the error
     /// 1. Sleep until the next iteration
     pub async fn run(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        let mut failed_attempts: Vec<SignalPatch> = Vec::new();
+        let mut failed_signals: Vec<SignalPatch> = Vec::new();
         loop {
             let mut successes = Vec::new();
 
@@ -97,26 +97,26 @@ impl<
 
                     match self.get_mapping_as_signal_patches().await {
                         Ok(p) => {
-                            // We clear the failed attempts here because the incoming mapping is used as the source of truth,
+                            // We clear the failed signals here because the incoming mapping is used as the source of truth,
                             // so anything left over from previous mappings shouldn't get used.
-                            failed_attempts.clear();
-                            self.process_signal_patches(&p, &mut successes, &mut failed_attempts)
+                            failed_signals.clear();
+                            self.process_signal_patches(&p, &mut successes, &mut failed_signals)
                                 .await;
                             self.signals.sync(successes.into_iter());
                         }
                         Err(e) => log::error!("Failed to get mapping from mapping client: {e}"),
                     }
                 }
-                Ok(_) if !failed_attempts.is_empty() => {
+                Ok(_) if !failed_signals.is_empty() => {
                     info!("No new mappings found, but some mappings failed to be created in previous iterations");
 
-                    // Retry previously failed attempts
+                    // Retry previously failed signals
                     let mut failures = Vec::new();
-                    self.process_signal_patches(&failed_attempts, &mut successes, &mut failures)
+                    self.process_signal_patches(&failed_signals, &mut successes, &mut failures)
                         .await;
 
                     self.signals.add(successes.into_iter());
-                    failed_attempts = failures;
+                    failed_signals = failures;
                 }
                 Ok(_) => debug!("No work for cartographer"),
                 Err(e) => log::error!(
