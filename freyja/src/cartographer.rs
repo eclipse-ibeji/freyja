@@ -6,7 +6,7 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::Mutex;
 
-use log::{info, warn, debug};
+use log::{debug, info, warn};
 
 use freyja_common::signal_store::SignalStore;
 use freyja_contracts::{
@@ -68,7 +68,7 @@ impl<
     }
 
     /// Run the cartographer. This will do the following in a loop:
-    /// 
+    ///
     /// 1. Check to see if the mapping service has more work
     ///     - If there is work, do the following:
     ///         1. Clear the list of previously failed attempts
@@ -100,28 +100,28 @@ impl<
                             // We clear the failed attempts here because the incoming mapping is used as the source of truth,
                             // so anything lect over from previous mappings shouldn't get used.
                             failed_attempts.clear();
-                            self.process_signal_patches(&p, &mut successes, &mut failed_attempts).await;
+                            self.process_signal_patches(&p, &mut successes, &mut failed_attempts)
+                                .await;
                             self.signals.sync(successes.into_iter());
-                        },
+                        }
                         Err(e) => log::error!("Failed to get mapping from mapping client: {e}"),
                     }
-                },
+                }
                 Ok(_) if failed_attempts.len() > 0 => {
                     info!("No new mappings found, but some mappings failed to be created in previous iterations");
 
                     // Retry previously failed attempts
                     let mut failures = Vec::new();
-                    self.process_signal_patches(
-                        &failed_attempts,
-                        &mut successes,
-                        &mut failures)
-                    .await;
+                    self.process_signal_patches(&failed_attempts, &mut successes, &mut failures)
+                        .await;
 
                     self.signals.add(successes.into_iter());
                     failed_attempts = failures;
-                },
+                }
                 Ok(_) => debug!("No work for cartographer"),
-                Err(e) => log::error!("Failed to check for mapping work; will try again later. Error: {e}")
+                Err(e) => log::error!(
+                    "Failed to check for mapping work; will try again later. Error: {e}"
+                ),
             }
 
             tokio::time::sleep(self.poll_interval).await;
@@ -130,12 +130,17 @@ impl<
 
     /// Processes a list of signal patches by calling `populate_source` for each one.
     /// The signals for which this call succeeds are pushed into `successes`, while others are put into `failures`.
-    /// 
+    ///
     /// # Arguments
     /// - `patches`: the list of signal patches to process
     /// - `successes`: the list to update with successful signals
     /// - `failures`: the list to update with failed signals
-    async fn process_signal_patches(&self, patches: &Vec<SignalPatch>, successes: &mut Vec<SignalPatch>, failures: &mut Vec<SignalPatch>) {
+    async fn process_signal_patches(
+        &self,
+        patches: &Vec<SignalPatch>,
+        successes: &mut Vec<SignalPatch>,
+        failures: &mut Vec<SignalPatch>,
+    ) {
         for patch in patches.iter() {
             // Many of the API calls in populate_entity are probably unnecessary, but this code gets executed
             // infrequently enough that the sub-optimal performance is not a major concern.

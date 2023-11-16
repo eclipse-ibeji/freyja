@@ -254,7 +254,8 @@ async fn get_entity(
             ok!(FindByIdResponse {
                 entity: config_item.entity.clone()
             })
-        }).unwrap_or(not_found!())
+        })
+        .unwrap_or(not_found!())
 }
 
 /// Handles subscribe requests to an entity
