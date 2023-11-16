@@ -107,7 +107,7 @@ impl<
                         Err(e) => log::error!("Failed to get mapping from mapping client: {e}"),
                     }
                 }
-                Ok(_) if failed_attempts.len() > 0 => {
+                Ok(_) if !failed_attempts.is_empty() => {
                     info!("No new mappings found, but some mappings failed to be created in previous iterations");
 
                     // Retry previously failed attempts
@@ -137,7 +137,7 @@ impl<
     /// - `failures`: the list to update with failed signals
     async fn process_signal_patches(
         &self,
-        patches: &Vec<SignalPatch>,
+        patches: &[SignalPatch],
         successes: &mut Vec<SignalPatch>,
         failures: &mut Vec<SignalPatch>,
     ) {
