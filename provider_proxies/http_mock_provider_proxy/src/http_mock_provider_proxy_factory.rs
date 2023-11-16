@@ -62,7 +62,7 @@ impl ProviderProxyFactory for HttpMockProviderProxyFactory {
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError> {
         let mut proxy = HttpMockProviderProxy::create_new(provider_uri, signal_values_queue)?;
-        proxy.set_server_port(self.current_port.fetch_add(1, Ordering::SeqCst));
+        proxy.set_callback_server_port(self.current_port.fetch_add(1, Ordering::SeqCst));
         Ok(Arc::new(proxy))
     }
 }

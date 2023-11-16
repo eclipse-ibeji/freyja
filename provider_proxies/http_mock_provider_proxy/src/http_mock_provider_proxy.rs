@@ -74,18 +74,15 @@ pub struct HttpMockProviderProxy {
     provider_uri: String,
 
     /// The port for the callback server
-    server_port: u16,
+    callback_server_port: u16,
 }
 
 impl HttpMockProviderProxy {
-    /// Constructs a callback uri using a callback server authority and path
-    ///
-    /// # Arguments
-    /// - `provider_callback_authority`: the callback server authority for receiving values from the mock digital twin
+    /// Constructs a callback uri using the configured address and port for this proxy
     fn construct_callback_uri(&self) -> String {
         format!(
             "http://{}:{}{CALLBACK_FOR_VALUES_PATH}", // Devskim: ignore DS137138
-            self.config.proxy_callback_address, self.server_port,
+            self.config.proxy_callback_address, self.callback_server_port,
         )
     }
 
@@ -112,8 +109,8 @@ impl HttpMockProviderProxy {
     ///
     /// # Arguments
     /// - `port`: The new port to use
-    pub fn set_server_port(&mut self, port: u16) {
-        self.server_port = port;
+    pub fn set_callback_server_port(&mut self, port: u16) {
+        self.callback_server_port = port;
     }
 }
 
@@ -141,7 +138,7 @@ impl ProviderProxy for HttpMockProviderProxy {
 
         Ok(Self {
             signal_values_queue,
-            server_port: config.starting_port,
+            callback_server_port: config.starting_port,
             config,
             provider_uri: provider_uri.to_string(),
             client: reqwest::Client::new(),
@@ -153,12 +150,12 @@ impl ProviderProxy for HttpMockProviderProxy {
     async fn start(&self) -> Result<(), ProviderProxyError> {
         let address = format!(
             "{}:{}",
-            self.config.proxy_callback_address, self.server_port
+            self.config.proxy_callback_address, self.callback_server_port
         );
         let server_endpoint_addr =
             SocketAddr::from_str(&address).map_err(ProviderProxyError::parse)?;
         // Start a listener server to have a digital twin provider push data to the callback address
-        // http://{proxy_callback_address}:{server_port}/value
+        // http://{proxy_callback_address}:{callback_server_port}/value
         // POST request where the json body is GetSignalValueResponse
         // Set up router path
         let router = Router::new()
