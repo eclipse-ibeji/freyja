@@ -17,8 +17,8 @@ pub struct MqttProviderProxyFactory {}
 
 impl ProviderProxyFactory for MqttProviderProxyFactory {
     /// Create a new `GRPCProviderProxyFactory`
-    fn new() -> Self {
-        Self {}
+    fn create_new() -> Result<Self, ProviderProxyError> {
+        Ok(Self {})
     }
 
     /// Check to see whether this factory can create a proxy for the requested entity.

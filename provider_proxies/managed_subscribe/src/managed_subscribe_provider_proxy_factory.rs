@@ -20,8 +20,8 @@ pub struct ManagedSubscribeProviderProxyFactory {}
 
 impl ProviderProxyFactory for ManagedSubscribeProviderProxyFactory {
     /// Create a new `ManagedSubscribeProviderProxyFactory`
-    fn new() -> Self {
-        Self {}
+    fn create_new() -> Result<Self, ProviderProxyError> {
+        Ok(Self {})
     }
 
     /// Check to see whether this factory can create a proxy for the requested entity.

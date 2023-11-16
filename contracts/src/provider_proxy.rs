@@ -71,7 +71,7 @@ pub trait ProviderProxy {
 /// Factory for creating ProviderProxies
 pub trait ProviderProxyFactory {
     /// Create a new factory
-    fn new() -> Self
+    fn create_new() -> Result<Self, ProviderProxyError>
     where
         Self: Sized;
 

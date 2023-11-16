@@ -25,18 +25,18 @@ pub struct HttpMockProviderProxyFactory {
 
 impl ProviderProxyFactory for HttpMockProviderProxyFactory {
     /// Create a new `GRPCProviderProxyFactory`
-    fn new() -> Self {
+    fn create_new() -> Result<Self, ProviderProxyError> {
         let config: Config = config_utils::read_from_files(
             config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
             ProviderProxyError::io,
             ProviderProxyError::deserialize,
-        ).unwrap();
+        )?;
 
-        Self {
+        Ok(Self {
             current_port: AtomicU16::new(config.starting_port),
-        }
+        })
     }
 
     /// Check to see whether this factory can create a proxy for the requested entity.
