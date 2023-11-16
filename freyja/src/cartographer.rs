@@ -4,10 +4,11 @@
 
 use std::sync::Arc;
 use std::time::Duration;
+use tokio::sync::Mutex;
+
+use log::{info, warn, debug};
 
 use freyja_common::signal_store::SignalStore;
-use log::{info, warn};
-
 use freyja_contracts::{
     conversion::Conversion,
     digital_twin_adapter::{
@@ -17,7 +18,6 @@ use freyja_contracts::{
     provider_proxy_selector::ProviderProxySelector,
     signal::{EmissionPolicy, SignalPatch, Target},
 };
-use tokio::sync::Mutex;
 
 /// Manages mappings from the mapping service
 pub struct Cartographer<TMappingClient, TDigitalTwinAdapter, TProviderProxySelector> {
@@ -69,76 +69,86 @@ impl<
 
     /// Run the cartographer. This will do the following in a loop:
     ///
-    /// 1. Check to see if the mapping service has more work. If not, skip to the last step
-    /// 1. ~~Send the new inventory to the mapping service~~
-    /// 1. Get the new mapping from the mapping service
-    /// 1. Query the digital twin service for entity information
-    /// 1. Create or update provider proxies for the new entities
-    /// 1. Update the signal store with the new data
+    /// 1. Retry previously failed attempts. For each such attempt, do the following:
+    ///     1. Query the digital twin service for entity information
+    ///     1. Create or update provider proxies for the new entities
+    ///     1. Update the signal store with the new data
+    /// 1. Check to see if the mapping service has more work. If there is work, do the following:
+    ///     1. ~~Send the new inventory to the mapping service~~
+    ///     1. Get the new mapping from the mapping service
+    ///     1. Execute the substeps listed above
     /// 1. Sleep until the next iteration
     pub async fn run(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        let mut failed_attempts: Vec<SignalPatch> = Vec::new();
         loop {
-            let mapping_client_result = self
+            let mut successes = Vec::new();
+
+            // Check for new work from the mapping service
+            match self
                 .mapping_client
                 .check_for_work(CheckForWorkRequest {})
-                .await;
+                .await
+            {
+                Ok(r) if r.has_work => {
+                    info!("Cartographer detected mapping work");
 
-            if mapping_client_result.is_err() {
-                let error = mapping_client_result.err().unwrap();
-                log::error!(
-                    "Failed to check for mapping work; will try again later. Error: {error}"
-                );
-                continue;
-            }
-
-            if mapping_client_result.unwrap().has_work {
-                info!("Cartographer detected mapping work");
-
-                let patches_result = self.get_mapping_as_signal_patches().await;
-                if patches_result.is_err() {
-                    let error = patches_result.err().unwrap();
-                    log::error!("Falied to get mapping from mapping client: {error}");
-                    continue;
-                }
-
-                let mut patches = patches_result.unwrap();
-                let mut failed_signals = Vec::new();
-
-                for patch in patches.iter_mut() {
-                    // Many of the API calls in populate_entity are probably unnecessary, but this code gets executed
-                    // infrequently enough that the sub-optimal performance is not a major concern.
-                    // A bulk find_by_id API in the digital twin service would make this a non-issue
-                    let populate_result = self.populate_source(patch).await;
-
-                    if populate_result.is_err() {
-                        match populate_result
-                            .err()
-                            .unwrap()
-                            .downcast::<DigitalTwinAdapterError>()
-                        {
-                            Ok(e) if e.kind() == DigitalTwinAdapterErrorKind::EntityNotFound => {
-                                warn!("Entity not found for signal {}", patch.id);
-                            }
-                            Ok(e) => {
-                                log::error!("Error fetching entity for signal {}: {e:?}", patch.id);
-                            }
-                            Err(e) => {
-                                log::error!("Error fetching entity for signal {}: {e:?}", patch.id);
-                            }
-                        }
-
-                        failed_signals.push(patch.id.clone());
+                    match self.get_mapping_as_signal_patches().await {
+                        Ok(p) => {
+                            // We clear the failed attempts here because the incoming mapping is used as the source of truth,
+                            // so anything lect over from previous mappings shouldn't get used.
+                            failed_attempts.clear();
+                            self.handle_signal_patches(&p, &mut successes, &mut failed_attempts).await;
+                            self.signals.sync(successes.into_iter());
+                        },
+                        Err(e) => log::error!("Failed to get mapping from mapping client: {e}"),
                     }
-                }
+                },
+                Ok(_) if failed_attempts.len() > 0 => {
+                    info!("No new mappings found, but some mappings failed to be created in previous iterations");
 
-                self.signals.sync(
-                    patches
-                        .into_iter()
-                        .filter(|s| !failed_signals.contains(&s.id)),
-                );
+                    // Retry previously failed attempts
+                    let mut failures = Vec::new();
+                    self.handle_signal_patches(
+                        &failed_attempts,
+                        &mut successes,
+                        &mut failures)
+                    .await;
+
+                    self.signals.add(successes.into_iter());
+                    failed_attempts = failures;
+                },
+                Ok(_) => debug!("No work for cartographer"),
+                Err(e) => log::error!("Failed to check for mapping work; will try again later. Error: {e}")
             }
 
             tokio::time::sleep(self.poll_interval).await;
+        }
+    }
+
+    async fn handle_signal_patches(&self, patches: &Vec<SignalPatch>, successes: &mut Vec<SignalPatch>, failures: &mut Vec<SignalPatch>) {
+        for patch in patches.iter() {
+            // Many of the API calls in populate_entity are probably unnecessary, but this code gets executed
+            // infrequently enough that the sub-optimal performance is not a major concern.
+            // A bulk find_by_id API in the digital twin service would make this a non-issue
+            let mut patch = patch.clone();
+            match self.populate_source(&mut patch).await {
+                Ok(_) => successes.push(patch),
+                Err(e) => {
+                    match e.downcast::<DigitalTwinAdapterError>() {
+                        Ok(e) if e.kind() == DigitalTwinAdapterErrorKind::EntityNotFound => {
+                            warn!("Entity not found for signal {}", patch.id);
+                        }
+                        Ok(e) => {
+                            log::error!("Error fetching entity for signal {}: {e:?}", patch.id);
+                        }
+                        Err(e) => {
+                            log::error!("Error fetching entity for signal {}: {e:?}", patch.id);
+                        }
+                    }
+
+                    failures.push(patch);
+                }
+            }
         }
     }
 

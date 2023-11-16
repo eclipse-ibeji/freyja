@@ -42,6 +42,48 @@ impl SignalStore {
     /// - If the incoming signal is already in the data store, apply the patch.
     /// - If the incoming signal is not in the data store, create a new signal from the patch.
     ///
+    /// # Arguments
+    /// - `incoming_signals`: The signal patches to use to generate the new signal
+    pub fn add<SyncIterator, IntoSignalPatch>(&self, incoming_signals: SyncIterator)
+    where
+        SyncIterator: Iterator<Item = IntoSignalPatch>,
+        IntoSignalPatch: Into<SignalPatch>,
+    {
+        let mut signals = self.signals.write().unwrap();
+        for value in incoming_signals {
+            let SignalPatch {
+                id,
+                source,
+                target,
+                emission_policy,
+            } = value.into();
+
+            signals
+                .entry(id.clone())
+                // If the incoming signal is already in the data store, update only its target and emission policy
+                .and_modify(|s| {
+                    s.source = source.clone();
+                    s.target = target.clone();
+                    s.emission.policy = emission_policy.clone();
+                })
+                // If the incoming signal is not in the data store, insert a new one
+                .or_insert(Signal {
+                    id,
+                    source,
+                    target,
+                    emission: Emission {
+                        policy: emission_policy,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                });
+        }
+    }
+
+    /// For each signal in the input:
+    /// - If the incoming signal is already in the data store, apply the patch.
+    /// - If the incoming signal is not in the data store, create a new signal from the patch.
+    ///
     /// For each signal in the data store:
     /// - If the stored signal is not in the input, delete it
     ///
