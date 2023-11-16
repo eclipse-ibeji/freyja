@@ -43,7 +43,7 @@ impl SignalStore {
     /// - If the incoming signal is not in the data store, create a new signal from the patch.
     ///
     /// # Arguments
-    /// - `incoming_signals`: The signal patches to use to generate the new signal
+    /// - `incoming_signals`: The signal patches used to generate the new signal
     pub fn add<SyncIterator, IntoSignalPatch>(&self, incoming_signals: SyncIterator)
     where
         SyncIterator: Iterator<Item = IntoSignalPatch>,

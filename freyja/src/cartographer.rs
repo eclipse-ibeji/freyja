@@ -98,7 +98,7 @@ impl<
                     match self.get_mapping_as_signal_patches().await {
                         Ok(p) => {
                             // We clear the failed attempts here because the incoming mapping is used as the source of truth,
-                            // so anything lect over from previous mappings shouldn't get used.
+                            // so anything left over from previous mappings shouldn't get used.
                             failed_attempts.clear();
                             self.process_signal_patches(&p, &mut successes, &mut failed_attempts)
                                 .await;
