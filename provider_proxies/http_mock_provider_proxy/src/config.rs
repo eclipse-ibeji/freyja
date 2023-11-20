@@ -9,4 +9,7 @@ use serde::{Deserialize, Serialize};
 pub(crate) struct Config {
     /// The callback address for receiving signals from the mock digital twin
     pub proxy_callback_address: String,
+
+    /// The starting port number
+    pub starting_port: u16,
 }

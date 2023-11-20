@@ -19,8 +19,8 @@ pub struct GRPCProviderProxyFactory {}
 
 impl ProviderProxyFactory for GRPCProviderProxyFactory {
     /// Create a new `GRPCProviderProxyFactory`
-    fn new() -> Self {
-        Self {}
+    fn create_new() -> Result<Self, ProviderProxyError> {
+        Ok(Self {})
     }
 
     /// Check to see whether this factory can create a proxy for the requested entity.
@@ -42,6 +42,7 @@ impl ProviderProxyFactory for GRPCProviderProxyFactory {
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError> {
-        GRPCProviderProxy::create_new(provider_uri, signal_values_queue)
+        let proxy = GRPCProviderProxy::create_new(provider_uri, signal_values_queue)?;
+        Ok(Arc::new(proxy))
     }
 }

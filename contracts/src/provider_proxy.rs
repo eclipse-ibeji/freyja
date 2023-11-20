@@ -39,7 +39,7 @@ pub trait ProviderProxy {
     fn create_new(
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
-    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
+    ) -> Result<Self, ProviderProxyError>
     where
         Self: Sized;
 
@@ -71,7 +71,7 @@ pub trait ProviderProxy {
 /// Factory for creating ProviderProxies
 pub trait ProviderProxyFactory {
     /// Create a new factory
-    fn new() -> Self
+    fn create_new() -> Result<Self, ProviderProxyError>
     where
         Self: Sized;
 

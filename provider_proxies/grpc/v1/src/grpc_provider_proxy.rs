@@ -54,7 +54,7 @@ impl ProviderProxy for GRPCProviderProxy {
     fn create_new(
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
-    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
+    ) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,
     {
@@ -78,7 +78,6 @@ impl ProviderProxy for GRPCProviderProxy {
             entity_operation_map: Mutex::new(HashMap::new()),
             signal_values_queue,
         })
-        .map(|r| Arc::new(r) as _)
     }
 
     /// Starts a provider proxy

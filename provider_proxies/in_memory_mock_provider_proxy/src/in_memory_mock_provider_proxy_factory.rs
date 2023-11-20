@@ -20,8 +20,8 @@ pub struct InMemoryMockProviderProxyFactory {}
 
 impl ProviderProxyFactory for InMemoryMockProviderProxyFactory {
     /// Create a new `GRPCProviderProxyFactory`
-    fn new() -> Self {
-        Self {}
+    fn create_new() -> Result<Self, ProviderProxyError> {
+        Ok(Self {})
     }
 
     /// Check to see whether this factory can create a proxy for the requested entity.
@@ -43,6 +43,7 @@ impl ProviderProxyFactory for InMemoryMockProviderProxyFactory {
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError> {
-        InMemoryMockProviderProxy::create_new(provider_uri, signal_values_queue)
+        let proxy = InMemoryMockProviderProxy::create_new(provider_uri, signal_values_queue)?;
+        Ok(Arc::new(proxy))
     }
 }
