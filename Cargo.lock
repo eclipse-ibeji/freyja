@@ -282,7 +282,7 @@ checksum = "e496a50fda8aacccc86d7529e2c1e0892dbd0f898a6b5645b5561b89c3210efa"
 [[package]]
 name = "core-protobuf-data-access"
 version = "0.1.0"
-source = "git+https://github.com/eclipse-ibeji/ibeji#56ddbafaf73bde471d23d2680c01e818008068cf"
+source = "git+https://github.com/eclipse-ibeji/ibeji#b381fbdf3129d5420fb7472c94415a3cc7717f92"
 dependencies = [
  "prost",
  "prost-types",
@@ -432,9 +432,9 @@ dependencies = [
 
 [[package]]
 name = "env_logger"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85cdab6a89accf66733ad5a1693a4dcced6aeff64602b634530dd73c1f3ee9f0"
+checksum = "95b3f3e67048839cb0d0781f445682a35113da7121f7c949db0e2be96a4fbece"
 dependencies = [
  "humantime",
  "is-terminal",
@@ -1778,7 +1778,7 @@ checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
 [[package]]
 name = "samples-protobuf-data-access"
 version = "1.0.0"
-source = "git+https://github.com/eclipse-ibeji/ibeji#56ddbafaf73bde471d23d2680c01e818008068cf"
+source = "git+https://github.com/eclipse-ibeji/ibeji#b381fbdf3129d5420fb7472c94415a3cc7717f92"
 dependencies = [
  "prost",
  "prost-types",
@@ -2312,9 +2312,9 @@ dependencies = [
 
 [[package]]
 name = "uuid"
-version = "1.5.0"
+version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88ad59a7560b41a70d191093a945f0b87bc1deeda46fb237479708a1d6b6cdfc"
+checksum = "c58fe91d841bc04822c9801002db4ea904b9e4b8e6bbad25127b46eff8dc516b"
 dependencies = [
  "getrandom",
 ]
