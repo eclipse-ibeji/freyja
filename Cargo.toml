@@ -51,7 +51,7 @@ futures = "0.3.29"
 home = "0.5.5"
 log = "^0.4"
 mockall = "0.11.4"
-paho-mqtt = "0.12"
+paho-mqtt = { version = "0.12", features = ["vendored-ssl"] }
 proc-macro2 = "1.0.69"
 quote = "1.0.23"
 reqwest = { version = "0.11.22", features = ["json"] }
