@@ -2121,6 +2121,7 @@ This page lists the licenses of the projects used in cargo-about.
 
 #### Used by
 
+- [env_logger]( https://github.com/rust-cli/env_logger ) 0.10.1
 - [foreign-types]( https://github.com/sfackler/foreign-types ) 0.3.2
 - [foreign-types-shared]( https://github.com/sfackler/foreign-types ) 0.1.1
 - [humantime]( https://github.com/tailhook/humantime ) 2.1.0
@@ -4491,7 +4492,6 @@ limitations under the License.
 - [crossbeam-queue]( https://github.com/crossbeam-rs/crossbeam ) 0.3.8
 - [crossbeam-utils]( https://github.com/crossbeam-rs/crossbeam ) 0.8.16
 - [either]( https://github.com/bluss/either ) 1.9.0
-- [env_logger]( https://github.com/rust-cli/env_logger/ ) 0.10.0
 - [equivalent]( https://github.com/cuviper/equivalent ) 1.0.1
 - [event-listener]( https://github.com/smol-rs/event-listener ) 2.5.3
 - [fastrand]( https://github.com/smol-rs/fastrand ) 2.0.1
@@ -4553,7 +4553,7 @@ limitations under the License.
 - [unicode-normalization]( https://github.com/unicode-rs/unicode-normalization ) 0.1.22
 - [unicode-segmentation]( https://github.com/unicode-rs/unicode-segmentation ) 1.10.1
 - [url]( https://github.com/servo/rust-url ) 2.4.1
-- [uuid]( https://github.com/uuid-rs/uuid ) 1.5.0
+- [uuid]( https://github.com/uuid-rs/uuid ) 1.6.0
 - [version_check]( https://github.com/SergioBenitez/version_check ) 0.9.4
 - [wasi]( https://github.com/bytecodealliance/wasi ) 0.11.0+wasi-snapshot-preview1
 - [wasm-bindgen]( https://github.com/rustwasm/wasm-bindgen ) 0.2.87
