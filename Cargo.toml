@@ -43,7 +43,7 @@ service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott"
 # crates.io dependencies
 async-trait = "0.1.74"
 axum = "0.6.12"
-config = "0.13.3"
+config = "0.13.4"
 convert_case = "0.6.0"
 crossbeam = "0.8.2"
 env_logger = "0.10.1"
@@ -52,10 +52,10 @@ home = "0.5.5"
 log = "^0.4"
 mockall = "0.11.4"
 paho-mqtt = "0.12"
-proc-macro2 = "1.0.69"
+proc-macro2 = "1.0.70"
 quote = "1.0.23"
 reqwest = { version = "0.11.22", features = ["json"] }
-serde = { version = "1.0.192", features = ["derive"] }
+serde = { version = "1.0.193", features = ["derive"] }
 serde_json = "1.0.108"
 strum = "0.25.0"
 strum_macros = "0.25.3"
@@ -67,4 +67,4 @@ tokio-stream = { version = "0.1.8", features = ["net"] }
 tonic = "0.10.0"
 tonic-build = "0.10.0"
 tower = { version = "0.4", features = ["util"] }
-uuid = "1.6.0"
+uuid = "1.6.1"
