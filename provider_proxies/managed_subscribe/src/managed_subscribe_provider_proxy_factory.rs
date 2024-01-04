@@ -11,14 +11,15 @@ use freyja_contracts::{
 };
 
 use crate::{
-    grpc_provider_proxy::GRPCProviderProxy, GET_OPERATION, GRPC_PROTOCOL, SUBSCRIBE_OPERATION,
+    managed_subscribe_provider_proxy::ManagedSubscribeProviderProxy, GRPC_PROTOCOL,
+    MANAGED_SUBSCRIBE_OPERATION,
 };
 
-/// Factory for creating GRPCProviderProxies
-pub struct GRPCProviderProxyFactory {}
+/// Factory for creating ManagedSubscribeProviderProxies
+pub struct ManagedSubscribeProviderProxyFactory {}
 
-impl ProviderProxyFactory for GRPCProviderProxyFactory {
-    /// Create a new `GRPCProviderProxyFactory`
+impl ProviderProxyFactory for ManagedSubscribeProviderProxyFactory {
+    /// Create a new `ManagedSubscribeProviderProxyFactory`
     fn create_new() -> Result<Self, ProviderProxyError> {
         Ok(Self {})
     }
@@ -29,20 +30,20 @@ impl ProviderProxyFactory for GRPCProviderProxyFactory {
     /// # Arguments
     /// - `entity`: the entity to check for compatibility
     fn is_supported(&self, entity: &Entity) -> Option<EntityEndpoint> {
-        entity.is_supported(&[GRPC_PROTOCOL], &[GET_OPERATION, SUBSCRIBE_OPERATION])
+        entity.is_supported(&[GRPC_PROTOCOL], &[MANAGED_SUBSCRIBE_OPERATION])
     }
 
     /// Create a new proxy
     ///
     /// # Arguments
     /// - `provider_uri`: The provider URI to associate with this proxy
-    /// - `signal_values_queue`: The queue into which new signal values wil lbe published
+    /// - `signal_values_queue`: The queue into which new signal values will be published
     fn create_proxy(
         &self,
         provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError> {
-        let proxy = GRPCProviderProxy::create_new(provider_uri, signal_values_queue)?;
+        let proxy = ManagedSubscribeProviderProxy::create_new(provider_uri, signal_values_queue)?;
         Ok(Arc::new(proxy))
     }
 }

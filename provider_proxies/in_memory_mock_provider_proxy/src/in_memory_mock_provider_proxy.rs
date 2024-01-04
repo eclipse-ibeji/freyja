@@ -22,7 +22,9 @@ use crate::{
 use freyja_build_common::config_file_stem;
 use freyja_contracts::{
     entity::EntityEndpoint,
-    provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue},
+    provider_proxy::{
+        EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
+    },
 };
 
 #[derive(Debug)]
@@ -101,7 +103,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
     fn create_new(
         _provider_uri: &str,
         signal_values_queue: Arc<SegQueue<SignalValue>>,
-    ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>
+    ) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,
     {
@@ -113,7 +115,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
             ProviderProxyError::deserialize,
         )?;
 
-        Self::from_config(config, signal_values_queue).map(|r| Arc::new(r) as _)
+        Self::from_config(config, signal_values_queue)
     }
 
     /// Starts a provider proxy
@@ -196,7 +198,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
         &self,
         entity_id: &str,
         endpoint: &EntityEndpoint,
-    ) -> Result<(), ProviderProxyError> {
+    ) -> Result<EntityRegistration, ProviderProxyError> {
         // Prefer subscribe if present
         let selected_operation = {
             let mut result = None;
@@ -219,7 +221,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
             .await
             .insert(String::from(entity_id), String::from(selected_operation));
 
-        Ok(())
+        Ok(EntityRegistration::Registered)
     }
 }
 

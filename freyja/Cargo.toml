@@ -22,6 +22,7 @@ tokio = { workspace = true }
 grpc-provider-proxy-v1 = { path = "../provider_proxies/grpc/v1" }
 http-mock-provider-proxy = { path = "../provider_proxies/http_mock_provider_proxy" }
 in-memory-mock-provider-proxy = { path = "../provider_proxies/in_memory_mock_provider_proxy" }
+managed-subscribe-provider-proxy = { path = "../provider_proxies/managed_subscribe" }
 mqtt-provider-proxy = { path = "../provider_proxies/mqtt" }
 
 [dev-dependencies]
