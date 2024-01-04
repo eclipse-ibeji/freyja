@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-// SPDX-License-Identifier: MIT/
+// SPDX-License-Identifier: MIT
 
 use std::{collections::HashMap, str::FromStr};
 
