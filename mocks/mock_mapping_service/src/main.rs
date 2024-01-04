@@ -5,10 +5,10 @@
 mod config;
 
 use std::{
-    io,
+    env, io,
     net::SocketAddr,
     sync::{Arc, Mutex},
-    thread, str::FromStr, collections::HashMap, env,
+    thread,
 };
 
 use axum::{
@@ -22,7 +22,10 @@ use log::{info, LevelFilter};
 
 use config::Config;
 use freyja_build_common::config_file_stem;
-use freyja_common::{config_utils, out_dir};
+use freyja_common::{
+    cmd_utils::{get_log_level, parse_args},
+    config_utils, out_dir,
+};
 use freyja_contracts::mapping_client::{
     CheckForWorkResponse, GetMappingResponse, SendInventoryRequest, SendInventoryResponse,
 };
@@ -45,37 +48,16 @@ macro_rules! ok {
 
 #[tokio::main]
 async fn main() {
-    let args: HashMap<String, Option<String>> = env::args()
-        .skip(1)
-        .map(|arg| {
-            let mut split = arg.split('=');
-            let key = split
-                .next()
-                .expect("Couldn't parse argument key")
-                .to_owned();
-            let val = split.next().map(|v| v.to_owned());
-
-            if split.next().is_some() {
-                panic!("Too many pieces in argument");
-            }
-
-            (key, val)
-        })
-        .collect();
+    let args = parse_args(env::args()).expect("Failed to parse args");
 
     // Setup logging
-    let log_level = args.get("--log-level")
-        .cloned()
-        .unwrap_or(Some(String::from("info")))
-        .expect("No log-level value provided");
-    let log_level = LevelFilter::from_str(log_level.as_str())
-        .expect("Could not parse log level");
+    let log_level = get_log_level(&args, LevelFilter::Info).expect("Could not parse log level");
     env_logger::Builder::new()
         .filter(None, log_level)
         .target(Target::Stdout)
         .init();
 
-    let interactive = args.get("--interactive").is_some();
+    let interactive = args.get("interactive").is_some();
 
     let config = config_utils::read_from_files(
         config_file_stem!(),
@@ -108,17 +90,17 @@ async fn main() {
             let mut buffer = String::new();
             loop {
                 io::stdin().read_line(&mut buffer)?;
-    
+
                 let mut state = state_clone.lock().unwrap();
                 state.count += 1;
                 let new_work = check_for_work(&config, state.count, state.interactive);
-    
+
                 state.pending_work |= new_work;
                 info!(
                     "New count: {}. Work available? {}",
                     state.count, state.pending_work
                 );
-    
+
                 if state.pending_work {
                     let work_available_state: Vec<String> = state
                         .config
@@ -127,7 +109,7 @@ async fn main() {
                         .filter(|c| state.count == c.begin)
                         .map(|v| v.value.source.clone())
                         .collect();
-    
+
                     info!("New work available for {work_available_state:?}");
                 }
             }
@@ -179,7 +161,7 @@ async fn get_mapping(State(state): State<Arc<Mutex<MappingState>>>) -> Response 
             .config
             .values
             .iter()
-            .filter_map(|c|
+            .filter_map(|c| {
                 if state.interactive {
                     Some((c.value.source.clone(), c.value.clone()))
                 } else {
@@ -187,8 +169,11 @@ async fn get_mapping(State(state): State<Arc<Mutex<MappingState>>>) -> Response 
                         Some(end) if state.count >= c.begin && state.count < end => {
                             Some((c.value.source.clone(), c.value.clone()))
                         }
-                        None if state.count >= c.begin => Some((c.value.source.clone(), c.value.clone())),
+                        None if state.count >= c.begin => {
+                            Some((c.value.source.clone(), c.value.clone()))
+                        }
                         _ => None,
+                    }
                 }
             })
             .collect(),
@@ -198,14 +183,17 @@ async fn get_mapping(State(state): State<Arc<Mutex<MappingState>>>) -> Response 
 }
 
 fn check_for_work(config: &Config, n: u8, interactive: bool) -> bool {
-    config.values.iter().any(|c| (!interactive && n == 0) || match c.end {
-        Some(end) => {
-            if n == end {
-                info!("End of {} for mapping", c.value.source);
-            }
-            n == end || n == c.begin
-        }
+    config.values.iter().any(|c| {
+        (!interactive && n == 0)
+            || match c.end {
+                Some(end) => {
+                    if n == end {
+                        info!("End of {} for mapping", c.value.source);
+                    }
+                    n == end || n == c.begin
+                }
 
-        None => n == c.begin,
+                None => n == c.begin,
+            }
     })
 }

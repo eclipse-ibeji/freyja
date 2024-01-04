@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
+pub mod cmd_utils;
 pub mod config_utils;
 pub mod message_utils;
 pub mod retry_utils;

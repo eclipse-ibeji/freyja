@@ -561,6 +561,7 @@ dependencies = [
  "freyja-contracts",
  "home",
  "log",
+ "proc-macros",
  "serde",
  "serde_json",
  "tokio",
