@@ -36,7 +36,7 @@ where
             _ => return Err(ParseArgsErrorKind::KeyParseError { arg }.into()),
         };
 
-        // If split.next() returns None, then this was a flag argument and the call to map also returns None.
+        // If split.next() returns None here, then this was a flag argument and the call to map also returns None.
         let val = split.next().map(|v| v.to_owned());
 
         if split.next().is_some() {
