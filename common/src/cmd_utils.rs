@@ -31,11 +31,12 @@ where
     for arg in args.skip(1) {
         let mut split = arg.split('=');
         let key = match split.next() {
+            // Note that unwrapping here will always succeed because `s` is guaranteed to be at least 3 chars long
             Some(s) if s.len() > 2 && s.get(..2) == Some("--") => s.get(2..).unwrap().to_owned(),
             _ => return Err(ParseArgsErrorKind::KeyParseError { arg }.into()),
         };
 
-        // If split.next() returns None, then this was a flag argument and the map also returns None.
+        // If split.next() returns None, then this was a flag argument and the call to map also returns None.
         let val = split.next().map(|v| v.to_owned());
 
         if split.next().is_some() {
