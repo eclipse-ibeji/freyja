@@ -8,10 +8,7 @@ use log::LevelFilter;
 use proc_macros::error;
 
 /// Gets the command-line arguments.
-/// Arguments should be formatted in the following way:
-///
-///     --key[=value]
-///
+/// Arguments should be formatted as `--key[=value]`.
 /// The output is a `HashMap` containing keys mapped to values.
 /// The keys have all leading `-` characters removed.
 /// If an argument is passed as a flag without a corresponding value,
