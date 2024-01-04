@@ -23,10 +23,26 @@ This mock supports [config overrides](../../docs/config-overrides.md). The overr
 
 ## Behavior
 
-The application maintains an internal count, and only entities satisfying the condition `begin <= count [< end]` will be enabled for all APIs. To increment this count and potentially change the set of enabled entities, press <kbd>Enter</kbd> in the application's console. This allows manual control over when the entities are turned on or off and permits straightforward mocking of more complex scenarios. As a result of this behavior, it is recommended to write configs such that a state change happens each time enter is pressed. For example, if a mock scenario has `n` different desired states, then all numbers in the range `0..n-1` should appear as values for at least one `begin` or `end` property. Otherwise pressing <kbd>Enter</kbd> will sometimes have no effect.
+This mock service mocks the behavior of both the Ibeji digital twin service and providers that register with it.
 
-In addition, the mock also maintains a count of the number of times each provider has been invoked, and returns a value that is a function of this count. In this way, the behavior of the `generate_signal_value()` API is identical to that of the In-Memory Provider Proxy.
+This mock exposes the `/entity` endpoint which fulfills the `find_by_id` API.
 
-Entities that support the `Subscribe` operation will allow clients to send a request to the `/providers/subscribe/{provider_id}` endpoint, and the server will periodically publish the entity values to the provided callback. The communication protocol used by these mocked providers for this callback is HTTP.
+Entities that support the `Subscribe` operation will allow clients to send a request to the `/subscribe` endpoint, and the server will periodically publish the entity values to the provided callback. The communication protocol used by these mocked providers for this callback is HTTP.
 
-Similarly, providers that support the `Get` operation will allow clients to send a request to the `/providers/get/{provider_id}` endpoint. The server will publish the entity values a single time to the provided callback rather than setting up a recurring callback. If the client wishes to retrieve the values again, then the client would need to send another request.
+Similarly, providers that support the `Get` operation will allow clients to send a request to the `/request-value` endpoint. The server will publish the entity values a single time to the provided callback rather than setting up a recurring callback. If the client wishes to retrieve the values again, then the client would need to send another request.
+
+This mock maintains a count of the number of times the value of entity has been requested, and returns a value that is a function of this count. In this way, the behavior of the `generate_signal_value()` API is identical to that of the In-Memory Provider Proxy.
+
+### Interactive Mode
+
+To use interactive mode, pass the `--interactive` argument when running the application.
+
+In interactive mode, the application maintains an internal count, and only entities satisfying the condition `begin <= count [< end]` will be enabled for all APIs. To increment this count and potentially change the set of enabled entities, press <kbd>Enter</kbd> in the application's console. This allows manual control over when the entities are turned on or off and permits straightforward mocking of more complex scenarios. As a result of this behavior, it is recommended to write configs such that a state change happens each time <kbd>Enter</kbd> is pressed. For example, if a mock scenario has `n` different desired states, then all numbers in the range `0..n-1` should appear as values for at least one `begin` or `end` property. Otherwise pressing <kbd>Enter</kbd> will sometimes have no effect.
+
+**Do not use interactive mode if running this service in a container!** This feature is not compatible with containers and will cause unexpected behavior, including very high resource consumption.
+
+### Non-Interactive Mode
+
+In non-interactive mode, the `begin` and `end` properties in the config are ignored, and all configured entities are always exposed in the mock's APIs.
+
+This is the default behavior of this application.

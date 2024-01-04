@@ -4,20 +4,23 @@
 
 // Re-export this macro for convenience so users don't need to manually import the proc_macros crate
 pub use proc_macros::freyja_main;
-use tokio::sync::Mutex;
 
 mod cartographer;
 mod emitter;
 
-use std::{collections::HashMap, env, str::FromStr, sync::Arc, time::Duration};
+use std::{env, sync::Arc, time::Duration};
 
 use crossbeam::queue::SegQueue;
 use env_logger::Target;
 use log::LevelFilter;
+use tokio::sync::Mutex;
 
 use cartographer::Cartographer;
 use emitter::Emitter;
-use freyja_common::signal_store::SignalStore;
+use freyja_common::{
+    cmd_utils::{get_log_level, parse_args},
+    signal_store::SignalStore,
+};
 use freyja_contracts::{
     cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter,
     mapping_client::MappingClient, provider_proxy::SignalValue,
@@ -36,29 +39,10 @@ pub async fn freyja_main<
     TCloudAdapter: CloudAdapter,
     TMappingClient: MappingClient,
 >() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let args: HashMap<String, String> = env::args()
-        .skip(1)
-        .map(|arg| {
-            let mut split = arg.split('=');
-            let key = split
-                .next()
-                .expect("Couldn't parse argument key")
-                .to_owned();
-            let val = split
-                .next()
-                .expect("Couldn't parse argument value")
-                .to_owned();
-            if split.next().is_some() {
-                panic!("Too many pieces in argument");
-            }
-
-            (key, val)
-        })
-        .collect();
+    let args = parse_args(env::args()).expect("Failed to parse args");
 
     // Setup logging
-    let log_level = LevelFilter::from_str(args.get("log-level").unwrap_or(&"info".to_owned()))
-        .expect("Could not parse log level");
+    let log_level = get_log_level(&args, LevelFilter::Info).expect("Could not parse log level");
     env_logger::Builder::new()
         .filter(None, log_level)
         .target(Target::Stdout)
