@@ -29,7 +29,7 @@ where
 
     // First item in this list is the program name
     for arg in args.skip(1) {
-        let mut split = arg.split("=");
+        let mut split = arg.split('=');
         let key = match split.next() {
             Some(s) if s.len() > 2 && s.get(..2) == Some("--") => s.get(2..).unwrap().to_owned(),
             _ => return Err(ParseArgsErrorKind::KeyParseError { arg }.into()),
