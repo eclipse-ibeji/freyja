@@ -39,7 +39,7 @@ To use interactive mode, pass the `--interactive` argument when running the appl
 
 In interactive mode, the application maintains an internal count, and only entities satisfying the condition `begin <= count [< end]` will be enabled for all APIs. To increment this count and potentially change the set of enabled entities, press <kbd>Enter</kbd> in the application's console. This allows manual control over when the entities are turned on or off and permits straightforward mocking of more complex scenarios. As a result of this behavior, it is recommended to write configs such that a state change happens each time <kbd>Enter</kbd> is pressed. For example, if a mock scenario has `n` different desired states, then all numbers in the range `0..n-1` should appear as values for at least one `begin` or `end` property. Otherwise pressing <kbd>Enter</kbd> will sometimes have no effect.
 
-**Do not use interactive mode if running this service in a container!** This feature is not compatible with containerization and will cause unexpected behavior and very high resource consumption.
+**Do not use interactive mode if running this service in a container!** This feature is not compatible with containers and will cause unexpected behavior, including very high resource consumption.
 
 ### Non-Interactive Mode
 
