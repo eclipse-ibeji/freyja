@@ -41,27 +41,27 @@ samples-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji" 
 service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott" }
 
 # crates.io dependencies
-async-trait = "0.1.74"
+async-trait = "0.1.77"
 axum = "0.6.12"
 config = "0.13.4"
 convert_case = "0.6.0"
-crossbeam = "0.8.2"
+crossbeam = "0.8.3"
 env_logger = "0.10.1"
-futures = "0.3.29"
-home = "0.5.5"
+futures = "0.3.30"
+home = "0.5.9"
 log = "^0.4"
 mockall = "0.11.4"
 paho-mqtt = "0.12"
 proc-macro2 = "1.0.70"
 quote = "1.0.23"
-reqwest = { version = "0.11.22", features = ["json"] }
-serde = { version = "1.0.193", features = ["derive"] }
-serde_json = "1.0.108"
+reqwest = { version = "0.11.23", features = ["json"] }
+serde = { version = "1.0.195", features = ["derive"] }
+serde_json = "1.0.111"
 strum = "0.25.0"
 strum_macros = "0.25.3"
 syn = { version = "2.0.40", features = ["extra-traits", "full"] }
-tempfile = "3.8.1"
-time = "0.3.30"
+tempfile = "3.9.0"
+time = "0.3.31"
 tokio = { version = "1.35", features = ["macros", "rt-multi-thread", "time", "sync", "test-util"] }
 tokio-stream = { version = "0.1.8", features = ["net"] }
 tonic = "0.10.0"
