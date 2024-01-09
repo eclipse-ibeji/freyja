@@ -12,7 +12,7 @@ use crossbeam::queue::SegQueue;
 use log::debug;
 use tokio::sync::Mutex;
 
-use freyja_contracts::{
+use freyja_common::{
     entity::Entity,
     provider_proxy::{EntityRegistration, ProviderProxy, ProviderProxyFactory, SignalValue},
     provider_proxy_selector::{
@@ -223,7 +223,7 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
 mod provider_proxy_selector_tests {
     use super::*;
 
-    use freyja_contracts::{
+    use freyja_common::{
         entity::EntityEndpoint, provider_proxy_selector::ProviderProxySelectorErrorKind,
     };
     use grpc_provider_proxy_v1::grpc_provider_proxy_factory::GRPCProviderProxyFactory;

@@ -9,7 +9,7 @@ use tokio::sync::Mutex;
 use log::{debug, info, warn};
 
 use freyja_common::signal_store::SignalStore;
-use freyja_contracts::{
+use freyja_common::{
     conversion::Conversion,
     digital_twin_adapter::{
         DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind, FindByIdRequest,
@@ -231,7 +231,7 @@ mod cartographer_tests {
     use async_trait::async_trait;
     use mockall::{predicate::eq, *};
 
-    use freyja_contracts::{
+    use freyja_common::{
         digital_twin_adapter::{DigitalTwinAdapterError, FindByIdResponse},
         digital_twin_map_entry::DigitalTwinMapEntry,
         entity::{Entity, EntityEndpoint},

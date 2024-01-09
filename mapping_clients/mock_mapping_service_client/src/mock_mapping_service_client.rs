@@ -10,7 +10,7 @@ use reqwest::Client;
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, out_dir, retry_utils::execute_with_retry};
-use freyja_contracts::mapping_client::*;
+use freyja_common::mapping_client::*;
 
 /// Mocks a mapping provider in memory
 pub struct MockMappingServiceClient {

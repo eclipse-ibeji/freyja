@@ -12,7 +12,6 @@ license = "MIT"
 async-trait = { workspace = true }
 freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
-freyja-contracts = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 

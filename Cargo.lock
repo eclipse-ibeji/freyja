@@ -528,7 +528,6 @@ dependencies = [
  "crossbeam",
  "env_logger",
  "freyja-common",
- "freyja-contracts",
  "grpc-provider-proxy-v1",
  "http-mock-provider-proxy",
  "in-memory-mock-cloud-adapter",
@@ -555,26 +554,17 @@ version = "0.1.0"
 name = "freyja-common"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "config",
- "freyja-contracts",
+ "crossbeam",
  "home",
  "log",
  "proc-macros",
  "serde",
  "serde_json",
- "tokio",
-]
-
-[[package]]
-name = "freyja-contracts"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "crossbeam",
- "proc-macros",
- "serde",
  "strum",
  "strum_macros",
+ "tokio",
 ]
 
 [[package]]
@@ -707,7 +697,6 @@ dependencies = [
  "crossbeam",
  "freyja-build-common",
  "freyja-common",
- "freyja-contracts",
  "futures",
  "log",
  "samples-protobuf-data-access",
@@ -805,7 +794,6 @@ dependencies = [
  "crossbeam",
  "freyja-build-common",
  "freyja-common",
- "freyja-contracts",
  "log",
  "reqwest",
  "serde",
@@ -894,7 +882,7 @@ name = "in-memory-mock-cloud-adapter"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "freyja-contracts",
+ "freyja-common",
  "log",
  "serde_json",
  "time",
@@ -908,7 +896,6 @@ dependencies = [
  "async-trait",
  "freyja-build-common",
  "freyja-common",
- "freyja-contracts",
  "serde",
  "tokio",
 ]
@@ -920,7 +907,6 @@ dependencies = [
  "async-trait",
  "freyja-build-common",
  "freyja-common",
- "freyja-contracts",
  "serde",
  "tokio",
 ]
@@ -933,7 +919,6 @@ dependencies = [
  "crossbeam",
  "freyja-build-common",
  "freyja-common",
- "freyja-contracts",
  "log",
  "serde",
  "tokio",
@@ -1050,7 +1035,6 @@ dependencies = [
  "crossbeam",
  "freyja-build-common",
  "freyja-common",
- "freyja-contracts",
  "futures",
  "log",
  "paho-mqtt",
@@ -1112,7 +1096,6 @@ dependencies = [
  "env_logger",
  "freyja-build-common",
  "freyja-common",
- "freyja-contracts",
  "http-mock-provider-proxy",
  "log",
  "reqwest",
@@ -1127,7 +1110,6 @@ dependencies = [
  "async-trait",
  "freyja-build-common",
  "freyja-common",
- "freyja-contracts",
  "mock-digital-twin",
  "reqwest",
  "serde",
@@ -1141,7 +1123,6 @@ dependencies = [
  "env_logger",
  "freyja-build-common",
  "freyja-common",
- "freyja-contracts",
  "log",
  "serde",
  "tokio",
@@ -1154,7 +1135,6 @@ dependencies = [
  "async-trait",
  "freyja-build-common",
  "freyja-common",
- "freyja-contracts",
  "reqwest",
  "serde",
 ]
@@ -1194,7 +1174,6 @@ dependencies = [
  "crossbeam",
  "freyja-build-common",
  "freyja-common",
- "freyja-contracts",
  "log",
  "paho-mqtt",
  "serde",
@@ -1592,7 +1571,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "crossbeam",
- "freyja-contracts",
+ "freyja-common",
  "grpc-provider-proxy-v1",
  "log",
  "tokio",

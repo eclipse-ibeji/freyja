@@ -5,7 +5,7 @@
 use async_trait::async_trait;
 use log::{debug, info};
 
-use freyja_contracts::cloud_adapter::{
+use freyja_common::cloud_adapter::{
     CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse,
 };
 

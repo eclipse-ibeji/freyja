@@ -21,7 +21,7 @@ use freyja_common::{
     cmd_utils::{get_log_level, parse_args},
     signal_store::SignalStore,
 };
-use freyja_contracts::{
+use freyja_common::{
     cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter,
     mapping_client::MappingClient, provider_proxy::SignalValue,
     provider_proxy_selector::ProviderProxySelector,

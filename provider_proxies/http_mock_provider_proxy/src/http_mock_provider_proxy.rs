@@ -19,8 +19,8 @@ use crate::config::Config;
 use crate::{GET_OPERATION, SUBSCRIBE_OPERATION};
 use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, out_dir};
-use freyja_contracts::entity::EntityEndpoint;
-use freyja_contracts::provider_proxy::{
+use freyja_common::entity::EntityEndpoint;
+use freyja_common::provider_proxy::{
     EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
 };
 

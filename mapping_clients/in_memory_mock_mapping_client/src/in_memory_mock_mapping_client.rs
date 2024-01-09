@@ -9,7 +9,7 @@ use async_trait::async_trait;
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, out_dir};
-use freyja_contracts::mapping_client::*;
+use freyja_common::mapping_client::*;
 
 /// Mocks a mapping provider in memory
 pub struct InMemoryMockMappingClient {
@@ -99,7 +99,7 @@ mod in_memory_mock_mapping_client_tests {
 
     use std::collections::{HashMap, HashSet};
 
-    use freyja_contracts::{conversion::Conversion, digital_twin_map_entry::DigitalTwinMapEntry};
+    use freyja_common::{conversion::Conversion, digital_twin_map_entry::DigitalTwinMapEntry};
 
     #[test]
     fn can_create_new() {

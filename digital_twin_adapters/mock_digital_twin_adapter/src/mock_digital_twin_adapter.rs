@@ -8,7 +8,7 @@ use reqwest::Client;
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, out_dir};
-use freyja_contracts::digital_twin_adapter::{
+use freyja_common::digital_twin_adapter::{
     DigitalTwinAdapter, DigitalTwinAdapterError, FindByIdRequest, FindByIdResponse,
 };
 use mock_digital_twin::ENTITY_QUERY_PATH;

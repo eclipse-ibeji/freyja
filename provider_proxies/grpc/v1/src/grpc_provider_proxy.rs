@@ -21,7 +21,7 @@ use tonic::transport::{Channel, Server};
 use crate::{config::Config, grpc_client_impl::GRPCClientImpl, GET_OPERATION, SUBSCRIBE_OPERATION};
 use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, out_dir};
-use freyja_contracts::{
+use freyja_common::{
     entity::EntityEndpoint,
     provider_proxy::{
         EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,

@@ -15,7 +15,7 @@ use crate::{
 };
 use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, out_dir};
-use freyja_contracts::{
+use freyja_common::{
     entity::{Entity, EntityEndpoint},
     provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyFactory, SignalValue},
 };
