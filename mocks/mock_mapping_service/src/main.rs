@@ -22,12 +22,12 @@ use log::{info, LevelFilter};
 
 use config::Config;
 use freyja_build_common::config_file_stem;
+use freyja_common::mapping_client::{
+    CheckForWorkResponse, GetMappingResponse, SendInventoryRequest, SendInventoryResponse,
+};
 use freyja_common::{
     cmd_utils::{get_log_level, parse_args},
     config_utils, out_dir,
-};
-use freyja_common::mapping_client::{
-    CheckForWorkResponse, GetMappingResponse, SendInventoryRequest, SendInventoryResponse,
 };
 
 struct MappingState {

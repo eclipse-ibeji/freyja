@@ -8,8 +8,8 @@ use async_trait::async_trait;
 
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
-use freyja_common::{config_utils, out_dir};
 use freyja_common::mapping_client::*;
+use freyja_common::{config_utils, out_dir};
 
 /// Mocks a mapping provider in memory
 pub struct InMemoryMockMappingClient {
