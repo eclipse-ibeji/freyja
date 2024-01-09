@@ -2,7 +2,12 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{collections::HashMap, net::SocketAddr, str::FromStr, sync::{Arc, Mutex}};
+use std::{
+    collections::HashMap,
+    net::SocketAddr,
+    str::FromStr,
+    sync::{Arc, Mutex},
+};
 
 use async_trait::async_trait;
 use axum::{
@@ -20,11 +25,11 @@ use freyja_build_common::config_file_stem;
 use freyja_common::{
     config_utils,
     entity::EntityEndpoint,
-    out_dir,
+    not_found, ok, out_dir,
     provider_proxy::{
         EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind,
     },
-    signal_store::SignalStore, ok, not_found
+    signal_store::SignalStore,
 };
 
 const CALLBACK_FOR_VALUES_PATH: &str = "/value";
@@ -114,10 +119,7 @@ impl ProviderProxy for HttpMockProviderProxy {
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
     /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
-    fn create_new(
-        provider_uri: &str,
-        signals: Arc<SignalStore>,
-    ) -> Result<Self, ProviderProxyError>
+    fn create_new(provider_uri: &str, signals: Arc<SignalStore>) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,
     {

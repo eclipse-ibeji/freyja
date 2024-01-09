@@ -6,7 +6,8 @@ use std::sync::Arc;
 
 use freyja_common::{
     entity::{Entity, EntityEndpoint},
-    provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyFactory}, signal_store::SignalStore,
+    provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyFactory},
+    signal_store::SignalStore,
 };
 
 use crate::{

@@ -16,7 +16,8 @@ use freyja_common::{
     provider_proxy::{EntityRegistration, ProviderProxy, ProviderProxyFactory},
     provider_proxy_selector::{
         ProviderProxySelector, ProviderProxySelectorError, ProviderProxySelectorErrorKind,
-    }, signal_store::SignalStore,
+    },
+    signal_store::SignalStore,
 };
 
 use crate::PROXY_SELECTOR_LOOPBACK_MAX;

@@ -85,7 +85,10 @@ impl InMemoryMockProviderProxy {
         let value = entity_config.values.get_nth(n).to_string();
         let entity_id = String::from(entity_id);
 
-        signals.set_value(entity_id, value).map(|_| ()).ok_or(ProviderProxyErrorKind::EntityNotFound.into())
+        signals
+            .set_value(entity_id, value)
+            .map(|_| ())
+            .ok_or(ProviderProxyErrorKind::EntityNotFound.into())
     }
 }
 
@@ -139,7 +142,8 @@ impl ProviderProxy for InMemoryMockProviderProxy {
                 {
                     let data = data.lock().await;
                     for entity_id in entities_with_subscribe {
-                        if Self::generate_signal_value(&entity_id, signals.clone(), &data).is_err() {
+                        if Self::generate_signal_value(&entity_id, signals.clone(), &data).is_err()
+                        {
                             warn!("Attempt to set value for non-existent entity {entity_id}");
                         }
                     }
@@ -277,20 +281,23 @@ mod in_memory_mock_digital_twin_adapter_tests {
         };
 
         let signals = Arc::new(SignalStore::new());
-        signals.add([
-            SignalPatch {
-                id: STATIC_ID.to_owned(),
-                ..Default::default()
-            },
-            SignalPatch {
-                id: INCREASING_ID.to_owned(),
-                ..Default::default()
-            },
-            SignalPatch {
-                id: DECREASING_ID.to_owned(),
-                ..Default::default()
-            },
-        ].into_iter());
+        signals.add(
+            [
+                SignalPatch {
+                    id: STATIC_ID.to_owned(),
+                    ..Default::default()
+                },
+                SignalPatch {
+                    id: INCREASING_ID.to_owned(),
+                    ..Default::default()
+                },
+                SignalPatch {
+                    id: DECREASING_ID.to_owned(),
+                    ..Default::default()
+                },
+            ]
+            .into_iter(),
+        );
         let in_memory_mock_provider_proxy =
             InMemoryMockProviderProxy::from_config(config, signals.clone()).unwrap();
 
@@ -300,11 +307,8 @@ mod in_memory_mock_digital_twin_adapter_tests {
         // entity that has the stepwise functionality configured.
         let data = in_memory_mock_provider_proxy.data.lock().await;
         for i in 0..END_OF_SENSOR_VALUE_CONFIG_ITERATION {
-            let result = InMemoryMockProviderProxy::generate_signal_value(
-                STATIC_ID,
-                signals.clone(),
-                &data,
-            );
+            let result =
+                InMemoryMockProviderProxy::generate_signal_value(STATIC_ID, signals.clone(), &data);
             assert!(result.is_ok());
 
             validate_signal(signals.clone(), STATIC_ID, 42.0);
@@ -330,13 +334,10 @@ mod in_memory_mock_digital_twin_adapter_tests {
 
         // Validating each entity that has the stepwise functionality configured is at its end value
         for _ in 0..END_OF_SENSOR_VALUE_CONFIG_ITERATION {
-            let result = InMemoryMockProviderProxy::generate_signal_value(
-                STATIC_ID,
-                signals.clone(),
-                &data,
-            );
+            let result =
+                InMemoryMockProviderProxy::generate_signal_value(STATIC_ID, signals.clone(), &data);
             assert!(result.is_ok());
-            
+
             validate_signal(signals.clone(), STATIC_ID, 42.0);
 
             let result = InMemoryMockProviderProxy::generate_signal_value(

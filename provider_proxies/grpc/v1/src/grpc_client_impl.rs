@@ -36,7 +36,8 @@ impl DigitalTwinConsumer for GRPCClientImpl {
 
         let value = message_utils::parse_value(value);
 
-        self.signals.set_value(entity_id.clone(), value)
+        self.signals
+            .set_value(entity_id.clone(), value)
             .map(|_| Response::new(PublishResponse {}))
             .ok_or(Status::not_found(format!("Entity {entity_id} not found")))
     }

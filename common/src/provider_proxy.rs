@@ -7,7 +7,10 @@ use std::{fmt::Debug, sync::Arc};
 use async_trait::async_trait;
 use strum_macros::Display;
 
-use crate::{entity::{Entity, EntityEndpoint}, signal_store::SignalStore};
+use crate::{
+    entity::{Entity, EntityEndpoint},
+    signal_store::SignalStore,
+};
 
 /// Represents a signal value
 pub struct SignalValue {
@@ -37,7 +40,7 @@ pub trait ProviderProxy {
     /// - `signal_store`: the shared signal store
     fn create_new(
         provider_uri: &str,
-        signals: Arc<SignalStore>
+        signals: Arc<SignalStore>,
     ) -> Result<Self, ProviderProxyError>
     where
         Self: Sized;

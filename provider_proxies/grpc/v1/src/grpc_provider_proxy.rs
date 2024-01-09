@@ -49,10 +49,7 @@ impl ProviderProxy for GRPCProviderProxy {
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
     /// - `signals`: The shared signal store
-    fn create_new(
-        provider_uri: &str,
-        signals: Arc<SignalStore>,
-    ) -> Result<Self, ProviderProxyError>
+    fn create_new(provider_uri: &str, signals: Arc<SignalStore>) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,
     {
