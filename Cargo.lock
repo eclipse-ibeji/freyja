@@ -302,56 +302,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "crossbeam"
-version = "0.8.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6eb9105919ca8e40d437fc9cbb8f1975d916f1bd28afe795a48aae32a2cc8920"
-dependencies = [
- "cfg-if",
- "crossbeam-channel",
- "crossbeam-deque",
- "crossbeam-epoch",
- "crossbeam-queue",
- "crossbeam-utils",
-]
-
-[[package]]
 name = "crossbeam-channel"
 version = "0.5.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "82a9b73a36529d9c47029b9fb3a6f0ea3cc916a261195352ba19e770fc1748b2"
-dependencies = [
- "cfg-if",
- "crossbeam-utils",
-]
-
-[[package]]
-name = "crossbeam-deque"
-version = "0.8.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fca89a0e215bab21874660c67903c5f143333cab1da83d041c7ded6053774751"
-dependencies = [
- "cfg-if",
- "crossbeam-epoch",
- "crossbeam-utils",
-]
-
-[[package]]
-name = "crossbeam-epoch"
-version = "0.9.17"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e3681d554572a651dda4186cd47240627c3d0114d45a95f6ad27f2f22e7548d"
-dependencies = [
- "autocfg",
- "cfg-if",
- "crossbeam-utils",
-]
-
-[[package]]
-name = "crossbeam-queue"
-version = "0.3.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "adc6598521bb5a83d491e8c1fe51db7296019d2ca3cb93cc6c2a20369a4d78a2"
 dependencies = [
  "cfg-if",
  "crossbeam-utils",
@@ -555,13 +509,11 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "config",
- "crossbeam",
  "home",
  "log",
  "proc-macros",
  "serde",
  "serde_json",
- "strum",
  "strum_macros",
  "tokio",
 ]
@@ -693,7 +645,6 @@ name = "grpc-provider-proxy-v1"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "crossbeam",
  "freyja-build-common",
  "freyja-common",
  "futures",
@@ -790,7 +741,6 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "axum",
- "crossbeam",
  "freyja-build-common",
  "freyja-common",
  "log",
@@ -915,7 +865,6 @@ name = "in-memory-mock-provider-proxy"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "crossbeam",
  "freyja-build-common",
  "freyja-common",
  "log",
@@ -1031,7 +980,6 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "core-protobuf-data-access",
- "crossbeam",
  "freyja-build-common",
  "freyja-common",
  "futures",
@@ -1167,7 +1115,6 @@ name = "mqtt-provider-proxy"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "crossbeam",
  "freyja-build-common",
  "freyja-common",
  "log",
@@ -1566,7 +1513,6 @@ name = "provider-proxy-selector"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "crossbeam",
  "freyja-common",
  "grpc-provider-proxy-v1",
  "log",
@@ -1877,12 +1823,6 @@ dependencies = [
  "libc",
  "windows-sys 0.48.0",
 ]
-
-[[package]]
-name = "strum"
-version = "0.25.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "290d54ea6f91c969195bdbcd7442c8c2a2ba87da8bf60a7ee86a235d4bc1e125"
 
 [[package]]
 name = "strum_macros"
