@@ -58,16 +58,26 @@ impl DigitalTwinConsumer for GRPCClientImpl {
 
 #[cfg(test)]
 mod grpc_client_impl_tests {
+    use freyja_common::signal::SignalPatch;
+
     use super::*;
 
     #[tokio::test]
     async fn publish_test() {
-        let consumer_impl = GRPCClientImpl {
-            signals: Arc::new(SignalStore::new()),
-        };
-
         let entity_id = String::from("some-id");
         let value = String::from("some-value");
+
+        let signals = Arc::new(SignalStore::new());
+        signals.add([
+            SignalPatch {
+                id: entity_id.clone(),
+                ..Default::default()
+            }
+        ].into_iter());
+
+        let consumer_impl = GRPCClientImpl {
+            signals,
+        };
 
         let request = tonic::Request::new(PublishRequest { entity_id, value });
         let result = consumer_impl.publish(request).await;
