@@ -12,15 +12,6 @@ use crate::{
     signal_store::SignalStore,
 };
 
-/// Represents a signal value
-pub struct SignalValue {
-    /// The entity's id
-    pub entity_id: String,
-
-    /// The entity's value
-    pub value: String,
-}
-
 #[derive(Clone, Debug, Display, Eq, PartialEq)]
 /// Return options for when a proxy attempts to register an entity
 pub enum EntityRegistration {
@@ -87,7 +78,7 @@ pub trait ProviderProxyFactory {
     /// Create a new proxy
     ///
     /// # Arguments
-    /// - `provider_uri`: The provider URI to associate with this proxy
+    /// - `provider_uri`: the provider URI to associate with this proxy
     /// - `signals`: the shared signal store
     fn create_proxy(
         &self,

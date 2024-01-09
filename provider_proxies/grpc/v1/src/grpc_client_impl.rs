@@ -16,7 +16,7 @@ use samples_protobuf_data_access::sample_grpc::v1::digital_twin_consumer::{
 /// Struct which implements the DigitalTwinConsumer trait for gRPC clients
 #[derive(Default)]
 pub struct GRPCClientImpl {
-    /// The queue on which incoming signal values should be published
+    /// The store into which incoming signal values should be published
     pub signals: Arc<SignalStore>,
 }
 

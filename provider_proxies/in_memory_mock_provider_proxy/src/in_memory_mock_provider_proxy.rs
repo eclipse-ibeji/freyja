@@ -18,6 +18,7 @@ use crate::{
     config::{Config, EntityConfig},
     GET_OPERATION, SUBSCRIBE_OPERATION,
 };
+
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     entity::EntityEndpoint,
@@ -45,7 +46,7 @@ impl InMemoryMockProviderProxy {
     ///
     /// # Arguments
     /// - `config`: the config to use
-    /// - `signals`: The shared signal store
+    /// - `signals`: the shared signal store
     /// - `interval_between_signal_generation_ms`: the interval in milliseconds between signal value generation
     pub fn from_config(
         config: Config,
@@ -69,7 +70,7 @@ impl InMemoryMockProviderProxy {
     ///
     /// # Arguments
     /// - `entity_id`: the entity id that needs a signal value
-    /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
+    /// - `signals`: the shared signal store
     /// - `data`: the current data of a provider
     fn generate_signal_value(
         entity_id: &str,
@@ -98,7 +99,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
     ///
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
-    /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
+    /// - `signals`: the shared signal store
     fn create_new(
         _provider_uri: &str,
         signals: Arc<SignalStore>,

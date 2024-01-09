@@ -47,7 +47,7 @@ impl ProviderProxy for MqttProviderProxy {
     ///
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
-    /// - `signals`: The shared signal store
+    /// - `signals`: the shared signal store
     fn create_new(provider_uri: &str, signals: Arc<SignalStore>) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,

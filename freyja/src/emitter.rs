@@ -8,11 +8,11 @@ use log::info;
 use time::OffsetDateTime;
 use tokio::{sync::Mutex, time::sleep};
 
-use freyja_common::signal_store::SignalStore;
 use freyja_common::{
     cloud_adapter::{CloudAdapter, CloudMessageRequest, CloudMessageResponse},
     provider_proxy_selector::ProviderProxySelector,
     signal::Signal,
+    signal_store::SignalStore
 };
 
 const DEFAULT_SLEEP_INTERVAL_MS: u64 = 1000;
@@ -38,7 +38,6 @@ impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector>
     /// - `signals`: the shared signal store
     /// - `cloud_adapter`: the cloud adapter used to emit to the cloud
     /// - `provider_proxy_selector`: the provider proxy selector
-    /// - `signal_values_queue`: queue for receiving signal values
     pub fn new(
         signals: Arc<SignalStore>,
         cloud_adapter: TCloudAdapter,
@@ -75,7 +74,7 @@ impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector>
     /// Returns the amount of time that the main emitter loop should sleep before the next iteration.
     ///
     /// # Arguments
-    /// - `signals`: The set of signals to emit
+    /// - `signals`: the set of signals to emit
     async fn emit_data(&self, signals: Vec<Signal>) -> Result<u64, EmitterError> {
         if signals.is_empty() {
             Ok(DEFAULT_SLEEP_INTERVAL_MS)
@@ -152,7 +151,7 @@ impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector>
     /// Applies a conversion implicitly to a signal value and sends it to the cloud
     ///
     /// # Arguments
-    /// - `signal`: The signal to emit
+    /// - `signal`: the signal to emit
     async fn send_to_cloud(&self, signal: Signal) -> Result<CloudMessageResponse, EmitterError> {
         let value = signal
             .value

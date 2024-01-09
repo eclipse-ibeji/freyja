@@ -36,7 +36,7 @@ impl ProviderProxyFactory for InMemoryMockProviderProxyFactory {
     /// Create a new proxy
     ///
     /// # Arguments
-    /// - `provider_uri`: The provider URI to associate with this proxy
+    /// - `provider_uri`: the provider URI to associate with this proxy
     /// - `signals`: The shared signal store
     fn create_proxy(
         &self,

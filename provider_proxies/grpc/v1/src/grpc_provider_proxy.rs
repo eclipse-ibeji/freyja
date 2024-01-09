@@ -19,12 +19,12 @@ use tonic::transport::{Channel, Server};
 
 use crate::{config::Config, grpc_client_impl::GRPCClientImpl, GET_OPERATION, SUBSCRIBE_OPERATION};
 use freyja_build_common::config_file_stem;
-use freyja_common::{config_utils, out_dir, signal_store::SignalStore};
 use freyja_common::{
     entity::EntityEndpoint,
     provider_proxy::{
         EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind,
     },
+    config_utils, out_dir, signal_store::SignalStore
 };
 
 /// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
@@ -38,7 +38,7 @@ pub struct GRPCProviderProxy {
     /// Local cache for keeping track of which entities this provider proxy contains
     entity_operation_map: Mutex<HashMap<String, String>>,
 
-    /// Shared queue for all proxies to push new signal values of entities
+    /// Shared signal store for all proxies to push new signal values
     signals: Arc<SignalStore>,
 }
 
@@ -48,7 +48,7 @@ impl ProviderProxy for GRPCProviderProxy {
     ///
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
-    /// - `signals`: The shared signal store
+    /// - `signals`: the shared signal store
     fn create_new(provider_uri: &str, signals: Arc<SignalStore>) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,

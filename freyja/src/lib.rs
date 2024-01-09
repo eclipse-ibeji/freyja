@@ -17,11 +17,11 @@ use tokio::sync::Mutex;
 use cartographer::Cartographer;
 use emitter::Emitter;
 use freyja_common::{
-    cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter,
-    mapping_client::MappingClient, provider_proxy_selector::ProviderProxySelector,
-};
-use freyja_common::{
+    cloud_adapter::CloudAdapter,
     cmd_utils::{get_log_level, parse_args},
+    digital_twin_adapter::DigitalTwinAdapter,
+    mapping_client::MappingClient,
+    provider_proxy_selector::ProviderProxySelector,
     signal_store::SignalStore,
 };
 use provider_proxy_selector::provider_proxy_selector_impl::ProviderProxySelectorImpl;

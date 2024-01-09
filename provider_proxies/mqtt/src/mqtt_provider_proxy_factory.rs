@@ -33,8 +33,8 @@ impl ProviderProxyFactory for MqttProviderProxyFactory {
     /// Create a new proxy
     ///
     /// # Arguments
-    /// - `provider_uri`: The provider URI to associate with this proxy
-    /// - `signals`: The shared signal store
+    /// - `provider_uri`: the provider URI to associate with this proxy
+    /// - `signals`: the shared signal store
     fn create_proxy(
         &self,
         provider_uri: &str,

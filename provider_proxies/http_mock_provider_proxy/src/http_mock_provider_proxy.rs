@@ -62,7 +62,7 @@ pub struct HttpMockProviderProxy {
     /// Local cache for keeping track of which entities this provider proxy contains
     entity_operation_map: Mutex<HashMap<String, String>>,
 
-    /// Shared queue for all proxies to push new signal values
+    /// Shared signal store to push new signal values
     signals: Arc<SignalStore>,
 
     /// The proxy configuration
@@ -87,7 +87,7 @@ impl HttpMockProviderProxy {
     /// Receive signal handler for the value listener to handle incoming values
     ///
     /// # Arguments
-    /// - `signal_values`: shared map of provider IDs to provider values
+    /// - `signals`: the shared signal store
     /// - `value`: the value received from a provider
     async fn receive_value_handler(
         State(signals): State<Arc<SignalStore>>,
@@ -106,7 +106,7 @@ impl HttpMockProviderProxy {
     /// Set the port for the callback server.
     ///
     /// # Arguments
-    /// - `port`: The new port to use
+    /// - `port`: the new port to use
     pub fn set_callback_server_port(&mut self, port: u16) {
         self.callback_server_port = port;
     }
@@ -118,7 +118,7 @@ impl ProviderProxy for HttpMockProviderProxy {
     ///
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
-    /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
+    /// - `signals`: the shared signal store
     fn create_new(provider_uri: &str, signals: Arc<SignalStore>) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,

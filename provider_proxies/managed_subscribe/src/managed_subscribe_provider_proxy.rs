@@ -14,6 +14,7 @@ use tonic::transport::Channel;
 use crate::{
     config::Config, GRPC_PROTOCOL, MANAGED_SUBSCRIBE_OPERATION, MQTT_PROTOCOL, SUBSCRIBE_OPERATION,
 };
+
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     config_utils,
@@ -42,7 +43,7 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
     ///
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
-    /// - `_signals`: The shared signal store (unused)
+    /// - `_signals`: the shared signal store (unused in this proxy)
     fn create_new(
         provider_uri: &str,
         _signals: Arc<SignalStore>,
