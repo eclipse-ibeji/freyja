@@ -6,15 +6,19 @@ mod config;
 
 use std::{
     collections::{HashMap, HashSet},
-    env,
+    env, io,
+    net::SocketAddr,
     sync::{Arc, Mutex},
-    io, net::SocketAddr, thread, time::Duration
+    thread,
+    time::Duration,
 };
 
 use axum::{
+    extract,
+    extract::State,
     response::{IntoResponse, Response},
     routing::{get, post},
-    extract, extract::State, Json, Router, Server
+    Json, Router, Server,
 };
 use env_logger::Target;
 use log::{debug, error, info, warn, LevelFilter};
@@ -25,9 +29,10 @@ use tokio::sync::{mpsc, mpsc::UnboundedSender};
 use crate::config::{Config, EntityConfig};
 use freyja_build_common::config_file_stem;
 use freyja_common::{
-    digital_twin_adapter::FindByIdResponse,
     cmd_utils::{get_log_level, parse_args},
-    config_utils, not_found, ok, out_dir, server_error,
+    config_utils,
+    digital_twin_adapter::FindByIdResponse,
+    not_found, ok, out_dir, server_error,
 };
 use http_mock_provider_proxy::http_mock_provider_proxy::{EntityValueRequest, EntityValueResponse};
 use mock_digital_twin::{ENTITY_GET_VALUE_PATH, ENTITY_PATH, ENTITY_SUBSCRIBE_PATH};

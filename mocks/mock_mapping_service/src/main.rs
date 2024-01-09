@@ -24,11 +24,11 @@ use config::Config;
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     cmd_utils::{get_log_level, parse_args},
-    config_utils, out_dir,
+    config_utils,
     mapping_client::{
         CheckForWorkResponse, GetMappingResponse, SendInventoryRequest, SendInventoryResponse,
     },
-    ok,
+    ok, out_dir,
 };
 
 struct MappingState {

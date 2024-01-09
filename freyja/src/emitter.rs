@@ -12,7 +12,7 @@ use freyja_common::{
     cloud_adapter::{CloudAdapter, CloudMessageRequest, CloudMessageResponse},
     provider_proxy_selector::ProviderProxySelector,
     signal::Signal,
-    signal_store::SignalStore
+    signal_store::SignalStore,
 };
 
 const DEFAULT_SLEEP_INTERVAL_MS: u64 = 1000;

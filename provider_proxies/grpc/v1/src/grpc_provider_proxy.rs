@@ -20,11 +20,13 @@ use tonic::transport::{Channel, Server};
 use crate::{config::Config, grpc_client_impl::GRPCClientImpl, GET_OPERATION, SUBSCRIBE_OPERATION};
 use freyja_build_common::config_file_stem;
 use freyja_common::{
+    config_utils,
     entity::EntityEndpoint,
+    out_dir,
     provider_proxy::{
         EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind,
     },
-    config_utils, out_dir, signal_store::SignalStore
+    signal_store::SignalStore,
 };
 
 /// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
