@@ -16,11 +16,8 @@ freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
-paho-mqtt = { workspace = true }
 serde = { workspace = true }
-tokio = { workspace = true }
 tonic = { workspace = true }
-uuid = { workspace = true, features = ["v4"]}
 
 [dev-dependencies]
 

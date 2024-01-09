@@ -4,15 +4,13 @@
 
 use std::{cmp::min, sync::Arc, time::Duration};
 
-use crossbeam::queue::SegQueue;
-use log::{info, warn};
+use log::info;
 use time::OffsetDateTime;
 use tokio::{sync::Mutex, time::sleep};
 
 use freyja_common::signal_store::SignalStore;
 use freyja_common::{
     cloud_adapter::{CloudAdapter, CloudMessageRequest, CloudMessageResponse},
-    provider_proxy::SignalValue,
     provider_proxy_selector::ProviderProxySelector,
     signal::Signal,
 };
@@ -29,9 +27,6 @@ pub struct Emitter<TCloudAdapter, TProviderProxySelector> {
 
     /// The provider proxy selector
     provider_proxy_selector: Arc<Mutex<TProviderProxySelector>>,
-
-    /// Shared message queue for obtaining new signal values
-    signal_values_queue: Arc<SegQueue<SignalValue>>,
 }
 
 impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector>
@@ -48,13 +43,11 @@ impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector>
         signals: Arc<SignalStore>,
         cloud_adapter: TCloudAdapter,
         provider_proxy_selector: Arc<Mutex<TProviderProxySelector>>,
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
     ) -> Self {
         Self {
             signals,
             cloud_adapter,
             provider_proxy_selector,
-            signal_values_queue,
         }
     }
 
@@ -62,8 +55,6 @@ impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector>
     pub async fn run(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let mut sleep_interval = u64::MAX;
         loop {
-            self.update_signal_values();
-
             // Update the emission times and get the list of all signals.
             // This is performed as a single operation to minimize the impact of changes to the signal set during processing.
             // Note that the first time the loop is executed sleep_interval will still be u64::MAX,
@@ -77,18 +68,6 @@ impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector>
 
             info!("Checking for next emission in {sleep_interval}ms\n");
             sleep(Duration::from_millis(sleep_interval)).await;
-        }
-    }
-
-    /// Updates the signal values map.
-    /// This will eventually get removed and provider proxies will update the store directly,
-    /// but it remains temporarily to scope work down a bit.
-    fn update_signal_values(&self) {
-        while !self.signal_values_queue.is_empty() {
-            let SignalValue { entity_id, value } = self.signal_values_queue.pop().unwrap();
-            if self.signals.set_value(entity_id.clone(), value).is_none() {
-                warn!("Attempted to update signal {entity_id} but it wasn't found")
-            }
         }
     }
 
@@ -268,7 +247,6 @@ mod emitter_tests {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: MockCloudAdapter::new(),
             provider_proxy_selector: Arc::new(Mutex::new(MockProviderProxySelector::new())),
-            signal_values_queue: Arc::new(SegQueue::new()),
         };
 
         let result = uut.emit_data(vec![]).await;
@@ -294,7 +272,6 @@ mod emitter_tests {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
             provider_proxy_selector,
-            signal_values_queue: Arc::new(SegQueue::new()),
         };
 
         let test_signal = Signal {
@@ -335,7 +312,6 @@ mod emitter_tests {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
             provider_proxy_selector,
-            signal_values_queue: Arc::new(SegQueue::new()),
         };
 
         let test_signal = Signal {
@@ -378,7 +354,6 @@ mod emitter_tests {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
             provider_proxy_selector,
-            signal_values_queue: Arc::new(SegQueue::new()),
         };
 
         let test_signal = Signal {
@@ -421,7 +396,6 @@ mod emitter_tests {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
             provider_proxy_selector,
-            signal_values_queue: Arc::new(SegQueue::new()),
         };
 
         let value = Some("foo".to_string());
@@ -469,7 +443,6 @@ mod emitter_tests {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
             provider_proxy_selector,
-            signal_values_queue: Arc::new(SegQueue::new()),
         };
 
         let test_signal = Signal {
@@ -516,7 +489,6 @@ mod emitter_tests {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
             provider_proxy_selector,
-            signal_values_queue: Arc::new(SegQueue::new()),
         };
 
         let test_signal = Signal {
@@ -561,7 +533,6 @@ mod emitter_tests {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
             provider_proxy_selector,
-            signal_values_queue: Arc::new(SegQueue::new()),
         };
 
         let test_signal = Signal {
@@ -607,7 +578,6 @@ mod emitter_tests {
             signals: Arc::new(signals),
             cloud_adapter: mock_cloud_adapter,
             provider_proxy_selector: Arc::new(Mutex::new(MockProviderProxySelector::new())),
-            signal_values_queue: Arc::new(SegQueue::new()),
         };
 
         let result = uut.send_to_cloud(test_signal).await;

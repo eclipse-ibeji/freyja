@@ -9,6 +9,7 @@ pub mod conversion;
 pub mod digital_twin_adapter;
 pub mod digital_twin_map_entry;
 pub mod entity;
+pub mod http_utils;
 pub mod mapping_client;
 pub mod message_utils;
 pub mod provider_proxy;

@@ -5,7 +5,6 @@
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use async_trait::async_trait;
-use crossbeam::queue::SegQueue;
 use log::{debug, info};
 use paho_mqtt::{Client, QOS_1};
 use tokio::sync::Mutex;
@@ -13,12 +12,15 @@ use uuid::Uuid;
 
 use crate::{config::Config, MQTT_PROTOCOL, SUBSCRIBE_OPERATION};
 use freyja_build_common::config_file_stem;
-use freyja_common::{config_utils, message_utils, out_dir};
 use freyja_common::{
+    config_utils,
     entity::EntityEndpoint,
+    message_utils,
+    out_dir,
     provider_proxy::{
-        EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
+        EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind,
     },
+    signal_store::SignalStore,
 };
 
 const MQTT_CLIENT_ID_PREFIX: &str = "freyja-mqtt-proxy";
@@ -36,8 +38,8 @@ pub struct MqttProviderProxy {
     /// Maps subscribed topics to their associated entity id
     subscriptions: Arc<Mutex<HashMap<String, String>>>,
 
-    /// Shared queue for all proxies to push new signal values of entities
-    signal_values_queue: Arc<SegQueue<SignalValue>>,
+    /// Shared signal store for all proxies to push new signal values
+    signals: Arc<SignalStore>,
 }
 
 #[async_trait]
@@ -46,10 +48,10 @@ impl ProviderProxy for MqttProviderProxy {
     ///
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
-    /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
+    /// - `signals`: The shared signal store
     fn create_new(
         provider_uri: &str,
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
+        signals: Arc<SignalStore>,
     ) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,
@@ -75,7 +77,7 @@ impl ProviderProxy for MqttProviderProxy {
             config,
             client: Arc::new(Mutex::new(client)),
             subscriptions: Arc::new(Mutex::new(HashMap::new())),
-            signal_values_queue,
+            signals,
         })
     }
 
@@ -103,7 +105,7 @@ impl ProviderProxy for MqttProviderProxy {
 
         let client = self.client.clone();
         let subscriptions = self.subscriptions.clone();
-        let signal_values_queue = self.signal_values_queue.clone();
+        let signals = self.signals.clone();
 
         // Start the thread for handling publishes from providers
         tokio::spawn(async move {
@@ -113,7 +115,9 @@ impl ProviderProxy for MqttProviderProxy {
                     let subsciptions = subscriptions.lock().await;
                     let entity_id = subsciptions.get(m.topic()).unwrap().clone();
                     let value = message_utils::parse_value(m.payload_str().to_string());
-                    signal_values_queue.push(SignalValue { entity_id, value });
+                    if signals.set_value(entity_id, value).is_none() {
+                        log::warn!("Attempt to set value for non-existent signal");
+                    }
                 } else {
                     let client = client.lock().await;
                     if !client.is_connected() {

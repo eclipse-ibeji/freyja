@@ -22,9 +22,9 @@ use log::{info, LevelFilter};
 
 use config::Config;
 use freyja_build_common::config_file_stem;
-use freyja_common::mapping_client::{
+use freyja_common::{mapping_client::{
     CheckForWorkResponse, GetMappingResponse, SendInventoryRequest, SendInventoryResponse,
-};
+}, ok};
 use freyja_common::{
     cmd_utils::{get_log_level, parse_args},
     config_utils, out_dir,
@@ -35,15 +35,6 @@ struct MappingState {
     pending_work: bool,
     config: Config,
     interactive: bool,
-}
-
-macro_rules! ok {
-    () => {
-        (axum::http::StatusCode::OK, axum::Json("")).into_response()
-    };
-    ($body:expr) => {
-        (axum::http::StatusCode::OK, axum::Json($body)).into_response()
-    };
 }
 
 #[tokio::main]

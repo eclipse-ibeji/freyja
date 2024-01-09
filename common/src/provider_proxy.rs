@@ -5,10 +5,9 @@
 use std::{fmt::Debug, sync::Arc};
 
 use async_trait::async_trait;
-use crossbeam::queue::SegQueue;
 use strum_macros::Display;
 
-use crate::entity::{Entity, EntityEndpoint};
+use crate::{entity::{Entity, EntityEndpoint}, signal_store::SignalStore};
 
 /// Represents a signal value
 pub struct SignalValue {
@@ -35,10 +34,10 @@ pub trait ProviderProxy {
     ///
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
-    /// - `signal_values_queue`: shared queue for all provider proxies to push new signal values of entities
+    /// - `signal_store`: the shared signal store
     fn create_new(
         provider_uri: &str,
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
+        signals: Arc<SignalStore>
     ) -> Result<Self, ProviderProxyError>
     where
         Self: Sized;
@@ -86,11 +85,11 @@ pub trait ProviderProxyFactory {
     ///
     /// # Arguments
     /// - `provider_uri`: The provider URI to associate with this proxy
-    /// - `signal_values_queue`: The queue into which new signal values will be published
+    /// - `signals`: the shared signal store
     fn create_proxy(
         &self,
         provider_uri: &str,
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
+        signals: Arc<SignalStore>,
     ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError>;
 }
 

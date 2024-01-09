@@ -4,22 +4,20 @@
 
 use std::sync::Arc;
 
-use crossbeam::queue::SegQueue;
-use freyja_common::message_utils;
+use freyja_common::{message_utils, signal_store::SignalStore};
 use log::{debug, warn};
 use tonic::{Request, Response, Status};
 
-use freyja_common::provider_proxy::SignalValue;
 use samples_protobuf_data_access::sample_grpc::v1::digital_twin_consumer::{
     digital_twin_consumer_server::DigitalTwinConsumer, PublishRequest, PublishResponse,
     RespondRequest, RespondResponse,
 };
 
 /// Struct which implements the DigitalTwinConsumer trait for gRPC clients
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct GRPCClientImpl {
     /// The queue on which incoming signal values should be published
-    pub signal_values_queue: Arc<SegQueue<SignalValue>>,
+    pub signals: Arc<SignalStore>,
 }
 
 #[tonic::async_trait]
@@ -38,10 +36,9 @@ impl DigitalTwinConsumer for GRPCClientImpl {
 
         let value = message_utils::parse_value(value);
 
-        let new_signal_value = SignalValue { entity_id, value };
-        self.signal_values_queue.push(new_signal_value);
-        let response = PublishResponse {};
-        Ok(Response::new(response))
+        self.signals.set_value(entity_id.clone(), value)
+            .map(|_| Response::new(PublishResponse {}))
+            .ok_or(Status::not_found(format!("Entity {entity_id} not found")))
     }
 
     /// Respond implementation.
@@ -65,7 +62,7 @@ mod grpc_client_impl_tests {
     #[tokio::test]
     async fn publish_test() {
         let consumer_impl = GRPCClientImpl {
-            signal_values_queue: Arc::new(SegQueue::new()),
+            signals: Arc::new(SignalStore::new()),
         };
 
         let entity_id = String::from("some-id");

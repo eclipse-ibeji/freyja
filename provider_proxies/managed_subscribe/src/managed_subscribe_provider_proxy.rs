@@ -2,15 +2,12 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-#![allow(unused_variables)]
-
 use std::sync::Arc;
 
 use async_trait::async_trait;
 use core_protobuf_data_access::module::managed_subscribe::v1::{
     managed_subscribe_client::ManagedSubscribeClient, Constraint, SubscriptionInfoRequest,
 };
-use crossbeam::queue::SegQueue;
 use log::{debug, info};
 use tonic::transport::Channel;
 
@@ -18,12 +15,14 @@ use crate::{
     config::Config, GRPC_PROTOCOL, MANAGED_SUBSCRIBE_OPERATION, MQTT_PROTOCOL, SUBSCRIBE_OPERATION,
 };
 use freyja_build_common::config_file_stem;
-use freyja_common::{config_utils, out_dir};
 use freyja_common::{
+    config_utils,
     entity::{Entity, EntityEndpoint},
+    out_dir,
     provider_proxy::{
-        EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
+        EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind,
     },
+    signal_store::SignalStore,
 };
 
 /// Interfaces with providers which utilize 'Managed Subscribe'. Based on the Ibeji managed
@@ -43,10 +42,10 @@ impl ProviderProxy for ManagedSubscribeProviderProxy {
     ///
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
-    /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
+    /// - `_signals`: The shared signal store (unused)
     fn create_new(
         provider_uri: &str,
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
+        _signals: Arc<SignalStore>,
     ) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,

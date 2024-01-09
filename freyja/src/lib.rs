@@ -10,7 +10,6 @@ mod emitter;
 
 use std::{env, sync::Arc, time::Duration};
 
-use crossbeam::queue::SegQueue;
 use env_logger::Target;
 use log::LevelFilter;
 use tokio::sync::Mutex;
@@ -19,8 +18,7 @@ use cartographer::Cartographer;
 use emitter::Emitter;
 use freyja_common::{
     cloud_adapter::CloudAdapter, digital_twin_adapter::DigitalTwinAdapter,
-    mapping_client::MappingClient, provider_proxy::SignalValue,
-    provider_proxy_selector::ProviderProxySelector,
+    mapping_client::MappingClient, provider_proxy_selector::ProviderProxySelector,
 };
 use freyja_common::{
     cmd_utils::{get_log_level, parse_args},
@@ -49,9 +47,8 @@ pub async fn freyja_main<
         .init();
 
     let signal_store = Arc::new(SignalStore::new());
-    let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
 
-    let mut provider_proxy_selector = ProviderProxySelectorImpl::new(signal_values_queue.clone());
+    let mut provider_proxy_selector = ProviderProxySelectorImpl::new(signal_store.clone());
     provider_proxy_selector.register::<GRPCProviderProxyFactory>()?;
     provider_proxy_selector.register::<HttpMockProviderProxyFactory>()?;
     provider_proxy_selector.register::<InMemoryMockProviderProxyFactory>()?;
@@ -75,7 +72,6 @@ pub async fn freyja_main<
         signal_store.clone(),
         TCloudAdapter::create_new().unwrap(),
         provider_proxy_selector.clone(),
-        signal_values_queue.clone(),
     );
 
     tokio::select! {

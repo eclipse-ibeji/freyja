@@ -9,7 +9,6 @@ use std::{
 };
 
 use async_trait::async_trait;
-use crossbeam::queue::SegQueue;
 use log::info;
 use samples_protobuf_data_access::sample_grpc::v1::{
     digital_twin_consumer::digital_twin_consumer_server::DigitalTwinConsumerServer,
@@ -20,16 +19,15 @@ use tonic::transport::{Channel, Server};
 
 use crate::{config::Config, grpc_client_impl::GRPCClientImpl, GET_OPERATION, SUBSCRIBE_OPERATION};
 use freyja_build_common::config_file_stem;
-use freyja_common::{config_utils, out_dir};
+use freyja_common::{config_utils, out_dir, signal_store::SignalStore};
 use freyja_common::{
     entity::EntityEndpoint,
     provider_proxy::{
-        EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
+        EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind,
     },
 };
 
 /// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
-#[derive(Debug)]
 pub struct GRPCProviderProxy {
     /// The proxy config
     config: Config,
@@ -41,7 +39,7 @@ pub struct GRPCProviderProxy {
     entity_operation_map: Mutex<HashMap<String, String>>,
 
     /// Shared queue for all proxies to push new signal values of entities
-    signal_values_queue: Arc<SegQueue<SignalValue>>,
+    signals: Arc<SignalStore>,
 }
 
 #[async_trait]
@@ -50,10 +48,10 @@ impl ProviderProxy for GRPCProviderProxy {
     ///
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
-    /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
+    /// - `signals`: The shared signal store
     fn create_new(
         provider_uri: &str,
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
+        signals: Arc<SignalStore>,
     ) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,
@@ -76,7 +74,7 @@ impl ProviderProxy for GRPCProviderProxy {
             config,
             provider_client,
             entity_operation_map: Mutex::new(HashMap::new()),
-            signal_values_queue,
+            signals,
         })
     }
 
@@ -89,9 +87,8 @@ impl ProviderProxy for GRPCProviderProxy {
             .map_err(ProviderProxyError::parse)
             .unwrap();
 
-        let signal_values_queue = self.signal_values_queue.clone();
         let consumer_impl = GRPCClientImpl {
-            signal_values_queue,
+            signals: self.signals.clone(),
         };
         let server_future = Server::builder()
             .add_service(DigitalTwinConsumerServer::new(consumer_impl))
@@ -329,7 +326,7 @@ mod grpc_provider_proxy_v1_tests {
                     },
                     provider_client: client,
                     entity_operation_map: Mutex::new(HashMap::new()),
-                    signal_values_queue: Arc::new(SegQueue::new()),
+                    signals: Arc::new(SignalStore::new()),
                 };
                 assert!(grpc_provider_proxy
                     .send_request_to_provider("unknown_entity_id")

@@ -525,7 +525,6 @@ name = "freyja"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "crossbeam",
  "env_logger",
  "freyja-common",
  "grpc-provider-proxy-v1",
@@ -1037,11 +1036,8 @@ dependencies = [
  "freyja-common",
  "futures",
  "log",
- "paho-mqtt",
  "serde",
- "tokio",
  "tonic",
- "uuid",
 ]
 
 [[package]]
