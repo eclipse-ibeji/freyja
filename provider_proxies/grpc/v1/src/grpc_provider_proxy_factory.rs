@@ -5,7 +5,7 @@
 use std::sync::Arc;
 
 use crossbeam::queue::SegQueue;
-use freyja_contracts::{
+use freyja_common::{
     entity::{Entity, EntityEndpoint},
     provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyFactory, SignalValue},
 };

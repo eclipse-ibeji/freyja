@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use freyja_contracts::entity::Entity;
+use freyja_common::entity::Entity;
 
 /// The in-memory mock digital twin's config
 #[derive(Clone, Debug, Serialize, Deserialize)]

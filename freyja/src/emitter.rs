@@ -10,7 +10,7 @@ use time::OffsetDateTime;
 use tokio::{sync::Mutex, time::sleep};
 
 use freyja_common::signal_store::SignalStore;
-use freyja_contracts::{
+use freyja_common::{
     cloud_adapter::{CloudAdapter, CloudMessageRequest, CloudMessageResponse},
     provider_proxy::SignalValue,
     provider_proxy_selector::ProviderProxySelector,
@@ -227,7 +227,7 @@ mod emitter_tests {
 
     use async_trait::async_trait;
 
-    use freyja_contracts::{
+    use freyja_common::{
         cloud_adapter::{CloudAdapterError, CloudAdapterErrorKind},
         entity::Entity,
         provider_proxy::ProviderProxyFactory,

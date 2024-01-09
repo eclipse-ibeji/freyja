@@ -4,7 +4,7 @@
 
 use std::{collections::HashMap, sync::RwLock};
 
-use freyja_contracts::signal::{Emission, Signal, SignalPatch};
+use crate::signal::{Emission, Signal, SignalPatch};
 
 /// Stores signals and allows access in a thread-safe manner with support for multiple concurrent readers.
 /// Suitable for use as `Arc<SignalStore>`.
@@ -214,7 +214,7 @@ mod signal_store_tests {
 
     use std::collections::HashSet;
 
-    use freyja_contracts::{
+    use crate::{
         conversion::Conversion,
         entity::{Entity, EntityEndpoint},
         signal::{Emission, EmissionPolicy, Target},

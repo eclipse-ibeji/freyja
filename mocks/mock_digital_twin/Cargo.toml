@@ -13,7 +13,6 @@ axum = { workspace = true }
 env_logger = { workspace = true }
 freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
-freyja-contracts = { workspace = true }
 log = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }

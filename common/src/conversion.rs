@@ -34,7 +34,7 @@ impl Conversion {
     ///
     /// # Example
     /// ```rust
-    /// use freyja_contracts::conversion::Conversion;
+    /// use freyja_common::conversion::Conversion;
     /// let c2f = Conversion::c_to_f();
     /// assert!(42.0 == c2f.inverse().apply(c2f.apply(42.0)));
     /// ```
@@ -56,7 +56,7 @@ impl Conversion {
     ///
     /// # Example
     /// ```rust
-    /// use freyja_contracts::conversion::Conversion;
+    /// use freyja_common::conversion::Conversion;
     /// let c2f = Conversion::c_to_f();
     /// assert!(32.0 == c2f.apply(0.0));
     /// assert!(212.0 == c2f.apply(100.0));

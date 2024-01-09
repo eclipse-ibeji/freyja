@@ -14,7 +14,7 @@ use uuid::Uuid;
 use crate::{config::Config, MQTT_PROTOCOL, SUBSCRIBE_OPERATION};
 use freyja_build_common::config_file_stem;
 use freyja_common::{config_utils, message_utils, out_dir};
-use freyja_contracts::{
+use freyja_common::{
     entity::EntityEndpoint,
     provider_proxy::{
         EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,

@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use freyja_contracts::digital_twin_map_entry::DigitalTwinMapEntry;
+use freyja_common::digital_twin_map_entry::DigitalTwinMapEntry;
 
 /// The mock mapping service's config
 #[derive(Clone, Debug, Serialize, Deserialize)]

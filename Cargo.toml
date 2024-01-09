@@ -9,7 +9,6 @@ members = [
   "build_common",
   "cloud_adapters/in_memory_mock_cloud_adapter",
   "common",
-  "contracts",
   "digital_twin_adapters/in_memory_mock_digital_twin_adapter",
   "digital_twin_adapters/mock_digital_twin_adapter",
   "freyja",
