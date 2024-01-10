@@ -22,12 +22,13 @@ use log::{info, LevelFilter};
 
 use config::Config;
 use freyja_build_common::config_file_stem;
-use freyja_common::mapping_client::{
-    CheckForWorkResponse, GetMappingResponse, SendInventoryRequest, SendInventoryResponse,
-};
 use freyja_common::{
     cmd_utils::{get_log_level, parse_args},
-    config_utils, out_dir,
+    config_utils,
+    mapping_client::{
+        CheckForWorkResponse, GetMappingResponse, SendInventoryRequest, SendInventoryResponse,
+    },
+    ok, out_dir,
 };
 
 struct MappingState {
@@ -35,15 +36,6 @@ struct MappingState {
     pending_work: bool,
     config: Config,
     interactive: bool,
-}
-
-macro_rules! ok {
-    () => {
-        (axum::http::StatusCode::OK, axum::Json("")).into_response()
-    };
-    ($body:expr) => {
-        (axum::http::StatusCode::OK, axum::Json($body)).into_response()
-    };
 }
 
 #[tokio::main]
@@ -162,7 +154,7 @@ async fn get_mapping(State(state): State<Arc<Mutex<MappingState>>>) -> Response 
             .values
             .iter()
             .filter_map(|c| {
-                if state.interactive {
+                if !state.interactive {
                     Some((c.value.source.clone(), c.value.clone()))
                 } else {
                     match c.end {

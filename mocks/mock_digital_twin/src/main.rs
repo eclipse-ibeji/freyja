@@ -4,16 +4,23 @@
 
 mod config;
 
-use std::collections::{HashMap, HashSet};
-use std::env;
-use std::sync::{Arc, Mutex};
-use std::{io, net::SocketAddr, thread, time::Duration};
+use std::{
+    collections::{HashMap, HashSet},
+    env, io,
+    net::SocketAddr,
+    sync::{Arc, Mutex},
+    thread,
+    time::Duration,
+};
 
-use axum::response::{IntoResponse, Response};
-use axum::routing::{get, post};
-use axum::{extract, extract::State, Json, Router, Server};
+use axum::{
+    extract,
+    extract::State,
+    response::{IntoResponse, Response},
+    routing::{get, post},
+    Json, Router, Server,
+};
 use env_logger::Target;
-use freyja_common::cmd_utils::{get_log_level, parse_args};
 use log::{debug, error, info, warn, LevelFilter};
 use reqwest::Client;
 use serde::Deserialize;
@@ -21,8 +28,12 @@ use tokio::sync::{mpsc, mpsc::UnboundedSender};
 
 use crate::config::{Config, EntityConfig};
 use freyja_build_common::config_file_stem;
-use freyja_common::digital_twin_adapter::FindByIdResponse;
-use freyja_common::{config_utils, out_dir};
+use freyja_common::{
+    cmd_utils::{get_log_level, parse_args},
+    config_utils,
+    digital_twin_adapter::FindByIdResponse,
+    not_found, ok, out_dir, server_error,
+};
 use http_mock_provider_proxy::http_mock_provider_proxy::{EntityValueRequest, EntityValueResponse};
 use mock_digital_twin::{ENTITY_GET_VALUE_PATH, ENTITY_PATH, ENTITY_SUBSCRIBE_PATH};
 
@@ -40,42 +51,6 @@ struct DigitalTwinAdapterState {
 #[derive(Deserialize)]
 struct EntityQuery {
     id: String,
-}
-
-macro_rules! response {
-    ($status_code:ident) => {
-        (axum::http::StatusCode::$status_code, axum::Json("")).into_response()
-    };
-    ($status_code:ident, $body:expr) => {
-        (axum::http::StatusCode::$status_code, axum::Json($body)).into_response()
-    };
-}
-
-macro_rules! ok {
-    () => {
-        response!(OK)
-    };
-    ($body:expr) => {
-        response!(OK, $body)
-    };
-}
-
-macro_rules! not_found {
-    () => {
-        response!(NOT_FOUND)
-    };
-    ($body:expr) => {
-        response!(NOT_FOUND, $body)
-    };
-}
-
-macro_rules! server_error {
-    () => {
-        response!(INTERNAL_SERVER_ERROR)
-    };
-    ($body:expr) => {
-        response!(INTERNAL_SERVER_ERROR, $body)
-    };
 }
 
 /// Starts the following threads and tasks:

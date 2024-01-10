@@ -8,16 +8,16 @@ use std::{
 };
 
 use async_trait::async_trait;
-use crossbeam::queue::SegQueue;
 use log::debug;
 use tokio::sync::Mutex;
 
 use freyja_common::{
     entity::Entity,
-    provider_proxy::{EntityRegistration, ProviderProxy, ProviderProxyFactory, SignalValue},
+    provider_proxy::{EntityRegistration, ProviderProxy, ProviderProxyFactory},
     provider_proxy_selector::{
         ProviderProxySelector, ProviderProxySelectorError, ProviderProxySelectorErrorKind,
     },
+    signal_store::SignalStore,
 };
 
 use crate::PROXY_SELECTOR_LOOPBACK_MAX;
@@ -40,23 +40,23 @@ pub struct ProviderProxySelectorImpl {
     /// The ProviderPrxySelector's state
     state: Mutex<ProviderProxySelectorState>,
 
-    /// The signal values queue used for creating the proxies
-    signal_values_queue: Arc<SegQueue<SignalValue>>,
+    /// The signal store used for creating the proxies
+    signals: Arc<SignalStore>,
 }
 
 impl ProviderProxySelectorImpl {
     /// Instantiates the provider proxy selector
     ///
     /// # Arguments
-    /// - `signal_values_queue`: The queue that is passed to proxies andused to update the emitter
-    pub fn new(signal_values_queue: Arc<SegQueue<SignalValue>>) -> Self {
+    /// - `signals`: the shared signal store
+    pub fn new(signals: Arc<SignalStore>) -> Self {
         ProviderProxySelectorImpl {
             factories: Vec::new(),
             state: Mutex::new(ProviderProxySelectorState {
                 provider_proxies: HashMap::new(),
                 entity_map: HashMap::new(),
             }),
-            signal_values_queue,
+            signals,
         }
     }
 }
@@ -132,7 +132,7 @@ impl ProviderProxySelector for ProviderProxySelectorImpl {
                 for factory in self.factories.iter() {
                     if let Some(endpoint) = factory.is_supported(&current_entity) {
                         let proxy = factory
-                            .create_proxy(&endpoint.uri, self.signal_values_queue.clone())
+                            .create_proxy(&endpoint.uri, self.signals.clone())
                             .map_err(ProviderProxySelectorError::provider_proxy_error)?;
                         result = Some((proxy, endpoint));
                     }
@@ -233,8 +233,8 @@ mod provider_proxy_selector_tests {
 
     #[tokio::test]
     async fn handle_start_provider_proxy_request_return_err_test() {
-        let signal_values_queue: Arc<SegQueue<SignalValue>> = Arc::new(SegQueue::new());
-        let mut uut = ProviderProxySelectorImpl::new(signal_values_queue);
+        let signals: Arc<SignalStore> = Arc::new(SignalStore::new());
+        let mut uut = ProviderProxySelectorImpl::new(signals);
         uut.register::<GRPCProviderProxyFactory>().unwrap();
 
         let entity = Entity {

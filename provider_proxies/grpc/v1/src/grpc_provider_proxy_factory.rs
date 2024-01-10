@@ -4,10 +4,10 @@
 
 use std::sync::Arc;
 
-use crossbeam::queue::SegQueue;
 use freyja_common::{
     entity::{Entity, EntityEndpoint},
-    provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyFactory, SignalValue},
+    provider_proxy::{ProviderProxy, ProviderProxyError, ProviderProxyFactory},
+    signal_store::SignalStore,
 };
 
 use crate::{
@@ -35,14 +35,14 @@ impl ProviderProxyFactory for GRPCProviderProxyFactory {
     /// Create a new proxy
     ///
     /// # Arguments
-    /// - `provider_uri`: The provider URI to associate with this proxy
-    /// - `signal_values_queue`: The queue into which new signal values wil lbe published
+    /// - `provider_uri`: the provider URI to associate with this proxy
+    /// - `signals`: the shared signal store
     fn create_proxy(
         &self,
         provider_uri: &str,
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
+        signals: Arc<SignalStore>,
     ) -> Result<Arc<dyn ProviderProxy + Send + Sync>, ProviderProxyError> {
-        let proxy = GRPCProviderProxy::create_new(provider_uri, signal_values_queue)?;
+        let proxy = GRPCProviderProxy::create_new(provider_uri, signals)?;
         Ok(Arc::new(proxy))
     }
 }

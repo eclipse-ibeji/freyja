@@ -10,24 +10,23 @@ use std::{
 };
 
 use async_trait::async_trait;
-use crossbeam::queue::SegQueue;
-use freyja_common::{config_utils, out_dir};
-use log::info;
+use freyja_common::{config_utils, out_dir, signal_store::SignalStore};
+use log::{info, warn};
 use tokio::sync::Mutex;
 
 use crate::{
     config::{Config, EntityConfig},
     GET_OPERATION, SUBSCRIBE_OPERATION,
 };
+
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     entity::EntityEndpoint,
     provider_proxy::{
-        EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
+        EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind,
     },
 };
 
-#[derive(Debug)]
 pub struct InMemoryMockProviderProxy {
     /// Maps the number of calls to each provider so we can mock changing behavior
     data: Arc<Mutex<HashMap<String, (EntityConfig, AtomicU8)>>>,
@@ -36,7 +35,7 @@ pub struct InMemoryMockProviderProxy {
     entity_operation_map: Arc<Mutex<HashMap<String, String>>>,
 
     /// Shared queue for all proxies to push new signal values of entities
-    signal_values_queue: Arc<SegQueue<SignalValue>>,
+    signals: Arc<SignalStore>,
 
     /// The frequency between updates to signal values
     signal_update_frequency: Duration,
@@ -47,11 +46,11 @@ impl InMemoryMockProviderProxy {
     ///
     /// # Arguments
     /// - `config`: the config to use
-    /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
+    /// - `signals`: the shared signal store
     /// - `interval_between_signal_generation_ms`: the interval in milliseconds between signal value generation
     pub fn from_config(
         config: Config,
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
+        signals: Arc<SignalStore>,
     ) -> Result<Self, ProviderProxyError> {
         let data = config
             .entities
@@ -62,7 +61,7 @@ impl InMemoryMockProviderProxy {
         Ok(Self {
             entity_operation_map: Arc::new(Mutex::new(HashMap::new())),
             data: Arc::new(Mutex::new(data)),
-            signal_values_queue,
+            signals,
             signal_update_frequency: Duration::from_millis(config.signal_update_frequency_ms),
         })
     }
@@ -71,11 +70,11 @@ impl InMemoryMockProviderProxy {
     ///
     /// # Arguments
     /// - `entity_id`: the entity id that needs a signal value
-    /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
+    /// - `signals`: the shared signal store
     /// - `data`: the current data of a provider
     fn generate_signal_value(
         entity_id: &str,
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
+        signals: Arc<SignalStore>,
         data: &HashMap<String, (EntityConfig, AtomicU8)>,
     ) -> Result<(), ProviderProxyError> {
         let (entity_config, counter) = data
@@ -87,9 +86,10 @@ impl InMemoryMockProviderProxy {
         let value = entity_config.values.get_nth(n).to_string();
         let entity_id = String::from(entity_id);
 
-        let new_signal_value = SignalValue { entity_id, value };
-        signal_values_queue.push(new_signal_value);
-        Ok(())
+        signals
+            .set_value(entity_id, value)
+            .map(|_| ())
+            .ok_or(ProviderProxyErrorKind::EntityNotFound.into())
     }
 }
 
@@ -99,10 +99,10 @@ impl ProviderProxy for InMemoryMockProviderProxy {
     ///
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
-    /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
+    /// - `signals`: the shared signal store
     fn create_new(
         _provider_uri: &str,
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
+        signals: Arc<SignalStore>,
     ) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,
@@ -115,13 +115,13 @@ impl ProviderProxy for InMemoryMockProviderProxy {
             ProviderProxyError::deserialize,
         )?;
 
-        Self::from_config(config, signal_values_queue)
+        Self::from_config(config, signals)
     }
 
     /// Starts a provider proxy
     async fn start(&self) -> Result<(), ProviderProxyError> {
         let entity_operation_map = self.entity_operation_map.clone();
-        let signal_values_queue = self.signal_values_queue.clone();
+        let signals = self.signals.clone();
         let signal_update_frequency = self.signal_update_frequency;
         let data = self.data.clone();
 
@@ -143,11 +143,10 @@ impl ProviderProxy for InMemoryMockProviderProxy {
                 {
                     let data = data.lock().await;
                     for entity_id in entities_with_subscribe {
-                        let _ = Self::generate_signal_value(
-                            &entity_id,
-                            signal_values_queue.clone(),
-                            &data,
-                        );
+                        if Self::generate_signal_value(&entity_id, signals.clone(), &data).is_err()
+                        {
+                            warn!("Attempt to set value for non-existent entity {entity_id}");
+                        }
                     }
                 }
 
@@ -182,7 +181,7 @@ impl ProviderProxy for InMemoryMockProviderProxy {
 
         let data = self.data.lock().await;
         if operation == GET_OPERATION {
-            let _ = Self::generate_signal_value(entity_id, self.signal_values_queue.clone(), &data);
+            let _ = Self::generate_signal_value(entity_id, self.signals.clone(), &data);
         }
 
         Ok(())
@@ -227,14 +226,29 @@ impl ProviderProxy for InMemoryMockProviderProxy {
 
 #[cfg(test)]
 mod in_memory_mock_digital_twin_adapter_tests {
+    use freyja_common::signal::SignalPatch;
+
     use super::*;
 
     use crate::config::SensorValueConfig;
 
+    fn validate_signal(signals: Arc<SignalStore>, id: &str, value: f32) {
+        let signal = signals.get(&id.to_owned());
+        assert!(signal.is_some());
+
+        let signal = signal.unwrap();
+        assert_eq!(signal.id, id);
+        assert!(signal.value.is_some());
+
+        let signal_value = signal.value.unwrap().parse::<f32>();
+        assert!(signal_value.is_ok());
+        assert_eq!(signal_value.unwrap(), value);
+    }
+
     #[test]
     fn can_create_new() {
-        let signal_values_queue = Arc::new(SegQueue::new());
-        let result = InMemoryMockProviderProxy::create_new("FAKE_URI", signal_values_queue);
+        let signals = Arc::new(SignalStore::new());
+        let result = InMemoryMockProviderProxy::create_new("FAKE_URI", signals);
         assert!(result.is_ok());
     }
 
@@ -267,9 +281,26 @@ mod in_memory_mock_digital_twin_adapter_tests {
             ],
         };
 
-        let signal_values_queue = Arc::new(SegQueue::new());
+        let signals = Arc::new(SignalStore::new());
+        signals.add(
+            [
+                SignalPatch {
+                    id: STATIC_ID.to_owned(),
+                    ..Default::default()
+                },
+                SignalPatch {
+                    id: INCREASING_ID.to_owned(),
+                    ..Default::default()
+                },
+                SignalPatch {
+                    id: DECREASING_ID.to_owned(),
+                    ..Default::default()
+                },
+            ]
+            .into_iter(),
+        );
         let in_memory_mock_provider_proxy =
-            InMemoryMockProviderProxy::from_config(config, signal_values_queue.clone()).unwrap();
+            InMemoryMockProviderProxy::from_config(config, signals.clone()).unwrap();
 
         const END_OF_SENSOR_VALUE_CONFIG_ITERATION: i32 = 5;
 
@@ -277,80 +308,56 @@ mod in_memory_mock_digital_twin_adapter_tests {
         // entity that has the stepwise functionality configured.
         let data = in_memory_mock_provider_proxy.data.lock().await;
         for i in 0..END_OF_SENSOR_VALUE_CONFIG_ITERATION {
-            let result = InMemoryMockProviderProxy::generate_signal_value(
-                STATIC_ID,
-                signal_values_queue.clone(),
-                &data,
-            );
+            let result =
+                InMemoryMockProviderProxy::generate_signal_value(STATIC_ID, signals.clone(), &data);
             assert!(result.is_ok());
 
-            let static_value = signal_values_queue.pop().unwrap();
-            assert_eq!(static_value.entity_id, STATIC_ID);
-            assert_eq!(static_value.value.parse::<f32>().unwrap(), 42.0);
+            validate_signal(signals.clone(), STATIC_ID, 42.0);
 
             let result = InMemoryMockProviderProxy::generate_signal_value(
                 INCREASING_ID,
-                signal_values_queue.clone(),
+                signals.clone(),
                 &data,
             );
             assert!(result.is_ok());
 
-            let increasing_value = signal_values_queue.pop().unwrap();
-            assert_eq!(increasing_value.entity_id, INCREASING_ID);
-            assert_eq!(
-                increasing_value.value.parse::<f32>().unwrap(),
-                start + delta * i as f32
-            );
+            validate_signal(signals.clone(), INCREASING_ID, start + delta * (i as f32));
 
             let result = InMemoryMockProviderProxy::generate_signal_value(
                 DECREASING_ID,
-                signal_values_queue.clone(),
+                signals.clone(),
                 &data,
             );
             assert!(result.is_ok());
 
-            let decreasing_value = signal_values_queue.pop().unwrap();
-            assert_eq!(decreasing_value.entity_id, DECREASING_ID);
-            assert_eq!(
-                decreasing_value.value.parse::<f32>().unwrap(),
-                start - delta * i as f32
-            );
+            validate_signal(signals.clone(), DECREASING_ID, start - delta * (i as f32));
         }
 
         // Validating each entity that has the stepwise functionality configured is at its end value
         for _ in 0..END_OF_SENSOR_VALUE_CONFIG_ITERATION {
-            let result = InMemoryMockProviderProxy::generate_signal_value(
-                STATIC_ID,
-                signal_values_queue.clone(),
-                &data,
-            );
+            let result =
+                InMemoryMockProviderProxy::generate_signal_value(STATIC_ID, signals.clone(), &data);
             assert!(result.is_ok());
 
-            let static_value = signal_values_queue.pop().unwrap();
-            assert_eq!(static_value.entity_id, STATIC_ID);
-            assert_eq!(static_value.value.parse::<f32>().unwrap(), 42.0);
+            validate_signal(signals.clone(), STATIC_ID, 42.0);
 
             let result = InMemoryMockProviderProxy::generate_signal_value(
                 INCREASING_ID,
-                signal_values_queue.clone(),
+                signals.clone(),
                 &data,
             );
             assert!(result.is_ok());
 
-            let increasing_value = signal_values_queue.pop().unwrap();
-            assert_eq!(increasing_value.entity_id, INCREASING_ID);
-            assert_eq!(increasing_value.value.parse::<f32>().unwrap(), end);
+            validate_signal(signals.clone(), INCREASING_ID, end);
 
             let result = InMemoryMockProviderProxy::generate_signal_value(
                 DECREASING_ID,
-                signal_values_queue.clone(),
+                signals.clone(),
                 &data,
             );
             assert!(result.is_ok());
 
-            let decreasing_value = signal_values_queue.pop().unwrap();
-            assert_eq!(decreasing_value.entity_id, DECREASING_ID);
-            assert_eq!(decreasing_value.value.parse::<f32>().unwrap(), -end);
+            validate_signal(signals.clone(), DECREASING_ID, -end);
         }
     }
 }

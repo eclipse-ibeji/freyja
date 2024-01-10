@@ -2,38 +2,37 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::sync::{Arc, Mutex};
-use std::{collections::HashMap, net::SocketAddr, str::FromStr};
+use std::{
+    collections::HashMap,
+    net::SocketAddr,
+    str::FromStr,
+    sync::{Arc, Mutex},
+};
 
 use async_trait::async_trait;
-use axum::extract::{Json, State};
-use axum::response::{IntoResponse, Response};
-use axum::routing::post;
-use axum::Router;
-use crossbeam::queue::SegQueue;
+use axum::{
+    extract::{Json, State},
+    response::{IntoResponse, Response},
+    routing::post,
+    Router,
+};
 use log::{debug, error, info};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
-use crate::config::Config;
-use crate::{GET_OPERATION, SUBSCRIBE_OPERATION};
+use crate::{config::Config, GET_OPERATION, SUBSCRIBE_OPERATION};
 use freyja_build_common::config_file_stem;
-use freyja_common::entity::EntityEndpoint;
-use freyja_common::provider_proxy::{
-    EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind, SignalValue,
+use freyja_common::{
+    config_utils,
+    entity::EntityEndpoint,
+    not_found, ok, out_dir,
+    provider_proxy::{
+        EntityRegistration, ProviderProxy, ProviderProxyError, ProviderProxyErrorKind,
+    },
+    signal_store::SignalStore,
 };
-use freyja_common::{config_utils, out_dir};
 
 const CALLBACK_FOR_VALUES_PATH: &str = "/value";
-
-macro_rules! ok {
-    () => {
-        (axum::http::StatusCode::OK, axum::Json("")).into_response()
-    };
-    ($body:expr) => {
-        (axum::http::StatusCode::OK, axum::Json($body)).into_response()
-    };
-}
 
 /// A request for an entity's value
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -56,7 +55,6 @@ pub struct EntityValueResponse {
 }
 
 /// A provider proxy for our HTTP mocks/mock_digital_twin
-#[derive(Debug)]
 pub struct HttpMockProviderProxy {
     /// Async Reqwest HTTP Client
     client: Client,
@@ -64,8 +62,8 @@ pub struct HttpMockProviderProxy {
     /// Local cache for keeping track of which entities this provider proxy contains
     entity_operation_map: Mutex<HashMap<String, String>>,
 
-    /// Shared queue for all proxies to push new signal values
-    signal_values_queue: Arc<SegQueue<SignalValue>>,
+    /// Shared signal store to push new signal values
+    signals: Arc<SignalStore>,
 
     /// The proxy configuration
     config: Config,
@@ -89,26 +87,26 @@ impl HttpMockProviderProxy {
     /// Receive signal handler for the value listener to handle incoming values
     ///
     /// # Arguments
-    /// - `signal_values`: shared map of provider IDs to provider values
+    /// - `signals`: the shared signal store
     /// - `value`: the value received from a provider
     async fn receive_value_handler(
-        State(signal_values_queue): State<Arc<SegQueue<SignalValue>>>,
+        State(signals): State<Arc<SignalStore>>,
         Json(value): Json<EntityValueResponse>,
     ) -> Response {
         let EntityValueResponse { entity_id, value } = value;
 
         debug!("Received a response for entity id {entity_id} with the value {value}");
 
-        let new_signal_value = SignalValue { entity_id, value };
-        signal_values_queue.push(new_signal_value);
-
-        ok!()
+        match signals.set_value(entity_id, value) {
+            Some(_) => ok!(),
+            None => not_found!(),
+        }
     }
 
     /// Set the port for the callback server.
     ///
     /// # Arguments
-    /// - `port`: The new port to use
+    /// - `port`: the new port to use
     pub fn set_callback_server_port(&mut self, port: u16) {
         self.callback_server_port = port;
     }
@@ -120,11 +118,8 @@ impl ProviderProxy for HttpMockProviderProxy {
     ///
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
-    /// - `signal_values_queue`: shared queue for all proxies to push new signal values of entities
-    fn create_new(
-        provider_uri: &str,
-        signal_values_queue: Arc<SegQueue<SignalValue>>,
-    ) -> Result<Self, ProviderProxyError>
+    /// - `signals`: the shared signal store
+    fn create_new(provider_uri: &str, signals: Arc<SignalStore>) -> Result<Self, ProviderProxyError>
     where
         Self: Sized,
     {
@@ -137,7 +132,7 @@ impl ProviderProxy for HttpMockProviderProxy {
         )?;
 
         Ok(Self {
-            signal_values_queue,
+            signals,
             callback_server_port: config.starting_port,
             config,
             provider_uri: provider_uri.to_string(),
@@ -160,7 +155,7 @@ impl ProviderProxy for HttpMockProviderProxy {
         // Set up router path
         let router = Router::new()
             .route(CALLBACK_FOR_VALUES_PATH, post(Self::receive_value_handler))
-            .with_state(self.signal_values_queue.clone());
+            .with_state(self.signals.clone());
 
         // Run the listener
         let builder = axum::Server::try_bind(&server_endpoint_addr)

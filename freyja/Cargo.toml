@@ -9,7 +9,6 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-crossbeam = { workspace = true }
 env_logger = { workspace = true }
 freyja-common = { workspace = true }
 log = { workspace = true }
