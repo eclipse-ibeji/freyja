@@ -70,10 +70,6 @@ where
         }
     };
 
-    log::info!("{} exists? {}",
-        freyja_dir_config_path.to_str().unwrap(),
-        freyja_dir_config_path.exists());
-
     let config_store = config::Config::builder()
         .add_source(File::from(default_config_file))
         .add_source(File::from(current_dir_config_path).required(false))
