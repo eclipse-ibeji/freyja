@@ -154,7 +154,7 @@ async fn get_mapping(State(state): State<Arc<Mutex<MappingState>>>) -> Response 
             .values
             .iter()
             .filter_map(|c| {
-                if state.interactive {
+                if !state.interactive {
                     Some((c.value.source.clone(), c.value.clone()))
                 } else {
                     match c.end {
