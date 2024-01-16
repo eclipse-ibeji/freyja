@@ -9,11 +9,11 @@ use reqwest::Client;
 
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
-use freyja_common::mapping_client::*;
+use freyja_common::mapping_adapter::*;
 use freyja_common::{config_utils, out_dir, retry_utils::execute_with_retry};
 
 /// Mocks a mapping provider in memory
-pub struct MockMappingServiceClient {
+pub struct MockMappingServiceAdapter {
     /// The base URL for requests
     base_url: String,
 
@@ -27,8 +27,8 @@ pub struct MockMappingServiceClient {
     pub retry_interval_ms: u64,
 }
 
-impl MockMappingServiceClient {
-    /// Creates a new instance of a MockMappingServiceClient using a config file.
+impl MockMappingServiceAdapter {
+    /// Creates a new instance of a MockMappingServiceAdapter using a config file.
     ///
     /// # Arguments
     /// - `config`: the config
@@ -43,15 +43,15 @@ impl MockMappingServiceClient {
 }
 
 #[async_trait]
-impl MappingClient for MockMappingServiceClient {
-    /// Creates a new instance of a MockMappingServiceClient with default settings
-    fn create_new() -> Result<Self, MappingClientError> {
+impl MappingAdapter for MockMappingServiceAdapter {
+    /// Creates a new instance of a MockMappingServiceAdapter with default settings
+    fn create_new() -> Result<Self, MappingAdapterError> {
         let config = config_utils::read_from_files(
             config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
-            MappingClientError::io,
-            MappingClientError::deserialize,
+            MappingAdapterError::io,
+            MappingAdapterError::deserialize,
         )?;
 
         Ok(Self::from_config(config))
@@ -63,7 +63,7 @@ impl MappingClient for MockMappingServiceClient {
     async fn check_for_work(
         &self,
         _request: CheckForWorkRequest,
-    ) -> Result<CheckForWorkResponse, MappingClientError> {
+    ) -> Result<CheckForWorkResponse, MappingAdapterError> {
         let target = format!("{}/work", self.base_url);
 
         execute_with_retry(
@@ -73,12 +73,12 @@ impl MappingClient for MockMappingServiceClient {
             Some(String::from("Checking for work from the mapping service")),
         )
         .await
-        .map_err(MappingClientError::communication)?
+        .map_err(MappingAdapterError::communication)?
         .error_for_status()
-        .map_err(MappingClientError::communication)?
+        .map_err(MappingAdapterError::communication)?
         .json::<CheckForWorkResponse>()
         .await
-        .map_err(MappingClientError::deserialize)
+        .map_err(MappingAdapterError::deserialize)
     }
 
     /// Sends the provider inventory to the mapping service
@@ -89,19 +89,19 @@ impl MappingClient for MockMappingServiceClient {
     async fn send_inventory(
         &self,
         inventory: SendInventoryRequest,
-    ) -> Result<SendInventoryResponse, MappingClientError> {
+    ) -> Result<SendInventoryResponse, MappingAdapterError> {
         let target = format!("{}/inventory", self.base_url);
         self.client
             .post(&target)
             .json(&inventory)
             .send()
             .await
-            .map_err(MappingClientError::communication)?
+            .map_err(MappingAdapterError::communication)?
             .error_for_status()
-            .map_err(MappingClientError::communication)?
+            .map_err(MappingAdapterError::communication)?
             .json::<SendInventoryResponse>()
             .await
-            .map_err(MappingClientError::deserialize)
+            .map_err(MappingAdapterError::deserialize)
     }
 
     /// Gets the mapping from the mapping service
@@ -109,7 +109,7 @@ impl MappingClient for MockMappingServiceClient {
     async fn get_mapping(
         &self,
         _request: GetMappingRequest,
-    ) -> Result<GetMappingResponse, MappingClientError> {
+    ) -> Result<GetMappingResponse, MappingAdapterError> {
         let target = format!("{}/mapping", self.base_url);
 
         execute_with_retry(
@@ -121,11 +121,11 @@ impl MappingClient for MockMappingServiceClient {
             )),
         )
         .await
-        .map_err(MappingClientError::communication)?
+        .map_err(MappingAdapterError::communication)?
         .error_for_status()
-        .map_err(MappingClientError::communication)?
+        .map_err(MappingAdapterError::communication)?
         .json::<GetMappingResponse>()
         .await
-        .map_err(MappingClientError::deserialize)
+        .map_err(MappingAdapterError::deserialize)
     }
 }

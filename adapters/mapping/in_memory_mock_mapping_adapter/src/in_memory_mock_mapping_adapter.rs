@@ -8,11 +8,11 @@ use async_trait::async_trait;
 
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
-use freyja_common::mapping_client::*;
+use freyja_common::mapping_adapter::*;
 use freyja_common::{config_utils, out_dir};
 
 /// Mocks a mapping provider in memory
-pub struct InMemoryMockMappingClient {
+pub struct InMemoryMockMappingAdapter {
     /// The mock's config
     config: Config,
 
@@ -20,13 +20,13 @@ pub struct InMemoryMockMappingClient {
     counter: AtomicU8,
 }
 
-impl InMemoryMockMappingClient {
-    /// Creates a new InMemoryMockMappingClient with the specified config
+impl InMemoryMockMappingAdapter {
+    /// Creates a new InMemoryMockMappingAdapter with the specified config
     ///
     /// # Arguments
     ///
     /// - `config`: the config to use
-    pub fn from_config(config: Config) -> Result<Self, MappingClientError> {
+    pub fn from_config(config: Config) -> Result<Self, MappingAdapterError> {
         Ok(Self {
             config,
             counter: AtomicU8::new(0),
@@ -35,15 +35,15 @@ impl InMemoryMockMappingClient {
 }
 
 #[async_trait]
-impl MappingClient for InMemoryMockMappingClient {
-    /// Creates a new instance of an InMemoryMockMappingClient with default settings
-    fn create_new() -> Result<Self, MappingClientError> {
+impl MappingAdapter for InMemoryMockMappingAdapter {
+    /// Creates a new instance of an InMemoryMockMappingAdapter with default settings
+    fn create_new() -> Result<Self, MappingAdapterError> {
         let config = config_utils::read_from_files(
             config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
-            MappingClientError::io,
-            MappingClientError::deserialize,
+            MappingAdapterError::io,
+            MappingAdapterError::deserialize,
         )?;
 
         Self::from_config(config)
@@ -55,7 +55,7 @@ impl MappingClient for InMemoryMockMappingClient {
     async fn check_for_work(
         &self,
         _request: CheckForWorkRequest,
-    ) -> Result<CheckForWorkResponse, MappingClientError> {
+    ) -> Result<CheckForWorkResponse, MappingAdapterError> {
         let n = self.counter.fetch_add(1, Ordering::SeqCst);
 
         Ok(CheckForWorkResponse {
@@ -71,7 +71,7 @@ impl MappingClient for InMemoryMockMappingClient {
     async fn get_mapping(
         &self,
         _request: GetMappingRequest,
-    ) -> Result<GetMappingResponse, MappingClientError> {
+    ) -> Result<GetMappingResponse, MappingAdapterError> {
         let n = self.counter.load(Ordering::SeqCst);
 
         Ok(GetMappingResponse {
@@ -92,7 +92,7 @@ impl MappingClient for InMemoryMockMappingClient {
 }
 
 #[cfg(test)]
-mod in_memory_mock_mapping_client_tests {
+mod in_memory_mock_mapping_adapter_tests {
     use crate::config::ConfigItem;
 
     use super::*;
@@ -103,7 +103,7 @@ mod in_memory_mock_mapping_client_tests {
 
     #[test]
     fn can_create_new() {
-        let result = InMemoryMockMappingClient::create_new();
+        let result = InMemoryMockMappingAdapter::create_new();
         assert!(result.is_ok());
     }
 
@@ -147,7 +147,7 @@ mod in_memory_mock_mapping_client_tests {
             ],
         };
 
-        let uut = InMemoryMockMappingClient::from_config(config).unwrap();
+        let uut = InMemoryMockMappingAdapter::from_config(config).unwrap();
 
         for i in 0..30 {
             let result = uut
@@ -202,7 +202,7 @@ mod in_memory_mock_mapping_client_tests {
             ],
         };
 
-        let uut = InMemoryMockMappingClient::from_config(config).unwrap();
+        let uut = InMemoryMockMappingAdapter::from_config(config).unwrap();
 
         for _ in 0..9 {
             uut.check_for_work(CheckForWorkRequest {})
@@ -240,7 +240,7 @@ mod in_memory_mock_mapping_client_tests {
 
     #[tokio::test]
     async fn send_inventory_is_ok() {
-        let uut = InMemoryMockMappingClient::create_new().unwrap();
+        let uut = InMemoryMockMappingAdapter::create_new().unwrap();
         assert!(uut
             .send_inventory(SendInventoryRequest {
                 inventory: HashSet::new()

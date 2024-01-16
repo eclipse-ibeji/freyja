@@ -29,8 +29,8 @@ mockall = { workspace = true }
 async-trait = { workspace = true }
 
 # Dependencies for examples
-in-memory-mock-cloud-adapter = { path = "../cloud_adapters/in_memory_mock_cloud_adapter" }
-in-memory-mock-digital-twin-adapter = { path = "../digital_twin_adapters/in_memory_mock_digital_twin_adapter" }
-in-memory-mock-mapping-client = { path = "../mapping_clients/in_memory_mock_mapping_client" }
-mock-digital-twin-adapter = { path = "../digital_twin_adapters/mock_digital_twin_adapter" }
-mock-mapping-service-client = { path = "../mapping_clients/mock_mapping_service_client" }
+in-memory-mock-cloud-adapter = { workspace = true }
+in-memory-mock-digital-twin-adapter = { workspace = true }
+in-memory-mock-mapping-adapter = { workspace = true }
+mock-digital-twin-adapter = { workspace = true }
+mock-mapping-service-adapter = { workspace = true }

@@ -60,8 +60,8 @@ This appendix lists the sample adapters that are provided in this repository. Th
 
 ## Digital Twin Adapters
 
-- [In-Memory Mock Digital Twin Adapter](../digital_twin_adapters/in_memory_mock_digital_twin_adapter/README.md): Emulates a Digital Twin Service entirely within the memory of the Freyja application.
-- [Mock Digital Twin Adapter](../digital_twin_adapters/mock_digital_twin_adapter/README.md): Communicates with the [Mock Digital Twin](../mocks/mock_digital_twin/README.md), which is an executable that mocks the Digital Twin Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove entities from the mocked digital twin by pressing enter to advance through configurable states.
+- [In-Memory Mock Digital Twin Adapter](../adapters/digital_twin/in_memory_mock_digital_twin_adapter/README.md): Emulates a Digital Twin Service entirely within the memory of the Freyja application.
+- [Mock Digital Twin Adapter](../adapters/digital_twin/mock_digital_twin_adapter/README.md): Communicates with the [Mock Digital Twin](../mocks/mock_digital_twin/README.md), which is an executable that mocks the Digital Twin Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove entities from the mocked digital twin by pressing enter to advance through configurable states.
 
 ## Mapping Clients
 
@@ -70,4 +70,4 @@ This appendix lists the sample adapters that are provided in this repository. Th
 
 ## Digital Twin Adapters
 
-- [In-Memory Mock Cloud Adapter](../cloud_adapters/in_memory_mock_cloud_adapter/README.md): Emulates a Cloud Connector entirely within the memory of the Freyja application. When data is emitted to this adapter it will be printed to the console window.
+- [In-Memory Mock Cloud Adapter](../adapters/cloud/in_memory_mock_cloud_adapter/README.md): Emulates a Cloud Connector entirely within the memory of the Freyja application. When data is emitted to this adapter it will be printed to the console window.

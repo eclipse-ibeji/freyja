@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 [package]
-name = "mock-mapping-service-client"
+name = "mock-mapping-service-adapter"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"

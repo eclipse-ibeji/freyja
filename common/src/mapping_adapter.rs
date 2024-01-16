@@ -9,11 +9,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::digital_twin_map_entry::DigitalTwinMapEntry;
 
-/// Client interface for communicating with a mapping service
+/// Interface for communicating with a mapping service
 #[async_trait]
-pub trait MappingClient {
-    /// Creates a new instance of a MappingClient with default settings
-    fn create_new() -> Result<Self, MappingClientError>
+pub trait MappingAdapter {
+    /// Creates a new instance of a MappingAdapter with default settings
+    fn create_new() -> Result<Self, MappingAdapterError>
     where
         Self: Sized;
 
@@ -26,7 +26,7 @@ pub trait MappingClient {
     async fn check_for_work(
         &self,
         request: CheckForWorkRequest,
-    ) -> Result<CheckForWorkResponse, MappingClientError>;
+    ) -> Result<CheckForWorkResponse, MappingAdapterError>;
 
     /// Sends the provider inventory to the mapping service
     ///
@@ -36,7 +36,7 @@ pub trait MappingClient {
     async fn send_inventory(
         &self,
         _inventory: SendInventoryRequest,
-    ) -> Result<SendInventoryResponse, MappingClientError> {
+    ) -> Result<SendInventoryResponse, MappingAdapterError> {
         Ok(SendInventoryResponse {})
     }
 
@@ -48,7 +48,7 @@ pub trait MappingClient {
     async fn get_mapping(
         &self,
         request: GetMappingRequest,
-    ) -> Result<GetMappingResponse, MappingClientError>;
+    ) -> Result<GetMappingResponse, MappingAdapterError>;
 }
 
 /// A request for the check for work api
@@ -84,7 +84,7 @@ pub struct GetMappingResponse {
 }
 
 proc_macros::error! {
-    MappingClientError {
+    MappingAdapterError {
         Io,
         Serialize,
         Deserialize,
