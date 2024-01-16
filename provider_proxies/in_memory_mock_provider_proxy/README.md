@@ -1,6 +1,6 @@
 # In-Memory Mock Provider Proxy
 
-The In-Memory Mock Provider Proxy mocks a provider within the memory of a Freyja application. This is intended for use with the [In-Memory Mock Digital Twin Adapter](../../digital_twin_adapters/in_memory_mock_digital_twin_adapter/).
+The In-Memory Mock Provider Proxy mocks a provider within the memory of a Freyja application. This is intended for use with the [In-Memory Mock Digital Twin Adapter](../../adapters/digital_twin/in_memory_mock_digital_twin_adapter/).
 
 ## Configuration
 
