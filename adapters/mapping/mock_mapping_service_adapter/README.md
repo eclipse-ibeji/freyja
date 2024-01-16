@@ -20,4 +20,4 @@ This adapter supports the following configuration settings:
 - `retry_interval_ms`: the interval between subsequent retry attempts, in milliseconds
 - `mock_mapping_service_url`: the url for the Mock Mapping Service
 
-This adapter supports [config overrides](../../docs/config-overrides.md). The override filename is `mock_mapping_adapter_config.json`, and the default config is located at `res/mock_mapping_adapter_config.default.json`.
+This adapter supports [config overrides](../../../docs/config-overrides.md). The override filename is `mock_mapping_adapter_config.json`, and the default config is located at `res/mock_mapping_adapter_config.default.json`.

@@ -2,7 +2,7 @@
 
 A Digital Twin Adapter communicates with the In-Vehicle Digital Twin to get signal values during emission.
 
-A Digital Twin Adapter should implement the `DigitalTwinAdapter` trait from [contracts/DigitalTwinAdapter](../../contracts/src/digital_twin_adapter.rs).
+A Digital Twin Adapter should implement the `DigitalTwinAdapter` trait from `freyja-common`.
 
 ## General Behavior
 
