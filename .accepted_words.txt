@@ -97,8 +97,8 @@ libs
 libssl
 lifecycle
 mailto
-MappingClient
-MappingClientImpl
+MappingAdapter
+MappingAdapterImpl
 md
 microsoft
 min
@@ -148,7 +148,6 @@ req
 rm
 rsa
 rustup
-SampleMappingClient
 sdk
 SDV
 SecretUri

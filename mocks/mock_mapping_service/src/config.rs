@@ -16,10 +16,10 @@ pub struct Config {
 /// A config item for the mock mapping service
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ConfigItem {
-    /// Start emitting the value after this many calls to the client
+    /// Start emitting the value after this many calls to the service
     pub begin: u8,
 
-    /// Stop emitting the value after this many calls to the client (or don't stop emitting if None)
+    /// Stop emitting the value after this many calls to the service (or don't stop emitting if None)
     pub end: Option<u8>,
 
     /// The mapping to apply

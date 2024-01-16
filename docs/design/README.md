@@ -22,7 +22,7 @@ In a typical life cycle, the Freyja application will start up, discover Ibeji vi
 
 ### Cartographer
 
-The cartographer is the core component responsible for managing the digital twin mapping. The current implementation is very minimal and will poll the mapping client for updates. If there is an update pending, the cartographer will download it and update the application's stored mapping info. This is currently implemented as a shared application state which both the cartographer and emitter have access to.
+The cartographer is the core component responsible for managing the digital twin mapping. The current implementation is very minimal and will poll the mapping adapter for updates. If there is an update pending, the cartographer will download it and update the application's stored mapping info. This is currently implemented as a shared application state which both the cartographer and emitter have access to.
 
 ![Sequence Diagram](../diagrams/mapping_service_to_cartographer_sequence.svg)
 
@@ -39,7 +39,7 @@ Freyja has the following interfaces for external components:
 Component|Examples|Interface Trait|Description
 -|-|-|-
 In-Vehicle Digital Twin|Ibeji and its providers|`DigitalTwinAdapter`|Communicates with the in-vehicle digital twin to get signal values during emission. Often referred to as "DT Adapter"
-Mapping Service|`MockMappingService`, other customer-provided implementations|`MappingClient`|Communicates with the mapping service
+Mapping Service|`MockMappingService`, other customer-provided implementations|`MappingAdapter`|Communicates with the mapping service
 Cloud Digital Twin|Azure, AWS|`CloudAdapter`|Communicates with the cloud digital twin provider
 
 All of these interfaces are defined as traits with async functions in the `contracts/src` folder.
@@ -49,13 +49,13 @@ All of these interfaces are defined as traits with async functions in the `contr
 The digital twin adapter interfaces with a digital twin service to get entity information. The [Ibeji Project](https://github.com/eclipse-ibeji/ibeji) is an example of such a service. This interface requires the following function implementations:
 
 - `create_new`: Serves as an integration point for the core Freyja components. This function will be called by the `freyja_main` function to create an instance of your adapter.
-- `find_by_id`: Queries the digital twin service for information about the requested entity. This information will later be used to set up clients and/or listeners to communicate with that entity's provider.
+- `find_by_id`: Queries the digital twin service for information about the requested entity. This information will later be used to set up a communication pipeline with that entity's provider.
 
 Although this component is built with the same pluggable model as other external interfaces, it is being designed closely together with other SDV components. As a result, it is strongly suggested to use the provided SDV implementation of this interface, and this implementation should be sufficient for most production scenarios.
 
-#### Mapping Client Interface
+#### Mapping Adapter Interface
 
-Freyja communicates with a mapping service via the `MappingClient` trait to get information about how to package data during emission. This trait defines the following functions:
+Freyja communicates with a mapping service via the `MappingAdapter` trait to get information about how to package data during emission. This trait defines the following functions:
 
 - `create_new`: Serves as an integration point for the core Freyja components. This function will be called by the `freyja_main` function to create an instance of your adapter.
 - `check_for_work`: Because mappings returned from the `get_mapping` API can potentially be large, this method is used to first poll for changes before calling that API. If the result is false, then the cartographer will not invoke the `get_mapping` API until it polls again.
