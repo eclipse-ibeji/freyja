@@ -10,9 +10,9 @@ use std::sync::{
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     config_utils,
+    data_adapter::{DataAdapter, DataAdapterError, DataAdapterFactory},
     entity::{Entity, EntityEndpoint},
     out_dir,
-    data_adapter::{DataAdapter, DataAdapterError, DataAdapterFactory},
     signal_store::SignalStore,
 };
 

@@ -12,11 +12,11 @@ use log::debug;
 use tokio::sync::Mutex;
 
 use freyja_common::{
-    entity::Entity,
-    data_adapter::{EntityRegistration, DataAdapter, DataAdapterFactory},
+    data_adapter::{DataAdapter, DataAdapterFactory, EntityRegistration},
     data_adapter_selector::{
         DataAdapterSelector, DataAdapterSelectorError, DataAdapterSelectorErrorKind,
     },
+    entity::Entity,
     signal_store::SignalStore,
 };
 
@@ -192,10 +192,7 @@ impl DataAdapterSelector for DataAdapterSelectorImpl {
     ///
     /// # Arguments
     /// - `entity_id`: the entity to request
-    async fn request_entity_value(
-        &self,
-        entity_id: &str,
-    ) -> Result<(), DataAdapterSelectorError> {
+    async fn request_entity_value(&self, entity_id: &str) -> Result<(), DataAdapterSelectorError> {
         let mut state = self.state.lock().await;
 
         let provider_uri = state
@@ -224,7 +221,7 @@ mod data_adapter_selector_tests {
     use super::*;
 
     use freyja_common::{
-        entity::EntityEndpoint, data_adapter_selector::DataAdapterSelectorErrorKind,
+        data_adapter_selector::DataAdapterSelectorErrorKind, entity::EntityEndpoint,
     };
     use grpc_data_adapter::grpc_data_adapter_factory::GRPCDataAdapterFactory;
 

@@ -207,9 +207,9 @@ mod emitter_tests {
 
     use freyja_common::{
         cloud_adapter::{CloudAdapterError, CloudAdapterErrorKind},
-        entity::Entity,
         data_adapter::DataAdapterFactory,
         data_adapter_selector::DataAdapterSelectorError,
+        entity::Entity,
         signal::{Emission, EmissionPolicy},
     };
 

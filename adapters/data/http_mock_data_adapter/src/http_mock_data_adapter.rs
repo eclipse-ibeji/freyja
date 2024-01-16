@@ -24,11 +24,9 @@ use crate::{config::Config, GET_OPERATION, SUBSCRIBE_OPERATION};
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     config_utils,
+    data_adapter::{DataAdapter, DataAdapterError, DataAdapterErrorKind, EntityRegistration},
     entity::EntityEndpoint,
     not_found, ok, out_dir,
-    data_adapter::{
-        EntityRegistration, DataAdapter, DataAdapterError, DataAdapterErrorKind,
-    },
     signal_store::SignalStore,
 };
 
@@ -235,8 +233,7 @@ impl DataAdapter for HttpMockDataAdapter {
                 }
             }
 
-            result
-                .ok_or::<DataAdapterError>(DataAdapterErrorKind::OperationNotSupported.into())?
+            result.ok_or::<DataAdapterError>(DataAdapterErrorKind::OperationNotSupported.into())?
         };
 
         self.entity_operation_map
