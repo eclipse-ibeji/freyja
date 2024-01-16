@@ -16,7 +16,7 @@ This adapter supports the following configuration settings:
       - `end`: The other bound for the signal value
       - `delta`: The amount to add to the signal value at each iteration. If this operation would exceed the specified bounds, then the signal value saturates at the boundary value.
 
-This adapter supports [config overrides](../../docs/config-overrides.md). The override filename is `in_memory_mock_data_adapter_config.json`, and the default config is located at `res/in_memory_mock_data_adapter_config.default.json`.
+This adapter supports [config overrides](../../../docs/config-overrides.md). The override filename is `in_memory_mock_data_adapter_config.json`, and the default config is located at `res/in_memory_mock_data_adapter_config.default.json`.
 
 ## Behavior
 

@@ -1,6 +1,6 @@
 # Managed Subscribe Data Adapter
 
-The Managed Subscribe Data Adapter interfaces with providers which support gRPC and utilize the [Managed Subscribe](https://github.com/eclipse-ibeji/ibeji/tree/main/samples/managed_subscribe) module in Ibeji. It acts as a consumer for digital twin providers. This adapter supports the `Managed Subscribe` operation as defined for the [Ibeji managed subscribe sample](https://github.com/eclipse-ibeji/ibeji/tree/main/samples/managed_subscribe). To use this adapter with other providers, those providers will need to support the same API(s) as the provider in that sample (see [Integrating with this ADapter](#integrating-with-this-adapter) for more information).
+The Managed Subscribe Data Adapter interfaces with providers which support gRPC and utilize the [Managed Subscribe](https://github.com/eclipse-ibeji/ibeji/tree/main/samples/managed_subscribe) module in Ibeji. It acts as a consumer for digital twin providers. This adapter supports the `Managed Subscribe` operation as defined for the [Ibeji managed subscribe sample](https://github.com/eclipse-ibeji/ibeji/tree/main/samples/managed_subscribe). To use this adapter with other providers, those providers will need to support the same API(s) as the provider in that sample (see [Integrating with this Adapter](#integrating-with-this-adapter) for more information).
 
 ## Configuration
 
@@ -11,7 +11,7 @@ This adapter supports the following configuration settings:
 
 The above values define the frequency at which the adapter requests a provider to transfer data.
 
-This adapter supports [config overrides](../../docs/config-overrides.md). The override filename is `managed_subscribe_data_adapter_config.json`, and the default config is located at `res/managed_subscribe_data_adapter_config.default.json`.
+This adapter supports [config overrides](../../../docs/config-overrides.md). The override filename is `managed_subscribe_data_adapter_config.json`, and the default config is located at `res/managed_subscribe_data_adapter_config.default.json`.
 
 ## Integrating with this Adapter
 
