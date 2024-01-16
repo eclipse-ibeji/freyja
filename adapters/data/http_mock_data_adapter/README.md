@@ -1,4 +1,4 @@
-# HTTP Mock Data ADapter
+# HTTP Mock Data Adapter
 
 The HTTP Mock Data Adapter mocks the behavior of an adapter which communicates with providers via HTTP. This is intended for use with the [Mock Digital Twin](../../../mocks/mock_digital_twin/).
 
