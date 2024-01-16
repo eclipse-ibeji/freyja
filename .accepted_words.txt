@@ -1,5 +1,7 @@
 ADT
 adt
+agemo
+Agemo
 aka
 alex
 alt
@@ -97,6 +99,7 @@ libs
 libssl
 lifecycle
 mailto
+ManagedSubscribeProviderProxy
 MappingAdapter
 MappingAdapterImpl
 md
@@ -105,7 +108,7 @@ min
 mock's
 MockDigitalTwin
 MockMappingService
-MQTTProviderProxyImpl
+MqttProviderProxy
 MSRC
 msrc
 mqtt
