@@ -14,21 +14,21 @@ use freyja_common::{
     digital_twin_adapter::{
         DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind, FindByIdRequest,
     },
-    mapping_client::{CheckForWorkRequest, GetMappingRequest, MappingClient},
+    mapping_adapter::{CheckForWorkRequest, GetMappingRequest, MappingAdapter},
     provider_proxy_selector::ProviderProxySelector,
     signal::{EmissionPolicy, SignalPatch, Target},
 };
 
 /// Manages mappings from the mapping service
-pub struct Cartographer<TMappingClient, TDigitalTwinAdapter, TProviderProxySelector> {
+pub struct Cartographer<TMappingAdapter, TDigitalTwinAdapter, TProviderProxySelector> {
     /// The shared signal store
     signals: Arc<SignalStore>,
 
-    /// The mapping client
-    mapping_client: TMappingClient,
+    /// The mapping adapter
+    mapping_adapter: TMappingAdapter,
 
-    /// The digital twin client
-    digital_twin_client: TDigitalTwinAdapter,
+    /// The digital twin adapter
+    digital_twin_adapter: TDigitalTwinAdapter,
 
     /// The provider proxy selector
     provider_proxy_selector: Arc<Mutex<TProviderProxySelector>>,
@@ -38,30 +38,30 @@ pub struct Cartographer<TMappingClient, TDigitalTwinAdapter, TProviderProxySelec
 }
 
 impl<
-        TMappingClient: MappingClient,
+        TMappingAdapter: MappingAdapter,
         TDigitalTwinAdapter: DigitalTwinAdapter,
         TProviderProxySelector: ProviderProxySelector,
-    > Cartographer<TMappingClient, TDigitalTwinAdapter, TProviderProxySelector>
+    > Cartographer<TMappingAdapter, TDigitalTwinAdapter, TProviderProxySelector>
 {
     /// Create a new instance of a Cartographer
     ///
     /// # Arguments
     /// - `signals`: the shared signal store
-    /// - `mapping_client`: the client for the mapping service
-    /// - `digital_twin_client`: the client for the digital twin service
+    /// - `mapping_adapter`: the adapter for the mapping service
+    /// - `digital_twin_adapter`: the adapter for the digital twin service
     /// - `provider_proxy_selector`: the provider proxy selector
     /// - `poll_interval`: the interval at which the cartographer should poll for changes
     pub fn new(
         signals: Arc<SignalStore>,
-        mapping_client: TMappingClient,
-        digital_twin_client: TDigitalTwinAdapter,
+        mapping_adapter: TMappingAdapter,
+        digital_twin_adapter: TDigitalTwinAdapter,
         provider_proxy_selector: Arc<Mutex<TProviderProxySelector>>,
         poll_interval: Duration,
     ) -> Self {
         Self {
             signals,
-            mapping_client,
-            digital_twin_client,
+            mapping_adapter,
+            digital_twin_adapter,
             provider_proxy_selector,
             poll_interval,
         }
@@ -88,7 +88,7 @@ impl<
 
             // Check for new work from the mapping service
             match self
-                .mapping_client
+                .mapping_adapter
                 .check_for_work(CheckForWorkRequest {})
                 .await
             {
@@ -104,7 +104,7 @@ impl<
                                 .await;
                             self.signals.sync(successes.into_iter());
                         }
-                        Err(e) => log::error!("Failed to get mapping from mapping client: {e}"),
+                        Err(e) => log::error!("Failed to get mapping from mapping adapter: {e}"),
                     }
                 }
                 Ok(_) if !failed_signals.is_empty() => {
@@ -167,12 +167,12 @@ impl<
         }
     }
 
-    /// Gets the mapping from the mapping client and returns a corresponding list of signal patches.
+    /// Gets the mapping from the mapping adapter and returns a corresponding list of signal patches.
     async fn get_mapping_as_signal_patches(
         &self,
     ) -> Result<Vec<SignalPatch>, Box<dyn std::error::Error + Send + Sync>> {
         Ok(self
-            .mapping_client
+            .mapping_adapter
             .get_mapping(GetMappingRequest {})
             .await?
             .map
@@ -203,7 +203,7 @@ impl<
         signal: &mut SignalPatch,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         signal.source = self
-            .digital_twin_client
+            .digital_twin_adapter
             .find_by_id(FindByIdRequest {
                 entity_id: signal.id.clone(),
             })
@@ -235,8 +235,8 @@ mod cartographer_tests {
         digital_twin_adapter::{DigitalTwinAdapterError, FindByIdResponse},
         digital_twin_map_entry::DigitalTwinMapEntry,
         entity::{Entity, EntityEndpoint},
-        mapping_client::{
-            CheckForWorkResponse, GetMappingResponse, MappingClientError, SendInventoryRequest,
+        mapping_adapter::{
+            CheckForWorkResponse, GetMappingResponse, MappingAdapterError, SendInventoryRequest,
             SendInventoryResponse,
         },
         provider_proxy::ProviderProxyFactory,
@@ -260,28 +260,28 @@ mod cartographer_tests {
     }
 
     mock! {
-        pub MappingClientImpl {}
+        pub MappingAdapterImpl {}
 
         #[async_trait]
-        impl MappingClient for MappingClientImpl {
-            fn create_new() -> Result<Self, MappingClientError>
+        impl MappingAdapter for MappingAdapterImpl {
+            fn create_new() -> Result<Self, MappingAdapterError>
             where
                 Self: Sized;
 
             async fn check_for_work(
                 &self,
                 request: CheckForWorkRequest,
-            ) -> Result<CheckForWorkResponse, MappingClientError>;
+            ) -> Result<CheckForWorkResponse, MappingAdapterError>;
 
             async fn send_inventory(
                 &self,
                 inventory: SendInventoryRequest,
-            ) -> Result<SendInventoryResponse, MappingClientError>;
+            ) -> Result<SendInventoryResponse, MappingAdapterError>;
 
             async fn get_mapping(
                 &self,
                 request: GetMappingRequest,
-            ) -> Result<GetMappingResponse, MappingClientError>;
+            ) -> Result<GetMappingResponse, MappingAdapterError>;
         }
     }
 
@@ -309,8 +309,8 @@ mod cartographer_tests {
 
         let test_map_entry_clone = test_map_entry.clone();
 
-        let mut mock_mapping_client = MockMappingClientImpl::new();
-        mock_mapping_client
+        let mut mock_mapping_adapter = MockMappingAdapterImpl::new();
+        mock_mapping_adapter
             .expect_get_mapping()
             .returning(move |_| {
                 Ok(GetMappingResponse {
@@ -322,8 +322,8 @@ mod cartographer_tests {
 
         let uut = Cartographer {
             signals: Arc::new(SignalStore::new()),
-            mapping_client: mock_mapping_client,
-            digital_twin_client: MockDigitalTwinAdapterImpl::new(),
+            mapping_adapter: mock_mapping_adapter,
+            digital_twin_adapter: MockDigitalTwinAdapterImpl::new(),
             provider_proxy_selector: Arc::new(Mutex::new(MockProviderProxySelector::new())),
             poll_interval: Duration::from_secs(1),
         };
@@ -386,8 +386,8 @@ mod cartographer_tests {
 
         let uut = Cartographer {
             signals: Arc::new(SignalStore::new()),
-            mapping_client: MockMappingClientImpl::new(),
-            digital_twin_client: mock_dt_adapter,
+            mapping_adapter: MockMappingAdapterImpl::new(),
+            digital_twin_adapter: mock_dt_adapter,
             provider_proxy_selector,
             poll_interval: Duration::from_secs(1),
         };

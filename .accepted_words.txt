@@ -1,5 +1,7 @@
 ADT
 adt
+agemo
+Agemo
 aka
 alex
 alt
@@ -97,15 +99,16 @@ libs
 libssl
 lifecycle
 mailto
-MappingClient
-MappingClientImpl
+ManagedSubscribeProviderProxy
+MappingAdapter
+MappingAdapterImpl
 md
 microsoft
 min
 mock's
 MockDigitalTwin
 MockMappingService
-MQTTProviderProxyImpl
+MqttProviderProxy
 MSRC
 msrc
 mqtt
@@ -148,7 +151,6 @@ req
 rm
 rsa
 rustup
-SampleMappingClient
 sdk
 SDV
 SecretUri

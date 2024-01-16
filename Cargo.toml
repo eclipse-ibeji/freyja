@@ -6,14 +6,14 @@
 # The default resolver for workspaces is different than for regular packages, so use v2 to avoid warnings
 resolver = "2"
 members = [
+  "adapters/cloud/in_memory_mock_cloud_adapter",
+  "adapters/digital_twin/in_memory_mock_digital_twin_adapter",
+  "adapters/digital_twin/mock_digital_twin_adapter",
+  "adapters/mapping/in_memory_mock_mapping_adapter",
+  "adapters/mapping/mock_mapping_service_adapter",
   "build_common",
-  "cloud_adapters/in_memory_mock_cloud_adapter",
   "common",
-  "digital_twin_adapters/in_memory_mock_digital_twin_adapter",
-  "digital_twin_adapters/mock_digital_twin_adapter",
   "freyja",
-  "mapping_clients/in_memory_mock_mapping_client",
-  "mapping_clients/mock_mapping_service_client",
   "mocks/mock_digital_twin",
   "mocks/mock_mapping_service",
   "proc_macros",
@@ -30,7 +30,12 @@ members = [
 freyja-build-common = { path = "build_common" }
 freyja-common = { path = "common" }
 freyja-contracts = { path = "contracts" }
+in-memory-mock-cloud-adapter = { path = "adapters/cloud/in_memory_mock_cloud_adapter" }
+in-memory-mock-digital-twin-adapter = { path ="adapters/digital_twin/in_memory_mock_digital_twin_adapter" }
+in-memory-mock-mapping-adapter = { path = "adapters/mapping/in_memory_mock_mapping_adapter" }
 mock-digital-twin = { path = "mocks/mock_digital_twin" }
+mock-digital-twin-adapter = { path = "adapters/digital_twin/mock_digital_twin_adapter" }
+mock-mapping-service-adapter = { path = "adapters/mapping/mock_mapping_service_adapter" }
 proc-macros = { path = "proc_macros" }
 provider-proxy-selector = { path = "provider_proxy_selector" }
 

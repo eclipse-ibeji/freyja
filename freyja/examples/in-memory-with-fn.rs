@@ -4,7 +4,7 @@
 
 use in_memory_mock_cloud_adapter::in_memory_mock_cloud_adapter::InMemoryMockCloudAdapter;
 use in_memory_mock_digital_twin_adapter::in_memory_mock_digital_twin_adapter::InMemoryMockDigitalTwinAdapter;
-use in_memory_mock_mapping_client::in_memory_mock_mapping_client::InMemoryMockMappingClient;
+use in_memory_mock_mapping_adapter::in_memory_mock_mapping_adapter::InMemoryMockMappingAdapter;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -13,7 +13,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     freyja::freyja_main::<
         InMemoryMockDigitalTwinAdapter,
         InMemoryMockCloudAdapter,
-        InMemoryMockMappingClient,
+        InMemoryMockMappingAdapter,
     >()
     .await
 }

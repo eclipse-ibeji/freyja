@@ -31,7 +31,7 @@ Note that there is also an `in-memory-with-fn` example with identical behavior. 
 
 This example uses the Mock Digital Twin Service and Mock Mapping Service. The behavior is very similar to the in-memory example, but with two key differences:
 
-1. The mapping client and digital twin adapter function as clients to external services rather than handling everything in-memory. These external services are mock versions of the mapping and digital twin services which run as binaries on the same device.
+1. The mapping adapter and digital twin adapter function as clients to external services rather than handling everything in-memory. These external services are mock versions of the mapping and digital twin services which run as binaries on the same device.
 1. The mock services allow for more precise control over when their state changes. Users can advance the state of the applications by interacting with their terminal interfaces.
 
 This example is ideal if you need to manually control when signals or mappings are added or removed from the application, thus affecting what data gets emitted by Freyja. This example is most commonly used for demo scenarios.
@@ -60,14 +60,14 @@ This appendix lists the sample adapters that are provided in this repository. Th
 
 ## Digital Twin Adapters
 
-- [In-Memory Mock Digital Twin Adapter](../digital_twin_adapters/in_memory_mock_digital_twin_adapter/README.md): Emulates a Digital Twin Service entirely within the memory of the Freyja application.
-- [Mock Digital Twin Adapter](../digital_twin_adapters/mock_digital_twin_adapter/README.md): Communicates with the [Mock Digital Twin](../mocks/mock_digital_twin/README.md), which is an executable that mocks the Digital Twin Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove entities from the mocked digital twin by pressing enter to advance through configurable states.
+- [In-Memory Mock Digital Twin Adapter](../adapters/digital_twin/in_memory_mock_digital_twin_adapter/README.md): Emulates a Digital Twin Service entirely within the memory of the Freyja application.
+- [Mock Digital Twin Adapter](../adapters/digital_twin/mock_digital_twin_adapter/README.md): Communicates with the [Mock Digital Twin](../mocks/mock_digital_twin/README.md), which is an executable that mocks the Digital Twin Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove entities from the mocked digital twin by pressing enter to advance through configurable states.
 
-## Mapping Clients
+## Mapping Adapters
 
-- [In-Memory Mock Mapping Client](../mapping_clients/in_memory_mock_mapping_client/README.md): Emulates a mapping service entirely within the memory of the Freyja application.
-- [Mock Mapping Service Client](../mapping_clients/mock_mapping_service_client/README.md): Communicates with the [Mock Mapping Service](../mocks/mock_mapping_service/README.md), which is an executable that mocks a Mapping Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove mappings by pressing enter to advance through configurable states.
+- [In-Memory Mock Mapping Adapter](../adapters/mapping/in_memory_mock_mapping_adapter/README.md): Emulates a mapping service entirely within the memory of the Freyja application.
+- [Mock Mapping Service Adapter](../adapters/mapping/mock_mapping_service_adapter/README.md): Communicates with the [Mock Mapping Service](../mocks/mock_mapping_service/README.md), which is an executable that mocks a Mapping Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove mappings by pressing enter to advance through configurable states.
 
 ## Digital Twin Adapters
 
-- [In-Memory Mock Cloud Adapter](../cloud_adapters/in_memory_mock_cloud_adapter/README.md): Emulates a Cloud Connector entirely within the memory of the Freyja application. When data is emitted to this adapter it will be printed to the console window.
+- [In-Memory Mock Cloud Adapter](../adapters/cloud/in_memory_mock_cloud_adapter/README.md): Emulates a Cloud Connector entirely within the memory of the Freyja application. When data is emitted to this adapter it will be printed to the console window.

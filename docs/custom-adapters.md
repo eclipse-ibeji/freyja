@@ -4,11 +4,11 @@ Freyja allows users to bring their own implementations of various traits which i
 
 ## How to Author a Custom Adapter
 
-Freyja supports custom implementations of the `DigitalTwinAdapter`, `CloudAdapter`, and `MappingClient` interfaces. To refer to these traits in your implementation, you will need to take a dependency on the `freyja-contracts` crate. The following `Cargo.toml` snippet shows how you can include this dependency:
+Freyja supports custom implementations of the `DigitalTwinAdapter`, `CloudAdapter`, and `MappingAdapter` interfaces. To refer to these traits in your implementation, you will need to take a dependency on the `freyja-common` crate. The following `Cargo.toml` snippet shows how you can include this dependency:
 
 ```toml
 [dependencies]
-freyja-contracts = { git = "https://github.com/eclipse-ibeji/freyja", rev = "<commit hash>" }
+freyja-common = { git = "https://github.com/eclipse-ibeji/freyja" }
 ```
 
 For more information about the adapter interfaces, see [the design doc](./design/README.md#external-interfaces).
@@ -19,7 +19,7 @@ To avoid the difficulty that comes with trying to statically link unknown extern
 
 ```toml
 [dependencies]
-freyja = { git = "https://github.com/eclipse-ibeji/freyja", rev = "<commit hash>" }
+freyja = { git = "https://github.com/eclipse-ibeji/freyja" }
 tokio = { version = "1.0", features = ["macros"] }
 ```
 

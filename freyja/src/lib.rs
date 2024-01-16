@@ -20,7 +20,7 @@ use freyja_common::{
     cloud_adapter::CloudAdapter,
     cmd_utils::{get_log_level, parse_args},
     digital_twin_adapter::DigitalTwinAdapter,
-    mapping_client::MappingClient,
+    mapping_adapter::MappingAdapter,
     provider_proxy_selector::ProviderProxySelector,
     signal_store::SignalStore,
 };
@@ -35,7 +35,7 @@ use mqtt_provider_proxy::mqtt_provider_proxy_factory::MqttProviderProxyFactory;
 pub async fn freyja_main<
     TDigitalTwinAdapter: DigitalTwinAdapter,
     TCloudAdapter: CloudAdapter,
-    TMappingClient: MappingClient,
+    TMappingAdapter: MappingAdapter,
 >() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let args = parse_args(env::args()).expect("Failed to parse args");
 
@@ -61,7 +61,7 @@ pub async fn freyja_main<
     let cartographer_poll_interval = Duration::from_secs(5);
     let cartographer = Cartographer::new(
         signal_store.clone(),
-        TMappingClient::create_new().unwrap(),
+        TMappingAdapter::create_new().unwrap(),
         TDigitalTwinAdapter::create_new().unwrap(),
         provider_proxy_selector.clone(),
         cartographer_poll_interval,

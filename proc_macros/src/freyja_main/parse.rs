@@ -20,7 +20,7 @@ pub(crate) fn parse(ts: TokenStream) -> FreyjaMainArgs {
 pub(crate) struct FreyjaMainArgs {
     pub dt_adapter_type: Ident,
     pub cloud_adapter_type: Ident,
-    pub mapping_client_type: Ident,
+    pub mapping_adapter_type: Ident,
 }
 
 impl Parse for FreyjaMainArgs {
@@ -39,7 +39,7 @@ impl Parse for FreyjaMainArgs {
         Ok(FreyjaMainArgs {
             dt_adapter_type: args.next().unwrap(),
             cloud_adapter_type: args.next().unwrap(),
-            mapping_client_type: args.next().unwrap(),
+            mapping_adapter_type: args.next().unwrap(),
         })
     }
 }
@@ -62,7 +62,7 @@ mod freyja_main_parse_tests {
 
         assert_eq!(output.dt_adapter_type, foo_ident);
         assert_eq!(output.cloud_adapter_type, bar_ident);
-        assert_eq!(output.mapping_client_type, baz_ident);
+        assert_eq!(output.mapping_adapter_type, baz_ident);
 
         // Now try a different order
         let input = quote! { #baz_ident, #foo_ident, #bar_ident };
@@ -70,7 +70,7 @@ mod freyja_main_parse_tests {
 
         assert_eq!(output.dt_adapter_type, baz_ident);
         assert_eq!(output.cloud_adapter_type, foo_ident);
-        assert_eq!(output.mapping_client_type, bar_ident);
+        assert_eq!(output.mapping_adapter_type, bar_ident);
     }
 
     #[test]

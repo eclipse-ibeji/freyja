@@ -1,6 +1,6 @@
-# In-Memory Mock Mapping Client
+# In-Memory Mock Mapping Adapter
 
-The In-Memory Mock Mapping Client mocks the behavior of a mapping service from within the memory of the Freyja application. This enables a minimal example scenario when working with Freyja. This library contains an implementation of the `MappingClient` trait from the contracts.
+The In-Memory Mock Mapping Adapter mocks the behavior of a mapping service from within the memory of the Freyja application. This enables a minimal example scenario when working with Freyja. This library contains an implementation of the `MappingAdapter` trait from `freyja-common`.
 
 ## Configuration
 
@@ -16,8 +16,8 @@ This adapter supports the following configuration settings:
     - `emit_on_change`: a boolean indicating whether data emission should be skipped if the value hasn't changed since the last emission. Set to `true` to enable this behavior.
     - `conversion`: a conversion that should be applied. Set to `null` if no conversion is needed. Otherwise the conversion is configured with the `mul` and `offset` properties, and the value `y` that is emitted is calculated as `y = mul * x + offset`. Note that conversions are only supported for signal values which can be parsed as `f64`.
 
-This adapter supports [config overrides](../../docs/config-overrides.md). The override filename is `mock_mapping_config.json`, and the default config is located at `res/mock_mapping_config.default.json`.
+This adapter supports [config overrides](../../../docs/config-overrides.md). The override filename is `mock_mapping_config.json`, and the default config is located at `res/mock_mapping_config.default.json`.
 
 ## Behavior
 
-The client maintains an internal count, and only mappings satisfying the condition `begin <= count [< end]` will be returned in the `get_mapping` API. This count is incremented every time the `check_for_work` API is invoked. This will also affect the `check_for_work` API, which returns true if the set of mappings has changed since the last time it was called. This effectively means that the state can potentially change with each loop of the cartographer.
+The adapter maintains an internal count, and only mappings satisfying the condition `begin <= count [< end]` will be returned in the `get_mapping` API. This count is incremented every time the `check_for_work` API is invoked. This will also affect the `check_for_work` API, which returns true if the set of mappings has changed since the last time it was called. This effectively means that the state can potentially change with each loop of the cartographer.

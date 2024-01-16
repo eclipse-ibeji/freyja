@@ -19,14 +19,14 @@ pub(crate) fn generate(ir: FreyjaMainOutput) -> TokenStream {
             FreyjaMainArgs {
                 dt_adapter_type,
                 cloud_adapter_type,
-                mapping_client_type,
+                mapping_adapter_type,
             },
     } = ir;
 
     quote! {
         #[tokio::main]
         async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-            freyja::freyja_main::<#dt_adapter_type, #cloud_adapter_type, #mapping_client_type>().await
+            freyja::freyja_main::<#dt_adapter_type, #cloud_adapter_type, #mapping_adapter_type>().await
         }
     }
 }
