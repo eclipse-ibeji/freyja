@@ -85,11 +85,7 @@ mod config_item_tests {
 
         // First check for values less than end
         for i in 0..iters_to_end {
-            assert!(f32_approx_eq(
-                start + delta * i as f32,
-                c.get_nth(i),
-                0.001
-            ));
+            assert!(f32_approx_eq(start + delta * i as f32, c.get_nth(i), 0.001));
         }
 
         // Now validate behavior past end

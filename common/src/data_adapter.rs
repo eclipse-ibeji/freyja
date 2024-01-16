@@ -29,10 +29,7 @@ pub trait DataAdapter {
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
     /// - `signal_store`: the shared signal store
-    fn create_new(
-        provider_uri: &str,
-        signals: Arc<SignalStore>,
-    ) -> Result<Self, DataAdapterError>
+    fn create_new(provider_uri: &str, signals: Arc<SignalStore>) -> Result<Self, DataAdapterError>
     where
         Self: Sized;
 

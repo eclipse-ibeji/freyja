@@ -18,11 +18,9 @@ use crate::{
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     config_utils,
+    data_adapter::{DataAdapter, DataAdapterError, DataAdapterErrorKind, EntityRegistration},
     entity::{Entity, EntityEndpoint},
     out_dir,
-    data_adapter::{
-        EntityRegistration, DataAdapter, DataAdapterError, DataAdapterErrorKind,
-    },
     signal_store::SignalStore,
 };
 
@@ -44,10 +42,7 @@ impl DataAdapter for ManagedSubscribeDataAdapter {
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
     /// - `_signals`: the shared signal store (unused in this adapter)
-    fn create_new(
-        provider_uri: &str,
-        _signals: Arc<SignalStore>,
-    ) -> Result<Self, DataAdapterError>
+    fn create_new(provider_uri: &str, _signals: Arc<SignalStore>) -> Result<Self, DataAdapterError>
     where
         Self: Sized,
     {

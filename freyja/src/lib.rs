@@ -15,16 +15,16 @@ use log::LevelFilter;
 use tokio::sync::Mutex;
 
 use cartographer::Cartographer;
+use data_adapter_selector::data_adapter_selector_impl::DataAdapterSelectorImpl;
 use emitter::Emitter;
 use freyja_common::{
     cloud_adapter::CloudAdapter,
     cmd_utils::{get_log_level, parse_args},
+    data_adapter_selector::DataAdapterSelector,
     digital_twin_adapter::DigitalTwinAdapter,
     mapping_adapter::MappingAdapter,
-    data_adapter_selector::DataAdapterSelector,
     signal_store::SignalStore,
 };
-use data_adapter_selector::data_adapter_selector_impl::DataAdapterSelectorImpl;
 
 use grpc_data_adapter::grpc_data_adapter_factory::GRPCDataAdapterFactory;
 use http_mock_data_adapter::http_mock_data_adapter_factory::HttpMockDataAdapterFactory;

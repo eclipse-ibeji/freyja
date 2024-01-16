@@ -21,11 +21,9 @@ use crate::{config::Config, grpc_client_impl::GRPCClientImpl, GET_OPERATION, SUB
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     config_utils,
+    data_adapter::{DataAdapter, DataAdapterError, DataAdapterErrorKind, EntityRegistration},
     entity::EntityEndpoint,
     out_dir,
-    data_adapter::{
-        EntityRegistration, DataAdapter, DataAdapterError, DataAdapterErrorKind,
-    },
     signal_store::SignalStore,
 };
 
@@ -162,8 +160,7 @@ impl DataAdapter for GRPCDataAdapter {
                 }
             }
 
-            result
-                .ok_or::<DataAdapterError>(DataAdapterErrorKind::OperationNotSupported.into())?
+            result.ok_or::<DataAdapterError>(DataAdapterErrorKind::OperationNotSupported.into())?
         };
 
         self.entity_operation_map

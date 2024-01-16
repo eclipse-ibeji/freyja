@@ -21,10 +21,8 @@ use crate::{
 
 use freyja_build_common::config_file_stem;
 use freyja_common::{
+    data_adapter::{DataAdapter, DataAdapterError, DataAdapterErrorKind, EntityRegistration},
     entity::EntityEndpoint,
-    data_adapter::{
-        EntityRegistration, DataAdapter, DataAdapterError, DataAdapterErrorKind,
-    },
 };
 
 pub struct InMemoryMockDataAdapter {
@@ -100,10 +98,7 @@ impl DataAdapter for InMemoryMockDataAdapter {
     /// # Arguments
     /// - `provider_uri`: the provider uri for accessing an entity's information
     /// - `signals`: the shared signal store
-    fn create_new(
-        _provider_uri: &str,
-        signals: Arc<SignalStore>,
-    ) -> Result<Self, DataAdapterError>
+    fn create_new(_provider_uri: &str, signals: Arc<SignalStore>) -> Result<Self, DataAdapterError>
     where
         Self: Sized,
     {
@@ -211,8 +206,7 @@ impl DataAdapter for InMemoryMockDataAdapter {
                 }
             }
 
-            result
-                .ok_or::<DataAdapterError>(DataAdapterErrorKind::OperationNotSupported.into())?
+            result.ok_or::<DataAdapterError>(DataAdapterErrorKind::OperationNotSupported.into())?
         };
 
         self.entity_operation_map

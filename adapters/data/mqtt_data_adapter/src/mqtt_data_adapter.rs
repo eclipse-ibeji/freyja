@@ -14,11 +14,9 @@ use crate::{config::Config, MQTT_PROTOCOL, SUBSCRIBE_OPERATION};
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     config_utils,
+    data_adapter::{DataAdapter, DataAdapterError, DataAdapterErrorKind, EntityRegistration},
     entity::EntityEndpoint,
     message_utils, out_dir,
-    data_adapter::{
-        EntityRegistration, DataAdapter, DataAdapterError, DataAdapterErrorKind,
-    },
     signal_store::SignalStore,
 };
 

@@ -11,11 +11,11 @@ use log::{debug, info, warn};
 use freyja_common::signal_store::SignalStore;
 use freyja_common::{
     conversion::Conversion,
+    data_adapter_selector::DataAdapterSelector,
     digital_twin_adapter::{
         DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind, FindByIdRequest,
     },
     mapping_adapter::{CheckForWorkRequest, GetMappingRequest, MappingAdapter},
-    data_adapter_selector::DataAdapterSelector,
     signal::{EmissionPolicy, SignalPatch, Target},
 };
 
@@ -232,6 +232,8 @@ mod cartographer_tests {
     use mockall::{predicate::eq, *};
 
     use freyja_common::{
+        data_adapter::DataAdapterFactory,
+        data_adapter_selector::DataAdapterSelectorError,
         digital_twin_adapter::{DigitalTwinAdapterError, FindByIdResponse},
         digital_twin_map_entry::DigitalTwinMapEntry,
         entity::{Entity, EntityEndpoint},
@@ -239,8 +241,6 @@ mod cartographer_tests {
             CheckForWorkResponse, GetMappingResponse, MappingAdapterError, SendInventoryRequest,
             SendInventoryResponse,
         },
-        data_adapter::DataAdapterFactory,
-        data_adapter_selector::DataAdapterSelectorError,
     };
 
     mock! {

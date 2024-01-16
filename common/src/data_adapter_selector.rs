@@ -4,7 +4,7 @@
 
 use async_trait::async_trait;
 
-use crate::{entity::Entity, data_adapter::DataAdapterFactory};
+use crate::{data_adapter::DataAdapterFactory, entity::Entity};
 
 /// Manages a collection of data adapters and provides access to them.
 /// Conceptually similar to a gateway for the adapters.
@@ -29,8 +29,7 @@ pub trait DataAdapterSelector {
     ///
     /// # Arguments
     /// - `entity_id`: the entity to request
-    async fn request_entity_value(&self, entity_id: &str)
-        -> Result<(), DataAdapterSelectorError>;
+    async fn request_entity_value(&self, entity_id: &str) -> Result<(), DataAdapterSelectorError>;
 }
 
 proc_macros::error! {

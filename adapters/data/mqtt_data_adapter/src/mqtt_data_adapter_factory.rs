@@ -5,8 +5,8 @@
 use std::sync::Arc;
 
 use freyja_common::{
-    entity::{Entity, EntityEndpoint},
     data_adapter::{DataAdapter, DataAdapterError, DataAdapterFactory},
+    entity::{Entity, EntityEndpoint},
     signal_store::SignalStore,
 };
 
