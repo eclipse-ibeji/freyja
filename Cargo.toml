@@ -7,37 +7,42 @@
 resolver = "2"
 members = [
   "adapters/cloud/in_memory_mock_cloud_adapter",
+  "adapters/data/grpc_data_adapter",
+  "adapters/data/http_mock_data_adapter",
+  "adapters/data/in_memory_mock_data_adapter",
+  "adapters/data/managed_subscribe_data_adapter",
+  "adapters/data/mqtt_data_adapter",
   "adapters/digital_twin/in_memory_mock_digital_twin_adapter",
   "adapters/digital_twin/mock_digital_twin_adapter",
   "adapters/mapping/in_memory_mock_mapping_adapter",
   "adapters/mapping/mock_mapping_service_adapter",
   "build_common",
   "common",
+  "data_adapter_selector",
   "freyja",
   "mocks/mock_digital_twin",
   "mocks/mock_mapping_service",
   "proc_macros",
-  "provider_proxies/grpc/v1",
-  "provider_proxies/http_mock_provider_proxy",
-  "provider_proxies/in_memory_mock_provider_proxy",
-  "provider_proxies/managed_subscribe",
-  "provider_proxies/mqtt",
-  "provider_proxy_selector",
 ]
 
 [workspace.dependencies]
 # Freyja dependencies
+data-adapter-selector = { path = "data_adapter_selector" }
 freyja-build-common = { path = "build_common" }
 freyja-common = { path = "common" }
 freyja-contracts = { path = "contracts" }
+grpc-data-adapter = { path = "adapters/data/grpc_data_adapter" }
+http-mock-data-adapter = { path = "adapters/data/http_mock_data_adapter" }
 in-memory-mock-cloud-adapter = { path = "adapters/cloud/in_memory_mock_cloud_adapter" }
+in-memory-mock-data-adapter = { path = "adapters/data/in_memory_mock_data_adapter" }
 in-memory-mock-digital-twin-adapter = { path ="adapters/digital_twin/in_memory_mock_digital_twin_adapter" }
 in-memory-mock-mapping-adapter = { path = "adapters/mapping/in_memory_mock_mapping_adapter" }
+managed-subscribe-data-adapter = { path = "adapters/data/managed_subscribe_data_adapter" }
 mock-digital-twin = { path = "mocks/mock_digital_twin" }
 mock-digital-twin-adapter = { path = "adapters/digital_twin/mock_digital_twin_adapter" }
 mock-mapping-service-adapter = { path = "adapters/mapping/mock_mapping_service_adapter" }
+mqtt-data-adapter = { path = "adapters/data/mqtt_data_adapter" }
 proc-macros = { path = "proc_macros" }
-provider-proxy-selector = { path = "provider_proxy_selector" }
 
 # Other SDV projects. Versioning is handled by the Cargo.lock file
 core-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji" }

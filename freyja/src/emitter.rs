@@ -10,7 +10,7 @@ use tokio::{sync::Mutex, time::sleep};
 
 use freyja_common::{
     cloud_adapter::{CloudAdapter, CloudMessageRequest, CloudMessageResponse},
-    provider_proxy_selector::ProviderProxySelector,
+    data_adapter_selector::DataAdapterSelector,
     signal::Signal,
     signal_store::SignalStore,
 };
@@ -18,35 +18,35 @@ use freyja_common::{
 const DEFAULT_SLEEP_INTERVAL_MS: u64 = 1000;
 
 /// Emits sensor data at regular intervals as configured in the store
-pub struct Emitter<TCloudAdapter, TProviderProxySelector> {
+pub struct Emitter<TCloudAdapter, TDataAdapterSelector> {
     /// The shared signal store
     signals: Arc<SignalStore>,
 
     /// The cloud adapter used to emit data to the cloud
     cloud_adapter: TCloudAdapter,
 
-    /// The provider proxy selector
-    provider_proxy_selector: Arc<Mutex<TProviderProxySelector>>,
+    /// The data adapter selector
+    data_adapter_selector: Arc<Mutex<TDataAdapterSelector>>,
 }
 
-impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector>
-    Emitter<TCloudAdapter, TProviderProxySelector>
+impl<TCloudAdapter: CloudAdapter, TDataAdapterSelector: DataAdapterSelector>
+    Emitter<TCloudAdapter, TDataAdapterSelector>
 {
     /// Creates a new instance of the Emitter
     ///
     /// # Arguments
     /// - `signals`: the shared signal store
     /// - `cloud_adapter`: the cloud adapter used to emit to the cloud
-    /// - `provider_proxy_selector`: the provider proxy selector
+    /// - `data_adapter_selector`: the data adapter selector
     pub fn new(
         signals: Arc<SignalStore>,
         cloud_adapter: TCloudAdapter,
-        provider_proxy_selector: Arc<Mutex<TProviderProxySelector>>,
+        data_adapter_selector: Arc<Mutex<TDataAdapterSelector>>,
     ) -> Self {
         Self {
             signals,
             cloud_adapter,
-            provider_proxy_selector,
+            data_adapter_selector,
         }
     }
 
@@ -98,16 +98,16 @@ impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector>
                 // Submit a request for a new value for the next iteration.
                 // This approach to requesting signal values introduces an inherent delay in uploading data
                 // of signal.emission.policy.interval_ms and needs to be revisited.
-                let proxy_result = {
-                    let provider_proxy_selector = self.provider_proxy_selector.lock().await;
-                    provider_proxy_selector
+                let selector_result = {
+                    let data_adapter_selector = self.data_adapter_selector.lock().await;
+                    data_adapter_selector
                         .request_entity_value(&signal.id)
                         .await
-                        .map_err(EmitterError::provider_proxy_error)
+                        .map_err(EmitterError::data_adapter_error)
                 };
 
-                if proxy_result.is_err() {
-                    log::error!("Error submitting request for signal value while processing signal {}: {:?}", signal.id, proxy_result.err());
+                if selector_result.is_err() {
+                    log::error!("Error submitting request for signal value while processing signal {}: {:?}", signal.id, selector_result.err());
                 }
 
                 if signal.value.is_none() {
@@ -193,7 +193,7 @@ impl<TCloudAdapter: CloudAdapter, TProviderProxySelector: ProviderProxySelector>
 proc_macros::error! {
     EmitterError {
         SignalValueEmpty,
-        ProviderProxyError,
+        DataAdapterError,
         CloudError,
     }
 }
@@ -208,8 +208,8 @@ mod emitter_tests {
     use freyja_common::{
         cloud_adapter::{CloudAdapterError, CloudAdapterErrorKind},
         entity::Entity,
-        provider_proxy::ProviderProxyFactory,
-        provider_proxy_selector::ProviderProxySelectorError,
+        data_adapter::DataAdapterFactory,
+        data_adapter_selector::DataAdapterSelectorError,
         signal::{Emission, EmissionPolicy},
     };
 
@@ -230,13 +230,13 @@ mod emitter_tests {
     }
 
     mock! {
-        pub ProviderProxySelector {}
+        pub DataAdapterSelector {}
 
         #[async_trait]
-        impl ProviderProxySelector for ProviderProxySelector {
-            fn register<TFactory: ProviderProxyFactory + Send + Sync + 'static>(&mut self) -> Result<(), ProviderProxySelectorError>;
-            async fn create_or_update_proxy(&self, entity: &Entity) -> Result<(), ProviderProxySelectorError>;
-            async fn request_entity_value(&self, entity_id: &str) -> Result<(), ProviderProxySelectorError>;
+        impl DataAdapterSelector for DataAdapterSelector {
+            fn register<TFactory: DataAdapterFactory + Send + Sync + 'static>(&mut self) -> Result<(), DataAdapterSelectorError>;
+            async fn create_or_update_adapter(&self, entity: &Entity) -> Result<(), DataAdapterSelectorError>;
+            async fn request_entity_value(&self, entity_id: &str) -> Result<(), DataAdapterSelectorError>;
         }
     }
 
@@ -245,7 +245,7 @@ mod emitter_tests {
         let uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: MockCloudAdapter::new(),
-            provider_proxy_selector: Arc::new(Mutex::new(MockProviderProxySelector::new())),
+            data_adapter_selector: Arc::new(Mutex::new(MockDataAdapterSelector::new())),
         };
 
         let result = uut.emit_data(vec![]).await;
@@ -258,11 +258,11 @@ mod emitter_tests {
     async fn emit_data_handles_nonzero_next_emission_time() {
         const NEXT_EMISSION_MS: u64 = 42;
 
-        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
-        mock_provider_proxy_selector
+        let mut mock_data_adapter_selector = MockDataAdapterSelector::new();
+        mock_data_adapter_selector
             .expect_request_entity_value()
             .never();
-        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
+        let data_adapter_selector = Arc::new(Mutex::new(mock_data_adapter_selector));
 
         let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter.expect_send_to_cloud().never();
@@ -270,7 +270,7 @@ mod emitter_tests {
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector,
+            data_adapter_selector,
         };
 
         let test_signal = Signal {
@@ -284,7 +284,7 @@ mod emitter_tests {
         let result = uut.emit_data(vec![test_signal]).await;
 
         uut.cloud_adapter.checkpoint();
-        uut.provider_proxy_selector.lock().await.checkpoint();
+        uut.data_adapter_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), NEXT_EMISSION_MS);
@@ -294,12 +294,12 @@ mod emitter_tests {
     async fn emit_data_handles_zero_next_emission_time() {
         const INTERVAL: u64 = 42;
 
-        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
-        mock_provider_proxy_selector
+        let mut mock_data_adapter_selector = MockDataAdapterSelector::new();
+        mock_data_adapter_selector
             .expect_request_entity_value()
             .once()
             .returning(|_| Ok(()));
-        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
+        let data_adapter_selector = Arc::new(Mutex::new(mock_data_adapter_selector));
 
         let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter
@@ -310,7 +310,7 @@ mod emitter_tests {
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector,
+            data_adapter_selector,
         };
 
         let test_signal = Signal {
@@ -329,7 +329,7 @@ mod emitter_tests {
         let result = uut.emit_data(vec![test_signal]).await;
 
         uut.cloud_adapter.checkpoint();
-        uut.provider_proxy_selector.lock().await.checkpoint();
+        uut.data_adapter_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), INTERVAL);
@@ -339,12 +339,12 @@ mod emitter_tests {
     async fn emit_data_doesnt_emit_when_value_empty() {
         const INTERVAL: u64 = 42;
 
-        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
-        mock_provider_proxy_selector
+        let mut mock_data_adapter_selector = MockDataAdapterSelector::new();
+        mock_data_adapter_selector
             .expect_request_entity_value()
             .once()
             .returning(|_| Ok(()));
-        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
+        let data_adapter_selector = Arc::new(Mutex::new(mock_data_adapter_selector));
 
         let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter.expect_send_to_cloud().never();
@@ -352,7 +352,7 @@ mod emitter_tests {
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector,
+            data_adapter_selector,
         };
 
         let test_signal = Signal {
@@ -371,7 +371,7 @@ mod emitter_tests {
         let result = uut.emit_data(vec![test_signal]).await;
 
         uut.cloud_adapter.checkpoint();
-        uut.provider_proxy_selector.lock().await.checkpoint();
+        uut.data_adapter_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), INTERVAL);
@@ -381,12 +381,12 @@ mod emitter_tests {
     async fn emit_data_doesnt_emit_when_value_not_changed() {
         const INTERVAL: u64 = 42;
 
-        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
-        mock_provider_proxy_selector
+        let mut mock_data_adapter_selector = MockDataAdapterSelector::new();
+        mock_data_adapter_selector
             .expect_request_entity_value()
             .once()
             .returning(|_| Ok(()));
-        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
+        let data_adapter_selector = Arc::new(Mutex::new(mock_data_adapter_selector));
 
         let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter.expect_send_to_cloud().never();
@@ -394,7 +394,7 @@ mod emitter_tests {
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector,
+            data_adapter_selector,
         };
 
         let value = Some("foo".to_string());
@@ -415,7 +415,7 @@ mod emitter_tests {
         let result = uut.emit_data(vec![test_signal]).await;
 
         uut.cloud_adapter.checkpoint();
-        uut.provider_proxy_selector.lock().await.checkpoint();
+        uut.data_adapter_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), INTERVAL);
@@ -425,12 +425,12 @@ mod emitter_tests {
     async fn emit_data_emits_when_value_changed() {
         const INTERVAL: u64 = 42;
 
-        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
-        mock_provider_proxy_selector
+        let mut mock_data_adapter_selector = MockDataAdapterSelector::new();
+        mock_data_adapter_selector
             .expect_request_entity_value()
             .once()
             .returning(|_| Ok(()));
-        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
+        let data_adapter_selector = Arc::new(Mutex::new(mock_data_adapter_selector));
 
         let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter
@@ -441,7 +441,7 @@ mod emitter_tests {
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector,
+            data_adapter_selector,
         };
 
         let test_signal = Signal {
@@ -461,7 +461,7 @@ mod emitter_tests {
         let result = uut.emit_data(vec![test_signal]).await;
 
         uut.cloud_adapter.checkpoint();
-        uut.provider_proxy_selector.lock().await.checkpoint();
+        uut.data_adapter_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), INTERVAL);
@@ -471,12 +471,12 @@ mod emitter_tests {
     async fn emit_data_emits_when_last_value_empty() {
         const INTERVAL: u64 = 42;
 
-        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
-        mock_provider_proxy_selector
+        let mut mock_data_adapter_selector = MockDataAdapterSelector::new();
+        mock_data_adapter_selector
             .expect_request_entity_value()
             .once()
             .returning(|_| Ok(()));
-        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
+        let data_adapter_selector = Arc::new(Mutex::new(mock_data_adapter_selector));
 
         let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter
@@ -487,7 +487,7 @@ mod emitter_tests {
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector,
+            data_adapter_selector,
         };
 
         let test_signal = Signal {
@@ -507,7 +507,7 @@ mod emitter_tests {
         let result = uut.emit_data(vec![test_signal]).await;
 
         uut.cloud_adapter.checkpoint();
-        uut.provider_proxy_selector.lock().await.checkpoint();
+        uut.data_adapter_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), INTERVAL);
@@ -515,12 +515,12 @@ mod emitter_tests {
 
     #[tokio::test]
     async fn cloud_adapter_error_doesnt_prevent_further_emission_attempts() {
-        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
-        mock_provider_proxy_selector
+        let mut mock_data_adapter_selector = MockDataAdapterSelector::new();
+        mock_data_adapter_selector
             .expect_request_entity_value()
             .times(2)
             .returning(|_| Ok(()));
-        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
+        let data_adapter_selector = Arc::new(Mutex::new(mock_data_adapter_selector));
 
         let mut mock_cloud_adapter = MockCloudAdapter::new();
         mock_cloud_adapter
@@ -531,7 +531,7 @@ mod emitter_tests {
         let mut uut = Emitter {
             signals: Arc::new(SignalStore::new()),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector,
+            data_adapter_selector,
         };
 
         let test_signal = Signal {
@@ -542,7 +542,7 @@ mod emitter_tests {
         let result = uut.emit_data(vec![test_signal.clone(), test_signal]).await;
 
         uut.cloud_adapter.checkpoint();
-        uut.provider_proxy_selector.lock().await.checkpoint();
+        uut.data_adapter_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
     }
@@ -576,7 +576,7 @@ mod emitter_tests {
         let uut = Emitter {
             signals: Arc::new(signals),
             cloud_adapter: mock_cloud_adapter,
-            provider_proxy_selector: Arc::new(Mutex::new(MockProviderProxySelector::new())),
+            data_adapter_selector: Arc::new(Mutex::new(MockDataAdapterSelector::new())),
         };
 
         let result = uut.send_to_cloud(test_signal).await;

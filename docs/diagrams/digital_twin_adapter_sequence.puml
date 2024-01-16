@@ -2,7 +2,7 @@
 participant "Freyja"
 participant "Digital Twin Adapter"
 participant "In-Vehicle Digital Twin"
-participant "Provider Proxy Selector"
+participant "Data Adapter Selector"
 
 
 
@@ -21,7 +21,7 @@ alt #LightPink Metadata Required to Retrieve Signal Values
     end note
 end
 
-"Digital Twin Adapter"->"Provider Proxy Selector": CreateOrUpdateProviderProxy(entity_id, provider_uri, protocol, operation)
+"Digital Twin Adapter"->"Data Adapter Selector": CreateOrUpdateDataAdapter(entity_id, provider_uri, protocol, operation)
 
 == Received New Mapping Entry ==
 @enduml

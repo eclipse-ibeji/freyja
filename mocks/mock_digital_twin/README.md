@@ -31,7 +31,7 @@ Entities that support the `Subscribe` operation will allow clients to send a req
 
 Similarly, providers that support the `Get` operation will allow clients to send a request to the `/request-value` endpoint. The server will publish the entity values a single time to the provided callback rather than setting up a recurring callback. If the client wishes to retrieve the values again, then the client would need to send another request.
 
-This mock maintains a count of the number of times the value of entity has been requested, and returns a value that is a function of this count. In this way, the behavior of the `generate_signal_value()` API is identical to that of the In-Memory Provider Proxy.
+This mock maintains a count of the number of times the value of entity has been requested, and returns a value that is a function of this count. In this way, the behavior of the `generate_signal_value()` API is identical to that of the In-Memory Data Adapter.
 
 ### Interactive Mode
 

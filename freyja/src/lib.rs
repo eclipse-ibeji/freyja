@@ -21,16 +21,16 @@ use freyja_common::{
     cmd_utils::{get_log_level, parse_args},
     digital_twin_adapter::DigitalTwinAdapter,
     mapping_adapter::MappingAdapter,
-    provider_proxy_selector::ProviderProxySelector,
+    data_adapter_selector::DataAdapterSelector,
     signal_store::SignalStore,
 };
-use provider_proxy_selector::provider_proxy_selector_impl::ProviderProxySelectorImpl;
+use data_adapter_selector::data_adapter_selector_impl::DataAdapterSelectorImpl;
 
-use grpc_provider_proxy_v1::grpc_provider_proxy_factory::GRPCProviderProxyFactory;
-use http_mock_provider_proxy::http_mock_provider_proxy_factory::HttpMockProviderProxyFactory;
-use in_memory_mock_provider_proxy::in_memory_mock_provider_proxy_factory::InMemoryMockProviderProxyFactory;
-use managed_subscribe_provider_proxy::managed_subscribe_provider_proxy_factory::ManagedSubscribeProviderProxyFactory;
-use mqtt_provider_proxy::mqtt_provider_proxy_factory::MqttProviderProxyFactory;
+use grpc_data_adapter::grpc_data_adapter_factory::GRPCDataAdapterFactory;
+use http_mock_data_adapter::http_mock_data_adapter_factory::HttpMockDataAdapterFactory;
+use in_memory_mock_data_adapter::in_memory_mock_data_adapter_factory::InMemoryMockDataAdapterFactory;
+use managed_subscribe_data_adapter::managed_subscribe_data_adapter_factory::ManagedSubscribeDataAdapterFactory;
+use mqtt_data_adapter::mqtt_data_adapter_factory::MqttDataAdapterFactory;
 
 pub async fn freyja_main<
     TDigitalTwinAdapter: DigitalTwinAdapter,
@@ -48,14 +48,14 @@ pub async fn freyja_main<
 
     let signal_store = Arc::new(SignalStore::new());
 
-    let mut provider_proxy_selector = ProviderProxySelectorImpl::new(signal_store.clone());
-    provider_proxy_selector.register::<GRPCProviderProxyFactory>()?;
-    provider_proxy_selector.register::<HttpMockProviderProxyFactory>()?;
-    provider_proxy_selector.register::<InMemoryMockProviderProxyFactory>()?;
-    provider_proxy_selector.register::<ManagedSubscribeProviderProxyFactory>()?;
-    provider_proxy_selector.register::<MqttProviderProxyFactory>()?;
+    let mut data_adapter_selector = DataAdapterSelectorImpl::new(signal_store.clone());
+    data_adapter_selector.register::<GRPCDataAdapterFactory>()?;
+    data_adapter_selector.register::<HttpMockDataAdapterFactory>()?;
+    data_adapter_selector.register::<InMemoryMockDataAdapterFactory>()?;
+    data_adapter_selector.register::<ManagedSubscribeDataAdapterFactory>()?;
+    data_adapter_selector.register::<MqttDataAdapterFactory>()?;
 
-    let provider_proxy_selector = Arc::new(Mutex::new(provider_proxy_selector));
+    let data_adapter_selector = Arc::new(Mutex::new(data_adapter_selector));
 
     // Setup cartographer
     let cartographer_poll_interval = Duration::from_secs(5);
@@ -63,7 +63,7 @@ pub async fn freyja_main<
         signal_store.clone(),
         TMappingAdapter::create_new().unwrap(),
         TDigitalTwinAdapter::create_new().unwrap(),
-        provider_proxy_selector.clone(),
+        data_adapter_selector.clone(),
         cartographer_poll_interval,
     );
 
@@ -71,7 +71,7 @@ pub async fn freyja_main<
     let emitter = Emitter::new(
         signal_store.clone(),
         TCloudAdapter::create_new().unwrap(),
-        provider_proxy_selector.clone(),
+        data_adapter_selector.clone(),
     );
 
     tokio::select! {

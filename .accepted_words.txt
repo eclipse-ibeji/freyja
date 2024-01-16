@@ -70,11 +70,11 @@ Freyr
 genpkey
 github
 githubusercontent
-GRPCProviderProxy
 grpc
 gRPC
+GRPCDataAdapter
 Hildisvíni
-HTTPMockProviderProxy
+HTTPMockDataAdapter
 https
 href
 hvac
@@ -84,7 +84,7 @@ ibeji
 img
 Impl
 InMemoryMockDigitalTwinAdapter
-InMemoryMockProviderProxy
+InMemoryMockDataAdapter
 intellectualproperty
 io
 IoT
@@ -99,7 +99,7 @@ libs
 libssl
 lifecycle
 mailto
-ManagedSubscribeProviderProxy
+ManagedSubscribeDataAdapter
 MappingAdapter
 MappingAdapterImpl
 md
@@ -108,7 +108,7 @@ min
 mock's
 MockDigitalTwin
 MockMappingService
-MqttProviderProxy
+MqttDataAdapter
 MSRC
 msrc
 mqtt

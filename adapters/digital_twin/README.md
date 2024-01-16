@@ -12,7 +12,7 @@ Please see [the design document](../../docs/design/README.md) for how Freyja ret
 
 ![digital_twin_adapter_sequence](../../docs/diagrams/digital_twin_adapter_sequence.svg).
 
-Please see [the Provider Proxy Selector document](../../provider_proxy_selector/) for how a Provider Proxy Selector creates a provider proxy for retrieving signal values.
+Please see [the Data Adapter Selector document](../../data_adapter_selector/) for how the Data Adapter Selector creates a Data Adapter for retrieving signal values.
 
 ## Sample Digital Twin Adapters
 

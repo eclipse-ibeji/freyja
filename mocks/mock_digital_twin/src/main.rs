@@ -34,7 +34,7 @@ use freyja_common::{
     digital_twin_adapter::FindByIdResponse,
     not_found, ok, out_dir, server_error,
 };
-use http_mock_provider_proxy::http_mock_provider_proxy::{EntityValueRequest, EntityValueResponse};
+use http_mock_data_adapter::http_mock_data_adapter::{EntityValueRequest, EntityValueResponse};
 use mock_digital_twin::{ENTITY_GET_VALUE_PATH, ENTITY_PATH, ENTITY_SUBSCRIBE_PATH};
 
 /// Stores the state of active entities, subscribers, and relays responses
