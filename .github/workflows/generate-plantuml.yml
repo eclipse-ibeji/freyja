@@ -9,6 +9,10 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v3
+    - name: Set Git User
+      run: |
+        git config --global user.email "ibeji-bot@eclipse.org"
+        git config --global user.name "Automated PlantUML Render"
     - name: plantuml
       id: plantuml
       uses: grassedge/generate-plantuml-action@v1.5
