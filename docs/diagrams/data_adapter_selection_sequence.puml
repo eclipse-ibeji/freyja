@@ -7,7 +7,7 @@ autonumber
 
 == Selection of a Data Adapter ==
 
-"Digital Twin Adapter"->"Data Adapter Selector": CreateOrUpdateDataAdapter(entity_id, provider_uri, protocol, operation)
+"Digital Twin Adapter"->"Data Adapter Selector": create_or_update_adapter(entity)
 
 alt #LightPink Data Adapter Already Exist
     "Data Adapter Selector"->"Data Adapter Selector": Add entity_id to Data Adapter's local cache

@@ -14,14 +14,13 @@ autonumber
 "Freyja"->"Digital Twin Adapter": Get values for this signal
 
 alt #LightPink Metadata Required to Retrieve Signal Values
-    "Digital Twin Adapter"->"In-Vehicle Digital Twin": Requests additional info for signal
+    "Digital Twin Adapter"->"In-Vehicle Digital Twin": Requests entity info for signal
     note left
-    Ex of Metadata:
-    Endpoint, supported operations, etc.
+    Entity info includes endpoint, supported operations, etc.
     end note
 end
 
-"Digital Twin Adapter"->"Data Adapter Selector": CreateOrUpdateDataAdapter(entity_id, provider_uri, protocol, operation)
+"Digital Twin Adapter"->"Data Adapter Selector": create_or_update_adapter(entity)
 
 == Received New Mapping Entry ==
 @enduml
