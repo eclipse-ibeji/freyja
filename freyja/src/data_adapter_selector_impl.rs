@@ -20,7 +20,7 @@ use freyja_common::{
     signal_store::SignalStore,
 };
 
-use crate::LOOPBACK_MAX;
+const LOOPBACK_MAX: u16 = 10;
 
 /// Represents the state of the DataAdapterSelector and allows for simplified access through a mutex
 struct DataAdapterSelectorState {

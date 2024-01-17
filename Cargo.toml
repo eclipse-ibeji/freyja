@@ -18,7 +18,6 @@ members = [
   "adapters/mapping/mock_mapping_service_adapter",
   "build_common",
   "common",
-  "data_adapter_selector",
   "freyja",
   "mocks/mock_digital_twin",
   "mocks/mock_mapping_service",
@@ -27,7 +26,6 @@ members = [
 
 [workspace.dependencies]
 # Freyja dependencies
-data-adapter-selector = { path = "data_adapter_selector" }
 freyja-build-common = { path = "build_common" }
 freyja-common = { path = "common" }
 freyja-contracts = { path = "contracts" }

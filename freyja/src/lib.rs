@@ -6,6 +6,7 @@
 pub use proc_macros::freyja_main;
 
 mod cartographer;
+mod data_adapter_selector_impl;
 mod emitter;
 
 use std::{env, sync::Arc, time::Duration};
@@ -15,7 +16,6 @@ use log::LevelFilter;
 use tokio::sync::Mutex;
 
 use cartographer::Cartographer;
-use data_adapter_selector::data_adapter_selector_impl::DataAdapterSelectorImpl;
 use emitter::Emitter;
 use freyja_common::{
     cloud_adapter::CloudAdapter,
@@ -31,6 +31,8 @@ use http_mock_data_adapter::http_mock_data_adapter_factory::HttpMockDataAdapterF
 use in_memory_mock_data_adapter::in_memory_mock_data_adapter_factory::InMemoryMockDataAdapterFactory;
 use managed_subscribe_data_adapter::managed_subscribe_data_adapter_factory::ManagedSubscribeDataAdapterFactory;
 use mqtt_data_adapter::mqtt_data_adapter_factory::MqttDataAdapterFactory;
+
+use crate::data_adapter_selector_impl::DataAdapterSelectorImpl;
 
 pub async fn freyja_main<
     TDigitalTwinAdapter: DigitalTwinAdapter,
