@@ -1,0 +1,25 @@
+@startuml
+participant "Digital Twin Adapter"
+participant "Provider Proxy Selector"
+participant "Provider Proxy"
+participant "In-Vehicle Digital Twin Provider"
+autonumber
+
+== Selection of a Provider Proxy ==
+
+"Digital Twin Adapter"->"Provider Proxy Selector": CreateOrUpdateProviderProxy(entity_id, provider_uri, protocol, operation)
+
+alt #LightPink Provider Proxy Already Exist
+    "Provider Proxy Selector"->"Provider Proxy Selector": Add entity_id to provider proxy's local cache
+end
+
+alt #Aqua Provider Proxy Doesn't Exist
+    "Provider Proxy Selector"->"Provider Proxy": Creates a provider proxy with provider uri and protocol
+    "Provider Proxy Selector"->"Provider Proxy": Start up
+    "Provider Proxy Selector"->"Provider Proxy Selector": Add entity_id to provider proxy's local cache
+end
+
+"Provider Proxy" -> "In-Vehicle Digital Twin Provider": Call get or subscribe for values
+"In-Vehicle Digital Twin Provider" -> "Provider Proxy": Return values
+== Selection of a Provider Proxy ==
+@enduml
