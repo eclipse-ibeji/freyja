@@ -77,5 +77,5 @@ This appendix lists the sample adapters that are provided in this repository. Th
 - [In-Memory Mock Data Adapter](../adapters/data/in_memory_mock_data_adapter/README.md): Interfaces with the In-Memory Mock Digital Twin Adapter and intended for use with it.
 - [HTTP Mock Data Adapter](../adapters/data/http_mock_data_adapter/README.md): Interfaces with the Mock Digital Twin Adapter and intended for use with it.
 - [gRPC Data Adapter](../adapters/data/grpc_data_adapter/README.md): Interfaces with providers that communicate via gRPC. Integrated with specific Ibeji samples.
-- [MQTT Data Adapter](../adapters/data/mqtt_data_adapter/README.md): Interfacecs with providers that communicate via MQTT.
+- [MQTT Data Adapter](../adapters/data/mqtt_data_adapter/README.md): Interfaces with providers that communicate via MQTT.
 - [Managed Subscribe Data Adapter](../adapters/data/managed_subscribe_data_adapter/README.md): Interfaces with providers that leverage the managed subscribe feature of Ibeji.
