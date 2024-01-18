@@ -3,21 +3,22 @@
 # SPDX-License-Identifier: MIT
 
 [package]
-name = "mock-digital-twin"
+name = "managed-subscribe-data-adapter"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
 
 [dependencies]
-axum = { workspace = true }
-env_logger = { workspace = true }
+async-trait = { workspace = true }
+core-protobuf-data-access  = { workspace = true }
 freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
+futures = { workspace = true }
 log = { workspace = true }
-reqwest = { workspace = true }
 serde = { workspace = true }
-tokio = { workspace = true }
-http-mock-data-adapter = { workspace = true }
+tonic = { workspace = true }
+
+[dev-dependencies]
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

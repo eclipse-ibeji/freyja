@@ -3,21 +3,18 @@
 # SPDX-License-Identifier: MIT
 
 [package]
-name = "mock-digital-twin"
+name = "in-memory-mock-data-adapter"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
 
 [dependencies]
-axum = { workspace = true }
-env_logger = { workspace = true }
+async-trait = { workspace = true }
 freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
 log = { workspace = true }
-reqwest = { workspace = true }
 serde = { workspace = true }
 tokio = { workspace = true }
-http-mock-data-adapter = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

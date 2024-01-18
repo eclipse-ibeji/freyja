@@ -11,16 +11,16 @@ use log::{debug, info, warn};
 use freyja_common::signal_store::SignalStore;
 use freyja_common::{
     conversion::Conversion,
+    data_adapter_selector::DataAdapterSelector,
     digital_twin_adapter::{
         DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind, FindByIdRequest,
     },
     mapping_adapter::{CheckForWorkRequest, GetMappingRequest, MappingAdapter},
-    provider_proxy_selector::ProviderProxySelector,
     signal::{EmissionPolicy, SignalPatch, Target},
 };
 
 /// Manages mappings from the mapping service
-pub struct Cartographer<TMappingAdapter, TDigitalTwinAdapter, TProviderProxySelector> {
+pub struct Cartographer<TMappingAdapter, TDigitalTwinAdapter, TDataAdapterSelector> {
     /// The shared signal store
     signals: Arc<SignalStore>,
 
@@ -30,8 +30,8 @@ pub struct Cartographer<TMappingAdapter, TDigitalTwinAdapter, TProviderProxySele
     /// The digital twin adapter
     digital_twin_adapter: TDigitalTwinAdapter,
 
-    /// The provider proxy selector
-    provider_proxy_selector: Arc<Mutex<TProviderProxySelector>>,
+    /// The data adapter selector
+    data_adapter_selector: Arc<Mutex<TDataAdapterSelector>>,
 
     /// The mapping service polling interval
     poll_interval: Duration,
@@ -40,8 +40,8 @@ pub struct Cartographer<TMappingAdapter, TDigitalTwinAdapter, TProviderProxySele
 impl<
         TMappingAdapter: MappingAdapter,
         TDigitalTwinAdapter: DigitalTwinAdapter,
-        TProviderProxySelector: ProviderProxySelector,
-    > Cartographer<TMappingAdapter, TDigitalTwinAdapter, TProviderProxySelector>
+        TDataAdapterSelector: DataAdapterSelector,
+    > Cartographer<TMappingAdapter, TDigitalTwinAdapter, TDataAdapterSelector>
 {
     /// Create a new instance of a Cartographer
     ///
@@ -49,20 +49,20 @@ impl<
     /// - `signals`: the shared signal store
     /// - `mapping_adapter`: the adapter for the mapping service
     /// - `digital_twin_adapter`: the adapter for the digital twin service
-    /// - `provider_proxy_selector`: the provider proxy selector
+    /// - `data_adapter_selector`: the data adapter selector
     /// - `poll_interval`: the interval at which the cartographer should poll for changes
     pub fn new(
         signals: Arc<SignalStore>,
         mapping_adapter: TMappingAdapter,
         digital_twin_adapter: TDigitalTwinAdapter,
-        provider_proxy_selector: Arc<Mutex<TProviderProxySelector>>,
+        data_adapter_selector: Arc<Mutex<TDataAdapterSelector>>,
         poll_interval: Duration,
     ) -> Self {
         Self {
             signals,
             mapping_adapter,
             digital_twin_adapter,
-            provider_proxy_selector,
+            data_adapter_selector,
             poll_interval,
         }
     }
@@ -75,9 +75,9 @@ impl<
     ///         1. ~~Send the new inventory to the mapping service~~
     ///         1. Get the new mapping from the mapping service
     ///         1. Query the digital twin service for entity information
-    ///         1. Create or update provider proxies for the new entities
+    ///         1. Create or update data adapters for the new entities
     ///         1. Update the signal store with the new data and track any failed signals for future iterations
-    ///     - If there is no work but previous attempts to start up proxies failed,
+    ///     - If there is no work but previous attempts to start up adapters failed,
     ///         execute the steps above starting from step 4 for these failed cases
     ///     - If the check failed, log the error
     /// 1. Sleep until the next iteration
@@ -194,7 +194,7 @@ impl<
     }
 
     /// Populates the source of the provided signal with data retrieved from the digital twin service.
-    /// This will also create or update a proxy to handle incoming requests from the provider.
+    /// This will also create or update a data adapter to handle incoming requests from the provider.
     ///
     /// Arguments
     /// - `signal`: The signal patch to update
@@ -211,11 +211,11 @@ impl<
             .entity;
 
         {
-            let provider_proxy_selector = self.provider_proxy_selector.lock().await;
-            provider_proxy_selector
-                .create_or_update_proxy(&signal.source)
+            let data_adapter_selector = self.data_adapter_selector.lock().await;
+            data_adapter_selector
+                .create_or_update_adapter(&signal.source)
                 .await
-                .map_err(|e| format!("Error sending request to provider proxy selector: {e:?}"))?;
+                .map_err(|e| format!("Error sending request to data adapter selector: {e:?}"))?;
         }
 
         Ok(())
@@ -232,6 +232,8 @@ mod cartographer_tests {
     use mockall::{predicate::eq, *};
 
     use freyja_common::{
+        data_adapter::DataAdapterFactory,
+        data_adapter_selector::DataAdapterSelectorError,
         digital_twin_adapter::{DigitalTwinAdapterError, FindByIdResponse},
         digital_twin_map_entry::DigitalTwinMapEntry,
         entity::{Entity, EntityEndpoint},
@@ -239,8 +241,6 @@ mod cartographer_tests {
             CheckForWorkResponse, GetMappingResponse, MappingAdapterError, SendInventoryRequest,
             SendInventoryResponse,
         },
-        provider_proxy::ProviderProxyFactory,
-        provider_proxy_selector::ProviderProxySelectorError,
     };
 
     mock! {
@@ -286,13 +286,13 @@ mod cartographer_tests {
     }
 
     mock! {
-        pub ProviderProxySelector {}
+        pub DataAdapterSelector {}
 
         #[async_trait]
-        impl ProviderProxySelector for ProviderProxySelector {
-            fn register<TFactory: ProviderProxyFactory + Send + Sync + 'static>(&mut self) -> Result<(), ProviderProxySelectorError>;
-            async fn create_or_update_proxy(&self, entity: &Entity) -> Result<(), ProviderProxySelectorError>;
-            async fn request_entity_value(&self, entity_id: &str) -> Result<(), ProviderProxySelectorError>;
+        impl DataAdapterSelector for DataAdapterSelector {
+            fn register<TFactory: DataAdapterFactory + Send + Sync + 'static>(&mut self) -> Result<(), DataAdapterSelectorError>;
+            async fn create_or_update_adapter(&self, entity: &Entity) -> Result<(), DataAdapterSelectorError>;
+            async fn request_entity_value(&self, entity_id: &str) -> Result<(), DataAdapterSelectorError>;
         }
     }
 
@@ -324,7 +324,7 @@ mod cartographer_tests {
             signals: Arc::new(SignalStore::new()),
             mapping_adapter: mock_mapping_adapter,
             digital_twin_adapter: MockDigitalTwinAdapterImpl::new(),
-            provider_proxy_selector: Arc::new(Mutex::new(MockProviderProxySelector::new())),
+            data_adapter_selector: Arc::new(Mutex::new(MockDataAdapterSelector::new())),
             poll_interval: Duration::from_secs(1),
         };
 
@@ -369,13 +369,13 @@ mod cartographer_tests {
 
         let test_entity_clone = test_entity.clone();
 
-        let mut mock_provider_proxy_selector = MockProviderProxySelector::new();
-        mock_provider_proxy_selector
-            .expect_create_or_update_proxy()
+        let mut mock_data_adapter_selector = MockDataAdapterSelector::new();
+        mock_data_adapter_selector
+            .expect_create_or_update_adapter()
             .with(eq(test_entity.clone()))
             .once()
             .returning(|_| Ok(()));
-        let provider_proxy_selector = Arc::new(Mutex::new(mock_provider_proxy_selector));
+        let data_adapter_selector = Arc::new(Mutex::new(mock_data_adapter_selector));
 
         let mut mock_dt_adapter = MockDigitalTwinAdapterImpl::new();
         mock_dt_adapter.expect_find_by_id().returning(move |_| {
@@ -388,13 +388,13 @@ mod cartographer_tests {
             signals: Arc::new(SignalStore::new()),
             mapping_adapter: MockMappingAdapterImpl::new(),
             digital_twin_adapter: mock_dt_adapter,
-            provider_proxy_selector,
+            data_adapter_selector,
             poll_interval: Duration::from_secs(1),
         };
 
         let result = uut.populate_source(test_signal_patch).await;
 
-        uut.provider_proxy_selector.lock().await.checkpoint();
+        uut.data_adapter_selector.lock().await.checkpoint();
 
         assert!(result.is_ok());
         assert_eq!(test_signal_patch.source, test_entity);

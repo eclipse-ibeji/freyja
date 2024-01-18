@@ -9,19 +9,19 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
+async-trait = { workspace = true }
 env_logger = { workspace = true }
 freyja-common = { workspace = true }
 log = { workspace = true }
 proc-macros = { workspace = true }
-provider-proxy-selector = { workspace = true }
 time = { workspace = true }
 tokio = { workspace = true }
 
-grpc-provider-proxy-v1 = { path = "../provider_proxies/grpc/v1" }
-http-mock-provider-proxy = { path = "../provider_proxies/http_mock_provider_proxy" }
-in-memory-mock-provider-proxy = { path = "../provider_proxies/in_memory_mock_provider_proxy" }
-managed-subscribe-provider-proxy = { path = "../provider_proxies/managed_subscribe" }
-mqtt-provider-proxy = { path = "../provider_proxies/mqtt" }
+grpc-data-adapter = { workspace = true }
+http-mock-data-adapter = { workspace = true }
+in-memory-mock-data-adapter = { workspace = true }
+managed-subscribe-data-adapter = { workspace = true }
+mqtt-data-adapter = { workspace = true }
 
 [dev-dependencies]
 # Dependencies for testing
