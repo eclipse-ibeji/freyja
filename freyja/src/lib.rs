@@ -2,8 +2,9 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-// Re-export this macro for convenience so users don't need to manually import the proc_macros crate
+// Re-export these items for convenience so users don't need to manually import them
 pub use proc_macros::freyja_main;
+pub use freyja_common;
 
 mod cartographer;
 mod data_adapter_selector_impl;
