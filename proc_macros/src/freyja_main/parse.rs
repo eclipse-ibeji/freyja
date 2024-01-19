@@ -88,7 +88,7 @@ mod freyja_main_parse_tests {
         assert_eq!(output.cloud_adapter_type, bar_ident);
         assert_eq!(output.mapping_adapter_type, baz_ident);
         for ident in factory_idents.iter() {
-            assert!(output.data_adapter_factory_types.contains(&ident));
+            assert!(output.data_adapter_factory_types.contains(ident));
         }
 
         // Now try a different order
