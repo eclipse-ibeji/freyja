@@ -83,7 +83,7 @@ pub fn error(ts: TokenStream) -> TokenStream {
 ///
 /// *FreyjaMainPredicate*:
 ///
-/// &nbsp;&nbsp;&nbsp;&nbsp;*DigitalTwinAdapterType* `,` *CloudAdapterType* `,` *MappingAdapterType* `, [` *DataAdapterTypeList* `]`
+/// &nbsp;&nbsp;&nbsp;&nbsp;*DigitalTwinAdapterType* `,` *CloudAdapterType* `,` *MappingAdapterType* `, [` *DataAdapterFactoryTypeList* `]`
 ///
 /// *DigitalTwinAdapterType*:
 ///
@@ -97,11 +97,11 @@ pub fn error(ts: TokenStream) -> TokenStream {
 ///
 /// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
 ///
-/// *DataAdapterTypeList*:
+/// *DataAdapterFactoryTypeList*:
 ///
-/// &nbsp;&nbsp;&nbsp;&nbsp;*DataAdapterType* (`,` *DataAdapterTypeList*)
+/// &nbsp;&nbsp;&nbsp;&nbsp;*DataAdapterFactoryType* (`,` *DataAdapterFactoryTypeList*)
 ///
-/// *DataAdapterType*:
+/// *DataAdapterFactoryType*:
 ///
 /// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
 ///
