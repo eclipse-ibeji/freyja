@@ -234,7 +234,7 @@ mod emitter_tests {
 
         #[async_trait]
         impl DataAdapterSelector for DataAdapterSelector {
-            fn register<TFactory: DataAdapterFactory + Send + Sync + 'static>(&mut self) -> Result<(), DataAdapterSelectorError>;
+            fn register(&mut self, factory: Box<dyn DataAdapterFactory + Send + Sync + 'static>) -> Result<(), DataAdapterSelectorError>;
             async fn create_or_update_adapter(&self, entity: &Entity) -> Result<(), DataAdapterSelectorError>;
             async fn request_entity_value(&self, entity_id: &str) -> Result<(), DataAdapterSelectorError>;
         }

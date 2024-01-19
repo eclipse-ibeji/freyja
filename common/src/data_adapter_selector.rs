@@ -11,8 +11,12 @@ use crate::{data_adapter::DataAdapterFactory, entity::Entity};
 #[async_trait]
 pub trait DataAdapterSelector {
     /// Registers a `DataAdapterFactory` with this selector.
-    fn register<TFactory: DataAdapterFactory + Send + Sync + 'static>(
+    ///
+    /// # Arguments
+    /// - `factory`: the factory to register
+    fn register(
         &mut self,
+        factory: Box<dyn DataAdapterFactory + Send + Sync + 'static>,
     ) -> Result<(), DataAdapterSelectorError>;
 
     /// Updates an existing data adapter to include an entity if possible,

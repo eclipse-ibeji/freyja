@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 use proc_macro2::TokenStream;
+use syn::bracketed;
 use syn::parse::{Parse, ParseStream};
 use syn::{punctuated::Punctuated, Ident, Token};
 
@@ -21,6 +22,7 @@ pub(crate) struct FreyjaMainArgs {
     pub dt_adapter_type: Ident,
     pub cloud_adapter_type: Ident,
     pub mapping_adapter_type: Ident,
+    pub data_adapter_factory_types: Vec<Ident>,
 }
 
 impl Parse for FreyjaMainArgs {
@@ -30,16 +32,36 @@ impl Parse for FreyjaMainArgs {
     ///
     /// - `input`: the input stream
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let mut args = Punctuated::<Ident, Token![,]>::parse_terminated(input)?.into_iter();
+        let dt_adapter_type = input.parse::<Ident>().unwrap();
+        let _ = input.parse::<Token![,]>().unwrap();
+        let cloud_adapter_type = input.parse::<Ident>().unwrap();
+        let _ = input.parse::<Token![,]>().unwrap();
+        let mapping_adapter_type = input.parse::<Ident>().unwrap();
+        let _ = input.parse::<Token![,]>().unwrap();
 
-        if args.len() != 3 {
-            panic!("Expected exactly three arguments to freyja_main");
+        let data_adapter_content;
+        let _ = bracketed!(data_adapter_content in input);
+        let data_adapter_factory_types =
+            Punctuated::<Ident, Token![,]>::parse_terminated(&data_adapter_content)
+                .unwrap()
+                .into_iter()
+                .collect();
+
+        let trailing_comma_result = if !input.is_empty() {
+            Some(input.parse::<Token![,]>())
+        } else {
+            None
+        };
+
+        if !input.is_empty() || trailing_comma_result.is_some_and(|r| r.is_err()) {
+            panic!("Unexpected tokens at end of input");
         }
 
         Ok(FreyjaMainArgs {
-            dt_adapter_type: args.next().unwrap(),
-            cloud_adapter_type: args.next().unwrap(),
-            mapping_adapter_type: args.next().unwrap(),
+            dt_adapter_type,
+            cloud_adapter_type,
+            mapping_adapter_type,
+            data_adapter_factory_types,
         })
     }
 }
@@ -56,25 +78,33 @@ mod freyja_main_parse_tests {
         let foo_ident = format_ident!("Foo");
         let bar_ident = format_ident!("Bar");
         let baz_ident = format_ident!("Baz");
+        let factory_idents = vec![format_ident!("DA1"), format_ident!("DA2")];
+        let factory_idents_clone = factory_idents.clone();
 
-        let input = quote! { #foo_ident, #bar_ident, #baz_ident };
+        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*] };
         let output = parse(input);
 
         assert_eq!(output.dt_adapter_type, foo_ident);
         assert_eq!(output.cloud_adapter_type, bar_ident);
         assert_eq!(output.mapping_adapter_type, baz_ident);
+        for ident in factory_idents.iter() {
+            assert!(output.data_adapter_factory_types.contains(ident));
+        }
 
         // Now try a different order
-        let input = quote! { #baz_ident, #foo_ident, #bar_ident };
+        let input = quote! { #baz_ident, #foo_ident, #bar_ident, [#(#factory_idents_clone),*] };
         let output = parse(input);
 
         assert_eq!(output.dt_adapter_type, baz_ident);
         assert_eq!(output.cloud_adapter_type, foo_ident);
         assert_eq!(output.mapping_adapter_type, bar_ident);
+        for ident in factory_idents {
+            assert!(output.data_adapter_factory_types.contains(&ident));
+        }
     }
 
     #[test]
-    fn parse_panics_with_incorrect_number_of_arguments() {
+    fn parse_panics_with_invalid_input() {
         let foo_ident = format_ident!("Foo");
         let bar_ident = format_ident!("Bar");
         let baz_ident = format_ident!("Baz");
@@ -85,6 +115,32 @@ mod freyja_main_parse_tests {
         assert!(result.is_err());
 
         let input = quote! { #foo_ident, #bar_ident, #baz_ident, #qux_ident };
+        let result = catch_unwind(|| parse(input));
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn parse_accepts_trailing_comma() {
+        let foo_ident = format_ident!("Foo");
+        let bar_ident = format_ident!("Bar");
+        let baz_ident = format_ident!("Baz");
+        let factory_idents = vec![format_ident!("DA1"), format_ident!("DA2")];
+
+        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], };
+        let result = catch_unwind(|| parse(input));
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn parse_panics_with_invalid_trailing_content() {
+        let foo_ident = format_ident!("Foo");
+        let bar_ident = format_ident!("Bar");
+        let baz_ident = format_ident!("Baz");
+        let factory_idents = vec![format_ident!("DA1"), format_ident!("DA2")];
+        let qux_ident = format_ident!("Qux");
+
+        let input =
+            quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], #qux_ident };
         let result = catch_unwind(|| parse(input));
         assert!(result.is_err());
     }
