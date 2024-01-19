@@ -83,7 +83,7 @@ pub fn error(ts: TokenStream) -> TokenStream {
 ///
 /// *FreyjaMainPredicate*:
 ///
-/// &nbsp;&nbsp;&nbsp;&nbsp;*DigitalTwinAdapterType* `,` *CloudAdapterType* `,` *MappingClientType*
+/// &nbsp;&nbsp;&nbsp;&nbsp;*DigitalTwinAdapterType* `,` *CloudAdapterType* `,` *MappingAdapterType* `, [` *DataAdapterTypeList* `]`
 ///
 /// *DigitalTwinAdapterType*:
 ///
@@ -93,8 +93,16 @@ pub fn error(ts: TokenStream) -> TokenStream {
 ///
 /// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
 ///
-/// *MappingClientType*:
+/// *MappingAdapterType*:
 ///
+/// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
+/// 
+/// *DataAdapterTypeList*:
+/// 
+/// &nbsp;&nbsp;&nbsp;&nbsp;*DataAdapterType* (`,` *DataAdapterTypeList*)
+/// 
+/// *DataAdapterType*:
+/// 
 /// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
 ///
 /// Note that the accepted syntax for each of the adapter types is only an identifier.

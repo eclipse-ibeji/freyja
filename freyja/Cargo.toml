@@ -15,6 +15,7 @@ freyja-common = { workspace = true }
 log = { workspace = true }
 proc-macros = { workspace = true }
 time = { workspace = true }
+tuple_list = { workspace = true }
 tokio = { workspace = true }
 
 grpc-data-adapter = { workspace = true }
@@ -34,3 +35,4 @@ in-memory-mock-digital-twin-adapter = { workspace = true }
 in-memory-mock-mapping-adapter = { workspace = true }
 mock-digital-twin-adapter = { workspace = true }
 mock-mapping-service-adapter = { workspace = true }
+grpc-data-adapter = { workspace = true }

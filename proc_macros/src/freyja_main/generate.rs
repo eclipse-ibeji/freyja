@@ -20,6 +20,7 @@ pub(crate) fn generate(ir: FreyjaMainOutput) -> TokenStream {
                 dt_adapter_type,
                 cloud_adapter_type,
                 mapping_adapter_type,
+                data_adapter_factory_types,
             },
     } = ir;
 
