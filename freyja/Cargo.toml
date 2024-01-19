@@ -15,7 +15,6 @@ freyja-common = { workspace = true }
 log = { workspace = true }
 proc-macros = { workspace = true }
 time = { workspace = true }
-tuple_list = { workspace = true }
 tokio = { workspace = true }
 
 [dev-dependencies]
