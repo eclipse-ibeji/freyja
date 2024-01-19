@@ -17,22 +17,26 @@ use mqtt_data_adapter::mqtt_data_adapter_factory::MqttDataAdapterFactory;
 // The following code is functionally equivalent to the expanded macro.
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let mut factories: Vec<Box<dyn DataAdapterFactory + Send + Sync>> = Vec::new();
-    factories.push(Box::new(
-        GRPCDataAdapterFactory::create_new().expect("Could not create factory"),
-    ));
-    factories.push(Box::new(
-        HttpMockDataAdapterFactory::create_new().expect("Could not create factory"),
-    ));
-    factories.push(Box::new(
-        InMemoryMockDataAdapterFactory::create_new().expect("Could not create factory"),
-    ));
-    factories.push(Box::new(
-        ManagedSubscribeDataAdapterFactory::create_new().expect("Could not create factory"),
-    ));
-    factories.push(Box::new(
-        MqttDataAdapterFactory::create_new().expect("Could not create factory"),
-    ));
+    let factories: Vec<Box<dyn DataAdapterFactory + Send + Sync>> = vec![
+        Box::new(
+            GRPCDataAdapterFactory::create_new().expect("Could not create GRPCDataAdapterFactory"),
+        ),
+        Box::new(
+            HttpMockDataAdapterFactory::create_new()
+                .expect("Could not create HttpMockDataAdapterFactory"),
+        ),
+        Box::new(
+            InMemoryMockDataAdapterFactory::create_new()
+                .expect("Could not create InMemoryMockDataAdapterFactory"),
+        ),
+        Box::new(
+            ManagedSubscribeDataAdapterFactory::create_new()
+                .expect("Could not create ManagedSubscribeDataAdapterFactory"),
+        ),
+        Box::new(
+            MqttDataAdapterFactory::create_new().expect("Could not create MqttDataAdapterFactory"),
+        ),
+    ];
 
     freyja::freyja_main::<
         InMemoryMockDigitalTwinAdapter,

@@ -28,8 +28,10 @@ pub(crate) fn generate(ir: FreyjaMainOutput) -> TokenStream {
         #[tokio::main]
         async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             use freyja_common::data_adapter::DataAdapterFactory;
-            let mut factories: Vec<Box<dyn DataAdapterFactory + Send + Sync>> = Vec::new();
-            #(factories.push(Box::new(#data_adapter_factory_types::create_new().expect("Could not create factory")));)*
+            let factories: Vec<Box<dyn DataAdapterFactory + Send + Sync>> = vec![
+                #(Box::new(#data_adapter_factory_types::create_new().expect("Could not create factory"))),*
+            ];
+
             freyja::freyja_main::<#dt_adapter_type, #cloud_adapter_type, #mapping_adapter_type>(factories).await
         }
     }
