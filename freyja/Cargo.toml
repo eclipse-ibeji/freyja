@@ -18,12 +18,6 @@ time = { workspace = true }
 tuple_list = { workspace = true }
 tokio = { workspace = true }
 
-grpc-data-adapter = { workspace = true }
-http-mock-data-adapter = { workspace = true }
-in-memory-mock-data-adapter = { workspace = true }
-managed-subscribe-data-adapter = { workspace = true }
-mqtt-data-adapter = { workspace = true }
-
 [dev-dependencies]
 # Dependencies for testing
 mockall = { workspace = true }
@@ -36,3 +30,7 @@ in-memory-mock-mapping-adapter = { workspace = true }
 mock-digital-twin-adapter = { workspace = true }
 mock-mapping-service-adapter = { workspace = true }
 grpc-data-adapter = { workspace = true }
+http-mock-data-adapter = { workspace = true }
+in-memory-mock-data-adapter = { workspace = true }
+managed-subscribe-data-adapter = { workspace = true }
+mqtt-data-adapter = { workspace = true }

@@ -96,13 +96,13 @@ pub fn error(ts: TokenStream) -> TokenStream {
 /// *MappingAdapterType*:
 ///
 /// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
-/// 
+///
 /// *DataAdapterTypeList*:
-/// 
+///
 /// &nbsp;&nbsp;&nbsp;&nbsp;*DataAdapterType* (`,` *DataAdapterTypeList*)
-/// 
+///
 /// *DataAdapterType*:
-/// 
+///
 /// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
 ///
 /// Note that the accepted syntax for each of the adapter types is only an identifier.

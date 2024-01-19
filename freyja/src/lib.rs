@@ -20,17 +20,12 @@ use emitter::Emitter;
 use freyja_common::{
     cloud_adapter::CloudAdapter,
     cmd_utils::{get_log_level, parse_args},
+    data_adapter::DataAdapterFactory,
     data_adapter_selector::DataAdapterSelector,
     digital_twin_adapter::DigitalTwinAdapter,
     mapping_adapter::MappingAdapter,
     signal_store::SignalStore,
 };
-
-use grpc_data_adapter::grpc_data_adapter_factory::GRPCDataAdapterFactory;
-use http_mock_data_adapter::http_mock_data_adapter_factory::HttpMockDataAdapterFactory;
-use in_memory_mock_data_adapter::in_memory_mock_data_adapter_factory::InMemoryMockDataAdapterFactory;
-use managed_subscribe_data_adapter::managed_subscribe_data_adapter_factory::ManagedSubscribeDataAdapterFactory;
-use mqtt_data_adapter::mqtt_data_adapter_factory::MqttDataAdapterFactory;
 
 use crate::data_adapter_selector_impl::DataAdapterSelectorImpl;
 
@@ -38,7 +33,9 @@ pub async fn freyja_main<
     TDigitalTwinAdapter: DigitalTwinAdapter,
     TCloudAdapter: CloudAdapter,
     TMappingAdapter: MappingAdapter,
->() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+>(
+    factories: Vec<Box<dyn DataAdapterFactory + Send + Sync>>,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let args = parse_args(env::args()).expect("Failed to parse args");
 
     // Setup logging
@@ -51,11 +48,11 @@ pub async fn freyja_main<
     let signal_store = Arc::new(SignalStore::new());
 
     let mut data_adapter_selector = DataAdapterSelectorImpl::new(signal_store.clone());
-    data_adapter_selector.register::<GRPCDataAdapterFactory>()?;
-    data_adapter_selector.register::<HttpMockDataAdapterFactory>()?;
-    data_adapter_selector.register::<InMemoryMockDataAdapterFactory>()?;
-    data_adapter_selector.register::<ManagedSubscribeDataAdapterFactory>()?;
-    data_adapter_selector.register::<MqttDataAdapterFactory>()?;
+    for factory in factories.into_iter() {
+        data_adapter_selector
+            .register(factory)
+            .expect("Could not register factory");
+    }
 
     let data_adapter_selector = Arc::new(Mutex::new(data_adapter_selector));
 

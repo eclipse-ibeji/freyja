@@ -64,12 +64,14 @@ impl DataAdapterSelectorImpl {
 #[async_trait]
 impl DataAdapterSelector for DataAdapterSelectorImpl {
     /// Registers a `DataAdapterFactory` with this selector.
-    fn register<TFactory: DataAdapterFactory + Send + Sync + 'static>(
+    ///
+    /// # Arguments
+    /// - `factory`: the factory to register
+    fn register(
         &mut self,
+        factory: Box<dyn DataAdapterFactory + Send + Sync + 'static>,
     ) -> Result<(), DataAdapterSelectorError> {
-        let factory =
-            TFactory::create_new().map_err(DataAdapterSelectorError::data_adapter_error)?;
-        self.factories.push(Box::new(factory));
+        self.factories.push(factory);
         Ok(())
     }
 
@@ -232,7 +234,8 @@ mod data_adapter_selector_tests {
     async fn handle_start_data_adapter_request_return_err_test() {
         let signals: Arc<SignalStore> = Arc::new(SignalStore::new());
         let mut uut = DataAdapterSelectorImpl::new(signals);
-        uut.register::<GRPCDataAdapterFactory>().unwrap();
+        uut.register(Box::new(GRPCDataAdapterFactory::create_new().unwrap()))
+            .unwrap();
 
         let entity = Entity {
             id: String::from(AMBIENT_AIR_TEMPERATURE_ID),

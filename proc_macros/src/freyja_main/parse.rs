@@ -41,17 +41,18 @@ impl Parse for FreyjaMainArgs {
 
         let data_adapter_content;
         let _ = bracketed!(data_adapter_content in input);
-        let data_adapter_factory_types = Punctuated::<Ident, Token![,]>::parse_terminated(&data_adapter_content)
-            .unwrap()
-            .into_iter()
-            .collect();
-        
+        let data_adapter_factory_types =
+            Punctuated::<Ident, Token![,]>::parse_terminated(&data_adapter_content)
+                .unwrap()
+                .into_iter()
+                .collect();
+
         let trailing_comma_result = if !input.is_empty() {
             Some(input.parse::<Token![,]>())
         } else {
             None
         };
-        
+
         if !input.is_empty() || trailing_comma_result.is_some_and(|r| r.is_err()) {
             panic!("Unexpected tokens at end of input");
         }
@@ -77,7 +78,7 @@ mod freyja_main_parse_tests {
         let foo_ident = format_ident!("Foo");
         let bar_ident = format_ident!("Bar");
         let baz_ident = format_ident!("Baz");
-        let factory_idents = vec![ format_ident!("DA1"), format_ident!("DA2") ];
+        let factory_idents = vec![format_ident!("DA1"), format_ident!("DA2")];
         let factory_idents_clone = factory_idents.clone();
 
         let input = quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*] };
@@ -123,7 +124,7 @@ mod freyja_main_parse_tests {
         let foo_ident = format_ident!("Foo");
         let bar_ident = format_ident!("Bar");
         let baz_ident = format_ident!("Baz");
-        let factory_idents = vec![ format_ident!("DA1"), format_ident!("DA2") ];
+        let factory_idents = vec![format_ident!("DA1"), format_ident!("DA2")];
 
         let input = quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], };
         let result = catch_unwind(|| parse(input));
@@ -135,10 +136,11 @@ mod freyja_main_parse_tests {
         let foo_ident = format_ident!("Foo");
         let bar_ident = format_ident!("Bar");
         let baz_ident = format_ident!("Baz");
-        let factory_idents = vec![ format_ident!("DA1"), format_ident!("DA2") ];
+        let factory_idents = vec![format_ident!("DA1"), format_ident!("DA2")];
         let qux_ident = format_ident!("Qux");
 
-        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], #qux_ident };
+        let input =
+            quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], #qux_ident };
         let result = catch_unwind(|| parse(input));
         assert!(result.is_err());
     }
