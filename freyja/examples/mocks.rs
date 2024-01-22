@@ -7,7 +7,7 @@ use in_memory_mock_cloud_adapter::in_memory_mock_cloud_adapter::InMemoryMockClou
 use mock_digital_twin_adapter::mock_digital_twin_adapter::MockDigitalTwinAdapter;
 use mock_mapping_service_adapter::mock_mapping_service_adapter::MockMappingServiceAdapter;
 
-freyja::export::freyja_main! {
+freyja::freyja_main! {
     MockDigitalTwinAdapter,
     InMemoryMockCloudAdapter,
     MockMappingServiceAdapter,

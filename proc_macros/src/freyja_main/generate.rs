@@ -25,9 +25,9 @@ pub(crate) fn generate(ir: FreyjaMainOutput) -> TokenStream {
     } = ir;
 
     quote! {
-        #[freyja::export::main]
+        #[freyja::tokio::main]
         async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-            use freyja::export::DataAdapterFactory;
+            use freyja::freyja_common::data_adapter::DataAdapterFactory;
             let factories: Vec<Box<dyn DataAdapterFactory + Send + Sync>> = vec![
                 #(Box::new(
                     #data_adapter_factory_types::create_new()
