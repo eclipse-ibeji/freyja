@@ -5,8 +5,6 @@
 // Re-export these items for convenience so users don't need to manually import them
 pub use freyja_common;
 pub use proc_macros::freyja_main;
-pub extern crate tokio;
-//pub use tokio;
 
 mod cartographer;
 mod data_adapter_selector_impl;
@@ -16,7 +14,7 @@ use std::{env, sync::Arc, time::Duration};
 
 use env_logger::Target;
 use log::LevelFilter;
-use crate::tokio::sync::Mutex;
+use tokio::sync::Mutex;
 
 use cartographer::Cartographer;
 use emitter::Emitter;
@@ -30,7 +28,7 @@ use freyja_common::{
     signal_store::SignalStore,
 };
 
-use crate::data_adapter_selector_impl::DataAdapterSelectorImpl;
+use data_adapter_selector_impl::DataAdapterSelectorImpl;
 
 pub async fn freyja_main<
     TDigitalTwinAdapter: DigitalTwinAdapter,
@@ -76,7 +74,7 @@ pub async fn freyja_main<
         data_adapter_selector.clone(),
     );
 
-    crate::tokio::select! {
+    tokio::select! {
         Err(e) = cartographer.run() => { println!("[main] cartographer terminated with error {e:?}"); Err(e) },
         Err(e) = emitter.run() => { println!("[main] emitter terminated with error {e:?}"); Err(e) },
         else => { println!("[main] all operations terminated successfully"); Ok(()) },

@@ -25,9 +25,9 @@ pub(crate) fn generate(ir: FreyjaMainOutput) -> TokenStream {
     } = ir;
 
     quote! {
-        #[::freyja::tokio::main]
+        #[tokio::main]
         async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-            use ::freyja::freyja_common::data_adapter::DataAdapterFactory;
+            use freyja::freyja_common::data_adapter::DataAdapterFactory;
             let factories: Vec<Box<dyn DataAdapterFactory + Send + Sync>> = vec![
                 #(Box::new(
                     #data_adapter_factory_types::create_new()
@@ -35,7 +35,7 @@ pub(crate) fn generate(ir: FreyjaMainOutput) -> TokenStream {
                 )),*
             ];
 
-            ::freyja::freyja_main::<
+            freyja::freyja_main::<
                 #dt_adapter_type,
                 #cloud_adapter_type,
                 #mapping_adapter_type
