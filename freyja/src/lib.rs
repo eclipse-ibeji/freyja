@@ -28,7 +28,7 @@ use freyja_common::{
     signal_store::SignalStore,
 };
 
-use data_adapter_selector_impl::DataAdapterSelectorImpl;
+use crate::data_adapter_selector_impl::DataAdapterSelectorImpl;
 
 pub async fn freyja_main<
     TDigitalTwinAdapter: DigitalTwinAdapter,
