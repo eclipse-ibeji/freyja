@@ -75,7 +75,7 @@ pub async fn freyja_main<
         data_adapter_selector.clone(),
     );
 
-    tokio::select! {
+    crate::tokio::select! {
         Err(e) = cartographer.run() => { println!("[main] cartographer terminated with error {e:?}"); Err(e) },
         Err(e) = emitter.run() => { println!("[main] emitter terminated with error {e:?}"); Err(e) },
         else => { println!("[main] all operations terminated successfully"); Ok(()) },
