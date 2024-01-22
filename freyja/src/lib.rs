@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: MIT
 
 // Re-export these items for convenience so users don't need to manually import them
-pub use freyja_common;
+pub use freyja_common::data_adapter::DataAdapterFactory;
 pub use proc_macros::freyja_main;
-pub use tokio;
+pub use tokio::main;
 
 mod cartographer;
 mod data_adapter_selector_impl;
@@ -22,7 +22,7 @@ use emitter::Emitter;
 use freyja_common::{
     cloud_adapter::CloudAdapter,
     cmd_utils::{get_log_level, parse_args},
-    data_adapter::DataAdapterFactory,
+    //data_adapter::DataAdapterFactory,
     data_adapter_selector::DataAdapterSelector,
     digital_twin_adapter::DigitalTwinAdapter,
     mapping_adapter::MappingAdapter,
