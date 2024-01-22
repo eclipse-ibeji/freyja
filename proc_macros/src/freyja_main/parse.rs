@@ -46,7 +46,7 @@ impl Parse for FreyjaMainArgs {
                 .unwrap()
                 .into_iter()
                 .collect::<Vec<_>>();
-        
+
         if data_adapter_factory_types.is_empty() {
             panic!("At least one DataAdapterFactory is required");
         }
@@ -155,8 +155,7 @@ mod freyja_main_parse_tests {
         let bar_ident = format_ident!("Bar");
         let baz_ident = format_ident!("Baz");
 
-        let input =
-            quote! { #foo_ident, #bar_ident, #baz_ident, [], };
+        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [], };
         let result = catch_unwind(|| parse(input));
         assert!(result.is_err());
     }
