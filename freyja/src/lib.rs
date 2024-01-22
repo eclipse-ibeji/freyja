@@ -5,7 +5,8 @@
 // Re-export these items for convenience so users don't need to manually import them
 pub use freyja_common;
 pub use proc_macros::freyja_main;
-pub use tokio;
+pub extern crate tokio;
+//pub use tokio;
 
 mod cartographer;
 mod data_adapter_selector_impl;
