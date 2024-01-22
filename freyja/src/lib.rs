@@ -15,7 +15,7 @@ use std::{env, sync::Arc, time::Duration};
 
 use env_logger::Target;
 use log::LevelFilter;
-use tokio::sync::Mutex;
+use crate::tokio::sync::Mutex;
 
 use cartographer::Cartographer;
 use emitter::Emitter;
