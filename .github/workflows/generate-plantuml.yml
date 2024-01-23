@@ -9,11 +9,23 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v3
-    - name: plantuml
-      id: plantuml
-      uses: grassedge/generate-plantuml-action@v1.5
+      # with:
+      #   ref: ${{ github.event.pull_request.head.ref }}
+    # - name: plantuml
+    #   id: plantuml
+    #   uses: grassedge/generate-plantuml-action@v1.5
+    #   with:
+    #     path: .
+    #     message: "Render PlantUML files"
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: generate plantuml
+      run: ./tools/plantuml.sh
+      shell: bash
+    - name: commit changes
+      uses: EndBug/add-and-commit@v9
       with:
-        path: .
-        message: "Render PlantUML files"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        author_name: Automated Notice Generation Pipeline
+        author_email: ibeji-bot@eclipse.org
+        message: Generate PlantUML Diagrams
+        pathspec_error_handling: exitAtEnd
