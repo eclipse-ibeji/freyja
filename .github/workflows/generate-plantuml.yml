@@ -9,8 +9,6 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v3
-      # with:
-      #   ref: ${{ github.event.pull_request.head.ref }}
     # The previous approach to generation has been deprecated because it does not allow a custom committer
     # - name: plantuml
     #   id: plantuml
@@ -24,7 +22,7 @@ jobs:
       run: |
         sudo apt-get install -y plantuml graphviz
         # This uses a slightly off-white background color because #ffffff renders as transparent for some reason
-        plantuml -tsvg -SbackgroundColor=fefefe -checkmetadata **/*.puml
+        plantuml -tsvg -SbackgroundColor=fefefe -checkmetadata -v **/*.puml
       shell: bash
     - name: commit changes
       uses: EndBug/add-and-commit@v9
