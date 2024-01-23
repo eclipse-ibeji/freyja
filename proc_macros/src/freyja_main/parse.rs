@@ -45,7 +45,11 @@ impl Parse for FreyjaMainArgs {
             Punctuated::<Ident, Token![,]>::parse_terminated(&data_adapter_content)
                 .unwrap()
                 .into_iter()
-                .collect();
+                .collect::<Vec<_>>();
+
+        if data_adapter_factory_types.is_empty() {
+            panic!("At least one DataAdapterFactory is required");
+        }
 
         let trailing_comma_result = if !input.is_empty() {
             Some(input.parse::<Token![,]>())
@@ -141,6 +145,17 @@ mod freyja_main_parse_tests {
 
         let input =
             quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], #qux_ident };
+        let result = catch_unwind(|| parse(input));
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn parse_panics_with_empty_factory_list() {
+        let foo_ident = format_ident!("Foo");
+        let bar_ident = format_ident!("Bar");
+        let baz_ident = format_ident!("Baz");
+
+        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [], };
         let result = catch_unwind(|| parse(input));
         assert!(result.is_err());
     }
