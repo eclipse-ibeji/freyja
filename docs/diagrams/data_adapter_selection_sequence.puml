@@ -1,0 +1,24 @@
+@startuml
+participant "Freyja Cartographer"
+participant "Data Adapter Selector"
+participant "Data Adapter"
+participant "In-Vehicle Digital Twin Provider"
+autonumber
+
+== Selection of a Data Adapter ==
+
+"Freyja Cartographer"->"Data Adapter Selector": create_or_update_adapter(entity)
+
+"Data Adapter Selector"->"Data Adapter Selector": Lookup adapter in selector's local cache
+
+alt #Aqua Matching Data Adapter Doesn't Exist
+    "Data Adapter Selector"->"Data Adapter": Create a data adapter associated with the entity endpoint
+end
+
+"Data Adapter Selector"->"Data Adapter": Register the new entity
+"Data Adapter Selector"->"Data Adapter Selector": Map entity to adapter in selector's local cache
+
+"Data Adapter" -> "In-Vehicle Digital Twin Provider": Call get or subscribe for values
+"In-Vehicle Digital Twin Provider" -> "Data Adapter": Return values
+== Selection of a Data Adapter ==
+@enduml
