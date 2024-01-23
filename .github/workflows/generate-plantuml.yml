@@ -24,7 +24,7 @@ jobs:
       run: |
         sudo apt-get install -y plantuml graphviz
         # This uses a slightly off-white background color because #ffffff renders as transparent for some reason
-        plantuml -tsvg -SbackgroundColor=fefefe **/*.puml
+        plantuml -tsvg -SbackgroundColor=fefefe -checkmetadata **/*.puml
       shell: bash
     - name: commit changes
       uses: EndBug/add-and-commit@v9
