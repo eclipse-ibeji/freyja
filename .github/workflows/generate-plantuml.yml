@@ -9,15 +9,6 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v3
-    # The previous approach to generation has been deprecated because it does not allow a custom committer
-    # - name: plantuml
-    #   id: plantuml
-    #   uses: grassedge/generate-plantuml-action@v1.5
-    #   with:
-    #     path: .
-    #     message: "Render PlantUML files"
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: generate plantuml
       run: |
         sudo apt-get install -y plantuml graphviz
