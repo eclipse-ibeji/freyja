@@ -1,0 +1,52 @@
+@startuml
+participant "Cloud Digital Twin"
+box Freyja
+participant "Emitter"
+participant "Signal Store"
+participant "Cartographer"
+participant "Digital Twin Adapter"
+participant "Data Adapter Selector"
+participant "Data Adapter"
+end box
+participant "Ibeji"
+participant "Provider"
+
+autonumber
+
+== Data Flow to Emitter ==
+
+"Cartographer"->"Digital Twin Adapter": Request DTDL for mapped entites
+"Digital Twin Adapter"->"Ibeji": Send find_by_id request(s)
+"Ibeji"->"Digital Twin Adapter": Respond with entity data
+"Digital Twin Adapter"->"Cartographer": Respond with entity data
+"Cartographer"->"Data Adapter Selector": Create or update data adapter with entity data
+"Data Adapter Selector"->"Data Adapter Selector": Select correct Data Adapter
+"Data Adapter Selector"->"Data Adapter": Register entity
+alt Entity supports subscribe
+"Data Adapter"->"Provider": Subscribe
+"Data Adapter"<-"Provider": Subscribe Response
+end
+"Data Adapter"->"Data Adapter Selector": Register entity response
+"Data Adapter Selector"->"Cartographer": Register entity response
+"Cartographer"->"Signal Store": Track Signals
+alt Entity doesn't support subscribe
+"Emitter"->"Data Adapter Selector": Request signal value
+"Data Adapter Selector"->"Data Adapter Selector": Select correct Data Adapter
+"Data Adapter Selector"->"Data Adapter": Request signal value
+"Data Adapter"->"Provider": Request signal value
+"Data Adapter"<-"Provider": Signal value response
+"Data Adapter Selector"<-"Data Adapter": Signal value response
+"Emitter"<-"Data Adapter Selector": Signal value response
+end
+alt Entity supports subscribe
+loop Provider publishes data asynchronously
+"Provider"->"Data Adapter": Publish data
+"Data Adapter"->"Signal Store": Update store
+end
+"Emitter"->"Signal Store": Request signal value
+"Emitter"<-"Signal Store": Signal value response
+end
+"Emitter"->"Cloud Digital Twin": Emit signal data
+
+== Data Flow to Emitter ==
+@enduml

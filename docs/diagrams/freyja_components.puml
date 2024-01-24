@@ -1,14 +1,22 @@
 @startuml
 
 cloud {
+    [Mapping Service] as cloudMappingSvc
+}
+
+cloud {
     [Cloud Digital Twin]
-    [Mapping Service]
 }
 
 package "Vehicle" {
     frame "Freyja" {
         [Cartographer]
         [Emitter]
+        database "Signal Store"
+        [Data Adapter Selector]
+        node "Data Adapters" {
+            [Data Adapter] as data_adapter
+        }
     }
 
     [Chariott]
@@ -21,15 +29,21 @@ package "Vehicle" {
     }
 
     [Cloud Connector]
+    [Mapping Service] as ivMappingSvc
 }
 
-[Cartographer] <-l-> [Emitter]
 [Emitter] -u-> [Cloud Connector] : Emit Data
-[Cartographer] <-u-> [Mapping Service] : Get Mapping
+[Cartographer] <-[norank]-> [ivMappingSvc] : Get Mapping
+[ivMappingSvc] <.u.> [cloudMappingSvc]
 [Cloud Connector] -u-> [Cloud Digital Twin]
-[Emitter] .d.> [Chariott] : Discover Ibeji?
-[Emitter] -d-> [ivdts] : Discover Providers
-[Emitter] <-d-> [provider] : Collect Data via Get/Subscribe
+[Cartographer] .d.> [Chariott] : Discover Ibeji (optional)
+[Cartographer] -d-> [ivdts] : Discover Providers
+[Cartographer] -u-> [Signal Store] : Track Signals
+[Cartographer] -r-> [Data Adapter Selector] : Register Adapters
+[Data Adapter Selector] -r-> [data_adapter] : Register Adapters
+[data_adapter] <-d-> [provider] : Collect data
+[data_adapter] -u-> [Signal Store] : Update signal values
+[Emitter] <-l- [Signal Store] : Retrieve data
 [Chariott] <-r-> [ivdts]
 [ivdts] <-r-> [provider]
 
