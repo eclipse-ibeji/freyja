@@ -30,7 +30,7 @@ The cartographer is the core component responsible for managing the digital twin
 
 The emitter is the core component responsible for actually emitting data. The emitter supports intervals at a per-signal level to enable signals to have different requirements on how often they are synced with the cloud. Note that once a signal is added to the mapping and picked up by the cartographer, it can take up to `min(`*`I`*`)` before the signal is emitted, where *`I`* is the set of intervals for signals already being tracked.
 
-![Digital Twin Sequence Diagram](../diagrams/data_flow_to_emitter_sequence.svg)
+![Data Flow to Emitter Sequence Diagram](../diagrams/data_flow_to_emitter_sequence.svg)
 
 ### External Interfaces
 
