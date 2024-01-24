@@ -42,6 +42,8 @@ csproj
 csr
 cv
 cvd
+DataAdapter
+DataAdapterFactory
 depgen
 der
 dev
@@ -98,6 +100,7 @@ launchSetting
 libs
 libssl
 lifecycle
+loopback
 mailto
 ManagedSubscribeDataAdapter
 MappingAdapter
@@ -160,6 +163,7 @@ signkey
 snapd
 src
 SSL
+standalone
 stdout
 STRUCT
 struct

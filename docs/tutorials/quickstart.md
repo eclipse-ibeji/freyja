@@ -62,7 +62,7 @@ This appendix lists the sample that are provided in this repository. These are s
 
 ## Digital Twin Adapters
 
-- [In-Memory Mock Cloud Adapter](../adapters/cloud/in_memory_mock_cloud_adapter/README.md): Emulates a Cloud Connector entirely within the memory of the Freyja application. When data is emitted to this adapter it will be printed to the console window.
+- [In-Memory Mock Cloud Adapter](../../adapters/cloud/in_memory_mock_cloud_adapter/README.md): Emulates a Cloud Connector entirely within the memory of the Freyja application. When data is emitted to this adapter it will be printed to the console window.
 
 ## Data Adapters
 
