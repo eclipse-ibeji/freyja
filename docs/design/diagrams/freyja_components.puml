@@ -11,7 +11,10 @@ cloud {
 package "Vehicle" {
     frame "Freyja" {
         [Cartographer]
+        interface "Digital Twin Adapter"
+        interface "Mapping Adapter"
         [Emitter]
+        interface "Cloud Adapter"
         database "Signal Store"
         [Data Adapter Selector]
         node "Data Adapters" {
@@ -32,12 +35,15 @@ package "Vehicle" {
     [Mapping Service] as ivMappingSvc
 }
 
-[Emitter] -u-> [Cloud Connector] : Emit Data
-[Cartographer] <-[norank]-> [ivMappingSvc] : Get Mapping
+[Emitter] -u-> [Cloud Adapter] : Emit Data
+[Cloud Adapter] -u-> [Cloud Connector] : Emit Data
+[Cartographer] <-u-> [Mapping Adapter] : Get Mapping
+[Mapping Adapter] <-[norank]-> [ivMappingSvc] : Get Mapping
 [ivMappingSvc] <.u.> [cloudMappingSvc]
 [Cloud Connector] -u-> [Cloud Digital Twin]
-[Cartographer] .d.> [Chariott] : Discover Ibeji (optional)
-[Cartographer] -d-> [ivdts] : Discover Providers
+[Cartographer] -d-> [Digital Twin Adapter]
+[Digital Twin Adapter] .d.> [Chariott] : Discover Ibeji (optional)
+[Digital Twin Adapter] -d-> [ivdts] : Discover Providers
 [Cartographer] -u-> [Signal Store] : Track Signals
 [Cartographer] -r-> [Data Adapter Selector] : Register Adapters
 [Data Adapter Selector] -r-> [data_adapter] : Register Adapters

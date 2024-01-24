@@ -14,15 +14,15 @@ The Software-Defined Vehicle will need to connect to the cloud for scenarios suc
 
 ## Architecture
 
-At its core, Freyja consists of two main components: the **cartographer** and the **emitter**. In addition to these core components, there are multiple interfaces with external components that define how Freyja interacts with the cloud and the rest of the Software Defined Vehicle. There are interfaces for the in-vehicle digital twin (such as Ibeji), the mapping service (provided by customers), and the cloud digital twin provider (such as Azure or AWS). Below is a high-level diagram of the Freyja components:
+At its core, Freyja consists of the following primary components: the **cartographer**, the **emitter**, the **data adapter selector**, and the **signal store**. In addition to these core components, there are multiple interfaces with external components that define how Freyja interacts with the cloud and the rest of the Software Defined Vehicle. There are interfaces for the in-vehicle digital twin (such as Ibeji), the mapping service (provided by customers), the cloud digital twin provider (such as Azure or AWS), and the digital twin providers. Below is a high-level diagram of the Freyja components:
 
-![Component Diagram](../diagrams/freyja_components.svg)
+![Component Diagram](./diagrams/freyja_components.svg)
 
-In a typical life cycle, the Freyja application will start up, discover Ibeji via Chariott or a static configuration, then connect to the mapping service to obtain a digital twin map. This map will define which signals need to be synced with the cloud digital twin, how often they need to be synced, and how the data should be transformed or packaged. Once a mapping is obtained, Freyja will connect to the providers and begin emitting their data according to the mapping. In case of changes on either the device or vehicle side, the mapping is dynamic and can be updated as required to add, remove, or modify the signals that are being emitted.
+In a typical life cycle, the Freyja application will start up, discover Ibeji via Chariott or a static configuration, then connect to the mapping service to obtain an entity map. This map will define which signals need to be synced with the cloud digital twin, how often they need to be synced, and how the data should be transformed or packaged. Once a mapping is obtained, Freyja will connect to the providers and begin emitting their data according to the mapping. In case of changes on either the device or vehicle side, the mapping is dynamic and can be updated as required to add, remove, or modify the signals that are being emitted.
 
 ### Cartographer
 
-The cartographer is the core component responsible for managing the digital twin mapping. The current implementation is very minimal and will poll the mapping adapter for updates. If there is an update pending, the cartographer will download it and update the application's stored mapping info. This is currently implemented as a shared application state which both the cartographer and emitter have access to.
+The cartographer is the core component responsible for managing the entity map and tracking which signals should be synchornized to the cloud. The cartographer interfaces with the mapping adapter to poll the mapping service for updates. If there is an update pending, the cartographer will download it and interface with the digital twin adapter
 
 ![Sequence Diagram](../diagrams/mapping_service_to_cartographer_sequence.svg)
 

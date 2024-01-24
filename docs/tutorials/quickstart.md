@@ -52,13 +52,13 @@ This appendix lists the sample that are provided in this repository. These are s
 
 ## Digital Twin Adapters
 
-- [In-Memory Mock Digital Twin Adapter](../adapters/digital_twin/in_memory_mock_digital_twin_adapter/README.md): Emulates a Digital Twin Service entirely within the memory of the Freyja application.
-- [Mock Digital Twin Adapter](../adapters/digital_twin/mock_digital_twin_adapter/README.md): Communicates with the [Mock Digital Twin](../mocks/mock_digital_twin/README.md), which is an executable that mocks the Digital Twin Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove entities from the mocked digital twin by pressing enter to advance through configurable states.
+- [In-Memory Mock Digital Twin Adapter](../../adapters/digital_twin/in_memory_mock_digital_twin_adapter/README.md): Emulates a Digital Twin Service entirely within the memory of the Freyja application.
+- [Mock Digital Twin Adapter](../../adapters/digital_twin/mock_digital_twin_adapter/README.md): Communicates with the [Mock Digital Twin](../../mocks/mock_digital_twin/README.md), which is an executable that mocks the Digital Twin Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove entities from the mocked digital twin by pressing enter to advance through configurable states.
 
 ## Mapping Adapters
 
-- [In-Memory Mock Mapping Adapter](../adapters/mapping/in_memory_mock_mapping_adapter/README.md): Emulates a mapping service entirely within the memory of the Freyja application.
-- [Mock Mapping Service Adapter](../adapters/mapping/mock_mapping_service_adapter/README.md): Communicates with the [Mock Mapping Service](../mocks/mock_mapping_service/README.md), which is an executable that mocks a Mapping Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove mappings by pressing enter to advance through configurable states.
+- [In-Memory Mock Mapping Adapter](../../adapters/mapping/in_memory_mock_mapping_adapter/README.md): Emulates a mapping service entirely within the memory of the Freyja application.
+- [Mock Mapping Service Adapter](../../adapters/mapping/mock_mapping_service_adapter/README.md): Communicates with the [Mock Mapping Service](../../mocks/mock_mapping_service/README.md), which is an executable that mocks a Mapping Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove mappings by pressing enter to advance through configurable states.
 
 ## Digital Twin Adapters
 
@@ -66,8 +66,8 @@ This appendix lists the sample that are provided in this repository. These are s
 
 ## Data Adapters
 
-- [In-Memory Mock Data Adapter](../adapters/data/in_memory_mock_data_adapter/README.md): Interfaces with the In-Memory Mock Digital Twin Adapter and intended for use with it.
-- [HTTP Mock Data Adapter](../adapters/data/http_mock_data_adapter/README.md): Interfaces with the Mock Digital Twin Adapter and intended for use with it.
-- [gRPC Data Adapter](../adapters/data/grpc_data_adapter/README.md): Interfaces with providers that communicate via gRPC. Integrated with specific Ibeji samples.
-- [MQTT Data Adapter](../adapters/data/mqtt_data_adapter/README.md): Interfaces with providers that communicate via MQTT.
-- [Managed Subscribe Data Adapter](../adapters/data/managed_subscribe_data_adapter/README.md): Interfaces with providers that leverage the managed subscribe feature of Ibeji.
+- [In-Memory Mock Data Adapter](../../adapters/data/in_memory_mock_data_adapter/README.md): Interfaces with the In-Memory Mock Digital Twin Adapter and intended for use with it.
+- [HTTP Mock Data Adapter](../../adapters/data/http_mock_data_adapter/README.md): Interfaces with the Mock Digital Twin Adapter and intended for use with it.
+- [gRPC Data Adapter](../../adapters/data/grpc_data_adapter/README.md): Interfaces with providers that communicate via gRPC. Integrated with specific Ibeji samples.
+- [MQTT Data Adapter](../../adapters/data/mqtt_data_adapter/README.md): Interfaces with providers that communicate via MQTT.
+- [Managed Subscribe Data Adapter](../../adapters/data/managed_subscribe_data_adapter/README.md): Interfaces with providers that leverage the managed subscribe feature of Ibeji.
