@@ -13,7 +13,7 @@ participant "Provider"
 
 autonumber
 
-== Data Flow to Emitter ==
+== Entity Registration ==
 
 "Cartographer"->"Digital Twin Adapter": Request DTDL for mapped entites
 "Digital Twin Adapter"->"Ibeji": Send find_by_id request(s)
@@ -29,6 +29,10 @@ end
 "Data Adapter"->"Data Adapter Selector": Register entity response
 "Data Adapter Selector"->"Cartographer": Register entity response
 "Cartographer"->"Signal Store": Track Signals
+
+== Data Collection and Emission ==
+
+loop
 alt Entity doesn't support subscribe
 "Emitter"->"Data Adapter Selector": Request signal value
 "Data Adapter Selector"->"Data Adapter Selector": Select correct Data Adapter
@@ -47,6 +51,6 @@ end
 "Emitter"<-"Signal Store": Signal value response
 end
 "Emitter"->"Cloud Digital Twin": Emit signal data
+end
 
-== Data Flow to Emitter ==
 @enduml

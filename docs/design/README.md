@@ -18,19 +18,21 @@ At its core, Freyja consists of the following primary components: the **cartogra
 
 ![Component Diagram](./diagrams/freyja_components.svg)
 
-In a typical life cycle, the Freyja application will start up, discover Ibeji via Chariott or a static configuration, then connect to the mapping service to obtain an entity map. This map will define which signals need to be synced with the cloud digital twin, how often they need to be synced, and how the data should be transformed or packaged. Once a mapping is obtained, Freyja will connect to the providers and begin emitting their data according to the mapping. In case of changes on either the device or vehicle side, the mapping is dynamic and can be updated as required to add, remove, or modify the signals that are being emitted.
+In a typical life cycle, the Freyja application will start up, discover Ibeji via Chariott or a static configuration, then connect to the mapping service to obtain an entity map. This map will define which signals need to be synced with the cloud digital twin, how often they need to be synced, and how the data should be transformed or packaged. Once a mapping is obtained, Freyja will connect to the providers and begin emitting their data according to the mapping. In case of changes on either the device or vehicle side, the mapping is dynamic and can be updated as required to add, remove, or modify the signals that are being emitted. The following is a more detailed diagram illustrating how the components interact and how a mapping results in signal data emissions
+
+![Data Flow Sequence Diagram](./diagrams/data_flow_sequence.svg)
 
 ### Cartographer
 
-The cartographer is the core component responsible for managing the entity map and tracking which signals should be synchornized to the cloud. The cartographer interfaces with the mapping adapter to poll the mapping service for updates. If there is an update pending, the cartographer will download it and interface with the digital twin adapter
+The cartographer is the core component responsible for managing the entity map and tracking which signals should be synchronized to the cloud. The cartographer interfaces with the mapping adapter to poll the mapping service for updates. If there is an update pending, the cartographer will download it and interface with the digital twin adapter to look up the corresponding entity information. Then, the cartographer will use this information to register data adapters with the data adapter selector. Finally, the cartographer will populate the signal store with the signals that should be tracked. If any part of this process fails for a given entity, the cartographer will retry again at a later time.
 
-![Sequence Diagram](../diagrams/mapping_service_to_cartographer_sequence.svg)
+![Sequence Diagram](./diagrams/mapping_service_to_cartographer_sequence.svg)
 
 ### Emitter
 
-The emitter is the core component responsible for actually emitting data. The emitter supports intervals at a per-signal level to enable signals to have different requirements on how often they are synced with the cloud. Note that once a signal is added to the mapping and picked up by the cartographer, it can take up to `min(`*`I`*`)` before the signal is emitted, where *`I`* is the set of intervals for signals already being tracked.
+The emitter is the core component responsible for actually emitting data. The emitter interfaces with the signal store to determine which signals should be emitted. The signal store is considered to be the source of truth for this information, and every signal present in the store is a signal that should be emitted. The emitter supports intervals at a per-signal level to enable signals to have different requirements on how often they are synced with the cloud. Note that once a signal is added to the mapping and picked up by the cartographer, it can take up to `min(`*`I`*`)` before the signal is emitted, where *`I`* is the set of intervals for signals already being tracked.
 
-![Data Flow to Emitter Sequence Diagram](../diagrams/data_flow_to_emitter_sequence.svg)
+
 
 ### External Interfaces
 
