@@ -19,7 +19,7 @@ This mock supports the following configuration:
       - `end`: The other bound for the signal value
       - `delta`: The amount to add to the signal value at each iteration. If this operation would exceed the specified bounds, then the signal value saturates at the boundary value.
 
-This mock supports [config overrides](../../docs/config-overrides.md). The override filename is `mock_digital_twin_config.json`, and the default config is located at `res/mock_digital_twin_config.default.json`.
+This mock supports [config overrides](../../docs/tutorials/config-overrides.md). The override filename is `mock_digital_twin_config.json`, and the default config is located at `res/mock_digital_twin_config.default.json`.
 
 ## Behavior
 

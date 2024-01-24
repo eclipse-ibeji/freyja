@@ -11,7 +11,7 @@ This adapter supports the following configuration settings:
 
 The above values define the frequency at which the adapter requests a provider to transfer data.
 
-This adapter supports [config overrides](../../../docs/config-overrides.md). The override filename is `managed_subscribe_data_adapter_config.json`, and the default config is located at `res/managed_subscribe_data_adapter_config.default.json`.
+This adapter supports [config overrides](../../../docs/tutorials/config-overrides.md). The override filename is `managed_subscribe_data_adapter_config.json`, and the default config is located at `res/managed_subscribe_data_adapter_config.default.json`.
 
 ## Integrating with this Adapter
 

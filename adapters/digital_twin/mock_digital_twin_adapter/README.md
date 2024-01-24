@@ -8,4 +8,4 @@ This adapter supports the following configuration settings:
 
 - `digital_twin_service_uri`: the base uri for the Mock Digital Twin Service
 
-This adapter supports [config overrides](../../../docs/config-overrides.md). The override filename is `mock_digital_twin_adapter_config.json`, and the default config is located at `res/mock_digital_twin_adapter_config.default.json`.
+This adapter supports [config overrides](../../../docs/tutorials/config-overrides.md). The override filename is `mock_digital_twin_adapter_config.json`, and the default config is located at `res/mock_digital_twin_adapter_config.default.json`.
