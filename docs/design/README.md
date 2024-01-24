@@ -36,7 +36,7 @@ The following diagram illustrates the communication between the cartographer and
 
 ### Emitter
 
-The emitter is the core component responsible for actually emitting data. The emitter interfaces with the signal store to determine which signals should be emitted. The signal store is considered to be the source of truth for this information, and every signal present in the store is a signal that will be emitted.
+The emitter is the core component responsible for actually emitting data. The emitter interfaces with the signal store to determine which signals should be emitted. Every signal present in the store will be emitted according to its mapping configuration.
 
 The emitter supports intervals at a per-signal level to enable signals to have different requirements on how often they are synced with the cloud. Note that once a signal is added to the mapping and picked up by the cartographer, it can take up to `min(`*`I`*`)` before the signal is emitted, where *`I`* is the set of intervals for signals already being tracked.
 
@@ -52,30 +52,54 @@ Below is a sequence diagram illustrating the data adapter selection process:
 
 ![Data Adapter Selector Sequence](./diagrams/data_adapter_selection_sequence.svg)
 
+### Signal Store
+
+The signal store is the core component responsible for managing signal values. The signal store is considered the source of truth for which signals should be emitted, how they should be emitted, and what the most up-to-date value is for each signal. Each other core component interfaces with the signal store in some way to track, read, and write signal values.
+
+Note that the signal store is not intended to be a complete mirror of the vehicle signal state, but rather tracks only the signals of interest to Freyja's other core components.
+
 ### External Interfaces
 
 Freyja has the following interfaces for external components:
 
-Component|Examples|Interface Trait|Description
+Component|Interface Traits|Description|Examples
 -|-|-|-
-In-Vehicle Digital Twin|Ibeji and its providers|`DigitalTwinAdapter`|Communicates with the in-vehicle digital twin to get signal values during emission. Often referred to as "DT Adapter"
-Mapping Service|`MockMappingService`, other customer-provided implementations|`MappingAdapter`|Communicates with the mapping service
-Cloud Digital Twin|Azure, AWS|`CloudAdapter`|Communicates with the cloud digital twin provider
+In-Vehicle Digital Twin|`DigitalTwinAdapter`|Communicates with the in-vehicle digital twin service to get entity information|Ibeji Digital Twin Service
+In-Vehicle Data Providers|`DataAdapter` and `DataAdapterFactory`|Communicates with the in-vehicle data providers to retrieve entity signal values|Ibeji sample providers
+Mapping Service|`MappingAdapter`|Communicates with the mapping service|`MockMappingService`, other customer-provided implementations
+Cloud Digital Twin|`CloudAdapter`|Communicates with the cloud digital twin provider|Azure, AWS
 
 All of these interfaces are defined as traits with async functions in the `contracts/src` folder.
 
 #### In-Vehicle Digital Twin Interface
 
-The digital twin adapter interfaces with a digital twin service to get entity information. The [Ibeji Project](https://github.com/eclipse-ibeji/ibeji) is an example of such a service. This interface requires the following function implementations:
+The digital twin adapter interfaces with a digital twin service to get entity information. The [Eclipse Ibeji project](https://github.com/eclipse-ibeji/ibeji) is an example of such a service. This interface requires the following function implementations:
 
 - `create_new`: Serves as an integration point for the core Freyja components. This function will be called by the `freyja_main` function to create an instance of your adapter.
 - `find_by_id`: Queries the digital twin service for information about the requested entity. This information will later be used to set up a communication pipeline with that entity's provider.
 
 Although this component is built with the same pluggable model as other external interfaces, it is being designed closely together with other SDV components. As a result, it is strongly suggested to use the provided SDV implementation of this interface, and this implementation should be sufficient for most production scenarios.
 
+#### In-Vehicle Data Provider Interface
+
+The data adapters interface with providers to retrieve data from entities, such as signal values. This data will ultimately be pushed to the cloud digital twin by the emitter and cloud adapter. There are two interfaces related to the data provider interface: `DataAdapter` and `DataAdapterFactory`.
+
+The `DataAdapter` interface requires the following function implementations:
+
+- `create_new`: Serves as an integration point. This is typically used by the corresponding `DataAdapterFactory` implementation of `create_adapter` (see below).
+- `start`: Starts the data adapter. This function should be non-blocking. Any required servers, listeners, and so on should be initialized as a separate thread or task.
+- `send_request_to_provider`: Sends a request to a provider to publish data immediately. In most use cases data is updated asynchronously with a subscription model, but this function allows for a more traditional synchronous-like interface. Note that the adapter is still expected to update data asynchronously, as the return type of the function does not contain any data.
+- `register_entity`: Registers an entity with this adapter.
+
+The `DataAdapterFactory` interface requires the following function implementations:
+
+- `create_new`: Serves as an integration point for the core Freyja components. This function will be called by the `freyja_main!` macro to create an instance of your factory.
+- `is_supported`: Determines whether this factory can create an adapter that supports the requested entity. Typically this decision is made by inspecting the entity's endpoints to see if any of the protocols and operations are known to the corresponding data adapter type. If an entity is supported, this function should select and return one of the entity's endpoints that will be used when creating the adapter.
+- `create_adapter`: Creates a data adapter.
+
 #### Mapping Adapter Interface
 
-Freyja communicates with a mapping service via the `MappingAdapter` trait to get information about how to package data during emission. This trait defines the following functions:
+Freyja communicates with a mapping service via the `MappingAdapter` trait to get information about which signals to track and how to package data during emission. This trait defines the following functions:
 
 - `create_new`: Serves as an integration point for the core Freyja components. This function will be called by the `freyja_main` function to create an instance of your adapter.
 - `check_for_work`: Because mappings returned from the `get_mapping` API can potentially be large, this method is used to first poll for changes before calling that API. If the result is false, then the cartographer will not invoke the `get_mapping` API until it polls again.
@@ -86,21 +110,19 @@ For more information about the mapping service and how this interface is used, s
 
 #### Cloud Digital Twin Interface
 
-The cloud adapter interfaces with the cloud or a cloud connector to emit data to a digital twin. It's recommended to route communication through a cloud connector on the device to help manage authentication, batching, and other policies that may be useful for automotive scenarios. This interface requires the following function implementations:
+The cloud adapter interfaces with the cloud or a cloud connector to emit data to a remote data store, such as a digital twin. It's recommended to route communication through a cloud connector on the device to help manage authentication, batching, and other policies that may be useful for automotive scenarios which are not natively supported by Freyja. This interface requires the following function implementations:
 
 - `create_new`: Serves as an integration point for the core Freyja components. This function will be called by the `freyja_main` function to create an instance of your adapter.
 - `send_to_cloud`: Sends data to the cloud or cloud connector. The request includes a `cloud_signal` property which is a hash map of custom key-value arguments, and the signal value will be converted to a string.
 
 ### Mapping Service
 
-Freyja relies on an external mapping service to define how data should be synced to the cloud. The implementation of this service is intentionally left undefined as it's expected that it will vary on a per-customer basis. We only define the interface that the Freyja application expects and provide some sample mock services.
+Freyja relies on an external mapping service to define how data should be synced to the cloud. The implementation of this service is intentionally left undefined as it's expected that it will vary on a per-user basis. Freyja only defines the interface and provides some mocks for testing.
 
 At a high level, this component should be able to identify the vehicle making a request and either look up or compute a mapping for that vehicle. This could be done with a static vehicle-id-to-mapping database, or it might be more dynamic and linked to the cloud digital twin solution to compute mappings on the fly.
 
-The reference architecture here specifies the mapping service as a cloud service with which Freyja communicates, though an alternate reference architecture may have Freyja communicating with another application on the vehicle which caches data from the cloud service. Yet another potential architecture may leverage the vehicle's OTA solution to update the mapping data on a local mapping service rather than having a dedicated cloud mapping service. Freyja supports a flexible pluggable system to enable customers to select the implementation that best meets their needs.
+The reference architecture in this document specifies the mapping service as a cloud service with which Freyja communicates, though an alternative architecture may have Freyja communicating with another application on the vehicle which caches data from the cloud service. Yet another potential architecture may leverage the vehicle's OTA solution to update the mapping data on a local mapping service rather than having a dedicated cloud mapping service. Freyja supports a flexible and pluggable system to enable users to select the implementation that best meets their needs.
 
 ## Future Work
 
-Freyja currently only supports device-to-cloud (D2C) scenarios. Cloud-to-device (C2D) scenarios are planned for the future, though there are no current designs for this feature.
-
-In addition, Freyja currently only supports a built-in set of protocols and data schemas for communication with providers. In the future, this will have a pluggable model similar to other adapters to enable custom protocols.
+Freyja currently only supports device-to-cloud (D2C) scenarios. Cloud-to-device (C2D) scenarios are planned for the future, though there are no current designs or timelines for this feature.
