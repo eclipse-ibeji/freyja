@@ -38,7 +38,7 @@ The following diagram illustrates the communication between the cartographer and
 
 The emitter is the core component responsible for actually emitting data. The emitter interfaces with the signal store to determine which signals should be emitted. Every signal present in the store will be emitted according to its mapping configuration.
 
-The emitter supports intervals at a per-signal level to enable signals to have different requirements on how often they are synced with the cloud. Note that once a signal is added to the mapping and picked up by the cartographer, there can de a delay of up to `min(`*`I`*`)` before the signal is emitted, where *`I`* is the set of intervals for signals already being tracked.
+The emitter supports intervals at a per-signal level to enable signals to have different requirements on how often they are synced with the cloud. Note that once a signal is added to the mapping and picked up by the cartographer, there can be a delay of up to `min(`*`I`*`)` before the signal is emitted, where *`I`* is the set of intervals for signals already being tracked.
 
 ### Data Adapter Selector
 
