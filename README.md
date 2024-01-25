@@ -40,9 +40,9 @@ This guide uses `apt` as the package manager in the examples. You may need to su
 
 To use Freyja, you will need to implement some adapters and write the main executable that will run the Freyja application.
 
-For a guide on how to get started quickly by running some minimal examples, see the [Quickstart Guide](docs/quickstart.md).
+For a guide on how to get started quickly by running some minimal examples, see the [Quickstart Guide](docs/tutorials/quickstart.md).
 
-For more advanced topics on how to implement and use your own adapters, see the [Custom Adapters Guide](docs/custom-adapters.md).
+For more advanced topics on how to implement and use your own adapters, see the [Custom Adapters Guide](docs/tutorials/custom-adapters.md).
 
 <!--alex disable he-she her-him brothers-sisters-->
 ## Why "Freyja"?

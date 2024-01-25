@@ -16,7 +16,7 @@ This adapter supports the following configuration settings:
     - `emit_on_change`: a boolean indicating whether data emission should be skipped if the value hasn't changed since the last emission. Set to `true` to enable this behavior.
     - `conversion`: a conversion that should be applied. Set to `null` if no conversion is needed. Otherwise the conversion is configured with the `mul` and `offset` properties, and the value `y` that is emitted is calculated as `y = mul * x + offset`. Note that conversions are only supported for signal values which can be parsed as `f64`.
 
-This adapter supports [config overrides](../../../docs/config-overrides.md). The override filename is `mock_mapping_config.json`, and the default config is located at `res/mock_mapping_config.default.json`.
+This adapter supports [config overrides](../../../docs/tutorials/config-overrides.md). The override filename is `mock_mapping_config.json`, and the default config is located at `res/mock_mapping_config.default.json`.
 
 ## Behavior
 

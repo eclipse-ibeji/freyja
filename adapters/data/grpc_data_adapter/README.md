@@ -9,7 +9,7 @@ This adapter supports the following configuration settings:
 - `consumer_address`: The address for the adapter's consumer. The adapter's gRPC server will be hosted on this address.
 - `advertised_consumer_address`: (Optional) The advertised address for the adapter's consumer. This is the address that will be reported as the callback address to providers, enabling scenarios where the providers should use a different address from the actual hosting address. If not specified, this adapter will default to using the consumer address.
 
-This adapter supports [config overrides](../../../docs/config-overrides.md). The override filename is `grpc_data_adapter_config.json`, and the default config is located at `res/grpc_data_adapter_config.default.json`.
+This adapter supports [config overrides](../../../docs/tutorials/config-overrides.md). The override filename is `grpc_data_adapter_config.json`, and the default config is located at `res/grpc_data_adapter_config.default.json`.
 
 ## Integrating with this Adapter
 

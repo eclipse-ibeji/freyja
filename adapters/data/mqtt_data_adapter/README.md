@@ -8,7 +8,7 @@ This adapter supports the following configuration settings:
 
 - `keep_alive_interval_s`: The keep alive interval for MQTT communications, in seconds
 
-This adapter supports [config overrides](../../../docs/config-overrides.md). The override filename is `mqtt_data_adapter_config.json`, and the default config is located at `res/mqtt_data_adapter_config.default.json`.
+This adapter supports [config overrides](../../../docs/tutorials/config-overrides.md). The override filename is `mqtt_data_adapter_config.json`, and the default config is located at `res/mqtt_data_adapter_config.default.json`.
 
 ## Integrating with this Adapter
 
