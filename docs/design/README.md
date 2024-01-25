@@ -28,7 +28,7 @@ The following is a more detailed diagram illustrating how the components interac
 
 The cartographer is the core component responsible for managing the entity map and tracking which signals should be synchronized to the cloud.
 
-The cartographer interfaces with the mapping adapter to poll the mapping service for updates. If there is an update pending, the cartographer will download it and interface with the digital twin adapter to look up the corresponding entity information. Then, the cartographer will use this information to register data adapters with the data adapter selector. Finally, the cartographer will populate the signal store with the signals that should be tracked. If any part of this process fails for a given entity, the cartographer will retry again at a later time.
+The cartographer interfaces with the mapping adapter to poll the mapping service for updates. If there is an update pending, the cartographer will download it and interface with the digital twin adapter to look up the corresponding entity information. Then, the cartographer will use this information to register data adapters with the data adapter selector. Finally, the cartographer will populate the signal store with the signals that should be tracked. If any part of this process fails for a given entity, the signal will not be tracked and the cartographer will retry again at a later time.
 
 The following diagram illustrates the communication between the cartographer and the mapping service:
 
@@ -38,15 +38,15 @@ The following diagram illustrates the communication between the cartographer and
 
 The emitter is the core component responsible for actually emitting data. The emitter interfaces with the signal store to determine which signals should be emitted. Every signal present in the store will be emitted according to its mapping configuration.
 
-The emitter supports intervals at a per-signal level to enable signals to have different requirements on how often they are synced with the cloud. Note that once a signal is added to the mapping and picked up by the cartographer, it can take up to `min(`*`I`*`)` before the signal is emitted, where *`I`* is the set of intervals for signals already being tracked.
+The emitter supports intervals at a per-signal level to enable signals to have different requirements on how often they are synced with the cloud. Note that once a signal is added to the mapping and picked up by the cartographer, there can de a delay of up to `min(`*`I`*`)` before the signal is emitted, where *`I`* is the set of intervals for signals already being tracked.
 
 ### Data Adapter Selector
 
 The data adapter selector is the core component responsible for managing communication with data adapters. It behaves like a gateway service and allows callers to interact with the correct data adapter for a given entity.
 
-The data adapter selector's main interface is the `create_or_update_adapter` function, which accepts an entity description as an argument. When calling this function, the data adapter selector will first use the entity's endpoint URI to search for an existing adapter that can handle the requested entity. If no such adapter is found, the entity's protocol and operation are used to search for an adapter type that can handle that entity, and then an adapter is created. In either case, the new entity is registered with the adapter, which then interfaces with that entity's endpoint to obtain data.
+The data adapter selector's main interface is the `create_or_update_adapter` function, which accepts an entity description as an argument. When calling this function, the data adapter selector will first use the entity's endpoint information to search for an existing adapter that can handle the requested entity. If no such adapter is found, the entity's protocol and operation are used to search for an adapter type that can handle that entity, and then an adapter is created. In either case, the new entity is registered with the adapter, which then interfaces with that entity's endpoint to obtain data.
 
-The data adapter selector also supports a "loopback" functionality. When registering an entity with an adapter, the adapter may return a request for a loopback with updated entity info. This indicates to the selector that the matched adapter cannot handle the originally requested entity, but has modified its contents to redirect it to another adapter. This enables scenarios such as managed subscribe to perform pre-processing on entities and recycle other existing data adapters. For more information on the managed subscribe functionality, see the [Eclipse Agemo project](https://github.com/eclipse-chariott/agemo).
+The data adapter selector also supports "loopback" functionality. When registering an entity with an adapter, the adapter may return a request for a loopback with updated entity info. This indicates to the selector that the matched adapter cannot handle the originally requested entity directly, but has modified its contents to redirect it to another adapter. This enables scenarios such as managed subscribe to perform pre-processing on entities while recycling other data adapter implementations which are independent of managed subscriptions. For more information on the managed subscribe functionality, see the [Eclipse Agemo project](https://github.com/eclipse-chariott/agemo).
 
 Below is a sequence diagram illustrating the data adapter selection process:
 
@@ -54,9 +54,9 @@ Below is a sequence diagram illustrating the data adapter selection process:
 
 ### Signal Store
 
-The signal store is the core component responsible for managing signal values. The signal store is considered the source of truth for which signals should be emitted, how they should be emitted, and what the most up-to-date value is for each signal. Each other core component interfaces with the signal store in some way to track, read, and write signal values.
+The signal store is the core component responsible for managing signal values. The signal store is considered to be the source of truth for which signals should be emitted, how they should be emitted, and what the most up-to-date value is for each signal. Each other core component interfaces with the signal store in some way to track, read, and write signal values.
 
-Note that the signal store is not intended to be a complete mirror of the vehicle signal state, but rather tracks only the signals of interest to Freyja's other core components.
+Note that the signal store is not intended to be a complete mirror of the vehicle signal state, but rather tracks only the signals of interest to Freyja.
 
 ### External Interfaces
 
@@ -87,8 +87,8 @@ The data adapters interface with providers to retrieve data from entities, such 
 The `DataAdapter` interface requires the following function implementations:
 
 - `create_new`: Serves as an integration point. This is typically used by the corresponding `DataAdapterFactory` implementation of `create_adapter` (see below).
-- `start`: Starts the data adapter. This function should be non-blocking. Any required servers, listeners, and so on should be initialized as a separate thread or task.
-- `send_request_to_provider`: Sends a request to a provider to publish data immediately. In most use cases data is updated asynchronously with a subscription model, but this function allows for a more traditional synchronous-like interface. Note that the adapter is still expected to update data asynchronously, as the return type of the function does not contain any data.
+- `start`: Starts the data adapter. This function should not block indefinitely. Any required servers, listeners, and so on should be initialized as a separate thread or task.
+- `send_request_to_provider`: Sends a request to a provider to publish data immediately. In most use cases data is updated asynchronously with a publisher-subscriber model, but this function allows for a more traditional synchronous-like interface. Note that the adapter is still expected to update data in the signal store asynchronously, as the return type of the function does not contain any data.
 - `register_entity`: Registers an entity with this adapter.
 
 The `DataAdapterFactory` interface requires the following function implementations:

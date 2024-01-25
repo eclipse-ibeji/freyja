@@ -1,12 +1,12 @@
 # Writing Custom Adapters and Integrating with Freyja
 
-Freyja allows users to bring their own implementations of various traits which interface with external components. This is achieved by exposing the core functionality of Freyja as a library function and requiring users to author the final binary package to link everything together. In most cases authoring the final executable can be simplified by using a provided macro, but for scenarios that require more complex setup for the adapters the library function can be called manually.
+Freyja allows users to bring their own implementations of various traits which interface with external components. This is achieved by exposing the core functionality of Freyja as a library function and requiring users to author the final binary package to link everything together.
 
 For more examples of Freyja adapters and applications, see the [Ibeji Example Applications repository](https://github.com/eclipse-ibeji/ibeji-example-applications).
 
 ## How to Author a Custom Adapter
 
-Freyja supports custom implementations of the `DigitalTwinAdapter`, `CloudAdapter`, `MappingAdapter`, and `data-adapter` interfaces. To refer to these traits in your implementation, you will need to take a dependency on the `freyja-common` crate. The following `Cargo.toml` snippet shows how you can include this dependency:
+Freyja supports custom implementations of the `DigitalTwinAdapter`, `CloudAdapter`, `MappingAdapter`, `DataAdapter`, and `DataAdapterFactory` interfaces. To refer to these traits in your implementation, you will need to take a dependency on the `freyja-common` crate. The following `Cargo.toml` snippet shows how you can include this dependency:
 
 ```toml
 [dependencies]

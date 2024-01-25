@@ -42,7 +42,7 @@ To run this sample, follow these steps:
 
     Note that with the default configuration, the mock is initialized with no mappings activated. Whenever you press <kbd>Enter</kbd> in the mock's terminal window, the mock's state will change to include additional mappings that will be returned by the `get_mapping` API. Using the default configuration, up to three mappings can be added one at a time when pressing <kbd>Enter</kbd>.
 
-1. Run the example. To do so, run the following in the original terminal window:
+1. Run the example. To do so, run the following in the original terminal window. This will build the example (if necessary) and then execute it:
 
         cargo run --example mocks
 
