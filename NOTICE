@@ -5,7 +5,7 @@ This page lists the licenses of the projects used in cargo-about.
 ## Overview of licenses
 
 - Apache License 2.0 (195)
-- MIT License (69)
+- MIT License (70)
 - BSD 3-Clause "New" or "Revised" License (2)
 - Eclipse Public License 1.0 (2)
 - ISC License (1)
@@ -8201,6 +8201,7 @@ SOFTWARE.
 
 - [aho-corasick]( https://github.com/BurntSushi/aho-corasick ) 1.1.2
 - [memchr]( https://github.com/BurntSushi/memchr ) 2.7.1
+- [termcolor]( https://github.com/BurntSushi/termcolor ) 1.4.1
 - [winapi-util]( https://github.com/BurntSushi/winapi-util ) 0.1.6
 
 #### License
