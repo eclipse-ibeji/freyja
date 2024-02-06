@@ -32,4 +32,4 @@ An example of a configuration file that uses Chariott can be found at `res/ibeji
 
 ### Configuration Overrides
 
-This adapter supports the same [config override method](../../../docs/config-overrides.md) as the Freyja mocks. The override filename is `ibeji_adapter_config.json`, and the default config is located at `res/ibeji_adapter_config.default.json`.
+This adapter supports the same [config override method](../../../docs/tutorials/config-overrides.md) as the Freyja mocks. The override filename is `ibeji_adapter_config.json`, and the default config is located at `res/ibeji_adapter_config.default.json`.
