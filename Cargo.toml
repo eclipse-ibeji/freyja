@@ -12,6 +12,7 @@ members = [
   "adapters/data/in_memory_mock_data_adapter",
   "adapters/data/managed_subscribe_data_adapter",
   "adapters/data/mqtt_data_adapter",
+  "adapters/digital_twin/ibeji_adapter",
   "adapters/digital_twin/in_memory_mock_digital_twin_adapter",
   "adapters/digital_twin/mock_digital_twin_adapter",
   "adapters/mapping/in_memory_mock_mapping_adapter",

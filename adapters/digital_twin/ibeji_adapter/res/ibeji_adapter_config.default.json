@@ -1,0 +1,6 @@
+{
+    "service_discovery_method": "FromConfig",
+    "uri": "http://0.0.0.0:5010",
+    "max_retries": 5,
+    "retry_interval_ms": 1000
+}
