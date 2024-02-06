@@ -27,6 +27,7 @@ cert
 Chariott
 chariott
 Chariott's
+ChariottServiceDiscovery
 chmod
 ci
 cli

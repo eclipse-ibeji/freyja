@@ -11,7 +11,7 @@ reverse link Azure Digital Twins to Azure Digital Twins Client--><path d="M216.5
 link azure_cloud_connector to cloud_connector.proto--><path d="M84.5,325.0997 C84.5,325.4815 84.5,325.8646 84.5,326.2488 C84.5,327.0172 84.5,327.7902 84.5,328.5673 C84.5,330.1214 84.5,331.6916 84.5,333.2738 C84.5,358.5875 84.5,386.935 84.5,400.66 " fill="none" id="azure_cloud_connector-cloud_connector.proto" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[e75b70ac75ef1a413ba03273db336f17]
 reverse link cloud_connector.proto to Cloud Adapter--><path d="M98.99,410 C139.09,410 179.18,410 219.27,410 " fill="none" id="cloud_connector.proto&lt;-Cloud Adapter" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="93.59,410,102.59,414,98.59,410,102.59,406,93.59,410" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[e2726d9d7c36eac6a68128365bc67cfa]
 link Emitter to cloud_connector.proto--><!--MD5=[cd42ee454999f7d88f9aac7a1b3a2cb6]
-reverse link cloud_connector.proto to Emitter--><!--MD5=[70e73663fc4b09bfe8db0b124aef5d10]
+reverse link cloud_connector.proto to Emitter--><!--MD5=[12431b82e355931ccf18db02d613db12]
 @startuml
 skinparamlocked backgroundColor fefefe
 
@@ -42,7 +42,7 @@ PlantUML version 1.2020.02(Sun Mar 01 10:22:07 UTC 2020)
 (GPL source distribution)
 Java Runtime: OpenJDK Runtime Environment
 JVM: OpenJDK 64-Bit Server VM
-Java Version: 11.0.21+9
+Java Version: 11.0.22+7
 Operating System: Linux
 Default Encoding: UTF-8
 Language: en
