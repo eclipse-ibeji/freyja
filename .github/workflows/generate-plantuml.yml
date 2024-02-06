@@ -1,6 +1,9 @@
 name: generate plantuml
 
-on: push
+on:
+  push:
+    paths:
+      - '**.puml'
 
 jobs:
   generate_plantuml:
