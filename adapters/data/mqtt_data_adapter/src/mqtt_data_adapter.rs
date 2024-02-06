@@ -22,7 +22,7 @@ use freyja_common::{
 
 const MQTT_CLIENT_ID_PREFIX: &str = "freyja-mqtt-data-adapter";
 
-/// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
+/// Interfaces with providers which support MQTT.
 /// Note that the current implementation works on the assumption that there is a
 /// one-to-one mapping of topic to entity id.
 pub struct MqttDataAdapter {

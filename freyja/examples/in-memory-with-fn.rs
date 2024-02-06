@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 use freyja_common::data_adapter::DataAdapterFactory;
-use grpc_data_adapter::grpc_data_adapter_factory::GRPCDataAdapterFactory;
+use sample_grpc_data_adapter::sample_grpc_data_adapter_factory::SampleGRPCDataAdapterFactory;
 use http_mock_data_adapter::http_mock_data_adapter_factory::HttpMockDataAdapterFactory;
 use in_memory_mock_cloud_adapter::in_memory_mock_cloud_adapter::InMemoryMockCloudAdapter;
 use in_memory_mock_data_adapter::in_memory_mock_data_adapter_factory::InMemoryMockDataAdapterFactory;
@@ -19,7 +19,7 @@ use mqtt_data_adapter::mqtt_data_adapter_factory::MqttDataAdapterFactory;
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let factories: Vec<Box<dyn DataAdapterFactory + Send + Sync>> = vec![
         Box::new(
-            GRPCDataAdapterFactory::create_new().expect("Could not create GRPCDataAdapterFactory"),
+            SampleGRPCDataAdapterFactory::create_new().expect("Could not create SampleGRPCDataAdapterFactory"),
         ),
         Box::new(
             HttpMockDataAdapterFactory::create_new()

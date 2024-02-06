@@ -75,7 +75,6 @@ github
 githubusercontent
 grpc
 gRPC
-GRPCDataAdapter
 Hildisvíni
 HTTPMockDataAdapter
 https
@@ -155,6 +154,7 @@ req
 rm
 rsa
 rustup
+SampleGRPCDataAdapter
 sdk
 SDV
 SecretUri

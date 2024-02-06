@@ -28,7 +28,7 @@ in-memory-mock-digital-twin-adapter = { workspace = true }
 in-memory-mock-mapping-adapter = { workspace = true }
 mock-digital-twin-adapter = { workspace = true }
 mock-mapping-service-adapter = { workspace = true }
-grpc-data-adapter = { workspace = true }
+sample-grpc-data-adapter = { workspace = true }
 http-mock-data-adapter = { workspace = true }
 in-memory-mock-data-adapter = { workspace = true }
 managed-subscribe-data-adapter = { workspace = true }

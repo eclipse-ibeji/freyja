@@ -28,7 +28,7 @@ use freyja_common::{
 };
 
 /// Interfaces with providers which support GRPC. Based on the Ibeji mixed sample.
-pub struct GRPCDataAdapter {
+pub struct SampleGRPCDataAdapter {
     /// The adapter config
     config: Config,
 
@@ -43,7 +43,7 @@ pub struct GRPCDataAdapter {
 }
 
 #[async_trait]
-impl DataAdapter for GRPCDataAdapter {
+impl DataAdapter for SampleGRPCDataAdapter {
     /// Creates a data adapter
     ///
     /// # Arguments
@@ -67,7 +67,7 @@ impl DataAdapter for GRPCDataAdapter {
                 .map_err(DataAdapterError::communication)
         })?;
 
-        Ok(GRPCDataAdapter {
+        Ok(Self {
             config,
             provider_client,
             entity_operation_map: Mutex::new(HashMap::new()),
@@ -315,7 +315,7 @@ mod grpc_data_adapter_tests {
 
             let request_future = async {
                 let client = create_test_grpc_client(bind_path.clone()).await;
-                let grpc_data_adapter = GRPCDataAdapter {
+                let grpc_data_adapter = SampleGRPCDataAdapter {
                     config: Config {
                         consumer_address: "[::1]:60010".to_string(),
                         advertised_consumer_address: None,

@@ -11,13 +11,13 @@ use freyja_common::{
 };
 
 use crate::{
-    grpc_data_adapter::GRPCDataAdapter, GET_OPERATION, GRPC_PROTOCOL, SUBSCRIBE_OPERATION,
+    sample_grpc_data_adapter::SampleGRPCDataAdapter, GET_OPERATION, GRPC_PROTOCOL, SUBSCRIBE_OPERATION,
 };
 
-/// Factory for creating GRPCDataAdapters
-pub struct GRPCDataAdapterFactory {}
+/// Factory for creating SampleGRPCDataAdapters
+pub struct SampleGRPCDataAdapterFactory {}
 
-impl DataAdapterFactory for GRPCDataAdapterFactory {
+impl DataAdapterFactory for SampleGRPCDataAdapterFactory {
     /// Create a new `GRPCDataAdapterFactory`
     fn create_new() -> Result<Self, DataAdapterError> {
         Ok(Self {})
@@ -42,7 +42,7 @@ impl DataAdapterFactory for GRPCDataAdapterFactory {
         provider_uri: &str,
         signals: Arc<SignalStore>,
     ) -> Result<Arc<dyn DataAdapter + Send + Sync>, DataAdapterError> {
-        let adapter = GRPCDataAdapter::create_new(provider_uri, signals)?;
+        let adapter = SampleGRPCDataAdapter::create_new(provider_uri, signals)?;
         Ok(Arc::new(adapter))
     }
 }
