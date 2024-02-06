@@ -11,7 +11,8 @@ use freyja_common::{
 };
 
 use crate::{
-    sample_grpc_data_adapter::SampleGRPCDataAdapter, GET_OPERATION, GRPC_PROTOCOL, SUBSCRIBE_OPERATION,
+    sample_grpc_data_adapter::SampleGRPCDataAdapter, GET_OPERATION, GRPC_PROTOCOL,
+    SUBSCRIBE_OPERATION,
 };
 
 /// Factory for creating SampleGRPCDataAdapters
