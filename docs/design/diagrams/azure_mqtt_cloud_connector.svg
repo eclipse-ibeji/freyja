@@ -15,7 +15,7 @@ reverse link Event Grid with MQTT v5 to MQTT v5 Client--><path d="M315.32,257 C2
 link azure_mqtt_cloud_connector to cloud_connector.proto--><path d="M84.5,299.0997 C84.5,299.4815 84.5,299.8646 84.5,300.2488 C84.5,301.0172 84.5,301.7902 84.5,302.5673 C84.5,304.1214 84.5,305.6916 84.5,307.2738 C84.5,332.5875 84.5,360.935 84.5,374.66 " fill="none" id="azure_mqtt_cloud_connector-cloud_connector.proto" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[e75b70ac75ef1a413ba03273db336f17]
 reverse link cloud_connector.proto to Cloud Adapter--><path d="M98.99,384 C139.09,384 179.18,384 219.27,384 " fill="none" id="cloud_connector.proto&lt;-Cloud Adapter" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="93.59,384,102.59,388,98.59,384,102.59,380,93.59,384" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[e2726d9d7c36eac6a68128365bc67cfa]
 link Emitter to cloud_connector.proto--><!--MD5=[cd42ee454999f7d88f9aac7a1b3a2cb6]
-reverse link cloud_connector.proto to Emitter--><!--MD5=[d1385a17d15447a703ec4ab739faa440]
+reverse link cloud_connector.proto to Emitter--><!--MD5=[5e9f021833cbd4869a55e2942d014ea2]
 @startuml
 skinparamlocked backgroundColor fefefe
 
@@ -47,7 +47,7 @@ PlantUML version 1.2020.02(Sun Mar 01 10:22:07 UTC 2020)
 (GPL source distribution)
 Java Runtime: OpenJDK Runtime Environment
 JVM: OpenJDK 64-Bit Server VM
-Java Version: 11.0.21+9
+Java Version: 11.0.22+7
 Operating System: Linux
 Default Encoding: UTF-8
 Language: en
