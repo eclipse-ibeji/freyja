@@ -2,6 +2,9 @@ name: generate plantuml
 
 on:
   push:
+    branches-ignore:
+      - 'main'
+      - 'release/**'
     paths:
       - '**.puml'
 

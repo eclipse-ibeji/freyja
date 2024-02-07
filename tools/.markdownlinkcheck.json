@@ -6,6 +6,10 @@
       {
         "_patternComment": "Checking aka.ms links is unstable and frequently fails on valid links",
         "pattern": "^https://aka.ms"
+      },
+      {
+        "_patternComment": "Checking microsoft.com links is unstable and frequently fails on valid links",
+        "pattern": "^https://www.microsoft.com"
       }
     ],
     "aliveStatusCodes": [
