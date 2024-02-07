@@ -1,6 +1,12 @@
 name: generate plantuml
 
-on: push
+on:
+  push:
+    branches-ignore:
+      - 'main'
+      - 'release/**'
+    paths:
+      - '**.puml'
 
 jobs:
   generate_plantuml:

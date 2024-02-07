@@ -16,7 +16,7 @@ use crate::{mqtt_data_adapter::MqttDataAdapter, MQTT_PROTOCOL, SUBSCRIBE_OPERATI
 pub struct MqttDataAdapterFactory {}
 
 impl DataAdapterFactory for MqttDataAdapterFactory {
-    /// Create a new `GRPCDataAdapterFactory`
+    /// Create a new `MqttDataAdapterFactory`
     fn create_new() -> Result<Self, DataAdapterError> {
         Ok(Self {})
     }

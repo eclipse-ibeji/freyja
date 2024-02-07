@@ -225,7 +225,7 @@ mod data_adapter_selector_tests {
     use freyja_common::{
         data_adapter_selector::DataAdapterSelectorErrorKind, entity::EntityEndpoint,
     };
-    use grpc_data_adapter::grpc_data_adapter_factory::GRPCDataAdapterFactory;
+    use sample_grpc_data_adapter::sample_grpc_data_adapter_factory::SampleGRPCDataAdapterFactory;
 
     const AMBIENT_AIR_TEMPERATURE_ID: &str = "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1";
     const OPERATION: &str = "Subscribe";
@@ -234,8 +234,10 @@ mod data_adapter_selector_tests {
     async fn handle_start_data_adapter_request_return_err_test() {
         let signals: Arc<SignalStore> = Arc::new(SignalStore::new());
         let mut uut = DataAdapterSelectorImpl::new(signals);
-        uut.register(Box::new(GRPCDataAdapterFactory::create_new().unwrap()))
-            .unwrap();
+        uut.register(Box::new(
+            SampleGRPCDataAdapterFactory::create_new().unwrap(),
+        ))
+        .unwrap();
 
         let entity = Entity {
             id: String::from(AMBIENT_AIR_TEMPERATURE_ID),
