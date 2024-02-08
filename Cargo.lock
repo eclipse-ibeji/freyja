@@ -218,6 +218,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "cloud-adapter-proto"
+version = "0.1.0"
+dependencies = [
+ "prost",
+ "prost-types",
+ "serde",
+ "tokio",
+ "tonic",
+ "tonic-build",
+]
+
+[[package]]
 name = "cmake"
 version = "0.1.50"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -634,6 +646,26 @@ name = "gimli"
 version = "0.28.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4271d37baee1b8c7e4b708028c57d816cf9d2434acb33a549475f78c181f6253"
+
+[[package]]
+name = "grpc-cloud-adapter"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "cloud-adapter-proto",
+ "freyja-build-common",
+ "freyja-common",
+ "futures",
+ "log",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "time",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+ "tower",
+]
 
 [[package]]
 name = "h2"

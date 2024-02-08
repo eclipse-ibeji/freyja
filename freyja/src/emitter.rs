@@ -171,7 +171,7 @@ impl<TCloudAdapter: CloudAdapter, TDataAdapterSelector: DataAdapterSelector>
         info!("\t(from {}: {:?})", signal.source.id, signal.value);
 
         let cloud_message = CloudMessageRequest {
-            cloud_signal: signal.target.metadata.clone(),
+            metadata: signal.target.metadata.clone(),
             signal_value: converted,
             signal_timestamp: OffsetDateTime::now_utc().to_string(),
         };
