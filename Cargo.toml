@@ -6,6 +6,7 @@
 # The default resolver for workspaces is different than for regular packages, so use v2 to avoid warnings
 resolver = "2"
 members = [
+  "adapters/cloud/grpc_cloud_adapter",
   "adapters/cloud/in_memory_mock_cloud_adapter",
   "adapters/data/http_mock_data_adapter",
   "adapters/data/in_memory_mock_data_adapter",
@@ -23,10 +24,12 @@ members = [
   "mocks/mock_digital_twin",
   "mocks/mock_mapping_service",
   "proc_macros",
+  "proto/cloud_connector",
 ]
 
 [workspace.dependencies]
 # Freyja dependencies
+cloud-connector-proto = { path = "proto/cloud_connector" }
 freyja-build-common = { path = "build_common" }
 freyja-common = { path = "common" }
 freyja-contracts = { path = "contracts" }
@@ -60,6 +63,8 @@ log = "^0.4"
 mockall = "0.11.4"
 paho-mqtt = "0.12"
 proc-macro2 = "1.0.70"
+prost = "0.12"
+prost-types = "0.12"
 quote = "1.0.23"
 reqwest = { version = "0.11.23", features = ["json"] }
 serde = { version = "1.0.195", features = ["derive"] }

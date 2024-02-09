@@ -27,8 +27,8 @@ pub trait CloudAdapter {
 /// Represents a message to send to the cloud canonical model
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CloudMessageRequest {
-    /// A map containing metadata to identify a cloud canonical model signal
-    pub cloud_signal: HashMap<String, String>,
+    /// A map containing metadata to help identify the signal in the cloud
+    pub metadata: HashMap<String, String>,
 
     // The signal value
     pub signal_value: String,

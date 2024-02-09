@@ -1,0 +1,23 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+// SPDX-License-Identifier: MIT
+
+syntax = "proto3";
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+package cloud_connector;
+
+service CloudConnector {
+    rpc UpdateDigitalTwin (UpdateDigitalTwinRequest) returns (UpdateDigitalTwinResponse);
+}
+
+message UpdateDigitalTwinRequest {
+    google.protobuf.Value value = 1;
+    google.protobuf.Timestamp timestamp = 2;
+    map<string, string> metadata = 3;
+}
+
+message UpdateDigitalTwinResponse {
+}

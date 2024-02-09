@@ -48,21 +48,23 @@ To run this sample, follow these steps:
 
 # Appendix A
 
-This appendix lists the sample that are provided in this repository. These are self-contained and do not require anything outside of this repository to be set up. More detailed adapters which interface with external components can be found in the [Ibeji Example Applications repository](https://github.com/eclipse-ibeji/ibeji-example-applications).
+This appendix lists the adapters that are provided in this repository.
 
 ## Digital Twin Adapters
 
 - [In-Memory Mock Digital Twin Adapter](../../adapters/digital_twin/in_memory_mock_digital_twin_adapter/README.md): Emulates a Digital Twin Service entirely within the memory of the Freyja application.
 - [Mock Digital Twin Adapter](../../adapters/digital_twin/mock_digital_twin_adapter/README.md): Communicates with the [Mock Digital Twin](../../mocks/mock_digital_twin/README.md), which is an executable that mocks the Digital Twin Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove entities from the mocked digital twin by pressing enter to advance through configurable states.
+- [Ibeji Adapter](../../adapters/digital_twin/ibeji_adapter/README.md): Communicates with the [Eclipse Ibeji digital twin service](https://github.com/eclipse-ibeji/ibeji/). This adapter is suitable for use in production scenarios.
 
 ## Mapping Adapters
 
 - [In-Memory Mock Mapping Adapter](../../adapters/mapping/in_memory_mock_mapping_adapter/README.md): Emulates a mapping service entirely within the memory of the Freyja application.
 - [Mock Mapping Service Adapter](../../adapters/mapping/mock_mapping_service_adapter/README.md): Communicates with the [Mock Mapping Service](../../mocks/mock_mapping_service/README.md), which is an executable that mocks a Mapping Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove mappings by pressing enter to advance through configurable states.
 
-## Digital Twin Adapters
+## Cloud Adapters
 
 - [In-Memory Mock Cloud Adapter](../../adapters/cloud/in_memory_mock_cloud_adapter/README.md): Emulates a Cloud Connector entirely within the memory of the Freyja application. When data is emitted to this adapter it will be printed to the console window.
+- [gRPC Cloud Adapter](../../adapters/cloud/grpc_cloud_adapter/README.md): Communicates with a cloud connector that implements the [cloud connector protobuf service](../../interfaces/cloud_connector/v1/cloud_connector.proto). This is a "standard adapter" that is suitable for use in production scenarios.
 
 ## Data Adapters
 

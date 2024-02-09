@@ -57,7 +57,7 @@ mod in_memory_mock_cloud_adapter_tests {
         let cloud_adapter = InMemoryMockCloudAdapter::create_new().unwrap();
 
         let cloud_message = CloudMessageRequest {
-            cloud_signal: HashMap::new(),
+            metadata: HashMap::new(),
             signal_value: String::from("72"),
             signal_timestamp: OffsetDateTime::now_utc().to_string(),
         };
