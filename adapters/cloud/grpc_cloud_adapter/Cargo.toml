@@ -10,13 +10,12 @@ license = "MIT"
 
 [dependencies]
 async-trait = { workspace = true }
-cloud-adapter-proto = { workspace = true }
+cloud-connector-proto = { workspace = true }
 freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
 serde = { workspace = true }
-serde_json = { workspace = true }
 tokio = { workspace = true }
 tonic = { workspace = true }
 

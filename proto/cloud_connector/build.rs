@@ -5,8 +5,8 @@
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tonic_build::configure()
         .compile(
-            &["../../interfaces/cloud_adapter/v1/cloud_adapter.proto"],
-            &["../../interfaces/cloud_adapter/v1/"],
+            &["../../interfaces/cloud_connector/v1/cloud_connector.proto"],
+            &["../../interfaces/cloud_connector/v1/"],
         )?;
 
     Ok(())

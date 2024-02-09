@@ -218,13 +218,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
-name = "cloud-adapter-proto"
+name = "cloud-connector-proto"
 version = "0.1.0"
 dependencies = [
  "prost",
  "prost-types",
- "serde",
- "tokio",
+ "time",
  "tonic",
  "tonic-build",
 ]
@@ -652,13 +651,12 @@ name = "grpc-cloud-adapter"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "cloud-adapter-proto",
+ "cloud-connector-proto",
  "freyja-build-common",
  "freyja-common",
  "futures",
  "log",
  "serde",
- "serde_json",
  "tempfile",
  "time",
  "tokio",

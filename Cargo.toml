@@ -24,12 +24,12 @@ members = [
   "mocks/mock_digital_twin",
   "mocks/mock_mapping_service",
   "proc_macros",
-  "proto/cloud_adapter",
+  "proto/cloud_connector",
 ]
 
 [workspace.dependencies]
 # Freyja dependencies
-cloud-adapter-proto = { path = "proto/cloud_adapter" }
+cloud-connector-proto = { path = "proto/cloud_connector" }
 freyja-build-common = { path = "build_common" }
 freyja-common = { path = "common" }
 freyja-contracts = { path = "contracts" }
