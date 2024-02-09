@@ -22,7 +22,7 @@ use freyja_common::{
 
 use crate::config::Config;
 
-/// Mocks a cloud adapter in memory
+/// A "standard" cloud adapter which communicates over gRPC
 pub struct GRPCCloudAdapter {
     // Adapter config
     config: Config,
