@@ -1,10 +1,10 @@
 # gRPC Cloud Adapter
 
-The gRPC Cloud Adapter is intended to function as a "standard cloud adapter", enabling integration with other services that implement the appropriate APIs. This reduces the need for custom adapter implementations and facilitates integration with non-rust solutions. This library contains an implementation of the `CloudAdapter` trait from the contracts.
+The gRPC Cloud Adapter is intended to function as a "standard cloud adapter", enabling integration with other services that implement the appropriate APIs. This reduces the need for custom adapter implementations and facilitates integration with non-rust solutions for other parts of the vehicle system. This library contains an implementation of the `CloudAdapter` trait from the contracts.
 
 ## Contract
 
-This adapter implements a gRPC client for the `CloudAdapter` service in the [cloud adapter v1 protobuf description](../../../interfaces/cloud_adapter/v1/cloud_adapter.proto). To integrate a cloud connector with this adapter, you will need to implement a gRPC server for this service. Samples can be found in the [Ibeji Example Applications Repository](https://github.com/eclipse-ibeji/ibeji-example-applications/tree/main/cloud_connectors/).
+This adapter utilizes a gRPC client for the `CloudConnector` service in the [cloud connector v1 protobuf description](../../../interfaces/cloud_connector/v1/cloud_connector.proto). To integrate a cloud connector with this adapter, you will need to implement a gRPC server for this service. Samples can be found in the [Ibeji Example Applications Repository](https://github.com/eclipse-ibeji/ibeji-example-applications/tree/main/cloud_connectors/).
 
 ## Config
 
