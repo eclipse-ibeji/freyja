@@ -11,19 +11,13 @@ use tonic::transport::Channel;
 
 use cloud_connector_proto::{
     prost_types::Timestamp,
-    v1::{
-        UpdateDigitalTwinRequestBuilder,
-        cloud_connector_client::CloudConnectorClient,
-    }
+    v1::{cloud_connector_client::CloudConnectorClient, UpdateDigitalTwinRequestBuilder},
 };
 use freyja_build_common::config_file_stem;
 use freyja_common::{
+    cloud_adapter::{CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse},
+    config_utils, out_dir,
     retry_utils::execute_with_retry,
-    config_utils,
-    out_dir,
-    cloud_adapter::{
-        CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse,
-    }
 };
 
 use crate::config::Config;
@@ -54,15 +48,13 @@ impl CloudAdapter for GRPCCloudAdapter {
                 config.max_retries,
                 Duration::from_millis(config.retry_interval_ms),
                 || CloudConnectorClient::connect(config.target_uri.clone()),
-                Some("Cloud adapter initial connection".into()))
+                Some("Cloud adapter initial connection".into()),
+            )
             .await
             .map_err(CloudAdapterError::communication)
         })?;
 
-        Ok(Self {
-            config,
-            client,
-        })
+        Ok(Self { config, client })
     }
 
     /// Sends the signal to the cloud
@@ -86,20 +78,20 @@ impl CloudAdapter for GRPCCloudAdapter {
             .build();
 
         let response = execute_with_retry(
-                self.config.max_retries,
-                Duration::from_millis(self.config.retry_interval_ms),
-                || async {
-                    let request = tonic::Request::new(request.clone());
-                    self
-                        .client
-                        .clone()
-                        .update_digital_twin(request)
-                        .await
-                        .map_err(CloudAdapterError::communication)
-                },
-                Some("Cloud adapter request".into()))
-            .await
-            .map_err(CloudAdapterError::communication)?;
+            self.config.max_retries,
+            Duration::from_millis(self.config.retry_interval_ms),
+            || async {
+                let request = tonic::Request::new(request.clone());
+                self.client
+                    .clone()
+                    .update_digital_twin(request)
+                    .await
+                    .map_err(CloudAdapterError::communication)
+            },
+            Some("Cloud adapter request".into()),
+        )
+        .await
+        .map_err(CloudAdapterError::communication)?;
 
         debug!("Cloud adapter response: {response:?}");
 
@@ -124,16 +116,14 @@ mod grpc_cloud_adapter_tests {
         use tokio::net::{UnixListener, UnixStream};
         use tokio_stream::wrappers::UnixListenerStream;
         use tonic::{
+            transport::{Channel, Endpoint, Server, Uri},
             Request, Response, Status,
-            transport::{Channel, Endpoint, Server, Uri}
         };
         use tower::service_fn;
 
         use cloud_connector_proto::v1::{
-            cloud_connector_server::{
-                CloudConnector,
-                CloudConnectorServer,
-            }, UpdateDigitalTwinRequest, UpdateDigitalTwinResponse
+            cloud_connector_server::{CloudConnector, CloudConnectorServer},
+            UpdateDigitalTwinRequest, UpdateDigitalTwinResponse,
         };
 
         pub struct MockCloudConnector {}
@@ -196,9 +186,15 @@ mod grpc_cloud_adapter_tests {
                 let request = UpdateDigitalTwinRequestBuilder::new()
                     .string_value("foo".into())
                     .timestamp_now()
-                    .add_metadata("model_id".into(), "dtmi:sdv:Cloud:Vehicle:Cabin:HVAC:AmbientAirTemperature;1".into())
+                    .add_metadata(
+                        "model_id".into(),
+                        "dtmi:sdv:Cloud:Vehicle:Cabin:HVAC:AmbientAirTemperature;1".into(),
+                    )
                     .add_metadata("instance_id".into(), "hvac".into())
-                    .add_metadata("instance_property_path".into(), "/AmbientAirTemperature".into())
+                    .add_metadata(
+                        "instance_property_path".into(),
+                        "/AmbientAirTemperature".into(),
+                    )
                     .build();
 
                 let request = tonic::Request::new(request);

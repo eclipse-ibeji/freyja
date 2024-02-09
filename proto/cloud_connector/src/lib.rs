@@ -31,7 +31,7 @@ pub mod v1 {
 
         pub fn null_value(mut self) -> Self {
             self.request.value = Some(Value {
-                kind: Some(Kind::NullValue(0))
+                kind: Some(Kind::NullValue(0)),
             });
 
             self
@@ -39,7 +39,7 @@ pub mod v1 {
 
         pub fn number_value(mut self, n: f64) -> Self {
             self.request.value = Some(Value {
-                kind: Some(Kind::NumberValue(n))
+                kind: Some(Kind::NumberValue(n)),
             });
 
             self
@@ -47,7 +47,7 @@ pub mod v1 {
 
         pub fn string_value(mut self, s: String) -> Self {
             self.request.value = Some(Value {
-                kind: Some(Kind::StringValue(s))
+                kind: Some(Kind::StringValue(s)),
             });
 
             self
@@ -55,7 +55,7 @@ pub mod v1 {
 
         pub fn bool_value(mut self, b: bool) -> Self {
             self.request.value = Some(Value {
-                kind: Some(Kind::BoolValue(b))
+                kind: Some(Kind::BoolValue(b)),
             });
 
             self
@@ -68,14 +68,16 @@ pub mod v1 {
 
         pub fn timestamp_now(mut self) -> Self {
             let timestamp = OffsetDateTime::now_utc();
-            self.request.timestamp = Some(Timestamp::date_time(
-                timestamp.year().into(),
-                timestamp.month().into(),
-                timestamp.day(),
-                timestamp.hour(),
-                timestamp.minute(),
-                timestamp.second(),
-                ).unwrap()
+            self.request.timestamp = Some(
+                Timestamp::date_time(
+                    timestamp.year().into(),
+                    timestamp.month().into(),
+                    timestamp.day(),
+                    timestamp.hour(),
+                    timestamp.minute(),
+                    timestamp.second(),
+                )
+                .unwrap(),
             );
 
             self
