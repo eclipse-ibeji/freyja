@@ -41,7 +41,7 @@ pub mod v1 {
         }
 
         /// Set the request value to a number
-        /// 
+        ///
         /// # Arguments
         /// - `n`: the value to set
         pub fn number_value(mut self, n: f64) -> Self {
@@ -53,7 +53,7 @@ pub mod v1 {
         }
 
         /// Set the request value to a string
-        /// 
+        ///
         /// # Arguments
         /// - `s`: the value to set
         pub fn string_value(mut self, s: String) -> Self {
@@ -65,7 +65,7 @@ pub mod v1 {
         }
 
         /// Set the request value to a boolean
-        /// 
+        ///
         /// # Arguments
         /// - `b`: the value to set
         pub fn bool_value(mut self, b: bool) -> Self {
@@ -77,7 +77,7 @@ pub mod v1 {
         }
 
         /// Set the request timestamp
-        /// 
+        ///
         /// # Arguments
         /// - `timestamp`: the timestamp to set
         pub fn timestamp(mut self, timestamp: Timestamp) -> Self {
@@ -104,7 +104,7 @@ pub mod v1 {
         }
 
         /// Set the request metadata. This overwrites any previously set metadata
-        /// 
+        ///
         /// # Arguments
         /// - `metadata`: the metdata to set
         pub fn metadata(mut self, metadata: HashMap<String, String>) -> Self {
@@ -113,7 +113,7 @@ pub mod v1 {
         }
 
         /// Add an entry to the request metadata
-        /// 
+        ///
         /// # Arguments
         /// - `key`: the key of the metadata entry
         /// - `value`: the value of the metadata entry
