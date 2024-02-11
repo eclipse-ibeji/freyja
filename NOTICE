@@ -5,7 +5,7 @@ This page lists the licenses of the projects used in cargo-about.
 ## Overview of licenses
 
 - Apache License 2.0 (195)
-- MIT License (70)
+- MIT License (75)
 - BSD 3-Clause "New" or "Revised" License (2)
 - Eclipse Public License 1.0 (2)
 - ISC License (1)
@@ -7817,6 +7817,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 #### Used by
 
+- [strum]( https://github.com/Peternator7/strum ) 0.25.0
 - [strum_macros]( https://github.com/Peternator7/strum ) 0.25.3
 
 #### License
@@ -7916,13 +7917,15 @@ SOFTWARE.
 
 #### Used by
 
+- [cloud-connector-proto]( https://crates.io/crates/cloud-connector-proto ) 0.1.0
 - [core-protobuf-data-access]( https://crates.io/crates/core-protobuf-data-access ) 0.1.0
 - [difflib]( https://github.com/DimaKudosh/difflib ) 0.4.0
 - [freyja]( https://crates.io/crates/freyja ) 0.1.0
 - [freyja-build-common]( https://crates.io/crates/freyja-build-common ) 0.1.0
 - [freyja-common]( https://crates.io/crates/freyja-common ) 0.1.0
-- [grpc-data-adapter]( https://crates.io/crates/grpc-data-adapter ) 0.1.0
+- [grpc-cloud-adapter]( https://crates.io/crates/grpc-cloud-adapter ) 0.1.0
 - [http-mock-data-adapter]( https://crates.io/crates/http-mock-data-adapter ) 0.1.0
+- [ibeji-adapter]( https://crates.io/crates/ibeji-adapter ) 0.1.0
 - [in-memory-mock-cloud-adapter]( https://crates.io/crates/in-memory-mock-cloud-adapter ) 0.1.0
 - [in-memory-mock-data-adapter]( https://crates.io/crates/in-memory-mock-data-adapter ) 0.1.0
 - [in-memory-mock-digital-twin-adapter]( https://crates.io/crates/in-memory-mock-digital-twin-adapter ) 0.1.0
@@ -7934,7 +7937,9 @@ SOFTWARE.
 - [mock-mapping-service-adapter]( https://crates.io/crates/mock-mapping-service-adapter ) 0.1.0
 - [mqtt-data-adapter]( https://crates.io/crates/mqtt-data-adapter ) 0.1.0
 - [proc-macros]( https://crates.io/crates/proc-macros ) 0.1.0
+- [sample-grpc-data-adapter]( https://crates.io/crates/sample-grpc-data-adapter ) 0.1.0
 - [samples-protobuf-data-access]( https://crates.io/crates/samples-protobuf-data-access ) 1.0.0
+- [service_discovery_proto]( https://crates.io/crates/service_discovery_proto ) 0.1.0
 
 #### License
 
