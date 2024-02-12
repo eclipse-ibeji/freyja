@@ -32,7 +32,6 @@ members = [
 cloud-connector-proto = { path = "proto/cloud_connector" }
 freyja-build-common = { path = "build_common" }
 freyja-common = { path = "common" }
-freyja-contracts = { path = "contracts" }
 http-mock-data-adapter = { path = "adapters/data/http_mock_data_adapter" }
 in-memory-mock-cloud-adapter = { path = "adapters/cloud/in_memory_mock_cloud_adapter" }
 in-memory-mock-data-adapter = { path = "adapters/data/in_memory_mock_data_adapter" }
