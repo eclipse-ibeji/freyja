@@ -61,21 +61,21 @@ home = "0.5.9"
 log = "^0.4"
 mockall = "0.11.4"
 paho-mqtt = "0.12"
-proc-macro2 = "1.0.70"
+proc-macro2 = "1.0.78"
 prost = "0.12"
 prost-types = "0.12"
 quote = "1.0.23"
-reqwest = { version = "0.11.23", features = ["json"] }
-serde = { version = "1.0.195", features = ["derive"] }
-serde_json = "1.0.111"
+reqwest = { version = "0.11.24", features = ["json"] }
+serde = { version = "1.0.196", features = ["derive"] }
+serde_json = "1.0.113"
 strum = "0.25.0"
 strum_macros = "0.25.3"
 syn = { version = "2.0.40", features = ["extra-traits", "full"] }
-tempfile = "3.9.0"
-time = "0.3.31"
-tokio = { version = "1.35", features = ["macros", "rt-multi-thread", "time", "sync", "test-util"] }
+tempfile = "3.10.0"
+time = "0.3.34"
+tokio = { version = "1.36", features = ["macros", "rt-multi-thread", "time", "sync", "test-util"] }
 tokio-stream = { version = "0.1.8", features = ["net"] }
 tonic = "0.10.0"
 tonic-build = "0.10.0"
 tower = { version = "0.4", features = ["util"] }
-uuid = "1.6.1"
+uuid = "1.7.0"
