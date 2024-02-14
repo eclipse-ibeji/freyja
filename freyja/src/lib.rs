@@ -20,10 +20,21 @@ use tokio::sync::Mutex;
 use cartographer::Cartographer;
 use emitter::Emitter;
 use freyja_common::{
-    cloud_adapter::CloudAdapter, cmd_utils::{get_log_level, parse_args}, data_adapter::DataAdapterFactory, data_adapter_selector::DataAdapterSelector, digital_twin_adapter::DigitalTwinAdapter, mapping_adapter::MappingAdapter, service_discovery_adapter::ServiceDiscoveryAdapter, service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector, signal_store::SignalStore
+    cloud_adapter::CloudAdapter,
+    cmd_utils::{get_log_level, parse_args},
+    data_adapter::DataAdapterFactory,
+    data_adapter_selector::DataAdapterSelector,
+    digital_twin_adapter::DigitalTwinAdapter,
+    mapping_adapter::MappingAdapter,
+    service_discovery_adapter::ServiceDiscoveryAdapter,
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
+    signal_store::SignalStore,
 };
 
-use crate::{data_adapter_selector_impl::DataAdapterSelectorImpl, service_discovery_adapter_selector_impl::ServiceDiscoveryAdapterSelectorImpl};
+use crate::{
+    data_adapter_selector_impl::DataAdapterSelectorImpl,
+    service_discovery_adapter_selector_impl::ServiceDiscoveryAdapterSelectorImpl,
+};
 
 pub async fn freyja_main<
     TDigitalTwinAdapter: DigitalTwinAdapter,
@@ -55,17 +66,21 @@ pub async fn freyja_main<
 
     let mut service_discovery_adapter_selector = ServiceDiscoveryAdapterSelectorImpl::new();
     for adapter in service_discovery_adapters.into_iter() {
-        service_discovery_adapter_selector.register(adapter).expect("Could not register service discovery adapter")
+        service_discovery_adapter_selector
+            .register(adapter)
+            .expect("Could not register service discovery adapter")
     }
 
-    let service_discovery_adapter_selector = Arc::new(Mutex::new(service_discovery_adapter_selector));
+    let service_discovery_adapter_selector =
+        Arc::new(Mutex::new(service_discovery_adapter_selector));
 
     // Setup cartographer
     let cartographer_poll_interval = Duration::from_secs(5);
     let cartographer = Cartographer::new(
         signal_store.clone(),
         TMappingAdapter::create_new().expect("Could not create mapping adapter"),
-        TDigitalTwinAdapter::create_new(service_discovery_adapter_selector.clone()).expect("Could not create digital twin adapter"),
+        TDigitalTwinAdapter::create_new(service_discovery_adapter_selector.clone())
+            .expect("Could not create digital twin adapter"),
         data_adapter_selector.clone(),
         cartographer_poll_interval,
     );

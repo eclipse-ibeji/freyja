@@ -7,8 +7,10 @@ use async_trait::async_trait;
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
 use freyja_common::{
-    config_utils,
-    out_dir, service_discovery_adapter::{ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError, ServiceDiscoveryAdapterErrorKind},
+    config_utils, out_dir,
+    service_discovery_adapter::{
+        ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError, ServiceDiscoveryAdapterErrorKind,
+    },
 };
 
 pub struct FileServiceDiscoveryAdapter {
@@ -26,10 +28,14 @@ impl ServiceDiscoveryAdapter for FileServiceDiscoveryAdapter {
             ServiceDiscoveryAdapterError::deserialize,
         )?;
 
-        Ok(Self{config})
+        Ok(Self { config })
     }
 
     async fn get_service_uri(&self, id: &String) -> Result<String, ServiceDiscoveryAdapterError> {
-        self.config.services.get(id).cloned().ok_or(ServiceDiscoveryAdapterErrorKind::NotFound.into())
+        self.config
+            .services
+            .get(id)
+            .cloned()
+            .ok_or(ServiceDiscoveryAdapterErrorKind::NotFound.into())
     }
 }

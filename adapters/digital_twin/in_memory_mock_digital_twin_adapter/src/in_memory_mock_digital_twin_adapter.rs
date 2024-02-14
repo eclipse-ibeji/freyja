@@ -36,7 +36,9 @@ impl InMemoryMockDigitalTwinAdapter {
 #[async_trait]
 impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
-    fn create_new(_selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>) -> Result<Self, DigitalTwinAdapterError> {
+    fn create_new(
+        _selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>,
+    ) -> Result<Self, DigitalTwinAdapterError> {
         let config = config_utils::read_from_files(
             config_file_stem!(),
             config_utils::JSON_EXT,
@@ -93,9 +95,9 @@ mod in_memory_mock_digital_twin_adapter_tests {
 
     #[test]
     fn can_create_new() {
-        let result = InMemoryMockDigitalTwinAdapter::create_new(
-            Arc::new(Mutex::new(MockServiceDiscoveryAdapterSelectorImpl::new()))
-        );
+        let result = InMemoryMockDigitalTwinAdapter::create_new(Arc::new(Mutex::new(
+            MockServiceDiscoveryAdapterSelectorImpl::new(),
+        )));
         assert!(result.is_ok());
     }
 

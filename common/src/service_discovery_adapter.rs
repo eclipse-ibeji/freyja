@@ -12,7 +12,7 @@ pub trait ServiceDiscoveryAdapter {
         Self: Sized;
 
     /// Gets the URI for the requested service
-    /// 
+    ///
     /// # Arguments
     /// - `id`: the service identifier
     async fn get_service_uri(&self, id: &String) -> Result<String, ServiceDiscoveryAdapterError>;

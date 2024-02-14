@@ -5,13 +5,19 @@
 use std::time::Duration;
 
 use async_trait::async_trait;
-use service_discovery_proto::service_registry::v1::{service_registry_client::ServiceRegistryClient, DiscoverRequest};
+use service_discovery_proto::service_registry::v1::{
+    service_registry_client::ServiceRegistryClient, DiscoverRequest,
+};
 use tonic::{transport::Channel, Request};
 
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
 use freyja_common::{
-    config_utils, out_dir, retry_utils::execute_with_retry, service_discovery_adapter::{ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError, ServiceDiscoveryAdapterErrorKind}
+    config_utils, out_dir,
+    retry_utils::execute_with_retry,
+    service_discovery_adapter::{
+        ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError, ServiceDiscoveryAdapterErrorKind,
+    },
 };
 
 pub struct ChariottServiceDiscoveryAdapter {
@@ -40,10 +46,12 @@ impl ServiceDiscoveryAdapter for ChariottServiceDiscoveryAdapter {
                         .await
                         .map_err(ServiceDiscoveryAdapterError::communication)
                 },
-                Some("Connecting to Chariott Service Discovery".into())).await
+                Some("Connecting to Chariott Service Discovery".into()),
+            )
+            .await
         })?;
 
-        Ok(Self{config, client})
+        Ok(Self { config, client })
     }
 
     async fn get_service_uri(&self, id: &String) -> Result<String, ServiceDiscoveryAdapterError> {
@@ -62,7 +70,8 @@ impl ServiceDiscoveryAdapter for ChariottServiceDiscoveryAdapter {
             self.config.max_retries,
             Duration::from_millis(self.config.retry_interval_ms),
             || async {
-                let uri = self.client
+                let uri = self
+                    .client
                     .clone()
                     .discover(Request::new(request.clone()))
                     .await
@@ -70,15 +79,16 @@ impl ServiceDiscoveryAdapter for ChariottServiceDiscoveryAdapter {
                     .into_inner()
                     .service
                     .ok_or_else(|| {
-                        ServiceDiscoveryAdapterError::communication(
-                            format!("Cannot discover uri for service {id}")
-                        )
+                        ServiceDiscoveryAdapterError::communication(format!(
+                            "Cannot discover uri for service {id}"
+                        ))
                     })?
                     .uri;
 
                 Ok(uri)
             },
-            Some("Retrieving service uri".into()))
-            .await
+            Some("Retrieving service uri".into()),
+        )
+        .await
     }
 }

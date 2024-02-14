@@ -22,7 +22,8 @@ use freyja_common::{
     },
     entity::{Entity, EntityEndpoint},
     out_dir,
-    retry_utils::execute_with_retry, service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
+    retry_utils::execute_with_retry,
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
 };
 
 /// Contacts the In-Vehicle Digital Twin Service in Ibeji
@@ -33,7 +34,9 @@ pub struct IbejiAdapter {
 #[async_trait]
 impl DigitalTwinAdapter for IbejiAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
-    fn create_new(selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>) -> Result<Self, DigitalTwinAdapterError> {
+    fn create_new(
+        selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>,
+    ) -> Result<Self, DigitalTwinAdapterError> {
         let config: Config = config_utils::read_from_files(
             config_file_stem!(),
             config_utils::JSON_EXT,

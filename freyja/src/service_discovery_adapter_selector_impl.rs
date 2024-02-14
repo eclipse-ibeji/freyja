@@ -3,7 +3,12 @@
 // SPDX-License-Identifier: MIT
 
 use async_trait::async_trait;
-use freyja_common::{service_discovery_adapter::{ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError, ServiceDiscoveryAdapterErrorKind}, service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector};
+use freyja_common::{
+    service_discovery_adapter::{
+        ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError, ServiceDiscoveryAdapterErrorKind,
+    },
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
+};
 
 pub struct ServiceDiscoveryAdapterSelectorImpl {
     adapters: Vec<Box<dyn ServiceDiscoveryAdapter + Send + Sync>>,
@@ -19,7 +24,10 @@ impl ServiceDiscoveryAdapterSelectorImpl {
 
 #[async_trait]
 impl ServiceDiscoveryAdapterSelector for ServiceDiscoveryAdapterSelectorImpl {
-    fn register(&mut self, adapter: Box<dyn ServiceDiscoveryAdapter + Send + Sync + 'static>) -> Result<(), ServiceDiscoveryAdapterError> {
+    fn register(
+        &mut self,
+        adapter: Box<dyn ServiceDiscoveryAdapter + Send + Sync + 'static>,
+    ) -> Result<(), ServiceDiscoveryAdapterError> {
         self.adapters.push(adapter);
 
         Ok(())

@@ -111,11 +111,17 @@ mod freyja_main_parse_tests {
         for ident in factory_idents.iter() {
             assert!(output.data_adapter_factory_types.contains(ident));
         }
-        
+
         // Order matters for service discovery adapters, so we iterate by index
-        assert_eq!(output.service_discovery_adapter_types.len(), service_discovery_idents.len());
+        assert_eq!(
+            output.service_discovery_adapter_types.len(),
+            service_discovery_idents.len()
+        );
         for i in 0..service_discovery_idents.len() {
-            assert_eq!(output.service_discovery_adapter_types[i], service_discovery_idents[i]);
+            assert_eq!(
+                output.service_discovery_adapter_types[i],
+                service_discovery_idents[i]
+            );
         }
 
         // Now try a different order
@@ -131,7 +137,10 @@ mod freyja_main_parse_tests {
             assert!(output.data_adapter_factory_types.contains(&ident));
         }
 
-        assert_eq!(output.service_discovery_adapter_types.len(), factory_idents.len());
+        assert_eq!(
+            output.service_discovery_adapter_types.len(),
+            factory_idents.len()
+        );
         for i in 0..factory_idents.len() {
             assert_eq!(output.service_discovery_adapter_types[i], factory_idents[i]);
         }
@@ -175,8 +184,7 @@ mod freyja_main_parse_tests {
         let service_discovery_idents = vec![format_ident!("SDA1"), format_ident!("SDA2")];
         let qux_ident = format_ident!("Qux");
 
-        let input =
-            quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], [#(#service_discovery_idents),*], #qux_ident };
+        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], [#(#service_discovery_idents),*], #qux_ident };
         let result = catch_unwind(|| parse(input));
         assert!(result.is_err());
     }
@@ -188,7 +196,8 @@ mod freyja_main_parse_tests {
         let baz_ident = format_ident!("Baz");
         let service_discovery_idents = vec![format_ident!("SDA1"), format_ident!("SDA2")];
 
-        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [], [#(#service_discovery_idents),*], };
+        let input =
+            quote! { #foo_ident, #bar_ident, #baz_ident, [], [#(#service_discovery_idents),*], };
         let result = catch_unwind(|| parse(input));
         assert!(result.is_err());
     }
