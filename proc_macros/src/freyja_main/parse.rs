@@ -23,6 +23,7 @@ pub(crate) struct FreyjaMainArgs {
     pub cloud_adapter_type: Ident,
     pub mapping_adapter_type: Ident,
     pub data_adapter_factory_types: Vec<Ident>,
+    pub service_discovery_adapter_types: Vec<Ident>,
 }
 
 impl Parse for FreyjaMainArgs {
@@ -51,6 +52,20 @@ impl Parse for FreyjaMainArgs {
             panic!("At least one DataAdapterFactory is required");
         }
 
+        let _ = input.parse::<Token![,]>().unwrap();
+
+        let service_discovery_adapter_content;
+        let _ = bracketed!(service_discovery_adapter_content in input);
+        let service_discovery_adapter_types =
+            Punctuated::<Ident, Token![,]>::parse_terminated(&service_discovery_adapter_content)
+                .unwrap()
+                .into_iter()
+                .collect::<Vec<_>>();
+
+        if service_discovery_adapter_types.is_empty() {
+            panic!("At least one ServiceDiscoveryAdapter is required");
+        }
+
         let trailing_comma_result = if !input.is_empty() {
             Some(input.parse::<Token![,]>())
         } else {
@@ -66,6 +81,7 @@ impl Parse for FreyjaMainArgs {
             cloud_adapter_type,
             mapping_adapter_type,
             data_adapter_factory_types,
+            service_discovery_adapter_types,
         })
     }
 }
@@ -83,9 +99,10 @@ mod freyja_main_parse_tests {
         let bar_ident = format_ident!("Bar");
         let baz_ident = format_ident!("Baz");
         let factory_idents = vec![format_ident!("DA1"), format_ident!("DA2")];
-        let factory_idents_clone = factory_idents.clone();
+        let service_discovery_idents = vec![format_ident!("SDA1"), format_ident!("SDA2")];
 
-        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*] };
+        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], [#(#service_discovery_idents),*] };
+        println!("{input}");
         let output = parse(input);
 
         assert_eq!(output.dt_adapter_type, foo_ident);
@@ -94,16 +111,29 @@ mod freyja_main_parse_tests {
         for ident in factory_idents.iter() {
             assert!(output.data_adapter_factory_types.contains(ident));
         }
+        
+        // Order matters for service discovery adapters, so we iterate by index
+        assert_eq!(output.service_discovery_adapter_types.len(), service_discovery_idents.len());
+        for i in 0..service_discovery_idents.len() {
+            assert_eq!(output.service_discovery_adapter_types[i], service_discovery_idents[i]);
+        }
 
         // Now try a different order
-        let input = quote! { #baz_ident, #foo_ident, #bar_ident, [#(#factory_idents_clone),*] };
+        let input = quote! { #baz_ident, #foo_ident, #bar_ident, [#(#service_discovery_idents),*], [#(#factory_idents),*] };
         let output = parse(input);
 
         assert_eq!(output.dt_adapter_type, baz_ident);
         assert_eq!(output.cloud_adapter_type, foo_ident);
         assert_eq!(output.mapping_adapter_type, bar_ident);
-        for ident in factory_idents {
+
+        // Note that this test switched the data adapter factory and service discovery adapter idents
+        for ident in service_discovery_idents {
             assert!(output.data_adapter_factory_types.contains(&ident));
+        }
+
+        assert_eq!(output.service_discovery_adapter_types.len(), factory_idents.len());
+        for i in 0..factory_idents.len() {
+            assert_eq!(output.service_discovery_adapter_types[i], factory_idents[i]);
         }
     }
 
@@ -129,8 +159,9 @@ mod freyja_main_parse_tests {
         let bar_ident = format_ident!("Bar");
         let baz_ident = format_ident!("Baz");
         let factory_idents = vec![format_ident!("DA1"), format_ident!("DA2")];
+        let service_discovery_idents = vec![format_ident!("SDA1"), format_ident!("SDA2")];
 
-        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], };
+        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], [#(#service_discovery_idents),*], };
         let result = catch_unwind(|| parse(input));
         assert!(result.is_ok());
     }
@@ -141,10 +172,11 @@ mod freyja_main_parse_tests {
         let bar_ident = format_ident!("Bar");
         let baz_ident = format_ident!("Baz");
         let factory_idents = vec![format_ident!("DA1"), format_ident!("DA2")];
+        let service_discovery_idents = vec![format_ident!("SDA1"), format_ident!("SDA2")];
         let qux_ident = format_ident!("Qux");
 
         let input =
-            quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], #qux_ident };
+            quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], [#(#service_discovery_idents),*], #qux_ident };
         let result = catch_unwind(|| parse(input));
         assert!(result.is_err());
     }
@@ -154,8 +186,21 @@ mod freyja_main_parse_tests {
         let foo_ident = format_ident!("Foo");
         let bar_ident = format_ident!("Bar");
         let baz_ident = format_ident!("Baz");
+        let service_discovery_idents = vec![format_ident!("SDA1"), format_ident!("SDA2")];
 
-        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [], };
+        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [], [#(#service_discovery_idents),*], };
+        let result = catch_unwind(|| parse(input));
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn parse_panics_with_empty_service_discovery_adapter_list() {
+        let foo_ident = format_ident!("Foo");
+        let bar_ident = format_ident!("Bar");
+        let baz_ident = format_ident!("Baz");
+        let factory_idents = vec![format_ident!("DA1"), format_ident!("DA2")];
+
+        let input = quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], [], };
         let result = catch_unwind(|| parse(input));
         assert!(result.is_err());
     }

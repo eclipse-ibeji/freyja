@@ -241,6 +241,7 @@ mod cartographer_tests {
             CheckForWorkResponse, GetMappingResponse, MappingAdapterError, SendInventoryRequest,
             SendInventoryResponse,
         },
+        service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
     };
 
     mock! {
@@ -248,7 +249,7 @@ mod cartographer_tests {
 
         #[async_trait]
         impl DigitalTwinAdapter for DigitalTwinAdapterImpl {
-            fn create_new() -> Result<Self, DigitalTwinAdapterError>
+            fn create_new(selector: Arc<tokio::sync::Mutex<dyn ServiceDiscoveryAdapterSelector>>) -> Result<Self, DigitalTwinAdapterError>
             where
                 Self: Sized;
 

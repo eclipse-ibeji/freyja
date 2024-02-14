@@ -9,12 +9,18 @@ pub struct ServiceDiscoveryAdapterSelectorImpl {
     adapters: Vec<Box<dyn ServiceDiscoveryAdapter + Send + Sync>>,
 }
 
+impl ServiceDiscoveryAdapterSelectorImpl {
+    pub fn new() -> Self {
+        Self {
+            adapters: Vec::new(),
+        }
+    }
+}
+
 #[async_trait]
 impl ServiceDiscoveryAdapterSelector for ServiceDiscoveryAdapterSelectorImpl {
-    async fn register<T: ServiceDiscoveryAdapter + Send + Sync + 'static>(&mut self) -> Result<(), ServiceDiscoveryAdapterError> {
-        let adapter = T::create_new()?;
-
-        self.adapters.push(Box::new(adapter));
+    fn register(&mut self, adapter: Box<dyn ServiceDiscoveryAdapter + Send + Sync + 'static>) -> Result<(), ServiceDiscoveryAdapterError> {
+        self.adapters.push(adapter);
 
         Ok(())
     }

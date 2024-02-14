@@ -21,6 +21,7 @@ pub(crate) fn generate(ir: FreyjaMainOutput) -> TokenStream {
                 cloud_adapter_type,
                 mapping_adapter_type,
                 data_adapter_factory_types,
+                service_discovery_adapter_types,
             },
     } = ir;
 
@@ -28,10 +29,18 @@ pub(crate) fn generate(ir: FreyjaMainOutput) -> TokenStream {
         #[tokio::main]
         async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             use freyja::freyja_common::data_adapter::DataAdapterFactory;
-            let factories: Vec<Box<dyn DataAdapterFactory + Send + Sync>> = vec![
+            use freyja::freyja_common::service_discovery_adapter::ServiceDiscoveryAdapter;
+            let data_adapter_factories: Vec<Box<dyn DataAdapterFactory + Send + Sync>> = vec![
                 #(Box::new(
                     #data_adapter_factory_types::create_new()
                         .expect(concat!("Could not create ", stringify!(#data_adapter_factory_types)))
+                )),*
+            ];
+
+            let service_discovery_adapters: Vec<Box<dyn ServiceDiscoveryAdapter + Send + Sync + 'static>> = vec![
+                #(Box::new(
+                    #service_discovery_adapter_types::create_new()
+                        .expect(concat!("Could not create ", stringify!(#service_discovery_adapter_types)))
                 )),*
             ];
 
@@ -39,7 +48,7 @@ pub(crate) fn generate(ir: FreyjaMainOutput) -> TokenStream {
                 #dt_adapter_type,
                 #cloud_adapter_type,
                 #mapping_adapter_type
-            >(factories)
+            >(data_adapter_factories, service_discovery_adapters)
             .await
         }
     }

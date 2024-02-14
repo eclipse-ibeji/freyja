@@ -532,7 +532,9 @@ name = "freyja"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "chariott-service-discovery-adapter",
  "env_logger",
+ "file-service-discovery-adapter",
  "freyja-common",
  "http-mock-data-adapter",
  "in-memory-mock-cloud-adapter",
@@ -933,6 +935,7 @@ dependencies = [
  "async-trait",
  "freyja-build-common",
  "freyja-common",
+ "mockall",
  "serde",
  "tokio",
 ]
@@ -1133,6 +1136,7 @@ dependencies = [
  "mock-digital-twin",
  "reqwest",
  "serde",
+ "tokio",
 ]
 
 [[package]]

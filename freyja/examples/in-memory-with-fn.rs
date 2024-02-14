@@ -2,7 +2,9 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use freyja_common::data_adapter::DataAdapterFactory;
+use chariott_service_discovery_adapter::chariott_service_discovery_adapter::ChariottServiceDiscoveryAdapter;
+use file_service_discovery_adapter::file_service_discovery_adapter::FileServiceDiscoveryAdapter;
+use freyja_common::{data_adapter::DataAdapterFactory, service_discovery_adapter::ServiceDiscoveryAdapter};
 use http_mock_data_adapter::http_mock_data_adapter_factory::HttpMockDataAdapterFactory;
 use in_memory_mock_cloud_adapter::in_memory_mock_cloud_adapter::InMemoryMockCloudAdapter;
 use in_memory_mock_data_adapter::in_memory_mock_data_adapter_factory::InMemoryMockDataAdapterFactory;
@@ -17,7 +19,7 @@ use sample_grpc_data_adapter::sample_grpc_data_adapter_factory::SampleGRPCDataAd
 // The following code is functionally equivalent to the expanded macro.
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let factories: Vec<Box<dyn DataAdapterFactory + Send + Sync>> = vec![
+    let data_adapter_factories: Vec<Box<dyn DataAdapterFactory + Send + Sync>> = vec![
         Box::new(
             SampleGRPCDataAdapterFactory::create_new()
                 .expect("Could not create SampleGRPCDataAdapterFactory"),
@@ -39,10 +41,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         ),
     ];
 
+    let service_discovery_adapters: Vec<Box<dyn ServiceDiscoveryAdapter + Send + Sync + 'static>> = vec![
+        Box::new(
+            FileServiceDiscoveryAdapter::create_new()
+                .expect("Could not create FileServiceDiscoveryAdapter"),
+        ),
+        Box::new(
+            ChariottServiceDiscoveryAdapter::create_new()
+                .expect("Could not create ChariottServiceDiscoveryAdapter"),
+        ),
+    ];
+
     freyja::freyja_main::<
         InMemoryMockDigitalTwinAdapter,
         InMemoryMockCloudAdapter,
         InMemoryMockMappingAdapter,
-    >(factories)
+    >(data_adapter_factories, service_discovery_adapters)
     .await
 }

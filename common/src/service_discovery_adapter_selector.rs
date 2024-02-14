@@ -8,7 +8,7 @@ use crate::service_discovery_adapter::{ServiceDiscoveryAdapter, ServiceDiscovery
 
 #[async_trait]
 pub trait ServiceDiscoveryAdapterSelector {
-    async fn register<T: ServiceDiscoveryAdapter + Send + Sync + 'static>(&mut self) -> Result<(), ServiceDiscoveryAdapterError>;
+    fn register(&mut self, adapter: Box<dyn ServiceDiscoveryAdapter + Send + Sync + 'static>) -> Result<(), ServiceDiscoveryAdapterError>;
 
     /// Gets the URI for the requested service
     /// 

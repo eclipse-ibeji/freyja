@@ -15,6 +15,7 @@ freyja-common = { workspace = true }
 mock-digital-twin = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
+tokio = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

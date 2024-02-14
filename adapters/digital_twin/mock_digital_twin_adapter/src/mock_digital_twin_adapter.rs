@@ -2,8 +2,12 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
+use freyja_common::service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector;
 use reqwest::Client;
+use tokio::sync::Mutex;
 
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
@@ -52,7 +56,7 @@ impl MockDigitalTwinAdapter {
 #[async_trait]
 impl DigitalTwinAdapter for MockDigitalTwinAdapter {
     /// Creates a new instance of a MockDigitalTwinAdapter
-    fn create_new() -> Result<Self, DigitalTwinAdapterError> {
+    fn create_new(_selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>) -> Result<Self, DigitalTwinAdapterError> {
         let config = config_utils::read_from_files(
             config_file_stem!(),
             config_utils::JSON_EXT,

@@ -2,16 +2,19 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
+use tokio::sync::Mutex;
 
-use crate::entity::Entity;
+use crate::{entity::Entity, service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector};
 
 /// Provides digital twin data
 #[async_trait]
 pub trait DigitalTwinAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
-    fn create_new() -> Result<Self, DigitalTwinAdapterError>
+    fn create_new(selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>) -> Result<Self, DigitalTwinAdapterError>
     where
         Self: Sized;
 
