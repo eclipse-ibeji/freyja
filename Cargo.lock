@@ -222,22 +222,12 @@ name = "chariott-service-discovery-adapter"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "core-protobuf-data-access",
  "freyja-build-common",
  "freyja-common",
  "futures",
- "log",
- "proc-macros",
  "serde",
- "serde_json",
  "service_discovery_proto",
- "strum",
- "strum_macros",
- "tempfile",
- "tokio",
- "tokio-stream",
  "tonic",
- "tower",
 ]
 
 [[package]]
@@ -458,22 +448,9 @@ name = "file-service-discovery-adapter"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "core-protobuf-data-access",
  "freyja-build-common",
  "freyja-common",
- "futures",
- "log",
- "proc-macros",
  "serde",
- "serde_json",
- "service_discovery_proto",
- "strum",
- "strum_macros",
- "tempfile",
- "tokio",
- "tokio-stream",
- "tonic",
- "tower",
 ]
 
 [[package]]
@@ -880,13 +857,7 @@ dependencies = [
  "freyja-build-common",
  "freyja-common",
  "futures",
- "log",
- "proc-macros",
  "serde",
- "serde_json",
- "service_discovery_proto",
- "strum",
- "strum_macros",
  "tempfile",
  "tokio",
  "tokio-stream",
@@ -1919,12 +1890,6 @@ dependencies = [
  "libc",
  "windows-sys 0.48.0",
 ]
-
-[[package]]
-name = "strum"
-version = "0.25.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "290d54ea6f91c969195bdbcd7442c8c2a2ba87da8bf60a7ee86a235d4bc1e125"
 
 [[package]]
 name = "strum_macros"

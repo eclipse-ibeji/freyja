@@ -10,22 +10,9 @@ license = "MIT"
 
 [dependencies]
 async-trait = { workspace = true }
-core-protobuf-data-access  = { workspace = true }
 freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
-futures = { workspace = true }
-log = { workspace = true }
-proc-macros = { workspace = true }
 serde = { workspace = true }
-serde_json = { workspace = true }
-service_discovery_proto = { workspace = true }
-strum = { workspace = true }
-strum_macros = { workspace = true }
-tempfile = { workspace = true }
-tokio = { workspace = true }
-tokio-stream = { workspace = true, features = ["net"] }
-tonic = { workspace = true }
-tower = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }
