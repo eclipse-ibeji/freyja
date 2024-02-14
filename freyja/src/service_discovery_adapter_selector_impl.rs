@@ -37,7 +37,7 @@ impl ServiceDiscoveryAdapterSelector for ServiceDiscoveryAdapterSelectorImpl {
         for adapter in self.adapters.iter() {
             match adapter.get_service_uri(id).await {
                 Ok(uri) => return Ok(uri),
-                Err(_) => {}
+                Err(e) => log::debug!("Failed to get service uri: {e:?}. Trying next adapter...")
             }
         }
 
