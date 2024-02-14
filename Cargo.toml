@@ -18,6 +18,8 @@ members = [
   "adapters/digital_twin/mock_digital_twin_adapter",
   "adapters/mapping/in_memory_mock_mapping_adapter",
   "adapters/mapping/mock_mapping_service_adapter",
+  "adapters/service_discovery/file_service_discovery_adapter",
+  "adapters/service_discovery/chariott_service_discovery_adapter",
   "build_common",
   "common",
   "freyja",

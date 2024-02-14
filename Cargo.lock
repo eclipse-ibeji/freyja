@@ -218,6 +218,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "chariott-service-discovery-adapter"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "core-protobuf-data-access",
+ "freyja-build-common",
+ "freyja-common",
+ "futures",
+ "log",
+ "proc-macros",
+ "serde",
+ "serde_json",
+ "service_discovery_proto",
+ "strum",
+ "strum_macros",
+ "tempfile",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+ "tower",
+]
+
+[[package]]
 name = "cloud-connector-proto"
 version = "0.1.0"
 dependencies = [
@@ -429,6 +452,29 @@ name = "fastrand"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25cbce373ec4653f1a01a31e8a5e5ec0c622dc27ff9c4e6606eefef5cbbed4a5"
+
+[[package]]
+name = "file-service-discovery-adapter"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "core-protobuf-data-access",
+ "freyja-build-common",
+ "freyja-common",
+ "futures",
+ "log",
+ "proc-macros",
+ "serde",
+ "serde_json",
+ "service_discovery_proto",
+ "strum",
+ "strum_macros",
+ "tempfile",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+ "tower",
+]
 
 [[package]]
 name = "fixedbitset"

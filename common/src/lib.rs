@@ -15,6 +15,8 @@ pub mod http_utils;
 pub mod mapping_adapter;
 pub mod message_utils;
 pub mod retry_utils;
+pub mod service_discovery_adapter;
+pub mod service_discovery_adapter_selector;
 pub mod signal;
 pub mod signal_store;
 

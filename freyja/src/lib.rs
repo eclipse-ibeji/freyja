@@ -9,6 +9,7 @@ pub use proc_macros::freyja_main;
 mod cartographer;
 mod data_adapter_selector_impl;
 mod emitter;
+mod service_discovery_adapter_selector_impl;
 
 use std::{env, sync::Arc, time::Duration};
 
