@@ -34,6 +34,9 @@ pub struct IbejiAdapter {
 #[async_trait]
 impl DigitalTwinAdapter for IbejiAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
+    ///
+    /// # Arguments
+    /// - `selector`: the service discovery adapter selector to use
     fn create_new(
         selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>,
     ) -> Result<Self, DigitalTwinAdapterError> {

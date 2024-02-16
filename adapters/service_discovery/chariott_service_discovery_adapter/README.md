@@ -6,6 +6,7 @@ The Chariott Service Discovery Adapter integrates with the [Chariott Service Dis
 
 The Chariott Service Discovery Adapter expects service IDs to be in the following format:
 
+<!-- markdownlint-disable-next-line fenced-code-language -->
 ```
 {namespace}/{name}/{version}
 ```

@@ -14,7 +14,7 @@ The Software-Defined Vehicle will need to connect to the cloud for scenarios suc
 
 ## Architecture
 
-At its core, Freyja consists of the following primary components: the **cartographer**, the **emitter**, the **data adapter selector**, the **service discovery adapter selector**, and the **signal store**. In addition to these core components, there are multiple interfaces with external components that define how Freyja interacts with the cloud and the rest of the Software Defined Vehicle. There are interfaces for the in-vehicle digital twin service (such as Ibeji), the mapping service (authored by users), the cloud digital twin provider (such as Azure or AWS), the digital twin providers (authored by users), and the service discovery system (such as Chariott). Each of these interfaces is fully customizable, and Freyja provides a set of standard interfaces suitable for testing, demos, and basic production scenarios. 
+At its core, Freyja consists of the following primary components: the **cartographer**, the **emitter**, the **data adapter selector**, the **service discovery adapter selector**, and the **signal store**. In addition to these core components, there are multiple interfaces with external components that define how Freyja interacts with the cloud and the rest of the Software Defined Vehicle. There are interfaces for the in-vehicle digital twin service (such as Ibeji), the mapping service (authored by users), the cloud digital twin provider (such as Azure or AWS), the digital twin providers (authored by users), and the service discovery system (such as Chariott). Each of these interfaces is fully customizable, and Freyja provides a set of standard interfaces suitable for testing, demos, and basic production scenarios.
 
 The following is a high-level diagram of the Freyja components. This diagram assumes integration with Chariott and Ibeji, though note that everything outside of the box labelled "Freyja" can be exchanged for another component with a different implementation:
 
@@ -60,7 +60,7 @@ The service discovery adapter selector is the core component responsible for man
 
 A shared instance of the service discovery adapter is passed to most adapter types so that they can leverage this functionality. The exception is the Data Adapters, which will have URIs that are already determined by the Digital Twin Adapter.
 
-The data adapter selector's main interface is the `get_service_uri` function, which accepts a service ID as an argument. Since service IDs may be different across different implementations of service discovery systems, it's recommended to make these as consistent as possible to avoid configuration churn when exchanging service discovery adapters. At minimum, a given service should be addressible by the same ID for every service discovery adapter that's used together in a Freyja application.
+The data adapter selector's main interface is the `get_service_uri` function, which accepts a service ID as an argument. Since service IDs may be different across different implementations of service discovery systems, it's recommended to make these as consistent as possible to avoid configuration churn when exchanging service discovery adapters. At minimum, a given service should be addressable by the same ID for every service discovery adapter that's used together in a Freyja application.
 
 ### Signal Store
 

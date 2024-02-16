@@ -102,7 +102,6 @@ mod freyja_main_parse_tests {
         let service_discovery_idents = vec![format_ident!("SDA1"), format_ident!("SDA2")];
 
         let input = quote! { #foo_ident, #bar_ident, #baz_ident, [#(#factory_idents),*], [#(#service_discovery_idents),*] };
-        println!("{input}");
         let output = parse(input);
 
         assert_eq!(output.dt_adapter_type, foo_ident);

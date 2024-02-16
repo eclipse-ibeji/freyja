@@ -59,6 +59,9 @@ impl MockDigitalTwinAdapter {
 #[async_trait]
 impl DigitalTwinAdapter for MockDigitalTwinAdapter {
     /// Creates a new instance of a MockDigitalTwinAdapter
+    ///
+    /// # Arguments
+    /// - `_selector`: the service discovery adapter selector to use (unused by this adapter)
     fn create_new(
         _selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>,
     ) -> Result<Self, DigitalTwinAdapterError> {

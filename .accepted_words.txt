@@ -84,6 +84,7 @@ hvac
 HybridBatteryRemaining
 Ibeji
 ibeji
+IDs
 img
 Impl
 InMemoryMockDigitalTwinAdapter
@@ -160,6 +161,7 @@ sdk
 SDV
 SecretUri
 seiðr
+ServiceDiscoveryAdapter
 sha
 signkey
 snapd
@@ -179,6 +181,7 @@ toml
 toolchain
 URI
 uri
+URIs
 url
 USERPROFILE
 westus
