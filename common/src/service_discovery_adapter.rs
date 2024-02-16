@@ -11,7 +11,7 @@ pub trait ServiceDiscoveryAdapter {
     fn create_new() -> Result<Self, ServiceDiscoveryAdapterError>
     where
         Self: Sized;
-    
+
     /// Gets the name of this adapter. Used for diagnostic purposes.
     fn get_adapter_name(&self) -> String;
 

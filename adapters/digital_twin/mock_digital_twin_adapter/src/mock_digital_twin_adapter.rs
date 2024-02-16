@@ -11,10 +11,11 @@ use tokio::sync::Mutex;
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
 use freyja_common::{
-    config_utils, out_dir,
+    config_utils,
     digital_twin_adapter::{
         DigitalTwinAdapter, DigitalTwinAdapterError, FindByIdRequest, FindByIdResponse,
     },
+    out_dir,
     service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
 };
 use mock_digital_twin::ENTITY_QUERY_PATH;

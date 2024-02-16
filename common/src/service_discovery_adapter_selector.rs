@@ -10,7 +10,7 @@ use crate::service_discovery_adapter::{ServiceDiscoveryAdapter, ServiceDiscovery
 #[async_trait]
 pub trait ServiceDiscoveryAdapterSelector {
     /// Registers a `ServiceDiscoveryAdapter` with this selector
-    /// 
+    ///
     /// # Arguments
     /// - `adapter`: the adapter to register
     fn register(

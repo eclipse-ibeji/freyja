@@ -101,9 +101,11 @@ impl ServiceDiscoveryAdapter for ChariottServiceDiscoveryAdapter {
                             })?
                             .uri;
                         Ok(Ok(uri))
-                    },
+                    }
                     // This branch returns Ok(Err(_)) to indicate to the execute_with_retry wrapper that processing should stop
-                    Err(status) if status.code() == Code::NotFound => Ok(Err(ServiceDiscoveryAdapterError::not_found(status))),
+                    Err(status) if status.code() == Code::NotFound => {
+                        Ok(Err(ServiceDiscoveryAdapterError::not_found(status)))
+                    }
                     // This branch returns Err(_) to indicate to the execute_with_retry wrapper that the request should be retried
                     Err(e) => Err(ServiceDiscoveryAdapterError::communication(e)),
                 }
