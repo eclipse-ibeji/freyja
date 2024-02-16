@@ -117,7 +117,7 @@ mod freyja_main_parse_tests {
             output.service_discovery_adapter_types.len(),
             service_discovery_idents.len()
         );
-        for i in 0..service_discovery_idents.len() {
+        for (i, _) in service_discovery_idents.iter().enumerate() {
             assert_eq!(
                 output.service_discovery_adapter_types[i],
                 service_discovery_idents[i]
@@ -142,7 +142,7 @@ mod freyja_main_parse_tests {
             factory_idents.len()
         );
 
-        for i in 0..factory_idents.len() {
+        for (i, _) in factory_idents.iter().enumerate() {
             assert_eq!(output.service_discovery_adapter_types[i], factory_idents[i]);
         }
     }

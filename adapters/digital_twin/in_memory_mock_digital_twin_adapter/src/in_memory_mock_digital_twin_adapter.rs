@@ -92,7 +92,7 @@ mod in_memory_mock_digital_twin_adapter_tests {
         impl ServiceDiscoveryAdapterSelector for ServiceDiscoveryAdapterSelectorImpl {
             fn register(&mut self, adapter: Box<dyn ServiceDiscoveryAdapter + Send + Sync>) -> Result<(), ServiceDiscoveryAdapterError>;
 
-            async fn get_service_uri(&self, id: &String) -> Result<String, ServiceDiscoveryAdapterError>;
+            async fn get_service_uri<'a>(&self, id: &'a str) -> Result<String, ServiceDiscoveryAdapterError>;
         }
     }
 

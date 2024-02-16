@@ -43,7 +43,7 @@ impl ServiceDiscoveryAdapter for FileServiceDiscoveryAdapter {
     ///
     /// # Arguments
     /// - `id`: the service identifier
-    async fn get_service_uri(&self, id: &String) -> Result<String, ServiceDiscoveryAdapterError> {
+    async fn get_service_uri<'a>(&self, id: &'a str) -> Result<String, ServiceDiscoveryAdapterError> {
         self.config
             .services
             .get(id)
