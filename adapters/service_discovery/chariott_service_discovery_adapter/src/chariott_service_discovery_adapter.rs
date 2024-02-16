@@ -68,7 +68,10 @@ impl ServiceDiscoveryAdapter for ChariottServiceDiscoveryAdapter {
     ///
     /// # Arguments
     /// - `id`: the service identifier
-    async fn get_service_uri<'a>(&self, id: &'a str) -> Result<String, ServiceDiscoveryAdapterError> {
+    async fn get_service_uri<'a>(
+        &self,
+        id: &'a str,
+    ) -> Result<String, ServiceDiscoveryAdapterError> {
         let pieces = id.split('/').collect::<Vec<_>>();
         if pieces.len() != 3 {
             return Err(ServiceDiscoveryAdapterErrorKind::InvalidId.into());
