@@ -5,10 +5,11 @@
 use std::time::Duration;
 
 use async_trait::async_trait;
+use tonic::{transport::Channel, Code, Request};
+
 use service_discovery_proto::service_registry::v1::{
     service_registry_client::ServiceRegistryClient, DiscoverRequest,
 };
-use tonic::{transport::Channel, Code, Request};
 
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
@@ -20,14 +21,18 @@ use freyja_common::{
     },
 };
 
+/// Interfaces with the Eclipse Chariott service to perform service discovery
 pub struct ChariottServiceDiscoveryAdapter {
+    /// The adapter config
     config: Config,
 
+    /// The Chariott client
     client: ServiceRegistryClient<Channel>,
 }
 
 #[async_trait]
 impl ServiceDiscoveryAdapter for ChariottServiceDiscoveryAdapter {
+    /// Creates a new instance of a `ServiceDiscoveryAdapter` with default settings
     fn create_new() -> Result<Self, ServiceDiscoveryAdapterError> {
         let config: Config = config_utils::read_from_files(
             config_file_stem!(),
@@ -54,10 +59,15 @@ impl ServiceDiscoveryAdapter for ChariottServiceDiscoveryAdapter {
         Ok(Self { config, client })
     }
 
+    /// Gets the name of this adapter. Used for diagnostic purposes.
     fn get_adapter_name(&self) -> String {
         String::from("ChariottServiceDiscoveryAdapter")
     }
 
+    /// Gets the URI for the requested service
+    ///
+    /// # Arguments
+    /// - `id`: the service identifier
     async fn get_service_uri(&self, id: &String) -> Result<String, ServiceDiscoveryAdapterError> {
         let pieces = id.split('/').collect::<Vec<_>>();
         if pieces.len() != 3 {

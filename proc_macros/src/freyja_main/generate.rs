@@ -37,7 +37,7 @@ pub(crate) fn generate(ir: FreyjaMainOutput) -> TokenStream {
                 )),*
             ];
 
-            let service_discovery_adapters: Vec<Box<dyn ServiceDiscoveryAdapter + Send + Sync + 'static>> = vec![
+            let service_discovery_adapters: Vec<Box<dyn ServiceDiscoveryAdapter + Send + Sync>> = vec![
                 #(Box::new(
                     #service_discovery_adapter_types::create_new()
                         .expect(concat!("Could not create ", stringify!(#service_discovery_adapter_types)))

@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 /// Supports two different schemas based on the service discovery method.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Config {
-    /// The URI for the In-Vehicle Digital Twin Service
+    /// The service discovery id of the In-Vehicle Digital Twin Service
     pub service_discovery_id: String,
 
     /// The maximum number of retries for communication attempts

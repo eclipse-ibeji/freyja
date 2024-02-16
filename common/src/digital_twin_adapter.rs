@@ -14,6 +14,9 @@ use crate::{entity::Entity, service_discovery_adapter_selector::ServiceDiscovery
 #[async_trait]
 pub trait DigitalTwinAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
+    /// 
+    /// # Arguments
+    /// - `selector`: the service dicovery adapter selector to use
     fn create_new(
         selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>,
     ) -> Result<Self, DigitalTwinAdapterError>

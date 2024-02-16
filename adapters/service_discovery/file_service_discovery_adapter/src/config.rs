@@ -9,5 +9,6 @@ use serde::{Deserialize, Serialize};
 /// Configuration for the File Service Discovery Adapter
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Config {
+    /// A map of service ids to uris
     pub services: HashMap<String, String>,
 }

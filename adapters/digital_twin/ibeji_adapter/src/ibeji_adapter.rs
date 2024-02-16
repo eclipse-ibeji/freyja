@@ -5,13 +5,13 @@
 use std::{sync::Arc, time::Duration};
 
 use async_trait::async_trait;
+use tokio::sync::Mutex;
+use tonic::transport::Channel;
+
 use core_protobuf_data_access::invehicle_digital_twin::v1::{
     invehicle_digital_twin_client::InvehicleDigitalTwinClient,
     FindByIdRequest as IbejiFindByIdRequest,
 };
-
-use tokio::sync::Mutex;
-use tonic::transport::Channel;
 
 use crate::config::Config;
 use freyja_build_common::config_file_stem;

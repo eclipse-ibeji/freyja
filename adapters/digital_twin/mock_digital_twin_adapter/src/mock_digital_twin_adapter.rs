@@ -5,16 +5,18 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use freyja_common::service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector;
 use reqwest::Client;
 use tokio::sync::Mutex;
 
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
-use freyja_common::digital_twin_adapter::{
-    DigitalTwinAdapter, DigitalTwinAdapterError, FindByIdRequest, FindByIdResponse,
+use freyja_common::{
+    config_utils, out_dir,
+    digital_twin_adapter::{
+        DigitalTwinAdapter, DigitalTwinAdapterError, FindByIdRequest, FindByIdResponse,
+    },
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
 };
-use freyja_common::{config_utils, out_dir};
 use mock_digital_twin::ENTITY_QUERY_PATH;
 
 /// Mocks a Digital Twin Adapter that calls the mocks/mock_digital_twin

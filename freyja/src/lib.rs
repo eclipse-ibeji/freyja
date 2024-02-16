@@ -42,7 +42,7 @@ pub async fn freyja_main<
     TMappingAdapter: MappingAdapter,
 >(
     data_adapter_factories: Vec<Box<dyn DataAdapterFactory + Send + Sync>>,
-    service_discovery_adapters: Vec<Box<dyn ServiceDiscoveryAdapter + Send + Sync + 'static>>,
+    service_discovery_adapters: Vec<Box<dyn ServiceDiscoveryAdapter + Send + Sync>>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let args = parse_args(env::args()).expect("Failed to parse args");
 

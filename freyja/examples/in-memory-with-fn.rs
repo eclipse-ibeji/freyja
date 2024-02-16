@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         ),
     ];
 
-    let service_discovery_adapters: Vec<Box<dyn ServiceDiscoveryAdapter + Send + Sync + 'static>> = vec![
+    let service_discovery_adapters: Vec<Box<dyn ServiceDiscoveryAdapter + Send + Sync>> = vec![
         Box::new(
             FileServiceDiscoveryAdapter::create_new()
                 .expect("Could not create FileServiceDiscoveryAdapter"),

@@ -5,16 +5,18 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use freyja_common::service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector;
 use tokio::sync::Mutex;
 
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
-use freyja_common::digital_twin_adapter::{
-    DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind, FindByIdRequest,
-    FindByIdResponse,
+use freyja_common::{
+    config_utils, out_dir,
+    digital_twin_adapter::{
+        DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind, FindByIdRequest,
+        FindByIdResponse,
+    },
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
 };
-use freyja_common::{config_utils, out_dir};
 
 /// In-memory mock that mocks finding endpoint info about entities
 /// through find by id
@@ -87,7 +89,7 @@ mod in_memory_mock_digital_twin_adapter_tests {
 
         #[async_trait]
         impl ServiceDiscoveryAdapterSelector for ServiceDiscoveryAdapterSelectorImpl {
-            fn register(&mut self, adapter: Box<dyn ServiceDiscoveryAdapter + Send + Sync + 'static>) -> Result<(), ServiceDiscoveryAdapterError>;
+            fn register(&mut self, adapter: Box<dyn ServiceDiscoveryAdapter + Send + Sync>) -> Result<(), ServiceDiscoveryAdapterError>;
 
             async fn get_service_uri(&self, id: &String) -> Result<String, ServiceDiscoveryAdapterError>;
         }

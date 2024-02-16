@@ -132,7 +132,7 @@ mod freyja_main_parse_tests {
         assert_eq!(output.cloud_adapter_type, foo_ident);
         assert_eq!(output.mapping_adapter_type, bar_ident);
 
-        // Note that this test switched the data adapter factory and service discovery adapter idents
+        // Note that this case switched the data adapter factory and service discovery adapter idents
         for ident in service_discovery_idents {
             assert!(output.data_adapter_factory_types.contains(&ident));
         }
@@ -141,6 +141,7 @@ mod freyja_main_parse_tests {
             output.service_discovery_adapter_types.len(),
             factory_idents.len()
         );
+
         for i in 0..factory_idents.len() {
             assert_eq!(output.service_discovery_adapter_types[i], factory_idents[i]);
         }

@@ -2,6 +2,16 @@
 
 The Chariott Service Discovery Adapter integrates with the [Chariott Service Discovery system](https://github.com/eclipse-chariott/chariott/) to perform service discovery.
 
+## Service Discovery ID Format
+
+The Chariott Service Discovery Adapter expects service IDs to be in the following format:
+
+```
+{namespace}/{name}/{version}
+```
+
+These parameters correspond to the Chariott service discovery request parameters of the same name.
+
 ## Configuration
 
 This adapter supports the following configuration settings:
