@@ -6,7 +6,7 @@ For more examples of Freyja adapters and applications, see the [Ibeji Example Ap
 
 ## How to Author a Custom Adapter
 
-Freyja supports custom implementations of the `DigitalTwinAdapter`, `CloudAdapter`, `MappingAdapter`, `DataAdapter`, and `DataAdapterFactory` interfaces. To refer to these traits in your implementation, you will need to take a dependency on the `freyja-common` crate. The following `Cargo.toml` snippet shows how you can include this dependency:
+Freyja supports custom implementations of the `DigitalTwinAdapter`, `CloudAdapter`, `MappingAdapter`, `DataAdapter`, `DataAdapterFactory`, and `ServiceDiscoveryAdapter` interfaces. To refer to these traits in your implementation, you will need to take a dependency on the `freyja-common` crate. The following `Cargo.toml` snippet shows how you can include this dependency:
 
 ```toml
 [dependencies]

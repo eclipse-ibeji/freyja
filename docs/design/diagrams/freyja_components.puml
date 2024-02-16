@@ -20,6 +20,7 @@ package "Vehicle" {
         node "Data Adapters" {
             [Data Adapter] as data_adapter
         }
+        [Service Discovery Adapter Selector]
     }
 
     [Chariott]
@@ -42,7 +43,8 @@ package "Vehicle" {
 [ivMappingSvc] <.u.> [cloudMappingSvc]
 [Cloud Connector] -u-> [Cloud Digital Twin]
 [Cartographer] -d-> [Digital Twin Adapter]
-[Digital Twin Adapter] .d.> [Chariott] : Discover Ibeji (optional)
+[Digital Twin Adapter] -d-> [Service Discovery Adapter Selector] : Discover Ibeji
+[Service Discovery Adapter Selector] -d-> [Chariott] : Discover Ibeji
 [Digital Twin Adapter] -d-> [ivdts] : Discover Providers
 [Cartographer] -u-> [Signal Store] : Track Signals
 [Cartographer] -r-> [Data Adapter Selector] : Register Adapters
