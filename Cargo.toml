@@ -37,6 +37,7 @@ file-service-discovery-adapter = { path = "adapters/service_discovery/file_servi
 freyja-build-common = { path = "build_common" }
 freyja-common = { path = "common" }
 http-mock-data-adapter = { path = "adapters/data/http_mock_data_adapter" }
+ibeji-adapter = { path = "adapters/digital_twin/ibeji_adapter" }
 in-memory-mock-cloud-adapter = { path = "adapters/cloud/in_memory_mock_cloud_adapter" }
 in-memory-mock-data-adapter = { path = "adapters/data/in_memory_mock_data_adapter" }
 in-memory-mock-digital-twin-adapter = { path ="adapters/digital_twin/in_memory_mock_digital_twin_adapter" }

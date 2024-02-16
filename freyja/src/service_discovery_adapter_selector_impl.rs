@@ -35,9 +35,13 @@ impl ServiceDiscoveryAdapterSelector for ServiceDiscoveryAdapterSelectorImpl {
 
     async fn get_service_uri(&self, id: &String) -> Result<String, ServiceDiscoveryAdapterError> {
         for adapter in self.adapters.iter() {
+            log::debug!("Attempting to discover uri for service {id} from adapter {}...", adapter.get_adapter_name());
             match adapter.get_service_uri(id).await {
-                Ok(uri) => return Ok(uri),
-                Err(e) => log::debug!("Failed to get service uri: {e:?}. Trying next adapter...")
+                Ok(uri) => {
+                    log::debug!("Discovered uri for service {id}");
+                    return Ok(uri)
+                },
+                Err(e) => log::debug!("Failed to discover service uri: {e:?}. Trying next adapter...")
             }
         }
 

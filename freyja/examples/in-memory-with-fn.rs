@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use chariott_service_discovery_adapter::chariott_service_discovery_adapter::ChariottServiceDiscoveryAdapter;
 use file_service_discovery_adapter::file_service_discovery_adapter::FileServiceDiscoveryAdapter;
 use freyja_common::{
     data_adapter::DataAdapterFactory, service_discovery_adapter::ServiceDiscoveryAdapter,
@@ -47,10 +46,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         Box::new(
             FileServiceDiscoveryAdapter::create_new()
                 .expect("Could not create FileServiceDiscoveryAdapter"),
-        ),
-        Box::new(
-            ChariottServiceDiscoveryAdapter::create_new()
-                .expect("Could not create ChariottServiceDiscoveryAdapter"),
         ),
     ];
 

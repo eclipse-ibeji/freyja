@@ -23,7 +23,6 @@ mockall = { workspace = true }
 async-trait = { workspace = true }
 
 # Dependencies for examples
-chariott-service-discovery-adapter = { workspace = true }
 file-service-discovery-adapter = { workspace = true }
 in-memory-mock-cloud-adapter = { workspace = true }
 in-memory-mock-digital-twin-adapter = { workspace = true }

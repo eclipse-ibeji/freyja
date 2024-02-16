@@ -31,6 +31,10 @@ impl ServiceDiscoveryAdapter for FileServiceDiscoveryAdapter {
         Ok(Self { config })
     }
 
+    fn get_adapter_name(&self) -> String {
+        String::from("FileServiceDiscoveryAdapter")
+    }
+
     async fn get_service_uri(&self, id: &String) -> Result<String, ServiceDiscoveryAdapterError> {
         self.config
             .services
