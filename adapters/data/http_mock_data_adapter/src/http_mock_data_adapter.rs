@@ -19,6 +19,7 @@ use axum::{
 use log::{debug, error, info};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use tokio::net::TcpListener;
 
 use crate::{config::Config, GET_OPERATION, SUBSCRIBE_OPERATION};
 use freyja_build_common::config_file_stem;
@@ -151,16 +152,17 @@ impl DataAdapter for HttpMockDataAdapter {
         // http://{callback_address}:{callback_server_port}/value
         // POST request where the json body is GetSignalValueResponse
         // Set up router path
-        let router = Router::new()
+        let app = Router::new()
             .route(CALLBACK_FOR_VALUES_PATH, post(Self::receive_value_handler))
             .with_state(self.signals.clone());
 
         // Run the listener
-        let builder = axum::Server::try_bind(&server_endpoint_addr)
+        let listener = TcpListener::bind(&server_endpoint_addr)
+            .await
             .map_err(DataAdapterError::communication)?;
 
         tokio::spawn(async move {
-            let _ = builder.serve(router.into_make_service()).await;
+            let _ = axum::serve(listener, app).await;
         });
 
         info!("Http Data Adapter listening at http://{address}"); // Devskim: ignore DS137138
