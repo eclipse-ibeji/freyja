@@ -25,7 +25,7 @@ use reqwest::Client;
 use serde::Deserialize;
 use tokio::{
     net::TcpListener,
-    sync::{mpsc, mpsc::UnboundedSender}
+    sync::{mpsc, mpsc::UnboundedSender},
 };
 
 use crate::config::{Config, EntityConfig};
