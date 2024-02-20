@@ -4,12 +4,11 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Configuration for the Ibeji Adapter.
-/// Supports two different schemas based on the service discovery method.
+/// Configuration for the File Service Discovery Adapter
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Config {
-    /// The service discovery id of the In-Vehicle Digital Twin Service
-    pub service_discovery_id: String,
+    /// The Chariott uri
+    pub uri: String,
 
     /// The maximum number of retries for communication attempts
     pub max_retries: u32,

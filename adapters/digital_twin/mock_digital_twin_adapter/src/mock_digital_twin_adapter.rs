@@ -2,15 +2,22 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use reqwest::Client;
+use tokio::sync::Mutex;
 
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
-use freyja_common::digital_twin_adapter::{
-    DigitalTwinAdapter, DigitalTwinAdapterError, FindByIdRequest, FindByIdResponse,
+use freyja_common::{
+    config_utils,
+    digital_twin_adapter::{
+        DigitalTwinAdapter, DigitalTwinAdapterError, FindByIdRequest, FindByIdResponse,
+    },
+    out_dir,
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
 };
-use freyja_common::{config_utils, out_dir};
 use mock_digital_twin::ENTITY_QUERY_PATH;
 
 /// Mocks a Digital Twin Adapter that calls the mocks/mock_digital_twin
@@ -52,7 +59,12 @@ impl MockDigitalTwinAdapter {
 #[async_trait]
 impl DigitalTwinAdapter for MockDigitalTwinAdapter {
     /// Creates a new instance of a MockDigitalTwinAdapter
-    fn create_new() -> Result<Self, DigitalTwinAdapterError> {
+    ///
+    /// # Arguments
+    /// - `_selector`: the service discovery adapter selector to use (unused by this adapter)
+    fn create_new(
+        _selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>,
+    ) -> Result<Self, DigitalTwinAdapterError> {
         let config = config_utils::read_from_files(
             config_file_stem!(),
             config_utils::JSON_EXT,

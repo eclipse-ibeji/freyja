@@ -84,6 +84,7 @@ hvac
 HybridBatteryRemaining
 Ibeji
 ibeji
+IDs
 img
 Impl
 InMemoryMockDigitalTwinAdapter
@@ -106,6 +107,7 @@ mailto
 ManagedSubscribeDataAdapter
 MappingAdapter
 MappingAdapterImpl
+markdownlint
 md
 microsoft
 min
@@ -160,6 +162,7 @@ sdk
 SDV
 SecretUri
 seiðr
+ServiceDiscoveryAdapter
 sha
 signkey
 snapd
@@ -179,6 +182,7 @@ toml
 toolchain
 URI
 uri
+URIs
 url
 USERPROFILE
 westus

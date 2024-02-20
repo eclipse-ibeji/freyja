@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 [package]
-name = "mock-digital-twin-adapter"
+name = "file-service-discovery-adapter"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
@@ -12,10 +12,7 @@ license = "MIT"
 async-trait = { workspace = true }
 freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
-mock-digital-twin = { workspace = true }
-reqwest = { workspace = true }
 serde = { workspace = true }
-tokio = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

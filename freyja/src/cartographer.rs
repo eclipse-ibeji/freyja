@@ -241,6 +241,7 @@ mod cartographer_tests {
             CheckForWorkResponse, GetMappingResponse, MappingAdapterError, SendInventoryRequest,
             SendInventoryResponse,
         },
+        service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
     };
 
     mock! {
@@ -248,7 +249,7 @@ mod cartographer_tests {
 
         #[async_trait]
         impl DigitalTwinAdapter for DigitalTwinAdapterImpl {
-            fn create_new() -> Result<Self, DigitalTwinAdapterError>
+            fn create_new(selector: Arc<tokio::sync::Mutex<dyn ServiceDiscoveryAdapterSelector>>) -> Result<Self, DigitalTwinAdapterError>
             where
                 Self: Sized;
 
@@ -290,7 +291,7 @@ mod cartographer_tests {
 
         #[async_trait]
         impl DataAdapterSelector for DataAdapterSelector {
-            fn register(&mut self, factory: Box<dyn DataAdapterFactory + Send + Sync + 'static>) -> Result<(), DataAdapterSelectorError>;
+            fn register(&mut self, factory: Box<dyn DataAdapterFactory + Send + Sync>) -> Result<(), DataAdapterSelectorError>;
             async fn create_or_update_adapter(&self, entity: &Entity) -> Result<(), DataAdapterSelectorError>;
             async fn request_entity_value(&self, entity_id: &str) -> Result<(), DataAdapterSelectorError>;
         }

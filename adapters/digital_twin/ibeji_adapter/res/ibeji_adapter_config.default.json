@@ -1,6 +1,5 @@
 {
-    "service_discovery_method": "FromConfig",
-    "uri": "http://0.0.0.0:5010",
+    "service_discovery_id": "sdv.ibeji/invehicle_digital_twin/1.0",
     "max_retries": 5,
     "retry_interval_ms": 1000
 }

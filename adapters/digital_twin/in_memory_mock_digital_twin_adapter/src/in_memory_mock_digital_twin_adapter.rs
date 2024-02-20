@@ -2,15 +2,22 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
+use tokio::sync::Mutex;
 
 use crate::config::Config;
 use freyja_build_common::config_file_stem;
-use freyja_common::digital_twin_adapter::{
-    DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind, FindByIdRequest,
-    FindByIdResponse,
+use freyja_common::{
+    config_utils,
+    digital_twin_adapter::{
+        DigitalTwinAdapter, DigitalTwinAdapterError, DigitalTwinAdapterErrorKind, FindByIdRequest,
+        FindByIdResponse,
+    },
+    out_dir,
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
 };
-use freyja_common::{config_utils, out_dir};
 
 /// In-memory mock that mocks finding endpoint info about entities
 /// through find by id
@@ -32,7 +39,12 @@ impl InMemoryMockDigitalTwinAdapter {
 #[async_trait]
 impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
-    fn create_new() -> Result<Self, DigitalTwinAdapterError> {
+    ///
+    /// # Arguments
+    /// - `_selector`: the service discovery adapter selector to use (unused by this adapter)
+    fn create_new(
+        _selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>,
+    ) -> Result<Self, DigitalTwinAdapterError> {
         let config = config_utils::read_from_files(
             config_file_stem!(),
             config_utils::JSON_EXT,
@@ -66,15 +78,32 @@ impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
 #[cfg(test)]
 mod in_memory_mock_digital_twin_adapter_tests {
     use super::*;
+    use mockall::*;
 
     use crate::config::EntityConfig;
-    use freyja_common::entity::{Entity, EntityEndpoint};
+    use freyja_common::{
+        entity::{Entity, EntityEndpoint},
+        service_discovery_adapter::{ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError},
+    };
 
     const OPERATION: &str = "Subscribe";
 
+    mock! {
+        pub ServiceDiscoveryAdapterSelectorImpl {}
+
+        #[async_trait]
+        impl ServiceDiscoveryAdapterSelector for ServiceDiscoveryAdapterSelectorImpl {
+            fn register(&mut self, adapter: Box<dyn ServiceDiscoveryAdapter + Send + Sync>) -> Result<(), ServiceDiscoveryAdapterError>;
+
+            async fn get_service_uri<'a>(&self, id: &'a str) -> Result<String, ServiceDiscoveryAdapterError>;
+        }
+    }
+
     #[test]
     fn can_create_new() {
-        let result = InMemoryMockDigitalTwinAdapter::create_new();
+        let result = InMemoryMockDigitalTwinAdapter::create_new(Arc::new(Mutex::new(
+            MockServiceDiscoveryAdapterSelectorImpl::new(),
+        )));
         assert!(result.is_ok());
     }
 

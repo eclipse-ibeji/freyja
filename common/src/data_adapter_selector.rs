@@ -16,7 +16,7 @@ pub trait DataAdapterSelector {
     /// - `factory`: the factory to register
     fn register(
         &mut self,
-        factory: Box<dyn DataAdapterFactory + Send + Sync + 'static>,
+        factory: Box<dyn DataAdapterFactory + Send + Sync>,
     ) -> Result<(), DataAdapterSelectorError>;
 
     /// Updates an existing data adapter to include an entity if possible,

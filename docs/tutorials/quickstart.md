@@ -73,3 +73,8 @@ This appendix lists the adapters that are provided in this repository.
 - [Sample gRPC Data Adapter](../../adapters/data/sample_grpc_data_adapter/README.md): Interfaces with providers that communicate via gRPC. Integrated with specific Ibeji samples.
 - [MQTT Data Adapter](../../adapters/data/mqtt_data_adapter/README.md): Interfaces with providers that communicate via MQTT.
 - [Managed Subscribe Data Adapter](../../adapters/data/managed_subscribe_data_adapter/README.md): Interfaces with providers that leverage the managed subscribe feature of Ibeji.
+
+## Service Discovery Adapters
+
+- [File Service Discovery Adapter](../../adapters/service_discovery/file_service_discovery_adapter/README.md): Uses a static config file to define service URIs.
+- [Chariott Service Discovery Adapter](../../adapters/service_discovery/chariott_service_discovery_adapter/README.md): Interfaces with [Eclipse Chariott](https://github.com/eclipse-chariott/chariott/) to retrieve service URIs.

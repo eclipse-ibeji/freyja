@@ -2,20 +2,18 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
 use async_trait::async_trait;
+use tokio::sync::Mutex;
+use tonic::transport::Channel;
+
 use core_protobuf_data_access::invehicle_digital_twin::v1::{
     invehicle_digital_twin_client::InvehicleDigitalTwinClient,
     FindByIdRequest as IbejiFindByIdRequest,
 };
-use log::info;
-use service_discovery_proto::service_registry::v1::{
-    service_registry_client::ServiceRegistryClient, DiscoverRequest,
-};
-use tonic::{transport::Channel, Request};
 
-use crate::config::{ChariottDiscoverRequest, Config};
+use crate::config::Config;
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     config_utils,
@@ -25,6 +23,7 @@ use freyja_common::{
     entity::{Entity, EntityEndpoint},
     out_dir,
     retry_utils::execute_with_retry,
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
 };
 
 /// Contacts the In-Vehicle Digital Twin Service in Ibeji
@@ -32,48 +31,16 @@ pub struct IbejiAdapter {
     client: InvehicleDigitalTwinClient<Channel>,
 }
 
-impl IbejiAdapter {
-    /// Retrieves Ibeji's In-Vehicle Digital Twin URI from Chariott
-    ///
-    /// # Arguments
-    /// - `chariott_discovery_request`: the uri for Chariott's service discovery
-    /// - `metadata`: optional configuration metadata for discovering Ibeji using Chariott
-    async fn retrieve_ibeji_invehicle_digital_twin_uri_from_chariott(
-        chariott_service_discovery_uri: &str,
-        chariott_discovery_request: ChariottDiscoverRequest,
-    ) -> Result<String, DigitalTwinAdapterError> {
-        let mut service_registry_client =
-            ServiceRegistryClient::connect(chariott_service_discovery_uri.to_owned())
-                .await
-                .map_err(DigitalTwinAdapterError::communication)?;
-
-        let discover_request = Request::new(DiscoverRequest {
-            namespace: chariott_discovery_request.namespace,
-            name: chariott_discovery_request.name,
-            version: chariott_discovery_request.version,
-        });
-
-        let service = service_registry_client
-            .discover(discover_request)
-            .await
-            .map_err(DigitalTwinAdapterError::communication)?
-            .into_inner()
-            .service
-            .ok_or_else(|| {
-                DigitalTwinAdapterError::communication(
-                    "Cannot discover the uri of Ibeji's In-Vehicle Digital Twin Service",
-                )
-            })?;
-
-        Ok(service.uri)
-    }
-}
-
 #[async_trait]
 impl DigitalTwinAdapter for IbejiAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
-    fn create_new() -> Result<Self, DigitalTwinAdapterError> {
-        let config = config_utils::read_from_files(
+    ///
+    /// # Arguments
+    /// - `selector`: the service discovery adapter selector to use
+    fn create_new(
+        selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>,
+    ) -> Result<Self, DigitalTwinAdapterError> {
+        let config: Config = config_utils::read_from_files(
             config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
@@ -81,49 +48,17 @@ impl DigitalTwinAdapter for IbejiAdapter {
             DigitalTwinAdapterError::deserialize,
         )?;
 
-        let (invehicle_digital_twin_service_uri, max_retries, retry_interval_ms) = match config {
-            Config::FromConfig {
-                uri,
-                max_retries,
-                retry_interval_ms,
-            } => (uri, max_retries, retry_interval_ms),
-            Config::ChariottServiceDiscovery {
-                uri,
-                max_retries,
-                retry_interval_ms,
-                discover_request,
-            } => {
-                let invehicle_digital_twin_service_uri = futures::executor::block_on(async {
-                    execute_with_retry(
-                        max_retries,
-                        Duration::from_millis(retry_interval_ms),
-                        || {
-                            Self::retrieve_ibeji_invehicle_digital_twin_uri_from_chariott(
-                                &uri,
-                                discover_request.clone(),
-                            )
-                        },
-                        Some(String::from("Connection retry for connecting to Chariott")),
-                    )
-                    .await
-                })
-                .map_err(DigitalTwinAdapterError::communication)?;
-
-                info!("Discovered the uri of the In-Vehicle Digital Twin Service via Chariott: {invehicle_digital_twin_service_uri}");
-
-                (
-                    invehicle_digital_twin_service_uri,
-                    max_retries,
-                    retry_interval_ms,
-                )
-            }
-        };
+        let digital_twin_service_uri = futures::executor::block_on(async {
+            let selector = selector.lock().await;
+            selector.get_service_uri(&config.service_discovery_id).await
+        })
+        .map_err(DigitalTwinAdapterError::communication)?;
 
         let client = futures::executor::block_on(async {
             execute_with_retry(
-                max_retries,
-                Duration::from_millis(retry_interval_ms),
-                || InvehicleDigitalTwinClient::connect(invehicle_digital_twin_service_uri.clone()),
+                config.max_retries,
+                Duration::from_millis(config.retry_interval_ms),
+                || InvehicleDigitalTwinClient::connect(digital_twin_service_uri.clone()),
                 Some(String::from("Connection retry for connecting to Ibeji")),
             )
             .await
@@ -187,7 +122,7 @@ mod ibeji_digital_twin_adapter_tests {
         invehicle_digital_twin_server::InvehicleDigitalTwin, EndpointInfo, EntityAccessInfo,
         FindByIdResponse as IbejiFindByIdResponse, RegisterRequest, RegisterResponse,
     };
-    use tonic::{Response, Status};
+    use tonic::{Request, Response, Status};
 
     use super::*;
 

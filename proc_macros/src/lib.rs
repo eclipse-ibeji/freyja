@@ -83,7 +83,7 @@ pub fn error(ts: TokenStream) -> TokenStream {
 ///
 /// *FreyjaMainPredicate*:
 ///
-/// &nbsp;&nbsp;&nbsp;&nbsp;*DigitalTwinAdapterType* `,` *CloudAdapterType* `,` *MappingAdapterType* `, [` *DataAdapterFactoryTypeList* `]`
+/// &nbsp;&nbsp;&nbsp;&nbsp;*DigitalTwinAdapterType* `,` *CloudAdapterType* `,` *MappingAdapterType* `, [` *DataAdapterFactoryTypeList* `] , [` *ServiceDiscoveryAdapterTypeList* `]` (`,`)
 ///
 /// *DigitalTwinAdapterType*:
 ///
@@ -105,10 +105,21 @@ pub fn error(ts: TokenStream) -> TokenStream {
 ///
 /// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
 ///
+/// *ServiceDiscoveryAdapterTypeList*:
+///
+/// &nbsp;&nbsp;&nbsp;&nbsp;*ServiceDiscoveryAdapterType* (`,` *ServiceDiscoveryAdapterTypeList*)
+///
+/// *ServiceDiscoveryAdapterType*:
+///
+/// &nbsp;&nbsp;&nbsp;&nbsp;IDENTIFIER
+///
 /// Note that the accepted syntax for each of the adapter types is only an identifier.
 /// This means that fully qualified types like `my_crate::MyAdapter`
 /// and types with generic arguments like `MyGenericAdapter<SomeOtherType>` aren't directly supported.
 /// Instead you will need to import and/or alias the types that you're going to use.
+///
+/// Order matters for service discovery adapters. They will be registered in the order provided,
+/// so earlier adapters in the list will take precedence over later ones.
 #[proc_macro]
 pub fn freyja_main(ts: TokenStream) -> TokenStream {
     freyja_main::freyja_main(ts.into()).into()

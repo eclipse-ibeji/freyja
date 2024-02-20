@@ -218,6 +218,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "chariott-service-discovery-adapter"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "freyja-build-common",
+ "freyja-common",
+ "futures",
+ "serde",
+ "service_discovery_proto",
+ "tonic",
+]
+
+[[package]]
 name = "cloud-connector-proto"
 version = "0.1.0"
 dependencies = [
@@ -431,6 +444,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25cbce373ec4653f1a01a31e8a5e5ec0c622dc27ff9c4e6606eefef5cbbed4a5"
 
 [[package]]
+name = "file-service-discovery-adapter"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "freyja-build-common",
+ "freyja-common",
+ "serde",
+]
+
+[[package]]
 name = "fixedbitset"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -487,6 +510,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "env_logger",
+ "file-service-discovery-adapter",
  "freyja-common",
  "http-mock-data-adapter",
  "in-memory-mock-cloud-adapter",
@@ -832,13 +856,7 @@ dependencies = [
  "freyja-build-common",
  "freyja-common",
  "futures",
- "log",
- "proc-macros",
  "serde",
- "serde_json",
- "service_discovery_proto",
- "strum",
- "strum_macros",
  "tempfile",
  "tokio",
  "tokio-stream",
@@ -887,6 +905,7 @@ dependencies = [
  "async-trait",
  "freyja-build-common",
  "freyja-common",
+ "mockall",
  "serde",
  "tokio",
 ]
@@ -1087,6 +1106,7 @@ dependencies = [
  "mock-digital-twin",
  "reqwest",
  "serde",
+ "tokio",
 ]
 
 [[package]]
@@ -1869,12 +1889,6 @@ dependencies = [
  "libc",
  "windows-sys 0.48.0",
 ]
-
-[[package]]
-name = "strum"
-version = "0.25.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "290d54ea6f91c969195bdbcd7442c8c2a2ba87da8bf60a7ee86a235d4bc1e125"
 
 [[package]]
 name = "strum_macros"

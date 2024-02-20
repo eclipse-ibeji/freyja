@@ -69,7 +69,7 @@ impl DataAdapterSelector for DataAdapterSelectorImpl {
     /// - `factory`: the factory to register
     fn register(
         &mut self,
-        factory: Box<dyn DataAdapterFactory + Send + Sync + 'static>,
+        factory: Box<dyn DataAdapterFactory + Send + Sync>,
     ) -> Result<(), DataAdapterSelectorError> {
         self.factories.push(factory);
         Ok(())
