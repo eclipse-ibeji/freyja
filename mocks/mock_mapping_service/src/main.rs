@@ -6,7 +6,6 @@ mod config;
 
 use std::{
     env, io,
-    net::SocketAddr,
     sync::{Arc, Mutex},
     thread,
 };
@@ -15,10 +14,11 @@ use axum::{
     extract::State,
     response::{IntoResponse, Response},
     routing::{get, post},
-    Json, Router, Server,
+    Json, Router,
 };
 use env_logger::Target;
 use log::{info, LevelFilter};
+use tokio::net::TcpListener;
 
 use config::Config;
 use freyja_build_common::config_file_stem;
@@ -117,14 +117,11 @@ async fn main() {
         .route("/mapping", get(get_mapping))
         .with_state(state);
 
-    Server::bind(
-        &SERVER_ENDPOINT
-            .parse::<SocketAddr>()
-            .expect("unable to parse socket address"),
-    )
-    .serve(app.into_make_service())
-    .await
-    .unwrap();
+    let listener = TcpListener::bind(&SERVER_ENDPOINT)
+        .await
+        .expect("Unable to bind to server endpoint");
+
+    axum::serve(listener, app).await.unwrap();
 }
 
 async fn get_work(State(state): State<Arc<Mutex<MappingState>>>) -> Response {

@@ -7,7 +7,6 @@ mod config;
 use std::{
     collections::{HashMap, HashSet},
     env, io,
-    net::SocketAddr,
     sync::{Arc, Mutex},
     thread,
     time::Duration,
@@ -18,13 +17,16 @@ use axum::{
     extract::State,
     response::{IntoResponse, Response},
     routing::{get, post},
-    Json, Router, Server,
+    Json, Router,
 };
 use env_logger::Target;
 use log::{debug, error, info, warn, LevelFilter};
 use reqwest::Client;
 use serde::Deserialize;
-use tokio::sync::{mpsc, mpsc::UnboundedSender};
+use tokio::{
+    net::TcpListener,
+    sync::{mpsc, mpsc::UnboundedSender},
+};
 
 use crate::config::{Config, EntityConfig};
 use freyja_build_common::config_file_stem;
@@ -214,15 +216,11 @@ async fn main() {
         .route(ENTITY_GET_VALUE_PATH, post(request_value))
         .with_state(state);
 
-    Server::bind(
-        &config
-            .digital_twin_server_authority
-            .parse::<SocketAddr>()
-            .expect("unable to parse socket address"),
-    )
-    .serve(app.into_make_service())
-    .await
-    .unwrap();
+    let listener = TcpListener::bind(&config.digital_twin_server_authority)
+        .await
+        .expect("Unable to bind to server endpoint");
+
+    axum::serve(listener, app).await.unwrap();
 }
 
 /// Handles getting access info of an entity
