@@ -1,6 +1,6 @@
 # Chariott Service Discovery Adapter
 
-The Chariott Service Discovery Adapter integrates with the [Chariott Service Discovery system](https://github.com/eclipse-chariott/chariott/) to perform service discovery.
+The Chariott Service Discovery Adapter integrates with the [Chariott Service Discovery system](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/README.md) to perform service discovery.
 
 ## Service Discovery ID Format
 
