@@ -238,8 +238,7 @@ mod cartographer_tests {
         digital_twin_map_entry::DigitalTwinMapEntry,
         entity::{Entity, EntityEndpoint},
         mapping_adapter::{
-            CheckForWorkResponse, GetMappingResponse, MappingAdapterError, SendInventoryRequest,
-            SendInventoryResponse,
+            CheckForWorkResponse, GetMappingResponse, MappingAdapterError,
         },
         service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
     };
@@ -273,11 +272,6 @@ mod cartographer_tests {
                 &self,
                 request: CheckForWorkRequest,
             ) -> Result<CheckForWorkResponse, MappingAdapterError>;
-
-            async fn send_inventory(
-                &self,
-                inventory: SendInventoryRequest,
-            ) -> Result<SendInventoryResponse, MappingAdapterError>;
 
             async fn get_mapping(
                 &self,

@@ -810,6 +810,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "grpc-mapping-adapter"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "freyja-build-common",
+ "freyja-common",
+ "futures",
+ "log",
+ "mapping-service-proto",
+ "serde",
+ "tempfile",
+ "time",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+ "tower",
+]
+
+[[package]]
 name = "grpc-service-discovery-adapter"
 version = "0.1.0"
 dependencies = [
@@ -1231,6 +1250,16 @@ dependencies = [
  "log",
  "serde",
  "tonic",
+]
+
+[[package]]
+name = "mapping-service-proto"
+version = "0.1.0"
+dependencies = [
+ "prost",
+ "prost-types",
+ "tonic",
+ "tonic-build 0.11.0",
 ]
 
 [[package]]

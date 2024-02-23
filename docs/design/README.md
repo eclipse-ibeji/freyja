@@ -114,7 +114,6 @@ Freyja communicates with a mapping service via the `MappingAdapter` trait to get
 
 - `create_new`: Serves as an integration point for the core Freyja components. This function will be called by the `freyja_main` function to create an instance of your adapter.
 - `check_for_work`: Because mappings returned from the `get_mapping` API can potentially be large, this method is used to first poll for changes before calling that API. If the result is false, then the cartographer will not invoke the `get_mapping` API until it polls again.
-- `send_inventory`: This API is currently unused. It is reserved for potential future use, but may also be removed. A default empty implementation is provided for convenience so that this function may be omitted from your trait implementation. It is also safe to use the `unimplemented!()` macro since this function will not be called.
 - `get_mapping`: Returns mapping information that will be used by Freyja's emitter
 
 For more information about the mapping service and how this interface is used, see the [Mapping Service](#mapping-service) section.

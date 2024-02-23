@@ -13,8 +13,8 @@ use std::{
 use axum::{
     extract::State,
     response::{IntoResponse, Response},
-    routing::{get, post},
-    Json, Router,
+    routing::get,
+    Router,
 };
 use env_logger::Target;
 use log::{info, LevelFilter};
@@ -26,7 +26,7 @@ use freyja_common::{
     cmd_utils::{get_log_level, parse_args},
     config_utils,
     mapping_adapter::{
-        CheckForWorkResponse, GetMappingResponse, SendInventoryRequest, SendInventoryResponse,
+        CheckForWorkResponse, GetMappingResponse,
     },
     ok, out_dir,
 };
@@ -113,7 +113,6 @@ async fn main() {
     // HTTP server setup
     let app = Router::new()
         .route("/work", get(get_work))
-        .route("/inventory", post(send_inventory))
         .route("/mapping", get(get_mapping))
         .with_state(state);
 
@@ -133,14 +132,6 @@ async fn get_work(State(state): State<Arc<Mutex<MappingState>>>) -> Response {
     } else {
         ok!(CheckForWorkResponse { has_work: false })
     }
-}
-
-async fn send_inventory(
-    State(_state): State<Arc<Mutex<MappingState>>>,
-    Json(body): Json<SendInventoryRequest>,
-) -> Response {
-    info!("Got {} items in body", body.inventory.len());
-    ok!(SendInventoryResponse {})
 }
 
 async fn get_mapping(State(state): State<Arc<Mutex<MappingState>>>) -> Response {

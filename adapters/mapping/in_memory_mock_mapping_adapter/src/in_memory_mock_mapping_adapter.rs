@@ -97,7 +97,7 @@ mod in_memory_mock_mapping_adapter_tests {
 
     use super::*;
 
-    use std::collections::{HashMap, HashSet};
+    use std::collections::HashMap;
 
     use freyja_common::{conversion::Conversion, digital_twin_map_entry::DigitalTwinMapEntry};
 
@@ -236,16 +236,5 @@ mod in_memory_mock_mapping_adapter_tests {
             assert!(mapping.iter().any(|p| *p.0 == "delayed-activation"));
             assert!(!mapping.iter().any(|p| *p.0 == "not-always-active"));
         }
-    }
-
-    #[tokio::test]
-    async fn send_inventory_is_ok() {
-        let uut = InMemoryMockMappingAdapter::create_new().unwrap();
-        assert!(uut
-            .send_inventory(SendInventoryRequest {
-                inventory: HashSet::new()
-            })
-            .await
-            .is_ok());
     }
 }

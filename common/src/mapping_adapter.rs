@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
@@ -28,18 +28,6 @@ pub trait MappingAdapter {
         request: CheckForWorkRequest,
     ) -> Result<CheckForWorkResponse, MappingAdapterError>;
 
-    /// Sends the provider inventory to the mapping service
-    ///
-    /// # Arguments
-    ///
-    /// - `inventory`: the request to send
-    async fn send_inventory(
-        &self,
-        _inventory: SendInventoryRequest,
-    ) -> Result<SendInventoryResponse, MappingAdapterError> {
-        Ok(SendInventoryResponse {})
-    }
-
     /// Gets the mapping from the mapping service
     ///
     /// # Arguments
@@ -61,16 +49,6 @@ pub struct CheckForWorkResponse {
     /// Whether or not there is work for the caller
     pub has_work: bool,
 }
-
-/// A request for sending inventory
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SendInventoryRequest {
-    pub inventory: HashSet<String>,
-}
-
-/// A response to sending inventory
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SendInventoryResponse {}
 
 /// A request for a mapping
 #[derive(Debug, Serialize, Deserialize)]
