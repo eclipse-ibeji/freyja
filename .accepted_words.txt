@@ -109,6 +109,7 @@ mailto
 ManagedSubscribeDataAdapter
 MappingAdapter
 MappingAdapterImpl
+MappingService
 markdownlint
 md
 microsoft
