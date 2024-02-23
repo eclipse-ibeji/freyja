@@ -4,10 +4,10 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Configuration for the File Service Discovery Adapter
+/// Configuration for the GRPCServiceDiscoveryAdapter
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Config {
-    /// The Chariott uri
+    /// The service uri
     pub uri: String,
 
     /// The maximum number of retries for communication attempts

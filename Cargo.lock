@@ -806,6 +806,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "grpc-digital-twin-adapter"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "core-protobuf-data-access",
+ "freyja-build-common",
+ "freyja-common",
+ "futures",
+ "serde",
+ "tempfile",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+ "tower",
+]
+
+[[package]]
 name = "h2"
 version = "0.3.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1052,23 +1069,6 @@ dependencies = [
  "pin-project-lite",
  "socket2",
  "tokio",
-]
-
-[[package]]
-name = "ibeji-adapter"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "core-protobuf-data-access",
- "freyja-build-common",
- "freyja-common",
- "futures",
- "serde",
- "tempfile",
- "tokio",
- "tokio-stream",
- "tonic",
- "tower",
 ]
 
 [[package]]

@@ -3,4 +3,4 @@
 // SPDX-License-Identifier: MIT
 
 mod config;
-pub mod ibeji_adapter;
+pub mod grpc_digital_twin_adapter;

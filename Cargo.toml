@@ -13,13 +13,13 @@ members = [
   "adapters/data/managed_subscribe_data_adapter",
   "adapters/data/mqtt_data_adapter",
   "adapters/data/sample_grpc_data_adapter",
-  "adapters/digital_twin/ibeji_adapter",
+  "adapters/digital_twin/grpc_digital_twin_adapter",
   "adapters/digital_twin/in_memory_mock_digital_twin_adapter",
   "adapters/digital_twin/mock_digital_twin_adapter",
   "adapters/mapping/in_memory_mock_mapping_adapter",
   "adapters/mapping/mock_mapping_service_adapter",
-  "adapters/service_discovery/chariott_service_discovery_adapter",
   "adapters/service_discovery/file_service_discovery_adapter",
+  "adapters/service_discovery/grpc_service_discovery_adapter",
   "build_common",
   "common",
   "freyja",
@@ -31,13 +31,13 @@ members = [
 
 [workspace.dependencies]
 # Freyja dependencies
-chariott-service-discovery-adapter = { path = "adapters/service_discovery/chariott_service_discovery_adapter" }
+grpc-service-discovery-adapter = { path = "adapters/service_discovery/grpc_service_discovery_adapter" }
 cloud-connector-proto = { path = "proto/cloud_connector" }
 file-service-discovery-adapter = { path = "adapters/service_discovery/file_service_discovery_adapter" }
 freyja-build-common = { path = "build_common" }
 freyja-common = { path = "common" }
 http-mock-data-adapter = { path = "adapters/data/http_mock_data_adapter" }
-ibeji-adapter = { path = "adapters/digital_twin/ibeji_adapter" }
+grpc-digital-twin-adapter = { path = "adapters/digital_twin/grpc_digital_twin_adapter" }
 in-memory-mock-cloud-adapter = { path = "adapters/cloud/in_memory_mock_cloud_adapter" }
 in-memory-mock-data-adapter = { path = "adapters/data/in_memory_mock_data_adapter" }
 in-memory-mock-digital-twin-adapter = { path ="adapters/digital_twin/in_memory_mock_digital_twin_adapter" }

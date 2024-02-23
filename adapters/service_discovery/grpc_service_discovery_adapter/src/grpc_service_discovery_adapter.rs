@@ -21,17 +21,17 @@ use freyja_common::{
     },
 };
 
-/// Interfaces with the Eclipse Chariott service to perform service discovery
-pub struct ChariottServiceDiscoveryAdapter {
+/// Interfaces with a service discovery system to perform service discovery
+pub struct GRPCServiceDiscoveryAdapter {
     /// The adapter config
     config: Config,
 
-    /// The Chariott client
+    /// The service discovery client
     client: ServiceRegistryClient<Channel>,
 }
 
 #[async_trait]
-impl ServiceDiscoveryAdapter for ChariottServiceDiscoveryAdapter {
+impl ServiceDiscoveryAdapter for GRPCServiceDiscoveryAdapter {
     /// Creates a new instance of a `ServiceDiscoveryAdapter` with default settings
     fn create_new() -> Result<Self, ServiceDiscoveryAdapterError> {
         let config: Config = config_utils::read_from_files(
