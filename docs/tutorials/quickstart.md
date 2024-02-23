@@ -77,4 +77,4 @@ This appendix lists the adapters that are provided in this repository.
 ## Service Discovery Adapters
 
 - [File Service Discovery Adapter](../../adapters/service_discovery/file_service_discovery_adapter/README.md): Uses a static config file to define service URIs. This is a "standard adapter" that is suitable for use in production scenarios.
-- [Chariott Service Discovery Adapter](../../adapters/service_discovery/chariott_service_discovery_adapter/README.md): Communicates with a service discovery system that implements the [Chariott Service Registry API](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/proto/core/v1/service_registry.proto). This is a "standard adapter" that is suitable for use in production scenarios.
+- [Chariott Service Discovery Adapter](../../adapters/service_discovery/grpc_service_discovery_adapter/README.md): Communicates with a service discovery system that implements the [Chariott Service Registry API](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/proto/core/v1/service_registry.proto). This is a "standard adapter" that is suitable for use in production scenarios.
