@@ -49,14 +49,15 @@ DataAdapterFactory
 depgen
 der
 dev
+DigitalTwinAdapter
 digitaltwins
 dir
+DiscoveryRequest
 DotNet
 dotnet
 DT
 DTDL
 dtdl
-DigitalTwinAdapter
 dyn
 ECA
 en
@@ -90,6 +91,7 @@ Impl
 InMemoryMockDigitalTwinAdapter
 InMemoryMockDataAdapter
 intellectualproperty
+invehicle
 io
 IoT
 iot

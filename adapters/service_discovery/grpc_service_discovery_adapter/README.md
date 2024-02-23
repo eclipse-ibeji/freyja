@@ -1,7 +1,6 @@
 # gRPC Service Discovery Adapter
 
-The gRPC Service Discovery Adapter is intended to function as a 
-"standard service discovery adapter". It can be used to integrate with service discovery systems such as the [Chariott Service Discovery system](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/README.md).
+The gRPC Service Discovery Adapter is intended to function as a "standard service discovery adapter". It can be used to integrate with service discovery systems such as the [Chariott Service Discovery system](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/README.md).
 
 ## Chariott Integration
 
