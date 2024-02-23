@@ -54,7 +54,7 @@ This appendix lists the adapters that are provided in this repository.
 
 - [In-Memory Mock Digital Twin Adapter](../../adapters/digital_twin/in_memory_mock_digital_twin_adapter/README.md): Emulates a Digital Twin Service entirely within the memory of the Freyja application.
 - [Mock Digital Twin Adapter](../../adapters/digital_twin/mock_digital_twin_adapter/README.md): Communicates with the [Mock Digital Twin](../../mocks/mock_digital_twin/README.md), which is an executable that mocks the Digital Twin Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove entities from the mocked digital twin by pressing enter to advance through configurable states.
-- [Ibeji Adapter](../../adapters/digital_twin/ibeji_adapter/README.md): Communicates with the [Eclipse Ibeji digital twin service](https://github.com/eclipse-ibeji/ibeji/). This adapter is suitable for use in production scenarios.
+- [gRPC Digital Twin Adapter](../../adapters/digital_twin/grpc_digital_twin_adapter/README.md): Communicates with a digital twin service that implements the [Ibeji In-Vehicle Digital Twin Service API](https://github.com/eclipse-ibeji/ibeji/blob/main/interfaces/invehicle_digital_twin/v1/invehicle_digital_twin.proto). This is a "standard adapter" that is suitable for use in production scenarios.
 
 ## Mapping Adapters
 
@@ -76,5 +76,5 @@ This appendix lists the adapters that are provided in this repository.
 
 ## Service Discovery Adapters
 
-- [File Service Discovery Adapter](../../adapters/service_discovery/file_service_discovery_adapter/README.md): Uses a static config file to define service URIs.
-- [Chariott Service Discovery Adapter](../../adapters/service_discovery/chariott_service_discovery_adapter/README.md): Interfaces with [Eclipse Chariott](https://github.com/eclipse-chariott/chariott/) to retrieve service URIs.
+- [File Service Discovery Adapter](../../adapters/service_discovery/file_service_discovery_adapter/README.md): Uses a static config file to define service URIs. This is a "standard adapter" that is suitable for use in production scenarios.
+- [gRPC Service Discovery Adapter](../../adapters/service_discovery/grpc_service_discovery_adapter/README.md): Communicates with a service discovery system that implements the [Chariott Service Registry API](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/proto/core/v1/service_registry.proto). This is a "standard adapter" that is suitable for use in production scenarios.

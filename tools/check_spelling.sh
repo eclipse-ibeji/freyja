@@ -23,9 +23,7 @@ while IFS= read -r -d '' file; do
     spell $1 | sort -u > $TEMP_FILE
   fi
   NUM_SPELLING_ERRORS=`wc -l $TEMP_FILE | cut -d ' ' -f 1`
-  if [ $NUM_SPELLING_ERRORS -eq 0 ]; then
-    echo "$file has no spelling mistakes."
-  else
+  if [ $NUM_SPELLING_ERRORS -ne 0 ]; then
     echo "Error: $file has spelling mistakes. Please fix them."
     cat $TEMP_FILE
     EXIT_CODE=1

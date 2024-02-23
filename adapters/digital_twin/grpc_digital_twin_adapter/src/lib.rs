@@ -2,5 +2,5 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-pub mod chariott_service_discovery_adapter;
 mod config;
+pub mod grpc_digital_twin_adapter;

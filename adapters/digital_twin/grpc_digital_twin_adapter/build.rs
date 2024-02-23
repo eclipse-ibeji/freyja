@@ -4,7 +4,7 @@
 
 use freyja_build_common::copy_config;
 
-const CONFIG_FILE_STEM: &str = "chariott_service_discovery_adapter_config";
+const CONFIG_FILE_STEM: &str = "grpc_digital_twin_adapter_config";
 
 fn main() {
     copy_config(CONFIG_FILE_STEM);

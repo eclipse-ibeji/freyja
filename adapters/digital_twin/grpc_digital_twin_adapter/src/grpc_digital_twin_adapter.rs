@@ -26,13 +26,13 @@ use freyja_common::{
     service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
 };
 
-/// Contacts the In-Vehicle Digital Twin Service in Ibeji
-pub struct IbejiAdapter {
+/// Communicates with an In-Vehicle Digital Twin Service
+pub struct GRPCDigitalTwinAdapter {
     client: InvehicleDigitalTwinClient<Channel>,
 }
 
 #[async_trait]
-impl DigitalTwinAdapter for IbejiAdapter {
+impl DigitalTwinAdapter for GRPCDigitalTwinAdapter {
     /// Creates a new instance of a DigitalTwinAdapter with default settings
     ///
     /// # Arguments
@@ -117,7 +117,7 @@ impl DigitalTwinAdapter for IbejiAdapter {
 }
 
 #[cfg(test)]
-mod ibeji_digital_twin_adapter_tests {
+mod grpc_digital_twin_adapter_tests {
     use core_protobuf_data_access::invehicle_digital_twin::v1::{
         invehicle_digital_twin_server::InvehicleDigitalTwin, EndpointInfo, EntityAccessInfo,
         FindByIdResponse as IbejiFindByIdResponse, RegisterRequest, RegisterResponse,
@@ -229,7 +229,7 @@ mod ibeji_digital_twin_adapter_tests {
 
             let request_future = async {
                 let client = create_test_grpc_client(bind_path.clone()).await;
-                let ibeji_digital_twin_adapter = IbejiAdapter { client };
+                let ibeji_digital_twin_adapter = GRPCDigitalTwinAdapter { client };
 
                 let request = FindByIdRequest {
                     entity_id: String::from("invalid_entity"),

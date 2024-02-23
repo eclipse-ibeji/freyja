@@ -6,7 +6,7 @@ The gRPC Cloud Adapter is intended to function as a "standard cloud adapter", en
 
 This adapter utilizes a gRPC client for the `CloudConnector` service in the [cloud connector v1 protobuf description](../../../interfaces/cloud_connector/v1/cloud_connector.proto). To integrate a cloud connector with this adapter, you will need to implement a gRPC server for this service. Samples can be found in the [Ibeji Example Applications Repository](https://github.com/eclipse-ibeji/ibeji-example-applications/tree/main/cloud_connectors/).
 
-## Config
+## Configuration
 
 This adapter supports the following configuration settings:
 

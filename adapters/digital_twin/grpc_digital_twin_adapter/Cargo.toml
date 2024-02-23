@@ -3,19 +3,23 @@
 # SPDX-License-Identifier: MIT
 
 [package]
-name = "chariott-service-discovery-adapter"
+name = "grpc-digital-twin-adapter"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
 
 [dependencies]
 async-trait = { workspace = true }
+core-protobuf-data-access  = { workspace = true }
 freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
 futures = { workspace = true }
 serde = { workspace = true }
-service_discovery_proto = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true }
+tokio-stream = { workspace = true, features = ["net"] }
 tonic = { workspace = true }
+tower = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

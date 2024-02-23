@@ -303,19 +303,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
-name = "chariott-service-discovery-adapter"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "freyja-build-common",
- "freyja-common",
- "futures",
- "serde",
- "service_discovery_proto",
- "tonic",
-]
-
-[[package]]
 name = "cloud-connector-proto"
 version = "0.1.0"
 dependencies = [
@@ -806,6 +793,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "grpc-digital-twin-adapter"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "core-protobuf-data-access",
+ "freyja-build-common",
+ "freyja-common",
+ "futures",
+ "serde",
+ "tempfile",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+ "tower",
+]
+
+[[package]]
+name = "grpc-service-discovery-adapter"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "freyja-build-common",
+ "freyja-common",
+ "futures",
+ "serde",
+ "service_discovery_proto",
+ "tonic",
+]
+
+[[package]]
 name = "h2"
 version = "0.3.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1052,23 +1069,6 @@ dependencies = [
  "pin-project-lite",
  "socket2",
  "tokio",
-]
-
-[[package]]
-name = "ibeji-adapter"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "core-protobuf-data-access",
- "freyja-build-common",
- "freyja-common",
- "futures",
- "serde",
- "tempfile",
- "tokio",
- "tokio-stream",
- "tonic",
- "tower",
 ]
 
 [[package]]
