@@ -25,9 +25,7 @@ use freyja_build_common::config_file_stem;
 use freyja_common::{
     cmd_utils::{get_log_level, parse_args},
     config_utils,
-    mapping_adapter::{
-        CheckForWorkResponse, GetMappingResponse,
-    },
+    mapping_adapter::{CheckForWorkResponse, GetMappingResponse},
     ok, out_dir,
 };
 

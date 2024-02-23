@@ -237,9 +237,7 @@ mod cartographer_tests {
         digital_twin_adapter::{DigitalTwinAdapterError, FindByIdResponse},
         digital_twin_map_entry::DigitalTwinMapEntry,
         entity::{Entity, EntityEndpoint},
-        mapping_adapter::{
-            CheckForWorkResponse, GetMappingResponse, MappingAdapterError,
-        },
+        mapping_adapter::{CheckForWorkResponse, GetMappingResponse, MappingAdapterError},
         service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
     };
 

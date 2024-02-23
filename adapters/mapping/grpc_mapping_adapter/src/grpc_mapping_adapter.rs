@@ -10,11 +10,18 @@ use tonic::transport::Channel;
 
 use freyja_build_common::config_file_stem;
 use freyja_common::{
-    config_utils, conversion::Conversion, digital_twin_map_entry::DigitalTwinMapEntry, mapping_adapter::{CheckForWorkRequest, CheckForWorkResponse, GetMappingRequest, GetMappingResponse, MappingAdapter, MappingAdapterError}, out_dir, retry_utils::execute_with_retry
+    config_utils,
+    conversion::Conversion,
+    digital_twin_map_entry::DigitalTwinMapEntry,
+    mapping_adapter::{
+        CheckForWorkRequest, CheckForWorkResponse, GetMappingRequest, GetMappingResponse,
+        MappingAdapter, MappingAdapterError,
+    },
+    out_dir,
+    retry_utils::execute_with_retry,
 };
 use mapping_service_proto::v1::{
-    mapping_service_client::MappingServiceClient,
-    CheckForWorkRequest as ProtoCheckForWorkRequest,
+    mapping_service_client::MappingServiceClient, CheckForWorkRequest as ProtoCheckForWorkRequest,
     GetMappingRequest as ProtoGetMappingRequest,
 };
 
@@ -91,7 +98,7 @@ impl MappingAdapter for GRPCMappingAdapter {
 
         Ok(result)
     }
-    
+
     /// Gets the mapping from the mapping service
     /// Returns the values that are configured to exist for the current internal count
     async fn get_mapping(
@@ -126,19 +133,22 @@ impl MappingAdapter for GRPCMappingAdapter {
                 .mapping
                 .into_iter()
                 .map(|(k, v)| {
-                    (k, DigitalTwinMapEntry {
-                        source: v.source,
-                        target: v.target,
-                        interval_ms: v.interval_ms,
-                        emit_on_change: v.emit_on_change,
-                        conversion: match v.conversion {
-                            Some(c) => Conversion::Linear {
-                                mul: c.mul,
-                                offset: c.offset,
+                    (
+                        k,
+                        DigitalTwinMapEntry {
+                            source: v.source,
+                            target: v.target,
+                            interval_ms: v.interval_ms,
+                            emit_on_change: v.emit_on_change,
+                            conversion: match v.conversion {
+                                Some(c) => Conversion::Linear {
+                                    mul: c.mul,
+                                    offset: c.offset,
+                                },
+                                None => Conversion::None,
                             },
-                            None => Conversion::None,
-                        }
-                    })
+                        },
+                    )
                 })
                 .collect(),
         };
