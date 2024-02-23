@@ -9,6 +9,7 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
+freyja-common = { workspace = true }
 prost = { workspace = true }
 prost-types = { workspace = true }
 tonic = { workspace = true }

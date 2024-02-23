@@ -1256,6 +1256,7 @@ dependencies = [
 name = "mapping-service-proto"
 version = "0.1.0"
 dependencies = [
+ "freyja-common",
  "prost",
  "prost-types",
  "tonic",

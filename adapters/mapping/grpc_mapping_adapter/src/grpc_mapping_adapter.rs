@@ -11,8 +11,6 @@ use tonic::transport::Channel;
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     config_utils,
-    conversion::Conversion,
-    digital_twin_map_entry::DigitalTwinMapEntry,
     mapping_adapter::{
         CheckForWorkRequest, CheckForWorkResponse, GetMappingRequest, GetMappingResponse,
         MappingAdapter, MappingAdapterError,
@@ -67,11 +65,11 @@ impl MappingAdapter for GRPCMappingAdapter {
     /// Increments the internal counter and returns true if this would affect the result of get_mapping compared to the previous call
     async fn check_for_work(
         &self,
-        _request: CheckForWorkRequest,
+        request: CheckForWorkRequest,
     ) -> Result<CheckForWorkResponse, MappingAdapterError> {
         debug!("Received check for work request");
 
-        let request = ProtoCheckForWorkRequest {};
+        let request: ProtoCheckForWorkRequest = request.into();
 
         let response = execute_with_retry(
             self.config.max_retries,
@@ -92,22 +90,18 @@ impl MappingAdapter for GRPCMappingAdapter {
 
         debug!("Check for work response: {response:?}");
 
-        let result = CheckForWorkResponse {
-            has_work: response.has_work,
-        };
-
-        Ok(result)
+        Ok(response.into())
     }
 
     /// Gets the mapping from the mapping service
     /// Returns the values that are configured to exist for the current internal count
     async fn get_mapping(
         &self,
-        _request: GetMappingRequest,
+        request: GetMappingRequest,
     ) -> Result<GetMappingResponse, MappingAdapterError> {
         debug!("Received get mapping request");
 
-        let request = ProtoGetMappingRequest {};
+        let request: ProtoGetMappingRequest = request.into();
 
         let response = execute_with_retry(
             self.config.max_retries,
@@ -128,32 +122,7 @@ impl MappingAdapter for GRPCMappingAdapter {
 
         debug!("Get mapping response: {response:?}");
 
-        let result = GetMappingResponse {
-            map: response
-                .mapping
-                .into_iter()
-                .map(|(k, v)| {
-                    (
-                        k,
-                        DigitalTwinMapEntry {
-                            source: v.source,
-                            target: v.target,
-                            interval_ms: v.interval_ms,
-                            emit_on_change: v.emit_on_change,
-                            conversion: match v.conversion {
-                                Some(c) => Conversion::Linear {
-                                    mul: c.mul,
-                                    offset: c.offset,
-                                },
-                                None => Conversion::None,
-                            },
-                        },
-                    )
-                })
-                .collect(),
-        };
-
-        Ok(result)
+        Ok(response.into())
     }
 }
 
