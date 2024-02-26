@@ -1,6 +1,6 @@
 # Mock Digital Twin
 
-The Mock Digital Twin mocks the behavior of an in-vehicle digital twin service (such as Ibeji) and providers as a separate application. This enables functionality similar to the in-memory mock, but with finer control over the behavior of the mocked data.
+The Mock Digital Twin mocks the behavior of an in-vehicle digital twin service (such as Ibeji) and providers. This enables functionality similar to the [In-Memory Mock Digital Twin Adapter](../../adapters/digital_twin/in_memory_mock_digital_twin_adapter/README.md), but with finer control over the behavior of the mocked data.
 
 The Mock Digital Twin is integrated with the [Sample gRPC Data Adapter](../../adapters/data/sample_grpc_data_adapter/README.md), which must be enabled when using this application with Freyja.
 
@@ -8,7 +8,7 @@ The Mock Digital Twin is integrated with the [Sample gRPC Data Adapter](../../ad
 
 This mock supports the following configuration:
 
-- `digital_twin_server_authority`: The authority that will be used for hosting the mock digital twin service
+- `digital_twin_server_authority`: The authority that will be used for hosting the mock digital twin service. Note that the default entry for this setting is the same as the default Ibeji authority, which facilitates the transition from the mock service to a live Ibeji service.
 - `entities`: A list of entities with the following properties:
   - `begin`: An integer indicating when to enable this entity (refer to [Behavior](#behavior) for more information on how this value is used)
   - `end`: An optional integer indicating when to disable this entity. Set to `null` if you never want the entity to "turn off" (refer to [Behavior](#behavior) for more information on how this value is used)

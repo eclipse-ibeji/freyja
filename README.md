@@ -38,13 +38,13 @@ This guide uses `apt` as the package manager in the examples. You may need to su
 
 ### Using Freyja
 
-Freyja supports a default runtime that's integrated with a set of standard adapters. To build and run this default version of Freyja, run the following command:
+Freyja supports a default runtime that's integrated with a set of standard adapters. To build and run the Standard Freyja Runtime, run the following command:
 
 ```shell
 cargo run -p freyja
 ```
 
-This runtime supports the following set of standard adapters:
+This runtime will support the following set of standard adapters:
 - [gRPC Digital Twin Adapter](adapters/digital_twin/grpc_digital_twin_adapter/README.md) (which supports [Eclipse Ibeji](https://github.com/eclipse-ibeji/ibeji))
 - [gRPC Mapping Adapter](adapters/mapping/grpc_mapping_adapter/README.md)
 - [gRPC Cloud Adapter](adapters/cloud/grpc_cloud_adapter/README.md)
@@ -54,7 +54,7 @@ This runtime supports the following set of standard adapters:
 - [File Service Discovery Adapter](../../adapters/service_discovery/file_service_discovery_adapter/README.md)
 - [gRPC Service Discovery Adapter](../../adapters/service_discovery/grpc_service_discovery_adapter/README.md) (which supports [Eclipse Chariott](https://github.com/eclipse-chariott/chariott))
 
-Freyja also supports custom implementations of multiple interface types for custom scenarios. In order to use your own adapter(s), you will also need to implement the main executable that will run the Freyja application. To learn about custom adapters and how to implement them, see the [Custom Adapters Guide](docs/tutorials/custom-adapters.md).
+Freyja also supports custom adapter implementations for more specific scenarios. To learn about custom adapters and how to implement and use them, see the [Custom Adapters Guide](docs/tutorials/custom-adapters.md).
 
 <!--alex disable he-she her-him brothers-sisters-->
 ## Why "Freyja"?

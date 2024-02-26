@@ -17,6 +17,12 @@ use std::{
 use core_protobuf_data_access::invehicle_digital_twin::v1::invehicle_digital_twin_server::InvehicleDigitalTwinServer;
 use env_logger::Target;
 use log::{debug, info, warn, LevelFilter};
+use samples_protobuf_data_access::sample_grpc::v1::{
+    digital_twin_consumer::{
+        digital_twin_consumer_client::DigitalTwinConsumerClient, PublishRequest,
+    },
+    digital_twin_provider::digital_twin_provider_server::DigitalTwinProviderServer,
+};
 use tokio::sync::{mpsc, mpsc::UnboundedSender};
 use tonic::{transport::Server, Request};
 
@@ -29,13 +35,6 @@ use freyja_build_common::config_file_stem;
 use freyja_common::{
     cmd_utils::{get_log_level, parse_args},
     config_utils, out_dir,
-};
-
-use samples_protobuf_data_access::sample_grpc::v1::{
-    digital_twin_consumer::{
-        digital_twin_consumer_client::DigitalTwinConsumerClient, PublishRequest,
-    },
-    digital_twin_provider::digital_twin_provider_server::DigitalTwinProviderServer,
 };
 
 /// Stores the state of active entities, subscribers, and relays responses

@@ -2,6 +2,10 @@
 
 Freyja allows users to bring their own implementations of various traits which interface with external components. This is achieved by exposing the core functionality of Freyja as a library function and requiring users to author the final binary package to link everything together.
 
+Some examples are provided in this repository:
+- [The Standard Freyja Runtime](../../freyja/src/main.rs) demonstrates a basic scenario using `freyja_main!` macro
+- [The `in-memory-with-fn` example](../../freyja/examples/in-memory-with-fn.rs) demostrates a more complex scanrio that performs manual setup and invokes the `freyja_main` function directly.
+
 For more examples of Freyja adapters and applications, see the [Ibeji Example Applications repository](https://github.com/eclipse-ibeji/ibeji-example-applications).
 
 ## How to Author a Custom Adapter
