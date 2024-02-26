@@ -16,6 +16,7 @@ freyja-common = { workspace = true }
 grpc-cloud-adapter = { workspace = true }
 grpc-digital-twin-adapter = { workspace = true }
 grpc-mapping-adapter = { workspace = true }
+grpc-service-discovery-adapter = { workspace = true }
 log = { workspace = true }
 managed-subscribe-data-adapter = { workspace = true }
 mqtt-data-adapter = { workspace = true }

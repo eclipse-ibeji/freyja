@@ -618,6 +618,7 @@ dependencies = [
  "grpc-cloud-adapter",
  "grpc-digital-twin-adapter",
  "grpc-mapping-adapter",
+ "grpc-service-discovery-adapter",
  "in-memory-mock-cloud-adapter",
  "in-memory-mock-data-adapter",
  "in-memory-mock-digital-twin-adapter",
