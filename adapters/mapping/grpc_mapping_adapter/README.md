@@ -1,6 +1,6 @@
 # gRPC Mapping Adapter
 
-The gRPC Mapping Adapter is intended to function as a "standard mapping adapter", enabling integration with other services that implement the appropriate APIs. This reduces the need for custom adapter implementations and facilitates integration with non-rust solutions for other parts of the vehicle system. This library contains an implementation of the `MappingAdapter` trait from the contracts.
+The gRPC Mapping Adapter is intended to function as a "standard mapping adapter", enabling integration with other services that implement the appropriate APIs. This reduces the need for custom adapter implementations and facilitates integration with non-Rust solutions for other parts of the vehicle system. This library contains an implementation of the `MappingAdapter` trait from the contracts.
 
 ## Contract
 
@@ -11,7 +11,7 @@ This adapter utilizes a gRPC client for the `MappingService` in the [mapping ser
 This adapter supports the following configuration settings:
 
 - `target_uri`: The URI of the server to call.
-- `max_retries`: The maximum number of times to retry failed attempts to send data to the server.
+- `max_retries`: The maximum number of retry attempts when sending data to the server.
 - `retry_interval_ms`: The interval between subsequent retry attempts, in milliseconds
 
 This adapter supports [config overrides](../../../docs/tutorials/config-overrides.md). The override filename is `grpc_mapping_adapter_config.json`, and the default config is located at `res/grpc_mapping_adapter_config.default.json`.

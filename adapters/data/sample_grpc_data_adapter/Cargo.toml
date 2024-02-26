@@ -16,13 +16,13 @@ futures = { workspace = true }
 log = { workspace = true }
 samples-protobuf-data-access  = { workspace = true }
 serde = { workspace = true }
-tempfile = { workspace = true }
 tokio = { workspace = true }
 tonic = { workspace = true }
-tower = { workspace = true }
 
 [dev-dependencies]
 tokio-stream = { workspace = true }
+tower = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

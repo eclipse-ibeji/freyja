@@ -784,12 +784,12 @@ dependencies = [
  "futures",
  "log",
  "serde",
- "tempfile",
  "time",
  "tokio",
  "tokio-stream",
  "tonic",
  "tower",
+ "uuid",
 ]
 
 [[package]]
@@ -802,11 +802,11 @@ dependencies = [
  "freyja-common",
  "futures",
  "serde",
- "tempfile",
  "tokio",
  "tokio-stream",
  "tonic",
  "tower",
+ "uuid",
 ]
 
 [[package]]
@@ -820,12 +820,12 @@ dependencies = [
  "log",
  "mapping-service-proto",
  "serde",
- "tempfile",
  "time",
  "tokio",
  "tokio-stream",
  "tonic",
  "tower",
+ "uuid",
 ]
 
 [[package]]
@@ -1952,11 +1952,11 @@ dependencies = [
  "log",
  "samples-protobuf-data-access",
  "serde",
- "tempfile",
  "tokio",
  "tokio-stream",
  "tonic",
  "tower",
+ "uuid",
 ]
 
 [[package]]

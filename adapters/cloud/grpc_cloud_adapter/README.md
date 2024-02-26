@@ -1,6 +1,6 @@
 # gRPC Cloud Adapter
 
-The gRPC Cloud Adapter is intended to function as a "standard cloud adapter", enabling integration with other services that implement the appropriate APIs. This reduces the need for custom adapter implementations and facilitates integration with non-rust solutions for other parts of the vehicle system. This library contains an implementation of the `CloudAdapter` trait from the contracts.
+The gRPC Cloud Adapter is intended to function as a "standard cloud adapter", enabling integration with other services that implement the appropriate APIs. This reduces the need for custom adapter implementations and facilitates integration with non-Rust solutions for other parts of the vehicle system. This library contains an implementation of the `CloudAdapter` trait from the contracts.
 
 ## Contract
 

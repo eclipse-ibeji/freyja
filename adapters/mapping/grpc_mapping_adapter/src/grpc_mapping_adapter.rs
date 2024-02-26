@@ -61,8 +61,7 @@ impl MappingAdapter for GRPCMappingAdapter {
     }
 
     /// Checks for any additional work that the mapping service requires.
-    /// For example, the cloud digital twin has changed and a new mapping needs to be generated
-    /// Increments the internal counter and returns true if this would affect the result of get_mapping compared to the previous call
+    /// For example, the cloud digital twin has changed and a new mapping needs to be generated.
     async fn check_for_work(
         &self,
         request: CheckForWorkRequest,
@@ -93,8 +92,7 @@ impl MappingAdapter for GRPCMappingAdapter {
         Ok(response.into())
     }
 
-    /// Gets the mapping from the mapping service
-    /// Returns the values that are configured to exist for the current internal count
+    /// Gets the mapping from the mapping service.
     async fn get_mapping(
         &self,
         request: GetMappingRequest,
@@ -137,14 +135,16 @@ mod grpc_mapping_adapter_tests {
     mod unix_tests {
         use super::*;
 
-        use std::sync::Arc;
+        use std::{
+            io::{stderr, Write},
+            path::PathBuf,
+        };
 
         use mapping_service_proto::v1::{
             mapping_service_server::{MappingService, MappingServiceServer},
             CheckForWorkResponse as ProtoCheckForWorkResponse,
             GetMappingResponse as ProtoGetMappingResponse,
         };
-        use tempfile::TempPath;
         use tokio::net::{UnixListener, UnixStream};
         use tokio_stream::wrappers::UnixListenerStream;
         use tonic::{
@@ -152,6 +152,33 @@ mod grpc_mapping_adapter_tests {
             Request, Response, Status,
         };
         use tower::service_fn;
+        use uuid::Uuid;
+
+        pub struct TestFixture {
+            pub socket_path: PathBuf,
+        }
+
+        impl TestFixture {
+            fn new() -> Self {
+                Self {
+                    socket_path: std::env::temp_dir()
+                        .as_path()
+                        .join(Uuid::new_v4().as_hyphenated().to_string()),
+                }
+            }
+        }
+
+        impl Drop for TestFixture {
+            fn drop(&mut self) {
+                match std::fs::remove_file(&self.socket_path) {
+                    Ok(_) => {}
+                    Err(e) => {
+                        write!(stderr(), "Error cleaning up `TestFixture`: {e:?}")
+                            .expect("Error writing to stderr");
+                    }
+                }
+            }
+        }
 
         pub struct MockMappingService {}
 
@@ -174,14 +201,12 @@ mod grpc_mapping_adapter_tests {
             }
         }
 
-        async fn create_test_grpc_client(
-            bind_path: Arc<TempPath>,
-        ) -> MappingServiceClient<Channel> {
+        async fn create_test_grpc_client(socket_path: PathBuf) -> MappingServiceClient<Channel> {
             let channel = Endpoint::try_from("http://URI_IGNORED") // Devskim: ignore DS137138
                 .unwrap()
                 .connect_with_connector(service_fn(move |_: Uri| {
-                    let bind_path = bind_path.clone();
-                    async move { UnixStream::connect(bind_path.as_ref()).await }
+                    let socket_path = socket_path.clone();
+                    async move { UnixStream::connect(socket_path).await }
                 }))
                 .await
                 .unwrap();
@@ -200,19 +225,14 @@ mod grpc_mapping_adapter_tests {
 
         #[tokio::test]
         async fn send_request_to_provider() {
+            let fixture = TestFixture::new();
+
             // Create the Unix Socket
-            let bind_path = Arc::new(tempfile::NamedTempFile::new().unwrap().into_temp_path());
-            let uds = match UnixListener::bind(bind_path.as_ref()) {
-                Ok(unix_listener) => unix_listener,
-                Err(_) => {
-                    std::fs::remove_file(bind_path.as_ref()).unwrap();
-                    UnixListener::bind(bind_path.as_ref()).unwrap()
-                }
-            };
+            let uds = UnixListener::bind(&fixture.socket_path).unwrap();
             let uds_stream = UnixListenerStream::new(uds);
 
             let request_future = async {
-                let mut client = create_test_grpc_client(bind_path.clone()).await;
+                let mut client = create_test_grpc_client(fixture.socket_path.clone()).await;
 
                 let request = ProtoGetMappingRequest::default();
 
@@ -224,8 +244,6 @@ mod grpc_mapping_adapter_tests {
                 _ = run_test_grpc_server(uds_stream) => (),
                 _ = request_future => ()
             }
-
-            std::fs::remove_file(bind_path.as_ref()).unwrap();
         }
     }
 }

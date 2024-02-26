@@ -15,11 +15,13 @@ freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
 futures = { workspace = true }
 serde = { workspace = true }
-tempfile = { workspace = true }
 tokio = { workspace = true }
-tokio-stream = { workspace = true, features = ["net"] }
 tonic = { workspace = true }
-tower = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }
+
+[dev-dependencies]
+tokio-stream = { workspace = true, features = ["net"] }
+tower = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
