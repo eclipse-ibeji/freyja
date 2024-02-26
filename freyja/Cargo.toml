@@ -15,7 +15,7 @@ file-service-discovery-adapter = { workspace = true }
 freyja-common = { workspace = true }
 grpc-cloud-adapter = { workspace = true }
 grpc-digital-twin-adapter = { workspace = true }
-in-memory-mock-mapping-adapter = { workspace = true }
+grpc-mapping-adapter = { workspace = true }
 log = { workspace = true }
 managed-subscribe-data-adapter = { workspace = true }
 mqtt-data-adapter = { workspace = true }
@@ -33,3 +33,4 @@ async-trait = { workspace = true }
 in-memory-mock-cloud-adapter = { workspace = true }
 in-memory-mock-digital-twin-adapter = { workspace = true }
 in-memory-mock-data-adapter = { workspace = true }
+in-memory-mock-mapping-adapter = { workspace = true }
