@@ -45,14 +45,15 @@ cargo run -p freyja
 ```
 
 This runtime will support the following set of standard adapters:
+
 - [gRPC Digital Twin Adapter](adapters/digital_twin/grpc_digital_twin_adapter/README.md) (which supports [Eclipse Ibeji](https://github.com/eclipse-ibeji/ibeji))
 - [gRPC Mapping Adapter](adapters/mapping/grpc_mapping_adapter/README.md)
 - [gRPC Cloud Adapter](adapters/cloud/grpc_cloud_adapter/README.md)
-- [Sample gRPC Data Adapter](../../adapters/data/sample_grpc_data_adapter/README.md)
-- [MQTT Data Adapter](../../adapters/data/mqtt_data_adapter/README.md)
-- [Managed Subscribe Data Adapter](../../adapters/data/managed_subscribe_data_adapter/README.md) (which supports [Eclipse Agemo](https://github.com/eclipse-chariott/agemo))
-- [File Service Discovery Adapter](../../adapters/service_discovery/file_service_discovery_adapter/README.md)
-- [gRPC Service Discovery Adapter](../../adapters/service_discovery/grpc_service_discovery_adapter/README.md) (which supports [Eclipse Chariott](https://github.com/eclipse-chariott/chariott))
+- [Sample gRPC Data Adapter](adapters/data/sample_grpc_data_adapter/README.md)
+- [MQTT Data Adapter](adapters/data/mqtt_data_adapter/README.md)
+- [Managed Subscribe Data Adapter](adapters/data/managed_subscribe_data_adapter/README.md) (which supports [Eclipse Agemo](https://github.com/eclipse-chariott/agemo))
+- [File Service Discovery Adapter](adapters/service_discovery/file_service_discovery_adapter/README.md)
+- [gRPC Service Discovery Adapter](adapters/service_discovery/grpc_service_discovery_adapter/README.md) (which supports [Eclipse Chariott](https://github.com/eclipse-chariott/chariott))
 
 Freyja also supports custom adapter implementations for more specific scenarios. To learn about custom adapters and how to implement and use them, see the [Custom Adapters Guide](docs/tutorials/custom-adapters.md).
 
