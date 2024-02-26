@@ -405,7 +405,7 @@ checksum = "06ea2b9bc92be3c2baa9334a323ebca2d6f074ff852cd1d7b11064035cd3868f"
 [[package]]
 name = "core-protobuf-data-access"
 version = "0.1.0"
-source = "git+https://github.com/eclipse-ibeji/ibeji#0d30985688a32db8998e81ec76e2281689b8fa24"
+source = "git+https://github.com/eclipse-ibeji/ibeji#74272c40c724b859f63cfe4bcb3d1c884c282192"
 dependencies = [
  "prost",
  "prost-types",
@@ -1932,7 +1932,7 @@ dependencies = [
 [[package]]
 name = "samples-protobuf-data-access"
 version = "1.0.0"
-source = "git+https://github.com/eclipse-ibeji/ibeji#0d30985688a32db8998e81ec76e2281689b8fa24"
+source = "git+https://github.com/eclipse-ibeji/ibeji#74272c40c724b859f63cfe4bcb3d1c884c282192"
 dependencies = [
  "prost",
  "prost-types",
