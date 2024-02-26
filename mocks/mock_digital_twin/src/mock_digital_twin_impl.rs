@@ -5,7 +5,10 @@
 use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
-use core_protobuf_data_access::invehicle_digital_twin::v1::{invehicle_digital_twin_server::InvehicleDigitalTwin, EndpointInfo, EntityAccessInfo, FindByIdRequest, FindByIdResponse, RegisterRequest, RegisterResponse};
+use core_protobuf_data_access::invehicle_digital_twin::v1::{
+    invehicle_digital_twin_server::InvehicleDigitalTwin, EndpointInfo, EntityAccessInfo,
+    FindByIdRequest, FindByIdResponse, RegisterRequest, RegisterResponse,
+};
 use log::info;
 use tonic::{Request, Response, Status};
 
@@ -30,15 +33,17 @@ impl InvehicleDigitalTwin for MockDigitalTwinImpl {
         let state = self.state.lock().unwrap();
         find_entity(&state, &request.id)
             .map(|(config_item, _)| {
-                let endpoint_info_list = config_item.entity.endpoints.iter().map(|e| {
-                    EndpointInfo {
+                let endpoint_info_list = config_item
+                    .entity
+                    .endpoints
+                    .iter()
+                    .map(|e| EndpointInfo {
                         protocol: e.protocol.clone(),
                         operations: e.operations.clone(),
                         uri: e.uri.clone(),
                         context: e.context.clone(),
-                    }
-                })
-                .collect();
+                    })
+                    .collect();
 
                 let access_info = EntityAccessInfo {
                     name: config_item.entity.name.clone().unwrap_or_default(),
@@ -46,7 +51,7 @@ impl InvehicleDigitalTwin for MockDigitalTwinImpl {
                     description: config_item.entity.description.clone().unwrap_or_default(),
                     endpoint_info_list,
                 };
-                
+
                 Ok(Response::new(FindByIdResponse {
                     entity_access_info: Some(access_info),
                 }))
@@ -62,6 +67,8 @@ impl InvehicleDigitalTwin for MockDigitalTwinImpl {
         &self,
         _request: Request<RegisterRequest>,
     ) -> Result<Response<RegisterResponse>, Status> {
-        Err(Status::unimplemented("Register is not supported for the mock digital twin"))
+        Err(Status::unimplemented(
+            "Register is not supported for the mock digital twin",
+        ))
     }
 }

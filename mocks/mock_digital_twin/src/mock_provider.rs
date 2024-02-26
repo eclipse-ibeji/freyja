@@ -2,11 +2,21 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{pin::Pin, sync::{Arc, Mutex}};
+use std::{
+    pin::Pin,
+    sync::{Arc, Mutex},
+};
 
 use async_trait::async_trait;
 use log::info;
-use samples_protobuf_data_access::sample_grpc::v1::{digital_twin_consumer::PublishRequest, digital_twin_provider::{digital_twin_provider_server::DigitalTwinProvider, GetRequest, GetResponse, InvokeRequest, InvokeResponse, SetRequest, SetResponse, StreamRequest, StreamResponse, SubscribeRequest, SubscribeResponse, UnsubscribeRequest, UnsubscribeResponse}};
+use samples_protobuf_data_access::sample_grpc::v1::{
+    digital_twin_consumer::PublishRequest,
+    digital_twin_provider::{
+        digital_twin_provider_server::DigitalTwinProvider, GetRequest, GetResponse, InvokeRequest,
+        InvokeResponse, SetRequest, SetResponse, StreamRequest, StreamResponse, SubscribeRequest,
+        SubscribeResponse, UnsubscribeRequest, UnsubscribeResponse,
+    },
+};
 use tokio_stream::Stream;
 use tonic::{Request, Response, Status};
 
@@ -40,7 +50,7 @@ impl DigitalTwinProvider for MockProvider {
                     .and_modify(|e| {
                         e.insert(request.consumer_uri);
                     });
-                Ok(Response::new(SubscribeResponse { }))
+                Ok(Response::new(SubscribeResponse {}))
             }
             None => Err(Status::not_found("Entity not found")),
         }
@@ -60,13 +70,13 @@ impl DigitalTwinProvider for MockProvider {
                     entity_id: request.entity_id,
                     value,
                 };
-    
+
                 info!("Submitting request...");
                 match state
                     .response_channel_sender
                     .send((request.consumer_uri, publish_request))
                 {
-                    Ok(_) => Ok(Response::new(GetResponse { })),
+                    Ok(_) => Ok(Response::new(GetResponse {})),
                     Err(e) => Err(Status::internal(format!("Request value error: {e:?}"))),
                 }
             }
@@ -82,7 +92,9 @@ impl DigitalTwinProvider for MockProvider {
         &self,
         _request: Request<UnsubscribeRequest>,
     ) -> Result<Response<UnsubscribeResponse>, Status> {
-        Err(Status::unimplemented("Unsubscribe is not supported for the mock digital twin"))
+        Err(Status::unimplemented(
+            "Unsubscribe is not supported for the mock digital twin",
+        ))
     }
 
     /// Set implementation.
@@ -90,7 +102,9 @@ impl DigitalTwinProvider for MockProvider {
     /// # Arguments
     /// * `request` - Set request.
     async fn set(&self, _request: Request<SetRequest>) -> Result<Response<SetResponse>, Status> {
-        Err(Status::unimplemented("Set is not supported for the mock digital twin"))
+        Err(Status::unimplemented(
+            "Set is not supported for the mock digital twin",
+        ))
     }
 
     /// Invoke implementation.
@@ -101,7 +115,9 @@ impl DigitalTwinProvider for MockProvider {
         &self,
         _request: Request<InvokeRequest>,
     ) -> Result<Response<InvokeResponse>, Status> {
-        Err(Status::unimplemented("Invoke is not supported for the mock digital twin"))
+        Err(Status::unimplemented(
+            "Invoke is not supported for the mock digital twin",
+        ))
     }
 
     /// Stream implementation.
@@ -112,6 +128,8 @@ impl DigitalTwinProvider for MockProvider {
         &self,
         _request: Request<StreamRequest>,
     ) -> Result<Response<Self::StreamStream>, Status> {
-        Err(Status::unimplemented("Stream is not supported for the mock digital twin"))
+        Err(Status::unimplemented(
+            "Stream is not supported for the mock digital twin",
+        ))
     }
 }
