@@ -2,6 +2,8 @@
 
 The Mock Digital Twin mocks the behavior of an in-vehicle digital twin service (such as Ibeji) and providers as a separate application. This enables functionality similar to the in-memory mock, but with finer control over the behavior of the mocked data.
 
+The Mock Digital Twin is integrated with the [Sample gRPC Data Adapter](../../adapters/data/sample_grpc_data_adapter/README.md), which must be enabled when using this application with Freyja.
+
 ## Configuration
 
 This mock supports the following configuration:

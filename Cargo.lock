@@ -623,7 +623,6 @@ dependencies = [
  "in-memory-mock-mapping-adapter",
  "log",
  "managed-subscribe-data-adapter",
- "mock-mapping-service-adapter",
  "mockall",
  "mqtt-data-adapter",
  "proc-macros",
