@@ -81,29 +81,6 @@ impl MappingAdapter for MockMappingServiceAdapter {
         .map_err(MappingAdapterError::deserialize)
     }
 
-    /// Sends the provider inventory to the mapping service
-    ///
-    /// # Arguments
-    ///
-    /// - `inventory`: the providers to send
-    async fn send_inventory(
-        &self,
-        inventory: SendInventoryRequest,
-    ) -> Result<SendInventoryResponse, MappingAdapterError> {
-        let target = format!("{}/inventory", self.base_url);
-        self.client
-            .post(&target)
-            .json(&inventory)
-            .send()
-            .await
-            .map_err(MappingAdapterError::communication)?
-            .error_for_status()
-            .map_err(MappingAdapterError::communication)?
-            .json::<SendInventoryResponse>()
-            .await
-            .map_err(MappingAdapterError::deserialize)
-    }
-
     /// Gets the mapping from the mapping service
     /// Returns the values that are configured to exist for the current internal count
     async fn get_mapping(

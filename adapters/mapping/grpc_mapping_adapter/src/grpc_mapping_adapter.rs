@@ -2,80 +2,73 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::str::FromStr;
 use std::time::Duration;
 
 use async_trait::async_trait;
 use log::debug;
 use tonic::transport::Channel;
 
-use cloud_connector_proto::{
-    prost_types::Timestamp,
-    v1::{cloud_connector_client::CloudConnectorClient, UpdateDigitalTwinRequestBuilder},
-};
 use freyja_build_common::config_file_stem;
 use freyja_common::{
-    cloud_adapter::{CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse},
-    config_utils, out_dir,
+    config_utils,
+    mapping_adapter::{
+        CheckForWorkRequest, CheckForWorkResponse, GetMappingRequest, GetMappingResponse,
+        MappingAdapter, MappingAdapterError,
+    },
+    out_dir,
     retry_utils::execute_with_retry,
+};
+use mapping_service_proto::v1::{
+    mapping_service_client::MappingServiceClient, CheckForWorkRequest as ProtoCheckForWorkRequest,
+    GetMappingRequest as ProtoGetMappingRequest,
 };
 
 use crate::config::Config;
 
-/// A "standard" cloud adapter which communicates over gRPC
-pub struct GRPCCloudAdapter {
+/// A "standard" mapping adapter which communicates over gRPC
+pub struct GRPCMappingAdapter {
     // Adapter config
     config: Config,
 
     // The gRPC client
-    client: CloudConnectorClient<Channel>,
+    client: MappingServiceClient<Channel>,
 }
 
 #[async_trait]
-impl CloudAdapter for GRPCCloudAdapter {
+impl MappingAdapter for GRPCMappingAdapter {
     /// Creates a new instance of a CloudAdapter with default settings
-    fn create_new() -> Result<Self, CloudAdapterError> {
+    fn create_new() -> Result<Self, MappingAdapterError> {
         let config: Config = config_utils::read_from_files(
             config_file_stem!(),
             config_utils::JSON_EXT,
             out_dir!(),
-            CloudAdapterError::io,
-            CloudAdapterError::deserialize,
+            MappingAdapterError::io,
+            MappingAdapterError::deserialize,
         )?;
 
         let client = futures::executor::block_on(async {
             execute_with_retry(
                 config.max_retries,
                 Duration::from_millis(config.retry_interval_ms),
-                || CloudConnectorClient::connect(config.target_uri.clone()),
-                Some("Cloud adapter initial connection".into()),
+                || MappingServiceClient::connect(config.target_uri.clone()),
+                Some("Mapping adapter initial connection".into()),
             )
             .await
-            .map_err(CloudAdapterError::communication)
+            .map_err(MappingAdapterError::communication)
         })?;
 
         Ok(Self { config, client })
     }
 
-    /// Sends the signal to the cloud
-    ///
-    /// # Arguments
-    ///
-    /// - `cloud_message`: represents a message to send to the cloud canonical model
-    async fn send_to_cloud(
+    /// Checks for any additional work that the mapping service requires.
+    /// For example, the cloud digital twin has changed and a new mapping needs to be generated.
+    async fn check_for_work(
         &self,
-        cloud_message: CloudMessageRequest,
-    ) -> Result<CloudMessageResponse, CloudAdapterError> {
-        debug!("Received a request to send to the cloud");
+        request: CheckForWorkRequest,
+    ) -> Result<CheckForWorkResponse, MappingAdapterError> {
+        debug!("Received check for work request");
 
-        let timestamp = Timestamp::from_str(cloud_message.signal_timestamp.as_str())
-            .map_err(CloudAdapterError::deserialize)?;
-
-        let request = UpdateDigitalTwinRequestBuilder::new()
-            .string_value(cloud_message.signal_value)
-            .timestamp(timestamp)
-            .metadata(cloud_message.metadata)
-            .build();
+        let request: ProtoCheckForWorkRequest = request.into();
 
         let response = execute_with_retry(
             self.config.max_retries,
@@ -84,23 +77,55 @@ impl CloudAdapter for GRPCCloudAdapter {
                 let request = tonic::Request::new(request.clone());
                 self.client
                     .clone()
-                    .update_digital_twin(request)
+                    .check_for_work(request)
                     .await
-                    .map_err(CloudAdapterError::communication)
+                    .map_err(MappingAdapterError::communication)
             },
-            Some("Cloud adapter request".into()),
+            Some(String::from("Mapping adapter check for work request")),
         )
         .await
-        .map_err(CloudAdapterError::communication)?;
+        .map_err(MappingAdapterError::communication)?
+        .into_inner();
 
-        debug!("Cloud adapter response: {response:?}");
+        debug!("Check for work response: {response:?}");
 
-        Ok(CloudMessageResponse {})
+        Ok(response.into())
+    }
+
+    /// Gets the mapping from the mapping service.
+    async fn get_mapping(
+        &self,
+        request: GetMappingRequest,
+    ) -> Result<GetMappingResponse, MappingAdapterError> {
+        debug!("Received get mapping request");
+
+        let request: ProtoGetMappingRequest = request.into();
+
+        let response = execute_with_retry(
+            self.config.max_retries,
+            Duration::from_millis(self.config.retry_interval_ms),
+            || async {
+                let request = tonic::Request::new(request.clone());
+                self.client
+                    .clone()
+                    .get_mapping(request)
+                    .await
+                    .map_err(MappingAdapterError::communication)
+            },
+            Some(String::from("Mapping adapter get mapping request")),
+        )
+        .await
+        .map_err(MappingAdapterError::communication)?
+        .into_inner();
+
+        debug!("Get mapping response: {response:?}");
+
+        Ok(response.into())
     }
 }
 
 #[cfg(test)]
-mod grpc_cloud_adapter_tests {
+mod grpc_mapping_adapter_tests {
     use super::*;
 
     /// The tests below uses Unix sockets to create a channel between a gRPC client and a gRPC server.
@@ -115,6 +140,11 @@ mod grpc_cloud_adapter_tests {
             path::PathBuf,
         };
 
+        use mapping_service_proto::v1::{
+            mapping_service_server::{MappingService, MappingServiceServer},
+            CheckForWorkResponse as ProtoCheckForWorkResponse,
+            GetMappingResponse as ProtoGetMappingResponse,
+        };
         use tokio::net::{UnixListener, UnixStream};
         use tokio_stream::wrappers::UnixListenerStream;
         use tonic::{
@@ -123,11 +153,6 @@ mod grpc_cloud_adapter_tests {
         };
         use tower::service_fn;
         use uuid::Uuid;
-
-        use cloud_connector_proto::v1::{
-            cloud_connector_server::{CloudConnector, CloudConnectorServer},
-            UpdateDigitalTwinRequest, UpdateDigitalTwinResponse,
-        };
 
         pub struct TestFixture {
             pub socket_path: PathBuf,
@@ -155,24 +180,28 @@ mod grpc_cloud_adapter_tests {
             }
         }
 
-        pub struct MockCloudConnector {}
+        pub struct MockMappingService {}
 
         #[tonic::async_trait]
-        impl CloudConnector for MockCloudConnector {
-            /// Updates a digital twin instance
-            ///
-            /// # Arguments
-            /// - `request`: the request to send
-            async fn update_digital_twin(
+        impl MappingService for MockMappingService {
+            async fn check_for_work(
                 &self,
-                _request: Request<UpdateDigitalTwinRequest>,
-            ) -> Result<Response<UpdateDigitalTwinResponse>, Status> {
-                let response = UpdateDigitalTwinResponse {};
+                _request: Request<ProtoCheckForWorkRequest>,
+            ) -> Result<Response<ProtoCheckForWorkResponse>, Status> {
+                let response = ProtoCheckForWorkResponse::default();
+                Ok(Response::new(response))
+            }
+
+            async fn get_mapping(
+                &self,
+                _request: Request<ProtoGetMappingRequest>,
+            ) -> Result<Response<ProtoGetMappingResponse>, Status> {
+                let response = ProtoGetMappingResponse::default();
                 Ok(Response::new(response))
             }
         }
 
-        async fn create_test_grpc_client(socket_path: PathBuf) -> CloudConnectorClient<Channel> {
+        async fn create_test_grpc_client(socket_path: PathBuf) -> MappingServiceClient<Channel> {
             let channel = Endpoint::try_from("http://URI_IGNORED") // Devskim: ignore DS137138
                 .unwrap()
                 .connect_with_connector(service_fn(move |_: Uri| {
@@ -182,13 +211,13 @@ mod grpc_cloud_adapter_tests {
                 .await
                 .unwrap();
 
-            CloudConnectorClient::new(channel)
+            MappingServiceClient::new(channel)
         }
 
         async fn run_test_grpc_server(uds_stream: UnixListenerStream) {
-            let mock_azure_connector = MockCloudConnector {};
+            let mock_azure_connector = MockMappingService {};
             Server::builder()
-                .add_service(CloudConnectorServer::new(mock_azure_connector))
+                .add_service(MappingServiceServer::new(mock_azure_connector))
                 .serve_with_incoming(uds_stream)
                 .await
                 .unwrap();
@@ -205,22 +234,10 @@ mod grpc_cloud_adapter_tests {
             let request_future = async {
                 let mut client = create_test_grpc_client(fixture.socket_path.clone()).await;
 
-                let request = UpdateDigitalTwinRequestBuilder::new()
-                    .string_value("foo".into())
-                    .timestamp_now()
-                    .add_metadata(
-                        "model_id".into(),
-                        "dtmi:sdv:Cloud:Vehicle:Cabin:HVAC:AmbientAirTemperature;1".into(),
-                    )
-                    .add_metadata("instance_id".into(), "hvac".into())
-                    .add_metadata(
-                        "instance_property_path".into(),
-                        "/AmbientAirTemperature".into(),
-                    )
-                    .build();
+                let request = ProtoGetMappingRequest::default();
 
                 let request = tonic::Request::new(request);
-                assert!(client.update_digital_twin(request).await.is_ok())
+                assert!(client.get_mapping(request).await.is_ok())
             };
 
             tokio::select! {

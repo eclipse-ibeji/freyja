@@ -1,0 +1,39 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+// SPDX-License-Identifier: MIT
+
+syntax = "proto3";
+
+package mapping_service;
+
+service MappingService {
+    rpc CheckForWork (CheckForWorkRequest) returns (CheckForWorkResponse);
+    rpc GetMapping (GetMappingRequest) returns (GetMappingResponse);
+}
+
+message CheckForWorkRequest {
+}
+
+message CheckForWorkResponse {
+    bool has_work = 1;
+}
+
+message GetMappingRequest {
+}
+
+message GetMappingResponse {
+    map<string, MapEntry> mapping = 1;
+}
+
+message MapEntry {
+    string source = 1;
+    map<string, string> target = 2;
+    uint64 interval_ms = 3;
+    LinearConversion conversion = 4;
+    bool emit_on_change = 5;
+}
+
+message LinearConversion {
+    float mul = 1;
+    float offset = 2;
+}

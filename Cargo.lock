@@ -784,12 +784,12 @@ dependencies = [
  "futures",
  "log",
  "serde",
- "tempfile",
  "time",
  "tokio",
  "tokio-stream",
  "tonic",
  "tower",
+ "uuid",
 ]
 
 [[package]]
@@ -802,11 +802,30 @@ dependencies = [
  "freyja-common",
  "futures",
  "serde",
- "tempfile",
  "tokio",
  "tokio-stream",
  "tonic",
  "tower",
+ "uuid",
+]
+
+[[package]]
+name = "grpc-mapping-adapter"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "freyja-build-common",
+ "freyja-common",
+ "futures",
+ "log",
+ "mapping-service-proto",
+ "serde",
+ "time",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+ "tower",
+ "uuid",
 ]
 
 [[package]]
@@ -1231,6 +1250,17 @@ dependencies = [
  "log",
  "serde",
  "tonic",
+]
+
+[[package]]
+name = "mapping-service-proto"
+version = "0.1.0"
+dependencies = [
+ "freyja-common",
+ "prost",
+ "prost-types",
+ "tonic",
+ "tonic-build 0.11.0",
 ]
 
 [[package]]
@@ -1922,11 +1952,11 @@ dependencies = [
  "log",
  "samples-protobuf-data-access",
  "serde",
- "tempfile",
  "tokio",
  "tokio-stream",
  "tonic",
  "tower",
+ "uuid",
 ]
 
 [[package]]

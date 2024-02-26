@@ -3,26 +3,27 @@
 # SPDX-License-Identifier: MIT
 
 [package]
-name = "sample-grpc-data-adapter"
+name = "grpc-mapping-adapter"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
 
 [dependencies]
 async-trait = { workspace = true }
+mapping-service-proto = { workspace = true }
 freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
-samples-protobuf-data-access  = { workspace = true }
 serde = { workspace = true }
 tokio = { workspace = true }
 tonic = { workspace = true }
 
+[build-dependencies]
+freyja-build-common = { workspace = true }
+
 [dev-dependencies]
+time = { workspace = true }
 tokio-stream = { workspace = true }
 tower = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
-
-[build-dependencies]
-freyja-build-common = { workspace = true }
