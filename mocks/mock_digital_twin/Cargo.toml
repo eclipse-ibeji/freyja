@@ -9,15 +9,17 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-axum = { workspace = true }
+async-trait = { workspace = true }
+core-protobuf-data-access = { workspace = true }
 env_logger = { workspace = true }
 freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
 log = { workspace = true }
-reqwest = { workspace = true }
+samples-protobuf-data-access = { workspace = true }
 serde = { workspace = true }
 tokio = { workspace = true }
-http-mock-data-adapter = { workspace = true }
+tokio-stream = { workspace = true }
+tonic = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

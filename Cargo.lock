@@ -615,14 +615,14 @@ dependencies = [
  "env_logger",
  "file-service-discovery-adapter",
  "freyja-common",
- "http-mock-data-adapter",
+ "grpc-cloud-adapter",
+ "grpc-digital-twin-adapter",
  "in-memory-mock-cloud-adapter",
  "in-memory-mock-data-adapter",
  "in-memory-mock-digital-twin-adapter",
  "in-memory-mock-mapping-adapter",
  "log",
  "managed-subscribe-data-adapter",
- "mock-digital-twin-adapter",
  "mock-mapping-service-adapter",
  "mockall",
  "mqtt-data-adapter",
@@ -975,20 +975,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "http-mock-data-adapter"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "axum 0.7.4",
- "freyja-build-common",
- "freyja-common",
- "log",
- "reqwest",
- "serde",
- "tokio",
-]
-
-[[package]]
 name = "httparse"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1311,28 +1297,17 @@ dependencies = [
 name = "mock-digital-twin"
 version = "0.1.0"
 dependencies = [
- "axum 0.7.4",
+ "async-trait",
+ "core-protobuf-data-access",
  "env_logger",
  "freyja-build-common",
  "freyja-common",
- "http-mock-data-adapter",
  "log",
- "reqwest",
+ "samples-protobuf-data-access",
  "serde",
  "tokio",
-]
-
-[[package]]
-name = "mock-digital-twin-adapter"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "freyja-build-common",
- "freyja-common",
- "mock-digital-twin",
- "reqwest",
- "serde",
- "tokio",
+ "tokio-stream",
+ "tonic",
 ]
 
 [[package]]

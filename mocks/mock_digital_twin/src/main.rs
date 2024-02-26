@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: MIT
 
 mod config;
+mod mock_digital_twin_impl;
+mod mock_provider;
 
 use std::{
     collections::{HashMap, HashSet},
@@ -12,47 +14,30 @@ use std::{
     time::Duration,
 };
 
-use axum::{
-    extract,
-    extract::State,
-    response::{IntoResponse, Response},
-    routing::{get, post},
-    Json, Router,
-};
-use env_logger::Target;
-use log::{debug, error, info, warn, LevelFilter};
-use reqwest::Client;
-use serde::Deserialize;
-use tokio::{
-    net::TcpListener,
-    sync::{mpsc, mpsc::UnboundedSender},
-};
 
-use crate::config::{Config, EntityConfig};
+use core_protobuf_data_access::invehicle_digital_twin::v1::invehicle_digital_twin_server::InvehicleDigitalTwinServer;
+use env_logger::Target;
+use log::{debug, info, warn, LevelFilter};
+use tokio::sync::{mpsc, mpsc::UnboundedSender};
+use tonic::{transport::Server, Request};
+
+use crate::{config::{Config, EntityConfig}, mock_digital_twin_impl::MockDigitalTwinImpl, mock_provider::MockProvider};
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     cmd_utils::{get_log_level, parse_args},
-    config_utils,
-    digital_twin_adapter::FindByIdResponse,
-    not_found, ok, out_dir, server_error,
+    config_utils, out_dir,
 };
-use http_mock_data_adapter::http_mock_data_adapter::{EntityValueRequest, EntityValueResponse};
-use mock_digital_twin::{ENTITY_GET_VALUE_PATH, ENTITY_PATH, ENTITY_SUBSCRIBE_PATH};
+
+use samples_protobuf_data_access::sample_grpc::v1::{digital_twin_consumer::{digital_twin_consumer_client::DigitalTwinConsumerClient, PublishRequest}, digital_twin_provider::digital_twin_provider_server::DigitalTwinProviderServer};
 
 /// Stores the state of active entities, subscribers, and relays responses
 /// for getting/subscribing to an entity.
-struct DigitalTwinAdapterState {
+pub(crate) struct DigitalTwinAdapterState {
     count: u8,
     entities: Vec<(EntityConfig, u8)>,
     subscriptions: HashMap<String, HashSet<String>>,
-    response_channel_sender: UnboundedSender<(String, EntityValueResponse)>,
+    response_channel_sender: UnboundedSender<(String, PublishRequest)>,
     interactive: bool,
-}
-
-/// Used for deserializing a query parameter for /entity?id=...
-#[derive(Deserialize)]
-struct EntityQuery {
-    id: String,
 }
 
 /// Starts the following threads and tasks:
@@ -82,7 +67,7 @@ async fn main() {
     )
     .unwrap();
 
-    let (sender, mut receiver) = mpsc::unbounded_channel::<(String, EntityValueResponse)>();
+    let (sender, mut receiver) = mpsc::unbounded_channel::<(String, PublishRequest)>();
 
     let state = Arc::new(Mutex::new(DigitalTwinAdapterState {
         count: 0,
@@ -127,7 +112,6 @@ async fn main() {
 
     // Get responder setup
     tokio::spawn(async move {
-        let client = Client::new();
         loop {
             let message = receiver.recv().await;
             if message.is_none() {
@@ -137,16 +121,17 @@ async fn main() {
 
             let request = message.unwrap();
             info!("Handling GET for request {request:?}...");
-            let (callback_uri_for_signals, response_to_send) = request.clone();
+            let (consumer_uri, request) = request.clone();
 
-            let send_result = client
-                .post(&callback_uri_for_signals)
-                .json(&response_to_send)
-                .send()
-                .await
-                .and_then(|r| r.error_for_status());
+            let mut client = match DigitalTwinConsumerClient::connect(consumer_uri).await {
+                Ok(client) => client,
+                Err(e) => {
+                    log::error!("Error creating DigitalTwinConsumerClient: {e:?}");
+                    continue;
+                }
+            };
 
-            match send_result {
+            match client.publish(Request::new(request.clone())).await {
                 Ok(_) => info!("Successfully sent value for request {request:?}"),
                 Err(e) => log::error!("Failed to send value to {request:?}: {e}"),
             }
@@ -155,7 +140,6 @@ async fn main() {
 
     // Subscriber publish setup
     tokio::spawn(async move {
-        let client = Client::new();
         loop {
             debug!("Beginning subscribe loop...");
 
@@ -177,25 +161,22 @@ async fn main() {
                 }
 
                 for subscriber in subscribers {
-                    let request = EntityValueResponse {
+                    let request = PublishRequest {
                         entity_id: entity_id.clone(),
                         value: value.clone(),
                     };
 
-                    let send_result = client
-                        .post(&subscriber)
-                        .json(&request)
-                        .send()
-                        .await
-                        .and_then(|r| r.error_for_status());
+                    let mut client = match DigitalTwinConsumerClient::connect(subscriber).await {
+                        Ok(client) => client,
+                        Err(e) => {
+                            log::error!("Error creating DigitalTwinConsumerClient: {e:?}");
+                            continue;
+                        }
+                    };
 
-                    match send_result {
-                        Ok(_) => debug!(
-                            "Successfully sent value for request {request:?} to {subscriber}"
-                        ),
-                        Err(e) => error!(
-                            "Failed to send value for request {request:?} to {subscriber}: {e}"
-                        ),
+                    match client.publish(Request::new(request.clone())).await {
+                        Ok(_) => info!("Successfully sent value for request {request:?}"),
+                        Err(e) => log::error!("Failed to send value to {request:?}: {e}"),
                     }
                 }
             }
@@ -204,100 +185,31 @@ async fn main() {
         }
     });
 
-    // HTTP server setup
+    // Server setup
     info!(
-        "Mock Digital Twin Adapter Server starting at {}",
+        "Mock Digital Twin Server starting at {}",
         config.digital_twin_server_authority
     );
 
-    let app = Router::new()
-        .route(ENTITY_PATH, get(get_entity))
-        .route(ENTITY_SUBSCRIBE_PATH, post(subscribe))
-        .route(ENTITY_GET_VALUE_PATH, post(request_value))
-        .with_state(state);
+    let addr = config
+        .digital_twin_server_authority
+        .parse()
+        .expect("Unable to parse server address");
 
-    let listener = TcpListener::bind(&config.digital_twin_server_authority)
+    let mock_digital_twin = MockDigitalTwinImpl {
+        state: state.clone(),
+    };
+
+    let mock_provider = MockProvider {
+        state: state.clone(),
+    };
+
+    Server::builder()
+        .add_service(InvehicleDigitalTwinServer::new(mock_digital_twin))
+        .add_service(DigitalTwinProviderServer::new(mock_provider))
+        .serve(addr)
         .await
-        .expect("Unable to bind to server endpoint");
-
-    axum::serve(listener, app).await.unwrap();
-}
-
-/// Handles getting access info of an entity
-///
-/// # Arguments
-/// - `state`: the state of the DigitalTwinAdapter which consists of active entities and their subscriptions
-/// - `query`: the entity query you wish to get access info on
-async fn get_entity(
-    State(state): State<Arc<Mutex<DigitalTwinAdapterState>>>,
-    extract::Query(query): extract::Query<EntityQuery>,
-) -> Response {
-    info!("Received request to get entity: {}", query.id);
-    let state = state.lock().unwrap();
-    find_entity(&state, &query.id)
-        .map(|(config_item, _)| {
-            ok!(FindByIdResponse {
-                entity: config_item.entity.clone()
-            })
-        })
-        .unwrap_or(not_found!())
-}
-
-/// Handles subscribe requests to an entity
-///
-/// # Arguments
-/// - `state`: the state of the DigitalTwinAdapter which consists of active providers and their subscriptions
-/// - `request`: the subscribe request to an entity
-async fn subscribe(
-    State(state): State<Arc<Mutex<DigitalTwinAdapterState>>>,
-    Json(request): Json<EntityValueRequest>,
-) -> Response {
-    info!("Received subscribe request: {request:?}");
-    let mut state = state.lock().unwrap();
-
-    match find_entity(&state, &request.entity_id) {
-        Some(_) => {
-            state
-                .subscriptions
-                .entry(request.entity_id)
-                .and_modify(|e| {
-                    e.insert(request.callback_uri);
-                });
-            ok!()
-        }
-        None => not_found!(),
-    }
-}
-
-/// Handles async get requests
-///
-/// # Arguments
-/// - `state`: the state of the DigitalTwinAdapter which consists of active providers
-/// - `request`: the async get request to an entity
-async fn request_value(
-    State(state): State<Arc<Mutex<DigitalTwinAdapterState>>>,
-    Json(request): Json<EntityValueRequest>,
-) -> Response {
-    info!("Received request to get value: {request:?}");
-    let mut state = state.lock().unwrap();
-    match get_entity_value(&mut state, &request.entity_id) {
-        Some(value) => {
-            let response = EntityValueResponse {
-                entity_id: request.entity_id,
-                value,
-            };
-
-            info!("Submitting request...");
-            match state
-                .response_channel_sender
-                .send((request.callback_uri, response))
-            {
-                Ok(_) => ok!(),
-                Err(e) => server_error!(format!("Request value error: {e:?}")),
-            }
-        }
-        None => not_found!(),
-    }
+        .unwrap();
 }
 
 /// Checks if a value is within bounds

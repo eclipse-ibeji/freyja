@@ -1,5 +1,5 @@
 {
-    "digital_twin_server_authority": "127.0.0.1:8800",
+    "digital_twin_server_authority": "0.0.0.0:5010",
     "entities": [
         {
             "begin": 1,
@@ -10,9 +10,9 @@
                 "description": "The immediate surroundings air temperature (in Fahrenheit).",
                 "endpoints": [
                     {
-                        "protocol": "http",
+                        "protocol": "grpc",
                         "operations": ["Get"],
-                        "uri": "http://127.0.0.1:8800/request-value",
+                        "uri": "http://0.0.0.0:5010",
                         "context": "context"
                     }
                 ]
@@ -30,9 +30,9 @@
                 "description": "Is air conditioning active?",
                 "endpoints": [
                     {
-                        "protocol": "http",
+                        "protocol": "grpc",
                         "operations": ["Get"],
-                        "uri": "http://127.0.0.1:8800/request-value",
+                        "uri": "http://0.0.0.0:5010",
                         "context": "context"
                     }
                 ]
@@ -50,9 +50,9 @@
                 "description": "Percentage of the hybrid battery remaining",
                 "endpoints": [
                     {
-                        "protocol": "http",
+                        "protocol": "grpc",
                         "operations": ["Subscribe"],
-                        "uri": "http://127.0.0.1:8800/subscribe",
+                        "uri": "http://0.0.0.0:5010",
                         "context": "context"
                     }
                 ]

@@ -32,7 +32,7 @@ pub fn parse_value(value: String) -> String {
             let property_map = match v.as_object() {
                 Some(o) => o,
                 None => {
-                    warn!("Could not parse value as JSON object");
+                    debug!("Could not parse value as JSON object");
                     return value;
                 }
             };
