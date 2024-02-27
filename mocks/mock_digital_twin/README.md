@@ -2,7 +2,7 @@
 
 The Mock Digital Twin mocks the behavior of an in-vehicle digital twin service (such as Ibeji) and providers. This enables functionality similar to the [In-Memory Mock Digital Twin Adapter](../../adapters/digital_twin/in_memory_mock_digital_twin_adapter/README.md), but with finer control over the behavior of the mocked data.
 
-The Mock Digital Twin is integrated with the [Sample gRPC Data Adapter](../../adapters/data/sample_grpc_data_adapter/README.md), which must be enabled when using this application with Freyja.
+The Mock Digital Twin implements the [Ibeji In-Vehicle Digital Twin Service API](https://github.com/eclipse-ibeji/ibeji/blob/main/interfaces/invehicle_digital_twin/v1/invehicle_digital_twin.proto), making it compatible with the [gRPC Digital Twin Adapter](../../adapters/digital_twin/grpc_digital_twin_adapter/README.md). The Mock Digital Twin is also integrated with the [Sample gRPC Data Adapter](../../adapters/data/sample_grpc_data_adapter/README.md), which must be enabled when using this application with Freyja.
 
 ## Configuration
 
@@ -33,28 +33,28 @@ Similarly, providers that support the `Get` operation will allow clients to requ
 
 This mock maintains a count of the number of times the value of entity has been requested, and returns a value that is a function of this count. In this way, the behavior of the `generate_signal_value()` API is identical to that of the In-Memory Data Adapter.
 
-## Build and Run
-
-The Mock Digital Twin supports two modes: interactive and non-interactive.
+The way that entites are exposed in the `find_by_id` API varies depending on whether the application is in interactive mode or not.
 
 ### Non-Interactive Mode
 
-Non-interactive mode is the default behavior of this application. To run the Mock Digital Twin in non-interactive mode, run the following command:
+Non-interactive mode is the default behavior of this application. In non-interactive mode, the `begin` and `end` properties in the config are ignored, and all configured entities are always exposed in the mock's APIs.
+
+### Interactive Mode
+
+In interactive mode, the application maintains an internal count, and only entities satisfying the condition `begin <= count [< end]` will be enabled for all APIs. To increment this count and potentially change the set of enabled entities, press <kbd>Enter</kbd> in the application's console. This allows manual control over when the entities are turned on or off and permits straightforward mocking of more complex scenarios. As a result of this behavior, it is recommended to write configs such that a state change happens each time <kbd>Enter</kbd> is pressed. For example, if a mock scenario has `n` different desired states, then all numbers in the range `0..n-1` should appear as values for at least one `begin` or `end` property. Otherwise pressing <kbd>Enter</kbd> will sometimes have no effect.
+
+**Do not use interactive mode if running this service in a container!** This feature is not compatible with containers and will cause unexpected behavior, including very high resource consumption.
+
+## Build and Run
+
+To build and run the Mock Digital Twin in non-interactive mode, run the following command:
 
 ```shell
 cargo run -p mock-digital-twin
 ```
 
-In non-interactive mode, the `begin` and `end` properties in the config are ignored, and all configured entities are always exposed in the mock's APIs.
-
-### Interactive Mode
-
-To use interactive mode with the Mock Digital Twin, pass the `--interactive` flag when running the application:
+To enable interactive mode, run the same command with the `--interactive` argument:
 
 ```shell
 cargo run -p mock-digital-twin -- --interactive
 ```
-
-In interactive mode, the application maintains an internal count, and only entities satisfying the condition `begin <= count [< end]` will be enabled for all APIs. To increment this count and potentially change the set of enabled entities, press <kbd>Enter</kbd> in the application's console. This allows manual control over when the entities are turned on or off and permits straightforward mocking of more complex scenarios. As a result of this behavior, it is recommended to write configs such that a state change happens each time <kbd>Enter</kbd> is pressed. For example, if a mock scenario has `n` different desired states, then all numbers in the range `0..n-1` should appear as values for at least one `begin` or `end` property. Otherwise pressing <kbd>Enter</kbd> will sometimes have no effect.
-
-**Do not use interactive mode if running this service in a container!** This feature is not compatible with containers and will cause unexpected behavior, including very high resource consumption.

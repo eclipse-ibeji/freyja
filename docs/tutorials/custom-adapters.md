@@ -41,7 +41,6 @@ This appendix lists the adapters that are provided in this repository. These can
 ### Mapping Adapters
 
 - [In-Memory Mock Mapping Adapter](../../adapters/mapping/in_memory_mock_mapping_adapter/README.md): Emulates a mapping service entirely within the memory of the Freyja application.
-- [Mock Mapping Service Adapter](../../adapters/mapping/mock_mapping_service_adapter/README.md): Communicates with the [Mock Mapping Service](../../mocks/mock_mapping_service/README.md), which is an executable that mocks a Mapping Service. The behavior is very similar to the in-memory mock, but the application is interactive and allows users to add or remove mappings by pressing <kbd>Enter</kbd> to advance through configurable states.
 - [gRPC Mapping Adapter](../../adapters/mapping/grpc_mapping_adapter/README.md): Communicates with a mapping service that implements the [Mapping Service API](../../interfaces/mapping_service/v1/mapping_service.proto). This is a "standard adapter" that is suitable for use in production scenarios.
 
 ### Cloud Adapters
