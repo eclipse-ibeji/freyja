@@ -2,11 +2,13 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::str::FromStr;
+use std::{str::FromStr, sync::Arc};
 use std::time::Duration;
 
 use async_trait::async_trait;
+use freyja_common::service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector;
 use log::debug;
+use tokio::sync::Mutex;
 use tonic::transport::Channel;
 
 use cloud_connector_proto::{
@@ -34,7 +36,12 @@ pub struct GRPCCloudAdapter {
 #[async_trait]
 impl CloudAdapter for GRPCCloudAdapter {
     /// Creates a new instance of a CloudAdapter with default settings
-    fn create_new() -> Result<Self, CloudAdapterError> {
+    ///
+    /// # Arguments
+    /// - `selector`: the service discovery adapter selector to use
+    fn create_new(
+        selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>,
+    ) -> Result<Self, CloudAdapterError> {
         let config: Config = config_utils::read_from_files(
             config_file_stem!(),
             config_utils::JSON_EXT,
@@ -43,11 +50,17 @@ impl CloudAdapter for GRPCCloudAdapter {
             CloudAdapterError::deserialize,
         )?;
 
+        let cloud_connector_uri = futures::executor::block_on(async {
+            let selector = selector.lock().await;
+            selector.get_service_uri(&config.service_discovery_id).await
+        })
+        .map_err(CloudAdapterError::communication)?;
+
         let client = futures::executor::block_on(async {
             execute_with_retry(
                 config.max_retries,
                 Duration::from_millis(config.retry_interval_ms),
-                || CloudConnectorClient::connect(config.target_uri.clone()),
+                || CloudConnectorClient::connect(cloud_connector_uri.clone()),
                 Some("Cloud adapter initial connection".into()),
             )
             .await

@@ -1094,6 +1094,7 @@ dependencies = [
  "async-trait",
  "freyja-common",
  "log",
+ "mockall",
  "serde_json",
  "time",
  "tokio",
