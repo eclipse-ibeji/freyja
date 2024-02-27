@@ -6,7 +6,6 @@ use file_service_discovery_adapter::file_service_discovery_adapter::FileServiceD
 use freyja_common::{
     data_adapter::DataAdapterFactory, service_discovery_adapter::ServiceDiscoveryAdapter,
 };
-use http_mock_data_adapter::http_mock_data_adapter_factory::HttpMockDataAdapterFactory;
 use in_memory_mock_cloud_adapter::in_memory_mock_cloud_adapter::InMemoryMockCloudAdapter;
 use in_memory_mock_data_adapter::in_memory_mock_data_adapter_factory::InMemoryMockDataAdapterFactory;
 use in_memory_mock_digital_twin_adapter::in_memory_mock_digital_twin_adapter::InMemoryMockDigitalTwinAdapter;
@@ -24,10 +23,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         Box::new(
             SampleGRPCDataAdapterFactory::create_new()
                 .expect("Could not create SampleGRPCDataAdapterFactory"),
-        ),
-        Box::new(
-            HttpMockDataAdapterFactory::create_new()
-                .expect("Could not create HttpMockDataAdapterFactory"),
         ),
         Box::new(
             InMemoryMockDataAdapterFactory::create_new()

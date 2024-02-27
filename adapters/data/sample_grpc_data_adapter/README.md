@@ -1,6 +1,6 @@
 # Sample gRPC Data Adapter
 
-The Sample gRPC Data Adapter interfaces with providers which support gRPC. It acts as a consumer for digital twin providers. This adapter supports the `Get` and `Subscribe` operations as defined for the [Ibeji mixed sample](https://github.com/eclipse-ibeji/ibeji/tree/main/samples/mixed). To use this adapter with other providers, those providers will need to support the same API(s) as the provider in that sample (see [Integrating with this Adapter](#integrating-with-this-adapter) for more information).
+The Sample gRPC Data Adapter interfaces with providers which support gRPC. It acts as a consumer for digital twin providers. This adapter supports the `Get` and `Subscribe` operations as defined for the [Ibeji mixed sample](https://github.com/eclipse-ibeji/ibeji/tree/main/samples/mixed), which are also used in the [Mock Digital Twin](../../../mocks/mock_digital_twin/README.md). To use this adapter with other providers, those providers will need to support the same API(s) as the provider in that sample (see [Integrating with this Adapter](#integrating-with-this-adapter) for more information).
 
 ## Configuration
 

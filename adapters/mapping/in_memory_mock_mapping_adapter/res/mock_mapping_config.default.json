@@ -4,7 +4,7 @@
             "begin": 2,
             "end": null,
             "value": {
-                "source": "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1",
+                "source": "dtmi:sdv:HVAC:AmbientAirTemperature;1",
                 "target": {
                     "model_id": "dtmi:sdv:Cloud:Vehicle:Cabin:HVAC:AmbientAirTemperature;1",
                     "instance_id": "hvac",
@@ -22,7 +22,7 @@
             "begin": 2,
             "end": null,
             "value": {
-                "source": "dtmi:sdv:Vehicle:Cabin:HVAC:IsAirConditioningActive;1",
+                "source": "dtmi:sdv:HVAC:IsAirConditioningActive;1",
                 "target": {
                     "model_id": "dtmi:sdv:Cloud:Vehicle:Cabin:HVAC:IsAirConditioningActive;1",
                     "instance_id": "hvac",
@@ -37,7 +37,7 @@
             "begin": 4,
             "end": null,
             "value": {
-                "source": "dtmi:sdv:Vehicle:OBD:HybridBatteryRemaining;1",
+                "source": "dtmi:sdv:OBD:HybridBatteryRemaining;1",
                 "target": {
                     "model_id": "dtmi:sdv:Cloud:Vehicle:OBD:HybridBatteryRemaining;1",
                     "instance_id": "obd",
