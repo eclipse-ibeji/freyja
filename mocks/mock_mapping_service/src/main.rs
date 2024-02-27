@@ -25,13 +25,24 @@ use freyja_common::{
 
 use crate::mock_mapping_service_impl::MockMappingServiceImpl;
 
+/// Stores the state of the mapping service
 struct MappingState {
+    /// An internal count that dictates which mappings are enabled
     count: u8,
+
+    /// Indicates whether or not there is an update to the mapping that a client has not yet consumed
     pending_work: bool,
+
+    /// The mapping service config
     config: Config,
+
+    /// Whether or not the application is in interactive mode
     interactive: bool,
 }
 
+/// Starts the following threads and tasks:
+/// - A thread which listens for input from the command window
+/// - A GRPC server to accept incoming requests
 #[tokio::main]
 async fn main() {
     let args = parse_args(env::args()).expect("Failed to parse args");
@@ -103,7 +114,6 @@ async fn main() {
     }
 
     // Server setup
-
     info!("Mock Mapping Server starting at {}", server_endpoint);
 
     let addr = server_endpoint
@@ -121,6 +131,12 @@ async fn main() {
         .unwrap();
 }
 
+/// Checks to see if there is pending work
+///
+/// # Arguments
+/// - `config`: the mapping service config
+/// - `n`: the current count
+/// - `interactive`: whether or not the service is running in interactive mode
 fn check_for_work(config: &Config, n: u8, interactive: bool) -> bool {
     config.values.iter().any(|c| {
         (!interactive && n == 0)

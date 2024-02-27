@@ -14,12 +14,18 @@ use tonic::{Request, Response, Status};
 
 use crate::MappingState;
 
+/// Implements a Mapping Service
 pub struct MockMappingServiceImpl {
+    /// The server state
     pub(crate) state: Arc<Mutex<MappingState>>,
 }
 
 #[async_trait]
 impl MappingService for MockMappingServiceImpl {
+    /// Check for any updates to the mapping.
+    ///
+    /// # Arguments
+    /// - `request`: the request
     async fn check_for_work(
         &self,
         _request: Request<CheckForWorkRequest>,
@@ -37,6 +43,10 @@ impl MappingService for MockMappingServiceImpl {
         Ok(Response::new(CheckForWorkResponse { has_work }))
     }
 
+    /// Get the latest mapping.
+    ///
+    /// # Arguments
+    /// - `request`: the request
     async fn get_mapping(
         &self,
         _request: Request<GetMappingRequest>,

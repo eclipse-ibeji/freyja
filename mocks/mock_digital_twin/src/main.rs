@@ -40,10 +40,19 @@ use freyja_common::{
 /// Stores the state of active entities, subscribers, and relays responses
 /// for getting/subscribing to an entity.
 pub(crate) struct DigitalTwinAdapterState {
+    /// An internal count that dictates which entites are enabled
     count: u8,
+
+    /// The list of configured entities paired with the number of times that entity has published a value
     entities: Vec<(EntityConfig, u8)>,
+
+    /// Maps entities to their subscribers
     subscriptions: HashMap<String, HashSet<String>>,
+
+    /// A sender for manual publish requests
     response_channel_sender: UnboundedSender<(String, PublishRequest)>,
+
+    /// Whether or not the application is in interactive mode
     interactive: bool,
 }
 
@@ -51,7 +60,7 @@ pub(crate) struct DigitalTwinAdapterState {
 /// - A thread which listens for input from the command window
 /// - A task which handles async get responses
 /// - A task which handles publishing to subscribers
-/// - An HTTP listener to accept incoming requests
+/// - A GRPC server to accept incoming requests
 #[tokio::main]
 async fn main() {
     let args = parse_args(env::args()).expect("Failed to parse args");

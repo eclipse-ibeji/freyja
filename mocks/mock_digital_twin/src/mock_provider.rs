@@ -22,7 +22,9 @@ use tonic::{Request, Response, Status};
 
 use crate::{find_entity, get_entity_value, DigitalTwinAdapterState};
 
+/// Implements a digital twin provider
 pub struct MockProvider {
+    /// The server state
     pub(crate) state: Arc<Mutex<DigitalTwinAdapterState>>,
 }
 
@@ -33,7 +35,7 @@ impl DigitalTwinProvider for MockProvider {
     /// Subscribe implementation.
     ///
     /// # Arguments
-    /// * `request` - Subscribe request.
+    /// - `request`: Subscribe request.
     async fn subscribe(
         &self,
         request: Request<SubscribeRequest>,
@@ -59,7 +61,7 @@ impl DigitalTwinProvider for MockProvider {
     /// Get implementation.
     ///
     /// # Arguments
-    /// * `request` - Get request.
+    /// - `request`: Get request.
     async fn get(&self, request: Request<GetRequest>) -> Result<Response<GetResponse>, Status> {
         let request = request.into_inner();
         info!("Received request to get value: {request:?}");
@@ -87,7 +89,7 @@ impl DigitalTwinProvider for MockProvider {
     /// Unsubscribe implementation.
     ///
     /// # Arguments
-    /// * `request` - Unsubscribe request.
+    /// - `request`: Unsubscribe request.
     async fn unsubscribe(
         &self,
         _request: Request<UnsubscribeRequest>,
@@ -100,7 +102,7 @@ impl DigitalTwinProvider for MockProvider {
     /// Set implementation.
     ///
     /// # Arguments
-    /// * `request` - Set request.
+    /// - `request`: Set request.
     async fn set(&self, _request: Request<SetRequest>) -> Result<Response<SetResponse>, Status> {
         Err(Status::unimplemented(
             "Set is not supported for the mock digital twin",
@@ -110,7 +112,7 @@ impl DigitalTwinProvider for MockProvider {
     /// Invoke implementation.
     ///
     /// # Arguments
-    /// * `request` - Invoke request.
+    /// - `request`: Invoke request.
     async fn invoke(
         &self,
         _request: Request<InvokeRequest>,
@@ -123,7 +125,7 @@ impl DigitalTwinProvider for MockProvider {
     /// Stream implementation.
     ///
     /// # Arguments
-    /// * `request` - OpenStream request.
+    /// - `request`: OpenStream request.
     async fn stream(
         &self,
         _request: Request<StreamRequest>,
