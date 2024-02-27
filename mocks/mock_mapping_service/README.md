@@ -9,9 +9,9 @@ The Mock Mapping Service implements the [Mapping Service API](../../interfaces/m
 This mock supports the following configuration:
 
 - `mapping_server_authority`: The authority that will be used for hosting the mapping service.
-- `values`: The list of mapping entries. The schema for this config is identical to the schema for the [In-Memory Mock Mapping Adapter](../../adapters/mapping/in_memory_mock_mapping_adapter/README.md)
+- `values`: The list of mapping entries. The schema for this property is identical to the schema for the `values` property in the [In-Memory Mock Mapping Adapter](../../adapters/mapping/in_memory_mock_mapping_adapter/README.md)
 
-This mock supports [config overrides](../../docs/tutorials/config-overrides.md). The override filename is `mock_mapping_config.json`, and the default config is located at `res/mock_mapping_config.default.json`. Note that this filename is the same as the one for the In-Memory Mock Mapping Adapter and that the override mechanisms are the same, so the same overrides can be used for both adapters (the in-memory adapter will ignore the `mapping_server_authority` value).
+This mock supports [config overrides](../../docs/tutorials/config-overrides.md). The override filename is `mock_mapping_config.json`, and the default config is located at `res/mock_mapping_config.default.json`. Note that this filename is the same as the one for the In-Memory Mock Mapping Adapter and that the override mechanisms are the same, so the same override files can be used for both adapters (the in-memory adapter will ignore the `mapping_server_authority` value).
 
 ## Behavior
 
