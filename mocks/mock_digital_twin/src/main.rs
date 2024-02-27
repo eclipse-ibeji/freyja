@@ -60,7 +60,7 @@ pub(crate) struct DigitalTwinAdapterState {
 /// - A thread which listens for input from the command window
 /// - A task which handles async get responses
 /// - A task which handles publishing to subscribers
-/// - A GRPC server to accept incoming requests
+/// - A gRPC server to accept incoming requests
 #[tokio::main]
 async fn main() {
     let args = parse_args(env::args()).expect("Failed to parse args");
