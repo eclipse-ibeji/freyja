@@ -9,6 +9,9 @@ use freyja_common::digital_twin_map_entry::DigitalTwinMapEntry;
 /// The mock mapping service's config
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
+    /// The mapping server authority
+    pub mapping_server_authority: String,
+
     /// The set of config values
     pub values: Vec<ConfigItem>,
 }

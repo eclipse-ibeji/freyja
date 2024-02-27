@@ -18,9 +18,9 @@ ACCEPTED_WORDS_FILEPATH="$TARGET_DIR/.accepted_words.txt"
 EXIT_CODE=0
 while IFS= read -r -d '' file; do
   if [ -e $ACCEPTED_WORDS_FILEPATH ]; then
-    spell -d "$ACCEPTED_WORDS_FILEPATH" "$file" | sort -u > $TEMP_FILE
+    spell -d "$ACCEPTED_WORDS_FILEPATH" "$file" -n > $TEMP_FILE
   else
-    spell $1 | sort -u > $TEMP_FILE
+    spell $1 -n > $TEMP_FILE
   fi
   NUM_SPELLING_ERRORS=`wc -l $TEMP_FILE | cut -d ' ' -f 1`
   if [ $NUM_SPELLING_ERRORS -ne 0 ]; then
