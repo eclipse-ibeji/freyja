@@ -64,7 +64,7 @@ impl InvehicleDigitalTwin for MockDigitalTwinImpl {
     /// Register implementation.
     ///
     /// # Arguments
-    /// - `request`: Publish request.
+    /// - `request`: Register request.
     async fn register(
         &self,
         _request: Request<RegisterRequest>,
