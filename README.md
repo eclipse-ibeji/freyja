@@ -38,7 +38,7 @@ This guide uses `apt` as the package manager in the examples. You may need to su
 
 ### Using Freyja
 
-Freyja supports a default runtime that's integrated with a set of standard adapters. To build and run the Standard Freyja Runtime, run the following command:
+Freyja supports a default runtime that is integrated with a set of standard adapters. To build and run the Standard Freyja Runtime, run the following command:
 
 ```shell
 cargo run -p freyja
