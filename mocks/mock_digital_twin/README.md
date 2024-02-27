@@ -33,7 +33,7 @@ Similarly, providers that support the `Get` operation will allow clients to requ
 
 This mock maintains a count of the number of times the value of entity has been requested, and returns a value that is a function of this count. In this way, the behavior of the `generate_signal_value()` API is identical to that of the In-Memory Data Adapter.
 
-The way that entites are exposed in the `find_by_id` API varies depending on whether the application is in interactive mode or not.
+The way that entities are exposed in the `find_by_id` API varies depending on whether the application is in interactive mode or not.
 
 ### Non-Interactive Mode
 
