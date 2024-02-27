@@ -6,7 +6,10 @@ use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
 use log::info;
-use mapping_service_proto::v1::{mapping_service_server::MappingService, CheckForWorkRequest, CheckForWorkResponse, GetMappingRequest, GetMappingResponse};
+use mapping_service_proto::v1::{
+    mapping_service_server::MappingService, CheckForWorkRequest, CheckForWorkResponse,
+    GetMappingRequest, GetMappingResponse,
+};
 use tonic::{Request, Response, Status};
 
 use crate::MappingState;
@@ -62,7 +65,7 @@ impl MappingService for MockMappingServiceImpl {
                 })
                 .collect(),
         };
-    
+
         Ok(Response::new(response))
     }
 }

@@ -65,11 +65,7 @@ pub mod v1 {
     impl From<freyja_common::mapping_adapter::GetMappingResponse> for GetMappingResponse {
         fn from(value: freyja_common::mapping_adapter::GetMappingResponse) -> Self {
             Self {
-                mapping: value
-                    .map
-                    .into_iter()
-                    .map(|(k, v)| (k, v.into()))
-                    .collect(),
+                mapping: value.map.into_iter().map(|(k, v)| (k, v.into())).collect(),
             }
         }
     }
@@ -98,7 +94,7 @@ pub mod v1 {
                 emit_on_change: value.emit_on_change,
                 conversion: match value.conversion {
                     Conversion::None => None,
-                    Conversion::Linear { mul, offset } => Some(LinearConversion { mul, offset })
+                    Conversion::Linear { mul, offset } => Some(LinearConversion { mul, offset }),
                 },
             }
         }
