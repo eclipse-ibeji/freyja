@@ -127,14 +127,16 @@ mod grpc_cloud_adapter_tests {
 
         use tokio::net::{UnixListener, UnixStream};
         use tokio_stream::wrappers::UnixListenerStream;
-        use tonic::{transport::{Channel, Endpoint, Server, Uri}, Response};
+        use tonic::{
+            transport::{Channel, Endpoint, Server, Uri},
+            Response,
+        };
         use tower::service_fn;
 
-        use cloud_connector_proto::v1::{cloud_connector_server::CloudConnectorServer, UpdateDigitalTwinResponse};
-        use freyja_test_common::{
-            fixtures::GRPCTestFixture,
-            mocks::MockCloudConnector,
+        use cloud_connector_proto::v1::{
+            cloud_connector_server::CloudConnectorServer, UpdateDigitalTwinResponse,
         };
+        use freyja_test_common::{fixtures::GRPCTestFixture, mocks::MockCloudConnector};
 
         async fn create_test_grpc_client(socket_path: PathBuf) -> CloudConnectorClient<Channel> {
             let channel = Endpoint::try_from("http://URI_IGNORED") // Devskim: ignore DS137138

@@ -153,10 +153,11 @@ mod grpc_mapping_adapter_tests {
         use tokio::net::{UnixListener, UnixStream};
         use tokio_stream::wrappers::UnixListenerStream;
         use tonic::{
-            transport::{Channel, Endpoint, Server, Uri}, Response,
+            transport::{Channel, Endpoint, Server, Uri},
+            Response,
         };
         use tower::service_fn;
-        
+
         use freyja_test_common::{fixtures::GRPCTestFixture, mocks::MockMappingService};
         use mapping_service_proto::v1::{
             mapping_service_server::MappingServiceServer,

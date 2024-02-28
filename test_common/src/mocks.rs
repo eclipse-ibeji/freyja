@@ -6,33 +6,34 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use core_protobuf_data_access::invehicle_digital_twin::v1::{
-    FindByIdResponse as IbejiFindByIdResponse,
-    FindByIdRequest as IbejiFindByIdRequest,
-    invehicle_digital_twin_server::InvehicleDigitalTwin,
-    RegisterRequest, RegisterResponse,
+    invehicle_digital_twin_server::InvehicleDigitalTwin, FindByIdRequest as IbejiFindByIdRequest,
+    FindByIdResponse as IbejiFindByIdResponse, RegisterRequest, RegisterResponse,
 };
 use mockall::*;
 use tonic::{Request, Response, Status};
 
 use cloud_connector_proto::v1::{
-    cloud_connector_server::CloudConnector,
-    UpdateDigitalTwinRequest, UpdateDigitalTwinResponse,
+    cloud_connector_server::CloudConnector, UpdateDigitalTwinRequest, UpdateDigitalTwinResponse,
 };
 use freyja_common::{
     cloud_adapter::{CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse},
     data_adapter::DataAdapterFactory,
     data_adapter_selector::{DataAdapterSelector, DataAdapterSelectorError},
-    digital_twin_adapter::{DigitalTwinAdapter, DigitalTwinAdapterError, FindByIdRequest, FindByIdResponse,},
+    digital_twin_adapter::{
+        DigitalTwinAdapter, DigitalTwinAdapterError, FindByIdRequest, FindByIdResponse,
+    },
     entity::Entity,
-    mapping_adapter::{MappingAdapter, MappingAdapterError, CheckForWorkRequest, CheckForWorkResponse, GetMappingRequest, GetMappingResponse},
-    service_discovery_adapter::{ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError,},
+    mapping_adapter::{
+        CheckForWorkRequest, CheckForWorkResponse, GetMappingRequest, GetMappingResponse,
+        MappingAdapter, MappingAdapterError,
+    },
+    service_discovery_adapter::{ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError},
     service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
 };
 use mapping_service_proto::v1::{
-    CheckForWorkResponse as ProtoCheckForWorkResponse,
-    GetMappingResponse as ProtoGetMappingResponse,CheckForWorkRequest as ProtoCheckForWorkRequest,
-    GetMappingRequest as ProtoGetMappingRequest,
-    mapping_service_server::MappingService
+    mapping_service_server::MappingService, CheckForWorkRequest as ProtoCheckForWorkRequest,
+    CheckForWorkResponse as ProtoCheckForWorkResponse, GetMappingRequest as ProtoGetMappingRequest,
+    GetMappingResponse as ProtoGetMappingResponse,
 };
 
 mock! {
@@ -59,12 +60,12 @@ mock! {
     #[async_trait]
     impl DataAdapterSelector for DataAdapterSelector {
         fn register(
-            &mut self, 
+            &mut self,
             factory: Box<dyn DataAdapterFactory + Send + Sync>
         ) -> Result<(), DataAdapterSelectorError>;
 
         async fn create_or_update_adapter(
-            &self, 
+            &self,
             entity: &Entity
         ) -> Result<(), DataAdapterSelectorError>;
 

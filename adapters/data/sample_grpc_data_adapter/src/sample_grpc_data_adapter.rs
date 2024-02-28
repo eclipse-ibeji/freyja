@@ -268,10 +268,7 @@ mod sample_grpc_data_adapter_tests {
 
         use super::*;
 
-        use std::{
-            path::PathBuf,
-            sync::Arc,
-        };
+        use std::{path::PathBuf, sync::Arc};
 
         use tokio::net::{UnixListener, UnixStream};
         use tokio_stream::wrappers::UnixListenerStream;

@@ -2,13 +2,15 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{io::{stderr, Write}, path::PathBuf};
+use std::{
+    io::{stderr, Write},
+    path::PathBuf,
+};
 
 use uuid::Uuid;
 
 /// A test fixture which helps manage tests with gRPC adapters
-pub struct GRPCTestFixture
-{
+pub struct GRPCTestFixture {
     /// The path to a file in the temp directory.
     /// Note that this fixture will not create anything at this location,
     /// it will just generate a filename and clean up the file during teardown.

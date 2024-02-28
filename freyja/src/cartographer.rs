@@ -236,9 +236,7 @@ mod cartographer_tests {
     };
     use freyja_test_common::{
         mockall::predicate::eq,
-        mocks::{
-            MockDataAdapterSelector, MockDigitalTwinAdapter, MockMappingAdapter,
-        },
+        mocks::{MockDataAdapterSelector, MockDigitalTwinAdapter, MockMappingAdapter},
     };
 
     #[tokio::test]

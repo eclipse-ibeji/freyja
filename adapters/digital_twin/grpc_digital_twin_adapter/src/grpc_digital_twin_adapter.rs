@@ -119,8 +119,7 @@ impl DigitalTwinAdapter for GRPCDigitalTwinAdapter {
 #[cfg(test)]
 mod grpc_digital_twin_adapter_tests {
     use core_protobuf_data_access::invehicle_digital_twin::v1::{
-        EndpointInfo, EntityAccessInfo,
-        FindByIdResponse as IbejiFindByIdResponse,
+        EndpointInfo, EntityAccessInfo, FindByIdResponse as IbejiFindByIdResponse,
     };
     use tonic::{Request, Response, Status};
 
@@ -143,10 +142,7 @@ mod grpc_digital_twin_adapter_tests {
         use tonic::transport::{Channel, Endpoint, Server, Uri};
         use tower::service_fn;
 
-        use freyja_test_common::{
-            fixtures::GRPCTestFixture,
-            mocks::MockInVehicleDigitalTwin,
-        };
+        use freyja_test_common::{fixtures::GRPCTestFixture, mocks::MockInVehicleDigitalTwin};
 
         async fn create_test_grpc_client(
             socket_path: PathBuf,
@@ -174,7 +170,9 @@ mod grpc_digital_twin_adapter_tests {
                     let endpoint_info = EndpointInfo {
                         protocol: String::from("grpc"),
                         uri: String::from("http://[::1]:40010"), // Devskim: ignore DS137138
-                        context: String::from("dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1"),
+                        context: String::from(
+                            "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1",
+                        ),
                         operations: vec![String::from("Get"), String::from("Subscribe")],
                     };
 
@@ -191,13 +189,17 @@ mod grpc_digital_twin_adapter_tests {
 
                     Ok(Response::new(response))
                 });
-            
+
             mock_in_vehicle_twin
                 .expect_find_by_id()
                 .withf(|request: &Request<IbejiFindByIdRequest>| {
                     request.get_ref().id != AMBIENT_AIR_TEMPERATURE_ID
                 })
-                .returning(|_| Err(Status::not_found("Unable to find the entity with id {entity_id}")));
+                .returning(|_| {
+                    Err(Status::not_found(
+                        "Unable to find the entity with id {entity_id}",
+                    ))
+                });
 
             Server::builder()
                 .add_service(InvehicleDigitalTwinServer::new(mock_in_vehicle_twin))

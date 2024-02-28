@@ -114,10 +114,7 @@ mod in_memory_mock_mapping_adapter_tests {
 
     use std::collections::HashMap;
 
-    use freyja_common::{
-        conversion::Conversion,
-        digital_twin_map_entry::DigitalTwinMapEntry,
-    };
+    use freyja_common::{conversion::Conversion, digital_twin_map_entry::DigitalTwinMapEntry};
     use freyja_test_common::mocks::MockServiceDiscoveryAdapterSelector;
 
     use crate::config::ConfigItem;
