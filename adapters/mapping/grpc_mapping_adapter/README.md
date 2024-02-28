@@ -1,6 +1,6 @@
 # gRPC Mapping Adapter
 
-The gRPC Mapping Adapter is intended to function as a "standard mapping adapter", enabling integration with other services that implement the appropriate APIs. This reduces the need for custom adapter implementations and facilitates integration with non-Rust solutions for other parts of the vehicle system. This library contains an implementation of the `MappingAdapter` trait from the contracts.
+The gRPC Mapping Adapter is intended to function as a "standard mapping adapter", enabling integration with other services that implement the appropriate APIs. This reduces the need for custom adapter implementations and facilitates integration with non-Rust solutions for other parts of the vehicle system. This library contains an implementation of the `MappingAdapter` trait from the contracts. This adapter also supports service discovery to integrate with service discovery systems such as [Chariott](https://github.com/eclipse-chariott/chariott/blob/main/service_discovery/README.md).
 
 ## Contract
 

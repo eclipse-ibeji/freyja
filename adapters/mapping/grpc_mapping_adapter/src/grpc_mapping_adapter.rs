@@ -2,10 +2,11 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
 use async_trait::async_trait;
 use log::debug;
+use tokio::sync::Mutex;
 use tonic::transport::Channel;
 
 use freyja_build_common::config_file_stem;
@@ -16,7 +17,7 @@ use freyja_common::{
         MappingAdapter, MappingAdapterError,
     },
     out_dir,
-    retry_utils::execute_with_retry,
+    retry_utils::execute_with_retry, service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
 };
 use mapping_service_proto::v1::{
     mapping_service_client::MappingServiceClient, CheckForWorkRequest as ProtoCheckForWorkRequest,
@@ -37,7 +38,12 @@ pub struct GRPCMappingAdapter {
 #[async_trait]
 impl MappingAdapter for GRPCMappingAdapter {
     /// Creates a new instance of a CloudAdapter with default settings
-    fn create_new() -> Result<Self, MappingAdapterError> {
+    ///
+    /// # Arguments
+    /// - `selector`: the service discovery adapter selector to use
+    fn create_new(
+        selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>,
+    ) -> Result<Self, MappingAdapterError> {
         let config: Config = config_utils::read_from_files(
             config_file_stem!(),
             config_utils::JSON_EXT,
@@ -46,11 +52,17 @@ impl MappingAdapter for GRPCMappingAdapter {
             MappingAdapterError::deserialize,
         )?;
 
+        let mapping_service_uri = futures::executor::block_on(async {
+            let selector = selector.lock().await;
+            selector.get_service_uri(&config.service_discovery_id).await
+        })
+        .map_err(MappingAdapterError::communication)?;
+
         let client = futures::executor::block_on(async {
             execute_with_retry(
                 config.max_retries,
                 Duration::from_millis(config.retry_interval_ms),
-                || MappingServiceClient::connect(config.target_uri.clone()),
+                || MappingServiceClient::connect(mapping_service_uri.clone()),
                 Some("Mapping adapter initial connection".into()),
             )
             .await

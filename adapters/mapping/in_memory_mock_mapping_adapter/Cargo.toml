@@ -17,3 +17,6 @@ tokio = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }
+
+[dev-dependencies]
+mockall = { workspace = true }
