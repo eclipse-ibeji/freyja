@@ -192,7 +192,7 @@ impl DataAdapter for SampleGRPCDataAdapter {
 }
 
 #[cfg(test)]
-mod grpc_data_adapter_tests {
+mod sample_grpc_data_adapter_tests {
     use std::pin::Pin;
 
     use super::*;
@@ -268,43 +268,14 @@ mod grpc_data_adapter_tests {
 
         use super::*;
 
-        use std::{
-            io::{stderr, Write},
-            path::PathBuf,
-            sync::Arc,
-        };
+        use std::{path::PathBuf, sync::Arc};
 
         use tokio::net::{UnixListener, UnixStream};
         use tokio_stream::wrappers::UnixListenerStream;
         use tonic::transport::{Channel, Endpoint, Server, Uri};
         use tower::service_fn;
-        use uuid::Uuid;
 
-        pub struct TestFixture {
-            pub socket_path: PathBuf,
-        }
-
-        impl TestFixture {
-            fn new() -> Self {
-                Self {
-                    socket_path: std::env::temp_dir()
-                        .as_path()
-                        .join(Uuid::new_v4().as_hyphenated().to_string()),
-                }
-            }
-        }
-
-        impl Drop for TestFixture {
-            fn drop(&mut self) {
-                match std::fs::remove_file(&self.socket_path) {
-                    Ok(_) => {}
-                    Err(e) => {
-                        write!(stderr(), "Error cleaning up `TestFixture`: {e:?}")
-                            .expect("Error writing to stderr");
-                    }
-                }
-            }
-        }
+        use freyja_test_common::fixtures::GRPCTestFixture;
 
         async fn create_test_grpc_client(
             socket_path: PathBuf,
@@ -332,7 +303,7 @@ mod grpc_data_adapter_tests {
 
         #[tokio::test]
         async fn send_request_to_provider() {
-            let fixture = TestFixture::new();
+            let fixture = GRPCTestFixture::new();
 
             // Create the Unix Socket
             let uds = UnixListener::bind(&fixture.socket_path).unwrap();

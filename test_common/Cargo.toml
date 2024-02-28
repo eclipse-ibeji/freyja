@@ -3,18 +3,18 @@
 # SPDX-License-Identifier: MIT
 
 [package]
-name = "in-memory-mock-cloud-adapter"
+name = "freyja-test-common"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
 
 [dependencies]
 async-trait = { workspace = true }
+cloud-connector-proto = { workspace = true }
+core-protobuf-data-access = { workspace = true }
 freyja-common = { workspace = true }
-log = { workspace = true }
-serde_json = { workspace = true }
+mapping-service-proto = { workspace = true }
+mockall = { workspace = true }
 tokio = { workspace = true }
-
-[dev-dependencies]
-freyja-test-common = { workspace = true }
-time = { workspace = true }
+tonic = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }

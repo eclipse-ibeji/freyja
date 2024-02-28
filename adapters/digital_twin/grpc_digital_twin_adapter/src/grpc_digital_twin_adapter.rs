@@ -119,60 +119,13 @@ impl DigitalTwinAdapter for GRPCDigitalTwinAdapter {
 #[cfg(test)]
 mod grpc_digital_twin_adapter_tests {
     use core_protobuf_data_access::invehicle_digital_twin::v1::{
-        invehicle_digital_twin_server::InvehicleDigitalTwin, EndpointInfo, EntityAccessInfo,
-        FindByIdResponse as IbejiFindByIdResponse, RegisterRequest, RegisterResponse,
+        EndpointInfo, EntityAccessInfo, FindByIdResponse as IbejiFindByIdResponse,
     };
     use tonic::{Request, Response, Status};
 
     use super::*;
 
     const AMBIENT_AIR_TEMPERATURE_ID: &str = "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1";
-
-    pub struct MockInVehicleTwin {}
-
-    #[tonic::async_trait]
-    impl InvehicleDigitalTwin for MockInVehicleTwin {
-        async fn find_by_id(
-            &self,
-            request: Request<IbejiFindByIdRequest>,
-        ) -> Result<Response<IbejiFindByIdResponse>, Status> {
-            let entity_id = request.into_inner().id;
-
-            if entity_id != AMBIENT_AIR_TEMPERATURE_ID {
-                return Err(Status::not_found(
-                    "Unable to find the entity with id {entity_id}",
-                ));
-            }
-
-            let endpoint_info = EndpointInfo {
-                protocol: String::from("grpc"),
-                uri: String::from("http://[::1]:40010"), // Devskim: ignore DS137138
-                context: String::from("dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1"),
-                operations: vec![String::from("Get"), String::from("Subscribe")],
-            };
-
-            let entity_access_info = EntityAccessInfo {
-                name: String::from("AmbientAirTemperature"),
-                id: String::from("dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1"),
-                description: String::from("Ambient air temperature"),
-                endpoint_info_list: vec![endpoint_info],
-            };
-
-            let response = IbejiFindByIdResponse {
-                entity_access_info: Some(entity_access_info),
-            };
-
-            Ok(Response::new(response))
-        }
-
-        async fn register(
-            &self,
-            _request: Request<RegisterRequest>,
-        ) -> Result<Response<RegisterResponse>, Status> {
-            let response = RegisterResponse {};
-            Ok(Response::new(response))
-        }
-    }
 
     /// The tests below uses Unix sockets to create a channel between a gRPC client and a gRPC server.
     /// Unix sockets are more ideal than using TCP/IP sockets since Rust tests will run in parallel
@@ -181,43 +134,15 @@ mod grpc_digital_twin_adapter_tests {
     mod unix_tests {
         use super::*;
 
-        use std::{
-            io::{stderr, Write},
-            path::PathBuf,
-        };
+        use std::path::PathBuf;
 
         use core_protobuf_data_access::invehicle_digital_twin::v1::invehicle_digital_twin_server::InvehicleDigitalTwinServer;
         use tokio::net::{UnixListener, UnixStream};
         use tokio_stream::wrappers::UnixListenerStream;
         use tonic::transport::{Channel, Endpoint, Server, Uri};
         use tower::service_fn;
-        use uuid::Uuid;
 
-        pub struct TestFixture {
-            pub socket_path: PathBuf,
-        }
-
-        impl TestFixture {
-            fn new() -> Self {
-                Self {
-                    socket_path: std::env::temp_dir()
-                        .as_path()
-                        .join(Uuid::new_v4().as_hyphenated().to_string()),
-                }
-            }
-        }
-
-        impl Drop for TestFixture {
-            fn drop(&mut self) {
-                match std::fs::remove_file(&self.socket_path) {
-                    Ok(_) => {}
-                    Err(e) => {
-                        write!(stderr(), "Error cleaning up `TestFixture`: {e:?}")
-                            .expect("Error writing to stderr");
-                    }
-                }
-            }
-        }
+        use freyja_test_common::{fixtures::GRPCTestFixture, mocks::MockInVehicleDigitalTwin};
 
         async fn create_test_grpc_client(
             socket_path: PathBuf,
@@ -235,7 +160,47 @@ mod grpc_digital_twin_adapter_tests {
         }
 
         async fn run_test_grpc_server(uds_stream: UnixListenerStream) {
-            let mock_in_vehicle_twin = MockInVehicleTwin {};
+            let mut mock_in_vehicle_twin = MockInVehicleDigitalTwin::new();
+            mock_in_vehicle_twin
+                .expect_find_by_id()
+                .withf(|request: &Request<IbejiFindByIdRequest>| {
+                    request.get_ref().id == AMBIENT_AIR_TEMPERATURE_ID
+                })
+                .returning(|_| {
+                    let endpoint_info = EndpointInfo {
+                        protocol: String::from("grpc"),
+                        uri: String::from("http://[::1]:40010"), // Devskim: ignore DS137138
+                        context: String::from(
+                            "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1",
+                        ),
+                        operations: vec![String::from("Get"), String::from("Subscribe")],
+                    };
+
+                    let entity_access_info = EntityAccessInfo {
+                        name: String::from("AmbientAirTemperature"),
+                        id: String::from("dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1"),
+                        description: String::from("Ambient air temperature"),
+                        endpoint_info_list: vec![endpoint_info],
+                    };
+
+                    let response = IbejiFindByIdResponse {
+                        entity_access_info: Some(entity_access_info),
+                    };
+
+                    Ok(Response::new(response))
+                });
+
+            mock_in_vehicle_twin
+                .expect_find_by_id()
+                .withf(|request: &Request<IbejiFindByIdRequest>| {
+                    request.get_ref().id != AMBIENT_AIR_TEMPERATURE_ID
+                })
+                .returning(|_| {
+                    Err(Status::not_found(
+                        "Unable to find the entity with id {entity_id}",
+                    ))
+                });
+
             Server::builder()
                 .add_service(InvehicleDigitalTwinServer::new(mock_in_vehicle_twin))
                 .serve_with_incoming(uds_stream)
@@ -245,7 +210,7 @@ mod grpc_digital_twin_adapter_tests {
 
         #[tokio::test]
         async fn find_by_id_test() {
-            let fixture = TestFixture::new();
+            let fixture = GRPCTestFixture::new();
 
             // Create the Unix Socket
             let uds = UnixListener::bind(&fixture.socket_path).unwrap();

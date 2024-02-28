@@ -505,6 +505,7 @@ dependencies = [
  "env_logger",
  "file-service-discovery-adapter",
  "freyja-common",
+ "freyja-test-common",
  "grpc-cloud-adapter",
  "grpc-digital-twin-adapter",
  "grpc-mapping-adapter",
@@ -515,7 +516,6 @@ dependencies = [
  "in-memory-mock-mapping-adapter",
  "log",
  "managed-subscribe-data-adapter",
- "mockall",
  "mqtt-data-adapter",
  "proc-macros",
  "sample-grpc-data-adapter",
@@ -540,6 +540,21 @@ dependencies = [
  "serde_json",
  "strum_macros",
  "tokio",
+]
+
+[[package]]
+name = "freyja-test-common"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "cloud-connector-proto",
+ "core-protobuf-data-access",
+ "freyja-common",
+ "mapping-service-proto",
+ "mockall",
+ "tokio",
+ "tonic",
+ "uuid",
 ]
 
 [[package]]
@@ -672,6 +687,7 @@ dependencies = [
  "cloud-connector-proto",
  "freyja-build-common",
  "freyja-common",
+ "freyja-test-common",
  "futures",
  "log",
  "serde",
@@ -680,7 +696,6 @@ dependencies = [
  "tokio-stream",
  "tonic",
  "tower",
- "uuid",
 ]
 
 [[package]]
@@ -691,13 +706,13 @@ dependencies = [
  "core-protobuf-data-access",
  "freyja-build-common",
  "freyja-common",
+ "freyja-test-common",
  "futures",
  "serde",
  "tokio",
  "tokio-stream",
  "tonic",
  "tower",
- "uuid",
 ]
 
 [[package]]
@@ -707,6 +722,7 @@ dependencies = [
  "async-trait",
  "freyja-build-common",
  "freyja-common",
+ "freyja-test-common",
  "futures",
  "log",
  "mapping-service-proto",
@@ -716,7 +732,6 @@ dependencies = [
  "tokio-stream",
  "tonic",
  "tower",
- "uuid",
 ]
 
 [[package]]
@@ -872,8 +887,8 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "freyja-common",
+ "freyja-test-common",
  "log",
- "mockall",
  "serde_json",
  "time",
  "tokio",
@@ -898,7 +913,7 @@ dependencies = [
  "async-trait",
  "freyja-build-common",
  "freyja-common",
- "mockall",
+ "freyja-test-common",
  "serde",
  "tokio",
 ]
@@ -910,7 +925,7 @@ dependencies = [
  "async-trait",
  "freyja-build-common",
  "freyja-common",
- "mockall",
+ "freyja-test-common",
  "serde",
  "tokio",
 ]
@@ -1582,6 +1597,7 @@ dependencies = [
  "async-trait",
  "freyja-build-common",
  "freyja-common",
+ "freyja-test-common",
  "futures",
  "log",
  "samples-protobuf-data-access",
@@ -1590,7 +1606,6 @@ dependencies = [
  "tokio-stream",
  "tonic",
  "tower",
- "uuid",
 ]
 
 [[package]]

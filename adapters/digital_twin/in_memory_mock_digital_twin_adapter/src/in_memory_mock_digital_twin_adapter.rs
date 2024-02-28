@@ -78,31 +78,17 @@ impl DigitalTwinAdapter for InMemoryMockDigitalTwinAdapter {
 #[cfg(test)]
 mod in_memory_mock_digital_twin_adapter_tests {
     use super::*;
-    use mockall::*;
 
     use crate::config::EntityConfig;
-    use freyja_common::{
-        entity::{Entity, EntityEndpoint},
-        service_discovery_adapter::{ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError},
-    };
+    use freyja_common::entity::{Entity, EntityEndpoint};
+    use freyja_test_common::mocks::MockServiceDiscoveryAdapterSelector;
 
     const OPERATION: &str = "Subscribe";
-
-    mock! {
-        pub ServiceDiscoveryAdapterSelectorImpl {}
-
-        #[async_trait]
-        impl ServiceDiscoveryAdapterSelector for ServiceDiscoveryAdapterSelectorImpl {
-            fn register(&mut self, adapter: Box<dyn ServiceDiscoveryAdapter + Send + Sync>) -> Result<(), ServiceDiscoveryAdapterError>;
-
-            async fn get_service_uri<'a>(&self, id: &'a str) -> Result<String, ServiceDiscoveryAdapterError>;
-        }
-    }
 
     #[test]
     fn can_create_new() {
         let result = InMemoryMockDigitalTwinAdapter::create_new(Arc::new(Mutex::new(
-            MockServiceDiscoveryAdapterSelectorImpl::new(),
+            MockServiceDiscoveryAdapterSelector::new(),
         )));
         assert!(result.is_ok());
     }

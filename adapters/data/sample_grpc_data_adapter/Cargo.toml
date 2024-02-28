@@ -20,9 +20,9 @@ tokio = { workspace = true }
 tonic = { workspace = true }
 
 [dev-dependencies]
+freyja-test-common = { workspace = true }
 tokio-stream = { workspace = true }
 tower = { workspace = true }
-uuid = { workspace = true, features = ["v4"] }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

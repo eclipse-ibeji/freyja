@@ -23,7 +23,7 @@ tonic = { workspace = true }
 freyja-build-common = { workspace = true }
 
 [dev-dependencies]
+freyja-test-common = { workspace = true }
 time = { workspace = true }
 tokio-stream = { workspace = true }
 tower = { workspace = true }
-uuid = { workspace = true, features = ["v4"] }

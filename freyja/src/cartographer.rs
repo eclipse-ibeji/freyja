@@ -228,66 +228,16 @@ mod cartographer_tests {
 
     use std::collections::HashMap;
 
-    use async_trait::async_trait;
-    use mockall::{predicate::eq, *};
-
     use freyja_common::{
-        data_adapter::DataAdapterFactory,
-        data_adapter_selector::DataAdapterSelectorError,
-        digital_twin_adapter::{DigitalTwinAdapterError, FindByIdResponse},
+        digital_twin_adapter::FindByIdResponse,
         digital_twin_map_entry::DigitalTwinMapEntry,
         entity::{Entity, EntityEndpoint},
-        mapping_adapter::{CheckForWorkResponse, GetMappingResponse, MappingAdapterError},
-        service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
+        mapping_adapter::GetMappingResponse,
     };
-
-    mock! {
-        pub DigitalTwinAdapterImpl {}
-
-        #[async_trait]
-        impl DigitalTwinAdapter for DigitalTwinAdapterImpl {
-            fn create_new(selector: Arc<tokio::sync::Mutex<dyn ServiceDiscoveryAdapterSelector>>) -> Result<Self, DigitalTwinAdapterError>
-            where
-                Self: Sized;
-
-            async fn find_by_id(
-                &self,
-                request: FindByIdRequest,
-            ) -> Result<FindByIdResponse, DigitalTwinAdapterError>;
-        }
-    }
-
-    mock! {
-        pub MappingAdapterImpl {}
-
-        #[async_trait]
-        impl MappingAdapter for MappingAdapterImpl {
-            fn create_new(selector: Arc<tokio::sync::Mutex<dyn ServiceDiscoveryAdapterSelector>>) -> Result<Self, MappingAdapterError>
-            where
-                Self: Sized;
-
-            async fn check_for_work(
-                &self,
-                request: CheckForWorkRequest,
-            ) -> Result<CheckForWorkResponse, MappingAdapterError>;
-
-            async fn get_mapping(
-                &self,
-                request: GetMappingRequest,
-            ) -> Result<GetMappingResponse, MappingAdapterError>;
-        }
-    }
-
-    mock! {
-        pub DataAdapterSelector {}
-
-        #[async_trait]
-        impl DataAdapterSelector for DataAdapterSelector {
-            fn register(&mut self, factory: Box<dyn DataAdapterFactory + Send + Sync>) -> Result<(), DataAdapterSelectorError>;
-            async fn create_or_update_adapter(&self, entity: &Entity) -> Result<(), DataAdapterSelectorError>;
-            async fn request_entity_value(&self, entity_id: &str) -> Result<(), DataAdapterSelectorError>;
-        }
-    }
+    use freyja_test_common::{
+        mockall::predicate::eq,
+        mocks::{MockDataAdapterSelector, MockDigitalTwinAdapter, MockMappingAdapter},
+    };
 
     #[tokio::test]
     async fn get_mapping_as_signals_returns_correct_value() {
@@ -302,7 +252,7 @@ mod cartographer_tests {
 
         let test_map_entry_clone = test_map_entry.clone();
 
-        let mut mock_mapping_adapter = MockMappingAdapterImpl::new();
+        let mut mock_mapping_adapter = MockMappingAdapter::new();
         mock_mapping_adapter
             .expect_get_mapping()
             .returning(move |_| {
@@ -316,7 +266,7 @@ mod cartographer_tests {
         let uut = Cartographer {
             signals: Arc::new(SignalStore::new()),
             mapping_adapter: mock_mapping_adapter,
-            digital_twin_adapter: MockDigitalTwinAdapterImpl::new(),
+            digital_twin_adapter: MockDigitalTwinAdapter::new(),
             data_adapter_selector: Arc::new(Mutex::new(MockDataAdapterSelector::new())),
             poll_interval: Duration::from_secs(1),
         };
@@ -370,7 +320,7 @@ mod cartographer_tests {
             .returning(|_| Ok(()));
         let data_adapter_selector = Arc::new(Mutex::new(mock_data_adapter_selector));
 
-        let mut mock_dt_adapter = MockDigitalTwinAdapterImpl::new();
+        let mut mock_dt_adapter = MockDigitalTwinAdapter::new();
         mock_dt_adapter.expect_find_by_id().returning(move |_| {
             Ok(FindByIdResponse {
                 entity: test_entity_clone.clone(),
@@ -379,7 +329,7 @@ mod cartographer_tests {
 
         let uut = Cartographer {
             signals: Arc::new(SignalStore::new()),
-            mapping_adapter: MockMappingAdapterImpl::new(),
+            mapping_adapter: MockMappingAdapter::new(),
             digital_twin_adapter: mock_dt_adapter,
             data_adapter_selector,
             poll_interval: Duration::from_secs(1),

@@ -111,33 +111,18 @@ impl MappingAdapter for InMemoryMockMappingAdapter {
 #[cfg(test)]
 mod in_memory_mock_mapping_adapter_tests {
     use super::*;
-    use mockall::*;
 
     use std::collections::HashMap;
 
-    use freyja_common::{
-        conversion::Conversion,
-        digital_twin_map_entry::DigitalTwinMapEntry,
-        service_discovery_adapter::{ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError},
-    };
+    use freyja_common::{conversion::Conversion, digital_twin_map_entry::DigitalTwinMapEntry};
+    use freyja_test_common::mocks::MockServiceDiscoveryAdapterSelector;
 
     use crate::config::ConfigItem;
-
-    mock! {
-        pub ServiceDiscoveryAdapterSelectorImpl {}
-
-        #[async_trait]
-        impl ServiceDiscoveryAdapterSelector for ServiceDiscoveryAdapterSelectorImpl {
-            fn register(&mut self, adapter: Box<dyn ServiceDiscoveryAdapter + Send + Sync>) -> Result<(), ServiceDiscoveryAdapterError>;
-
-            async fn get_service_uri<'a>(&self, id: &'a str) -> Result<String, ServiceDiscoveryAdapterError>;
-        }
-    }
 
     #[test]
     fn can_create_new() {
         let result = InMemoryMockMappingAdapter::create_new(Arc::new(Mutex::new(
-            MockServiceDiscoveryAdapterSelectorImpl::new(),
+            MockServiceDiscoveryAdapterSelector::new(),
         )));
         assert!(result.is_ok());
     }
