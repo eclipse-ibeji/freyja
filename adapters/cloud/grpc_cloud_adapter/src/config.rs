@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 /// Config for the GRPCCloudAdapter
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
-    /// The target uri for the gRPC server
-    pub target_uri: String,
+    /// The service discovery id of the cloud connector
+    pub service_discovery_id: String,
 
     /// Max retries for contacting the server
     pub max_retries: u32,

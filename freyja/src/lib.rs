@@ -78,7 +78,8 @@ pub async fn freyja_main<
     let cartographer_poll_interval = Duration::from_secs(5);
     let cartographer = Cartographer::new(
         signal_store.clone(),
-        TMappingAdapter::create_new().expect("Could not create mapping adapter"),
+        TMappingAdapter::create_new(service_discovery_adapter_selector.clone())
+            .expect("Could not create mapping adapter"),
         TDigitalTwinAdapter::create_new(service_discovery_adapter_selector.clone())
             .expect("Could not create digital twin adapter"),
         data_adapter_selector.clone(),
@@ -88,7 +89,8 @@ pub async fn freyja_main<
     // Setup emitter
     let emitter = Emitter::new(
         signal_store.clone(),
-        TCloudAdapter::create_new().expect("Could not create cloud adapter"),
+        TCloudAdapter::create_new(service_discovery_adapter_selector.clone())
+            .expect("Could not create cloud adapter"),
         data_adapter_selector.clone(),
     );
 

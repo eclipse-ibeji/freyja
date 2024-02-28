@@ -210,6 +210,7 @@ mod emitter_tests {
         data_adapter::DataAdapterFactory,
         data_adapter_selector::DataAdapterSelectorError,
         entity::Entity,
+        service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
         signal::{Emission, EmissionPolicy},
     };
 
@@ -218,7 +219,9 @@ mod emitter_tests {
 
         #[async_trait]
         impl CloudAdapter for CloudAdapter {
-            fn create_new() -> Result<Self, CloudAdapterError>
+            fn create_new(
+                selector: Arc<tokio::sync::Mutex<dyn ServiceDiscoveryAdapterSelector>>,
+            ) -> Result<Self, CloudAdapterError>
             where
                 Self: Sized;
 

@@ -2,11 +2,15 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use log::{debug, info};
+use tokio::sync::Mutex;
 
-use freyja_common::cloud_adapter::{
-    CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse,
+use freyja_common::{
+    cloud_adapter::{CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse},
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
 };
 
 /// Mocks a cloud adapter in memory
@@ -15,7 +19,12 @@ pub struct InMemoryMockCloudAdapter {}
 #[async_trait]
 impl CloudAdapter for InMemoryMockCloudAdapter {
     /// Creates a new instance of a CloudAdapter with default settings
-    fn create_new() -> Result<Self, CloudAdapterError> {
+    ///
+    /// # Arguments
+    /// - `_selector`: the service discovery adapter selector to use (unused by this adapter)
+    fn create_new(
+        _selector: Arc<Mutex<dyn ServiceDiscoveryAdapterSelector>>,
+    ) -> Result<Self, CloudAdapterError> {
         Ok(Self {})
     }
 
@@ -41,20 +50,41 @@ impl CloudAdapter for InMemoryMockCloudAdapter {
 #[cfg(test)]
 mod in_memory_mock_cloud_adapter_tests {
     use super::*;
+    use mockall::*;
 
     use std::collections::HashMap;
 
     use time::OffsetDateTime;
 
+    use freyja_common::service_discovery_adapter::{
+        ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError,
+    };
+
+    mock! {
+        pub ServiceDiscoveryAdapterSelectorImpl {}
+
+        #[async_trait]
+        impl ServiceDiscoveryAdapterSelector for ServiceDiscoveryAdapterSelectorImpl {
+            fn register(&mut self, adapter: Box<dyn ServiceDiscoveryAdapter + Send + Sync>) -> Result<(), ServiceDiscoveryAdapterError>;
+
+            async fn get_service_uri<'a>(&self, id: &'a str) -> Result<String, ServiceDiscoveryAdapterError>;
+        }
+    }
+
     #[test]
     fn can_get_new() {
-        let result = InMemoryMockCloudAdapter::create_new();
+        let result = InMemoryMockCloudAdapter::create_new(Arc::new(Mutex::new(
+            MockServiceDiscoveryAdapterSelectorImpl::new(),
+        )));
         assert!(result.is_ok());
     }
 
     #[tokio::test]
     async fn can_send_to_cloud() {
-        let cloud_adapter = InMemoryMockCloudAdapter::create_new().unwrap();
+        let cloud_adapter = InMemoryMockCloudAdapter::create_new(Arc::new(Mutex::new(
+            MockServiceDiscoveryAdapterSelectorImpl::new(),
+        )))
+        .unwrap();
 
         let cloud_message = CloudMessageRequest {
             metadata: HashMap::new(),

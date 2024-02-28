@@ -17,3 +17,4 @@ tokio = { workspace = true }
 
 [dev-dependencies]
 time = { workspace = true }
+mockall = { workspace = true }

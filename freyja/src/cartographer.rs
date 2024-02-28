@@ -262,7 +262,7 @@ mod cartographer_tests {
 
         #[async_trait]
         impl MappingAdapter for MappingAdapterImpl {
-            fn create_new() -> Result<Self, MappingAdapterError>
+            fn create_new(selector: Arc<tokio::sync::Mutex<dyn ServiceDiscoveryAdapterSelector>>) -> Result<Self, MappingAdapterError>
             where
                 Self: Sized;
 

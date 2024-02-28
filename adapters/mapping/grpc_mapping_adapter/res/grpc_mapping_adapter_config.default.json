@@ -1,5 +1,5 @@
 {
-    "target_uri": "http://127.0.0.1:8888",
+    "service_discovery_id": "sdv.freyja/mapping_service/1.0",
     "max_retries": 5,
     "retry_interval_ms": 10000
 }

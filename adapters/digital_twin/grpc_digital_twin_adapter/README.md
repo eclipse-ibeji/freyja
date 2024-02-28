@@ -10,7 +10,7 @@ This adapter implements the [Ibeji In-Vehicle Digital Twin Service API](https://
 
 This adapter supports the following configuration settings:
 
-- `service_discovery_id`: The id of the in-vehicle digital twin service in your service discovery system.
+- `service_discovery_id`: The id of the in-vehicle digital twin service in your service discovery system. The default value is `sdv.ibeji/invehicle_digital_twin/1.0`, which corresponds to Ibeji's service discovery ID.
 - `max_retries`: The maximum number of times to retry failed attempts to send data to the server.
 - `retry_interval_ms`: The interval between subsequent retry attempts, in milliseconds
 

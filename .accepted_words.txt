@@ -163,6 +163,7 @@ rustup
 SampleGRPCDataAdapter
 sdk
 SDV
+sdv
 SecretUri
 seiðr
 ServiceDiscoveryAdapter
