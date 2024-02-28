@@ -28,6 +28,13 @@ impl GRPCTestFixture {
     }
 }
 
+impl Default for GRPCTestFixture {
+    /// Create a new `GRPCTestFixture` that generates a unique `socket_path`
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Drop for GRPCTestFixture {
     /// Cleans up the fixture by deleting the file at the socket path
     fn drop(&mut self) {
