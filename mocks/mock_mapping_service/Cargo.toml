@@ -9,13 +9,15 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-axum = { workspace = true }
+async-trait = { workspace = true }
 env_logger = { workspace = true }
 freyja-build-common = { workspace = true }
 freyja-common = { workspace = true }
 log = { workspace = true }
+mapping-service-proto = { workspace = true }
 serde = { workspace = true }
 tokio = { workspace = true }
+tonic = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

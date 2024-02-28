@@ -14,7 +14,9 @@ use tonic::{Request, Response, Status};
 
 use crate::{find_entity, DigitalTwinAdapterState};
 
+/// Implements an In-Vehicle Digital Twin Server
 pub struct MockDigitalTwinImpl {
+    /// The server state
     pub(crate) state: Arc<Mutex<DigitalTwinAdapterState>>,
 }
 
@@ -23,7 +25,7 @@ impl InvehicleDigitalTwin for MockDigitalTwinImpl {
     /// Find-by-id implementation.
     ///
     /// # Arguments
-    /// * `request` - Find-by-id request.
+    /// - `request`: Find-by-id request.
     async fn find_by_id(
         &self,
         request: Request<FindByIdRequest>,
@@ -62,7 +64,7 @@ impl InvehicleDigitalTwin for MockDigitalTwinImpl {
     /// Register implementation.
     ///
     /// # Arguments
-    /// * `request` - Publish request.
+    /// - `request`: Register request.
     async fn register(
         &self,
         _request: Request<RegisterRequest>,

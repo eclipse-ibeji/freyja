@@ -2,7 +2,7 @@
     "values": [
         {
             "entity": {
-                "id": "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1",
+                "id": "dtmi:sdv:HVAC:AmbientAirTemperature;1",
                 "name": "AmbientAirTemperature",
                 "description": "The air temperature of the immediate surroundings (in Fahrenheit).",
                 "endpoints": [
@@ -17,7 +17,7 @@
         },
         {
             "entity": {
-                "id": "dtmi:sdv:Vehicle:Cabin:HVAC:IsAirConditioningActive;1",
+                "id": "dtmi:sdv:HVAC:IsAirConditioningActive;1",
                 "name": "IsAirConditioningActive",
                 "description": "Is air conditioning active?",
                 "endpoints": [
@@ -32,7 +32,7 @@
         },
         {
             "entity": {
-                "id": "dtmi:sdv:Vehicle:OBD:HybridBatteryRemaining;1",
+                "id": "dtmi:sdv:OBD:HybridBatteryRemaining;1",
                 "name": "HybridBatteryRemaining",
                 "description": "Percentage of the hybrid battery remaining",
                 "endpoints": [

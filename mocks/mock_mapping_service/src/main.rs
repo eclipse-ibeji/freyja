@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 mod config;
+mod mock_mapping_service_impl;
 
 use std::{
     env, io,
@@ -10,32 +11,38 @@ use std::{
     thread,
 };
 
-use axum::{
-    extract::State,
-    response::{IntoResponse, Response},
-    routing::get,
-    Router,
-};
 use env_logger::Target;
 use log::{info, LevelFilter};
-use tokio::net::TcpListener;
+use mapping_service_proto::v1::mapping_service_server::MappingServiceServer;
+use tonic::transport::Server;
 
 use config::Config;
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     cmd_utils::{get_log_level, parse_args},
-    config_utils,
-    mapping_adapter::{CheckForWorkResponse, GetMappingResponse},
-    ok, out_dir,
+    config_utils, out_dir,
 };
 
+use crate::mock_mapping_service_impl::MockMappingServiceImpl;
+
+/// Stores the state of the mapping service
 struct MappingState {
+    /// An internal count that dictates which mappings are enabled
     count: u8,
+
+    /// Indicates whether or not there is an update to the mapping that a client has not yet consumed
     pending_work: bool,
+
+    /// The mapping service config
     config: Config,
+
+    /// Whether or not the application is in interactive mode
     interactive: bool,
 }
 
+/// Starts the following threads and tasks:
+/// - A thread which listens for input from the command window
+/// - A GRPC server to accept incoming requests
 #[tokio::main]
 async fn main() {
     let args = parse_args(env::args()).expect("Failed to parse args");
@@ -49,7 +56,7 @@ async fn main() {
 
     let interactive = args.get("interactive").is_some();
 
-    let config = config_utils::read_from_files(
+    let config: Config = config_utils::read_from_files(
         config_file_stem!(),
         config_utils::JSON_EXT,
         out_dir!(),
@@ -58,7 +65,7 @@ async fn main() {
     )
     .unwrap();
 
-    const SERVER_ENDPOINT: &str = "127.0.0.1:8888";
+    let server_endpoint = config.mapping_server_authority.clone();
 
     let state = Arc::new(Mutex::new(MappingState {
         count: 0,
@@ -106,60 +113,30 @@ async fn main() {
         });
     }
 
-    info!("Mock Mapping Server starting at {SERVER_ENDPOINT}");
+    // Server setup
+    info!("Mock Mapping Server starting at {}", server_endpoint);
 
-    // HTTP server setup
-    let app = Router::new()
-        .route("/work", get(get_work))
-        .route("/mapping", get(get_mapping))
-        .with_state(state);
+    let addr = server_endpoint
+        .parse()
+        .expect("Unable to parse server address");
 
-    let listener = TcpListener::bind(&SERVER_ENDPOINT)
-        .await
-        .expect("Unable to bind to server endpoint");
-
-    axum::serve(listener, app).await.unwrap();
-}
-
-async fn get_work(State(state): State<Arc<Mutex<MappingState>>>) -> Response {
-    let mut state = state.lock().unwrap();
-    if state.pending_work {
-        info!("Work consumed");
-        state.pending_work = false;
-        ok!(CheckForWorkResponse { has_work: true })
-    } else {
-        ok!(CheckForWorkResponse { has_work: false })
-    }
-}
-
-async fn get_mapping(State(state): State<Arc<Mutex<MappingState>>>) -> Response {
-    let state = state.lock().unwrap();
-    let response = GetMappingResponse {
-        map: state
-            .config
-            .values
-            .iter()
-            .filter_map(|c| {
-                if !state.interactive {
-                    Some((c.value.source.clone(), c.value.clone()))
-                } else {
-                    match c.end {
-                        Some(end) if state.count >= c.begin && state.count < end => {
-                            Some((c.value.source.clone(), c.value.clone()))
-                        }
-                        None if state.count >= c.begin => {
-                            Some((c.value.source.clone(), c.value.clone()))
-                        }
-                        _ => None,
-                    }
-                }
-            })
-            .collect(),
+    let mock_mapping_service = MockMappingServiceImpl {
+        state: state.clone(),
     };
 
-    ok!(response)
+    Server::builder()
+        .add_service(MappingServiceServer::new(mock_mapping_service))
+        .serve(addr)
+        .await
+        .unwrap();
 }
 
+/// Checks to see if there is pending work
+///
+/// # Arguments
+/// - `config`: the mapping service config
+/// - `n`: the current count
+/// - `interactive`: whether or not the service is running in interactive mode
 fn check_for_work(config: &Config, n: u8, interactive: bool) -> bool {
     config.values.iter().any(|c| {
         (!interactive && n == 0)

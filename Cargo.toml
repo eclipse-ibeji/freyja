@@ -16,7 +16,6 @@ members = [
   "adapters/digital_twin/in_memory_mock_digital_twin_adapter",
   "adapters/mapping/grpc_mapping_adapter",
   "adapters/mapping/in_memory_mock_mapping_adapter",
-  "adapters/mapping/mock_mapping_service_adapter",
   "adapters/service_discovery/file_service_discovery_adapter",
   "adapters/service_discovery/grpc_service_discovery_adapter",
   "build_common",
@@ -46,7 +45,6 @@ in-memory-mock-mapping-adapter = { path = "adapters/mapping/in_memory_mock_mappi
 managed-subscribe-data-adapter = { path = "adapters/data/managed_subscribe_data_adapter" }
 mapping-service-proto = { path = "proto/mapping_service" }
 mock-digital-twin = { path = "mocks/mock_digital_twin" }
-mock-mapping-service-adapter = { path = "adapters/mapping/mock_mapping_service_adapter" }
 mqtt-data-adapter = { path = "adapters/data/mqtt_data_adapter" }
 proc-macros = { path = "proc_macros" }
 sample-grpc-data-adapter = { path = "adapters/data/sample_grpc_data_adapter" }
@@ -58,7 +56,6 @@ service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott"
 
 # crates.io dependencies
 async-trait = "0.1.77"
-axum = "0.7.4"
 config = "0.14.0"
 convert_case = "0.6.0"
 env_logger = "0.11.2"
@@ -71,7 +68,6 @@ proc-macro2 = "1.0.78"
 prost = "0.12"
 prost-types = "0.12"
 quote = "1.0.23"
-reqwest = { version = "0.11.24", features = ["json"] }
 serde = { version = "1.0.196", features = ["derive"] }
 serde_json = "1.0.113"
 strum = "0.26.1"

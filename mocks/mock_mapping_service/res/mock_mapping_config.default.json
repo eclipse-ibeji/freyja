@@ -1,4 +1,5 @@
 {
+    "mapping_server_authority": "0.0.0.0:8888",
     "values": [
         {
             "begin": 1,

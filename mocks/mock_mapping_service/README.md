@@ -1,14 +1,25 @@
 # Mock Mapping Service
 
-The Mock Mapping Service mocks the behavior of a mapping service as a separate application. This enables a more high-fidelity demo and greater control over the mapping data.
+The Mock Mapping Service mocks the behavior of a mapping service as a separate application. This enables a more high-fidelity demo and greater control over the mapping data compared to the in-memory mock.
+
+The Mock Mapping Service implements the [Mapping Service API](../../interfaces/mapping_service/v1/mapping_service.proto), making it compatible with the [gRPC Mapping Adapter](../../adapters/mapping/grpc_mapping_adapter/README.md).
 
 ## Configuration
 
-The mock's default config is located at  `res/mock_mapping_config.default.json` and will be copied to the build output automatically. The schema for this config is identical to that of the [In-Memory Mock Mapping Adapter](../../adapters/mapping/in_memory_mock_mapping_adapter/README.md), and the override mechanisms are the same. Note that the config file name is the same, so using an override at `$FREYJA_HOME/config/mock_mapping_config.json` will apply to both this mock and the in-memory mock.
+This mock supports the following configuration:
+
+- `mapping_server_authority`: The authority that will be used for hosting the mapping service.
+- `values`: The list of mapping entries. The schema for this property is identical to the schema for the `values` property in the [In-Memory Mock Mapping Adapter](../../adapters/mapping/in_memory_mock_mapping_adapter/README.md)
+
+This mock supports [config overrides](../../docs/tutorials/config-overrides.md). The override filename is `mock_mapping_config.json`, and the default config is located at `res/mock_mapping_config.default.json`. Note that this filename is the same as the one for the In-Memory Mock Mapping Adapter and that the override mechanisms are the same, so the same override files can be used for both adapters (the in-memory adapter will ignore the `mapping_server_authority` value).
 
 ## Behavior
 
 The behavior of the Mock Mapping Service is largely equivalent to that of the In-Memory Mock Mapping Adapter linked above, but the count is managed differently depending on whether the application is in interactive mode or not.
+
+### Non-Interactive Mode
+
+Non-interactive mode is the default behavior of this application. In non-interactive mode, the `begin` and `end` properties in the config are ignored, and all configured mappings are always exposed in the mock's APIs. Furthermore, this means that the application will indicate that there is work to consume when it starts up, but once it's been consumed there will never be any additional work.
 
 ### Interactive Mode
 
@@ -16,8 +27,16 @@ In interactive mode, the application maintains an internal count, and only mappi
 
 **Do not use interactive mode if running this service in a container!** This feature is not compatible with containers and will cause unexpected behavior, including very high resource consumption.
 
-### Non-Interactive Mode
+## Build and Run
 
-In non-interactive mode, the `begin` and `end` properties in the config are ignored, and all configured mappings are always exposed in the mock's APIs. Furthermore, this means that the application will indicate that there is work to consume when it starts up, but once it's been consumed there will not be any additional work.
+To build and run the Mock Mapping Service in non-interactive mode, run the following command:
 
-This is the default behavior of this application.
+```shell
+cargo run -p mock-mapping-service
+```
+
+To enable interactive mode, run the same command with the `--interactive` argument:
+
+```shell
+cargo run -p mock-mapping-service -- --interactive
+```
