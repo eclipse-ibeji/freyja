@@ -6,11 +6,11 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use log::{debug, info};
+use tokio::sync::Mutex;
 
 use freyja_common::{cloud_adapter::{
     CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse,
 }, service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector};
-use tokio::sync::Mutex;
 
 /// Mocks a cloud adapter in memory
 pub struct InMemoryMockCloudAdapter {}

@@ -6,7 +6,6 @@ use std::{str::FromStr, sync::Arc};
 use std::time::Duration;
 
 use async_trait::async_trait;
-use freyja_common::service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector;
 use log::debug;
 use tokio::sync::Mutex;
 use tonic::transport::Channel;
@@ -20,6 +19,7 @@ use freyja_common::{
     cloud_adapter::{CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse},
     config_utils, out_dir,
     retry_utils::execute_with_retry,
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
 };
 
 use crate::config::Config;
