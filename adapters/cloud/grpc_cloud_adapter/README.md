@@ -10,8 +10,8 @@ This adapter utilizes a gRPC client for the `CloudConnector` service in the [clo
 
 This adapter supports the following configuration settings:
 
-- `target_uri`: The URI of the server to call.
+- `service_discovery_id`: The ID of the cloud connector in your service discovery system. The default value is `sdv.cloud_connector/cloud_connector/1.0`.
 - `max_retries`: The maximum number of times to retry failed attempts to send data to the server.
-- `retry_interval_ms`: The interval between subsequent retry attempts, in milliseconds
+- `retry_interval_ms`: The interval between subsequent retry attempts, in milliseconds.
 
 This adapter supports [config overrides](../../../docs/tutorials/config-overrides.md). The override filename is `grpc_cloud_adapter_config.json`, and the default config is located at `res/grpc_cloud_adapter_config.default.json`.

@@ -10,7 +10,7 @@ This adapter utilizes a gRPC client for the `MappingService` in the [mapping ser
 
 This adapter supports the following configuration settings:
 
-- `target_uri`: The URI of the server to call.
+- `service_discovery_id`: The ID of the mapping service in your service discovery system. The default value is `sdv.freyja/mapping_service/1.0`.
 - `max_retries`: The maximum number of retry attempts when sending data to the server.
 - `retry_interval_ms`: The interval between subsequent retry attempts, in milliseconds
 
