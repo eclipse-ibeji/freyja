@@ -10,6 +10,8 @@ use uuid::Uuid;
 pub struct GRPCTestFixture
 {
     /// The path to a file in the temp directory.
+    /// Note that this fixture will not create anything at this location,
+    /// it will just generate a filename and clean up the file during teardown.
     pub socket_path: PathBuf,
 }
 

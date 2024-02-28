@@ -153,7 +153,7 @@ mod grpc_cloud_adapter_tests {
             let mut mock_cloud_connector = MockCloudConnector::new();
             mock_cloud_connector
                 .expect_update_digital_twin()
-                .returning(|_| Ok(Response::new(UpdateDigitalTwinResponse{})));
+                .returning(|_| Ok(Response::new(UpdateDigitalTwinResponse::default())));
             Server::builder()
                 .add_service(CloudConnectorServer::new(mock_cloud_connector))
                 .serve_with_incoming(uds_stream)
