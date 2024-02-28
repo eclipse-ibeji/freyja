@@ -148,71 +148,20 @@ mod grpc_mapping_adapter_tests {
     mod unix_tests {
         use super::*;
 
-        use std::{
-            io::{stderr, Write},
-            path::PathBuf,
-        };
+        use std::path::PathBuf;
 
-        use mapping_service_proto::v1::{
-            mapping_service_server::{MappingService, MappingServiceServer},
-            CheckForWorkResponse as ProtoCheckForWorkResponse,
-            GetMappingResponse as ProtoGetMappingResponse,
-        };
         use tokio::net::{UnixListener, UnixStream};
         use tokio_stream::wrappers::UnixListenerStream;
         use tonic::{
-            transport::{Channel, Endpoint, Server, Uri},
-            Request, Response, Status,
+            transport::{Channel, Endpoint, Server, Uri}, Response,
         };
         use tower::service_fn;
-        use uuid::Uuid;
-
-        pub struct TestFixture {
-            pub socket_path: PathBuf,
-        }
-
-        impl TestFixture {
-            fn new() -> Self {
-                Self {
-                    socket_path: std::env::temp_dir()
-                        .as_path()
-                        .join(Uuid::new_v4().as_hyphenated().to_string()),
-                }
-            }
-        }
-
-        impl Drop for TestFixture {
-            fn drop(&mut self) {
-                match std::fs::remove_file(&self.socket_path) {
-                    Ok(_) => {}
-                    Err(e) => {
-                        write!(stderr(), "Error cleaning up `TestFixture`: {e:?}")
-                            .expect("Error writing to stderr");
-                    }
-                }
-            }
-        }
-
-        pub struct MockMappingService {}
-
-        #[tonic::async_trait]
-        impl MappingService for MockMappingService {
-            async fn check_for_work(
-                &self,
-                _request: Request<ProtoCheckForWorkRequest>,
-            ) -> Result<Response<ProtoCheckForWorkResponse>, Status> {
-                let response = ProtoCheckForWorkResponse::default();
-                Ok(Response::new(response))
-            }
-
-            async fn get_mapping(
-                &self,
-                _request: Request<ProtoGetMappingRequest>,
-            ) -> Result<Response<ProtoGetMappingResponse>, Status> {
-                let response = ProtoGetMappingResponse::default();
-                Ok(Response::new(response))
-            }
-        }
+        
+        use freyja_test_common::{fixtures::GRPCTestFixture, mocks::MockMappingService};
+        use mapping_service_proto::v1::{
+            mapping_service_server::MappingServiceServer,
+            GetMappingResponse as ProtoGetMappingResponse,
+        };
 
         async fn create_test_grpc_client(socket_path: PathBuf) -> MappingServiceClient<Channel> {
             let channel = Endpoint::try_from("http://URI_IGNORED") // Devskim: ignore DS137138
@@ -228,9 +177,13 @@ mod grpc_mapping_adapter_tests {
         }
 
         async fn run_test_grpc_server(uds_stream: UnixListenerStream) {
-            let mock_azure_connector = MockMappingService {};
+            let mut mock_mapping_service = MockMappingService::new();
+            mock_mapping_service
+                .expect_get_mapping()
+                .returning(|_| Ok(Response::new(ProtoGetMappingResponse::default())));
+
             Server::builder()
-                .add_service(MappingServiceServer::new(mock_azure_connector))
+                .add_service(MappingServiceServer::new(mock_mapping_service))
                 .serve_with_incoming(uds_stream)
                 .await
                 .unwrap();
@@ -238,7 +191,7 @@ mod grpc_mapping_adapter_tests {
 
         #[tokio::test]
         async fn send_request_to_provider() {
-            let fixture = TestFixture::new();
+            let fixture = GRPCTestFixture::new();
 
             // Create the Unix Socket
             let uds = UnixListener::bind(&fixture.socket_path).unwrap();

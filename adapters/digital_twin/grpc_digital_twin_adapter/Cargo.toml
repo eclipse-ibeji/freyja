@@ -24,4 +24,4 @@ freyja-build-common = { workspace = true }
 [dev-dependencies]
 tokio-stream = { workspace = true, features = ["net"] }
 tower = { workspace = true }
-uuid = { workspace = true, features = ["v4"] }
+freyja-test-common = { workspace = true }

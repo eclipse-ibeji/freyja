@@ -16,7 +16,7 @@ serde = { workspace = true }
 tokio = { workspace = true }
 
 [dev-dependencies]
-mockall = { workspace = true }
+freyja-test-common = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }

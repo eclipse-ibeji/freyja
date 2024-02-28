@@ -26,6 +26,7 @@ members = [
   "proc_macros",
   "proto/cloud_connector",
   "proto/mapping_service",
+  "test_common",
 ]
 
 [workspace.dependencies]
@@ -34,6 +35,7 @@ cloud-connector-proto = { path = "proto/cloud_connector" }
 file-service-discovery-adapter = { path = "adapters/service_discovery/file_service_discovery_adapter" }
 freyja-build-common = { path = "build_common" }
 freyja-common = { path = "common" }
+freyja-test-common = { path = "test_common" }
 grpc-cloud-adapter = { path = "adapters/cloud/grpc_cloud_adapter" }
 grpc-digital-twin-adapter = { path = "adapters/digital_twin/grpc_digital_twin_adapter" }
 grpc-mapping-adapter = { path = "adapters/mapping/grpc_mapping_adapter" }

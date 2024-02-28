@@ -50,31 +50,17 @@ impl CloudAdapter for InMemoryMockCloudAdapter {
 #[cfg(test)]
 mod in_memory_mock_cloud_adapter_tests {
     use super::*;
-    use mockall::*;
 
     use std::collections::HashMap;
 
     use time::OffsetDateTime;
 
-    use freyja_common::service_discovery_adapter::{
-        ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError,
-    };
-
-    mock! {
-        pub ServiceDiscoveryAdapterSelectorImpl {}
-
-        #[async_trait]
-        impl ServiceDiscoveryAdapterSelector for ServiceDiscoveryAdapterSelectorImpl {
-            fn register(&mut self, adapter: Box<dyn ServiceDiscoveryAdapter + Send + Sync>) -> Result<(), ServiceDiscoveryAdapterError>;
-
-            async fn get_service_uri<'a>(&self, id: &'a str) -> Result<String, ServiceDiscoveryAdapterError>;
-        }
-    }
+    use freyja_test_common::mocks::MockServiceDiscoveryAdapterSelector;
 
     #[test]
     fn can_get_new() {
         let result = InMemoryMockCloudAdapter::create_new(Arc::new(Mutex::new(
-            MockServiceDiscoveryAdapterSelectorImpl::new(),
+            MockServiceDiscoveryAdapterSelector::new(),
         )));
         assert!(result.is_ok());
     }
@@ -82,7 +68,7 @@ mod in_memory_mock_cloud_adapter_tests {
     #[tokio::test]
     async fn can_send_to_cloud() {
         let cloud_adapter = InMemoryMockCloudAdapter::create_new(Arc::new(Mutex::new(
-            MockServiceDiscoveryAdapterSelectorImpl::new(),
+            MockServiceDiscoveryAdapterSelector::new(),
         )))
         .unwrap();
 

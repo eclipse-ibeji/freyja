@@ -27,8 +27,7 @@ tokio = { workspace = true }
 
 [dev-dependencies]
 # Dependencies for testing
-mockall = { workspace = true }
-async-trait = { workspace = true }
+freyja-test-common = { workspace = true }
 
 # Dependencies for examples
 in-memory-mock-cloud-adapter = { workspace = true }
