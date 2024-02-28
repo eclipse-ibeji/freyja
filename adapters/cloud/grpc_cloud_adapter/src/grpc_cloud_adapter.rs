@@ -2,8 +2,8 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::{str::FromStr, sync::Arc};
 use std::time::Duration;
+use std::{str::FromStr, sync::Arc};
 
 use async_trait::async_trait;
 use log::debug;

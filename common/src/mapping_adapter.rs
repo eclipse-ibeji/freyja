@@ -8,7 +8,10 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use tokio::sync::Mutex;
 
-use crate::{digital_twin_map_entry::DigitalTwinMapEntry, service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector};
+use crate::{
+    digital_twin_map_entry::DigitalTwinMapEntry,
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
+};
 
 /// Interface for communicating with a mapping service
 #[async_trait]

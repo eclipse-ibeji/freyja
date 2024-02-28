@@ -8,9 +8,10 @@ use async_trait::async_trait;
 use log::{debug, info};
 use tokio::sync::Mutex;
 
-use freyja_common::{cloud_adapter::{
-    CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse,
-}, service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector};
+use freyja_common::{
+    cloud_adapter::{CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse},
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
+};
 
 /// Mocks a cloud adapter in memory
 pub struct InMemoryMockCloudAdapter {}
@@ -55,7 +56,9 @@ mod in_memory_mock_cloud_adapter_tests {
 
     use time::OffsetDateTime;
 
-    use freyja_common::service_discovery_adapter::{ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError};
+    use freyja_common::service_discovery_adapter::{
+        ServiceDiscoveryAdapter, ServiceDiscoveryAdapterError,
+    };
 
     mock! {
         pub ServiceDiscoveryAdapterSelectorImpl {}
@@ -71,14 +74,17 @@ mod in_memory_mock_cloud_adapter_tests {
     #[test]
     fn can_get_new() {
         let result = InMemoryMockCloudAdapter::create_new(Arc::new(Mutex::new(
-            MockServiceDiscoveryAdapterSelectorImpl::new(),)));
+            MockServiceDiscoveryAdapterSelectorImpl::new(),
+        )));
         assert!(result.is_ok());
     }
 
     #[tokio::test]
     async fn can_send_to_cloud() {
         let cloud_adapter = InMemoryMockCloudAdapter::create_new(Arc::new(Mutex::new(
-            MockServiceDiscoveryAdapterSelectorImpl::new(),))).unwrap();
+            MockServiceDiscoveryAdapterSelectorImpl::new(),
+        )))
+        .unwrap();
 
         let cloud_message = CloudMessageRequest {
             metadata: HashMap::new(),

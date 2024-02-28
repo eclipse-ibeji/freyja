@@ -2,7 +2,10 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::sync::{Arc, atomic::{AtomicU8, Ordering}};
+use std::sync::{
+    atomic::{AtomicU8, Ordering},
+    Arc,
+};
 
 use async_trait::async_trait;
 use tokio::sync::Mutex;
@@ -11,7 +14,14 @@ use crate::config::Config;
 use freyja_build_common::config_file_stem;
 
 use freyja_common::{
-    config_utils, mapping_adapter::{CheckForWorkRequest, CheckForWorkResponse, GetMappingRequest, GetMappingResponse, MappingAdapter, MappingAdapterError}, out_dir, service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector};
+    config_utils,
+    mapping_adapter::{
+        CheckForWorkRequest, CheckForWorkResponse, GetMappingRequest, GetMappingResponse,
+        MappingAdapter, MappingAdapterError,
+    },
+    out_dir,
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
+};
 
 /// Mocks a mapping provider in memory
 pub struct InMemoryMockMappingAdapter {
@@ -127,7 +137,8 @@ mod in_memory_mock_mapping_adapter_tests {
     #[test]
     fn can_create_new() {
         let result = InMemoryMockMappingAdapter::create_new(Arc::new(Mutex::new(
-            MockServiceDiscoveryAdapterSelectorImpl::new(),)));
+            MockServiceDiscoveryAdapterSelectorImpl::new(),
+        )));
         assert!(result.is_ok());
     }
 

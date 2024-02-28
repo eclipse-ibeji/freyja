@@ -17,7 +17,8 @@ use freyja_common::{
         MappingAdapter, MappingAdapterError,
     },
     out_dir,
-    retry_utils::execute_with_retry, service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
+    retry_utils::execute_with_retry,
+    service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector,
 };
 use mapping_service_proto::v1::{
     mapping_service_client::MappingServiceClient, CheckForWorkRequest as ProtoCheckForWorkRequest,
