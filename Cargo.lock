@@ -328,7 +328,7 @@ dependencies = [
 [[package]]
 name = "core-protobuf-data-access"
 version = "0.1.0"
-source = "git+https://github.com/eclipse-ibeji/ibeji#74272c40c724b859f63cfe4bcb3d1c884c282192"
+source = "git+https://github.com/eclipse-ibeji/ibeji#c549818e406a6a7300323e6f62249681de86a1fc"
 dependencies = [
  "prost",
  "prost-types",
@@ -1002,9 +1002,9 @@ checksum = "01cda141df6706de531b6c46c3a33ecca755538219bd484262fa09410c13539c"
 
 [[package]]
 name = "log"
-version = "0.4.20"
+version = "0.4.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
+checksum = "90ed8c1e510134f979dbc4f070f87d4313098b704861a105fe34231c70a3901c"
 
 [[package]]
 name = "managed-subscribe-data-adapter"
@@ -1611,7 +1611,7 @@ dependencies = [
 [[package]]
 name = "samples-protobuf-data-access"
 version = "1.0.0"
-source = "git+https://github.com/eclipse-ibeji/ibeji#74272c40c724b859f63cfe4bcb3d1c884c282192"
+source = "git+https://github.com/eclipse-ibeji/ibeji#c549818e406a6a7300323e6f62249681de86a1fc"
 dependencies = [
  "prost",
  "prost-types",
@@ -1717,9 +1717,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.50"
+version = "2.0.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74f1bdc9872430ce9b75da68329d1c1746faf50ffac5f19e02b71e37ff881ffb"
+checksum = "b699d15b36d1f02c3e7c69f8ffef53de37aefae075d8488d4ba1a7788d574a07"
 dependencies = [
  "proc-macro2",
  "quote",
