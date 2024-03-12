@@ -71,7 +71,7 @@ where
     };
 
     let config_store = config::Config::builder()
-        .add_source(File::from(default_config_file))
+        .add_source(File::from(default_config_file).required(false))
         .add_source(File::from(current_dir_config_path).required(false))
         .add_source(File::from(freyja_dir_config_path).required(false))
         .build()
