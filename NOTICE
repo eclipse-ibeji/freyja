@@ -2340,7 +2340,7 @@ END OF TERMS AND CONDITIONS
 - [serde]( https://github.com/serde-rs/serde ) 1.0.197
 - [serde_derive]( https://github.com/serde-rs/serde ) 1.0.197
 - [serde_json]( https://github.com/serde-rs/json ) 1.0.114
-- [syn]( https://github.com/dtolnay/syn ) 2.0.50
+- [syn]( https://github.com/dtolnay/syn ) 2.0.52
 - [thiserror]( https://github.com/dtolnay/thiserror ) 1.0.57
 - [thiserror-impl]( https://github.com/dtolnay/thiserror ) 1.0.57
 - [unicode-ident]( https://github.com/dtolnay/unicode-ident ) 1.0.12
@@ -4064,7 +4064,7 @@ limitations under the License.
 - [itertools]( https://github.com/rust-itertools/itertools ) 0.11.0
 - [lazy_static]( https://github.com/rust-lang-nursery/lazy-static.rs ) 1.4.0
 - [linux-raw-sys]( https://github.com/sunfishcode/linux-raw-sys ) 0.4.13
-- [log]( https://github.com/rust-lang/log ) 0.4.20
+- [log]( https://github.com/rust-lang/log ) 0.4.21
 - [mime]( https://github.com/hyperium/mime ) 0.3.17
 - [mockall]( https://github.com/asomers/mockall ) 0.12.1
 - [mockall_derive]( https://github.com/asomers/mockall ) 0.12.1
@@ -6706,7 +6706,7 @@ DEALINGS IN THE SOFTWARE.
 
 #### Used by
 
-- [mio]( https://github.com/tokio-rs/mio ) 0.8.10
+- [mio]( https://github.com/tokio-rs/mio ) 0.8.11
 
 #### License
 
