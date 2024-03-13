@@ -55,7 +55,7 @@ pub fn copy_config(config_file_stem: &str) {
 /// Compiles proto files from a remote source, such as an external repo.
 ///
 /// # Arguments
-/// - `url`: the url for retrieving the proto file
+/// - `url`: the url for retrieving the proto file.
 /// - `message_attributes`: a list of message attributes to add.
 /// Note that passing values here typically adds implicit dependencies to the crate that exposes these interfaces.
 pub fn compile_remote_proto(
@@ -67,13 +67,13 @@ pub fn compile_remote_proto(
     let filename = url.rsplit('/').next().unwrap_or_default();
     let proto_dir = Path::new(&out_dir).join("proto");
 
-    std::fs::create_dir_all(proto_dir.clone())?;
+    std::fs::create_dir_all(&proto_dir)?;
 
     let target = proto_dir.join(filename);
 
     match ureq::get(&url).call() {
         Ok(response) => {
-            let mut out_file = fs::File::create(target.clone())?;
+            let mut out_file = fs::File::create(&target)?;
 
             std::io::copy(&mut response.into_reader(), &mut out_file)?;
         }
