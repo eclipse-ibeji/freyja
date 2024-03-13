@@ -33,6 +33,7 @@ ci
 cli
 CloudAdapter
 CloudConnector
+cmake
 com
 CONFIG
 config
@@ -72,6 +73,7 @@ Freyja
 Freyja's
 freyja
 Freyr
+gcc
 genpkey
 github
 githubusercontent

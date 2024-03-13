@@ -9,6 +9,8 @@ const CONFIG_FILE_STEM: &str = "CONFIG_FILE_STEM";
 const RES_DIR: &str = "res";
 const DEFAULT_CONFIG_EXT: &str = ".default.json";
 
+pub const SERDE_DERIVE_ATTRIBUTE: &str = "#[derive(serde::Deserialize, serde::Serialize)]";
+
 /// Expands to `env!("CONFIG_FILE_STEM")`.
 /// Since we cannot use a constant in the `env!` macro,
 /// this is the next best option to avoid duplicating the `"CONFIG_FILE_STEM"` literal.
@@ -48,4 +50,44 @@ pub fn copy_config(config_file_stem: &str) {
 
     // Set the CONFIG_FILE_STEM environment variable for compilation
     println!("cargo:rustc-env={}={}", CONFIG_FILE_STEM, config_file_stem);
+}
+
+/// Compiles proto files from a remote source, such as an external repo.
+///
+/// # Arguments
+/// - `url`: the url for retrieving the proto file.
+/// - `message_attributes`: a list of message attributes to add.
+/// Note that passing values here typically adds implicit dependencies to the crate that exposes these interfaces.
+pub fn compile_remote_proto(
+    url: String,
+    message_attributes: &[(&str, &str)],
+) -> Result<(), Box<dyn std::error::Error>> {
+    // Retrieve file and write to OUT_DIR
+    let out_dir = env::var(OUT_DIR).unwrap();
+    let filename = url.rsplit('/').next().unwrap_or_default();
+    let proto_dir = Path::new(&out_dir).join("proto");
+
+    std::fs::create_dir_all(&proto_dir)?;
+
+    let target = proto_dir.join(filename);
+
+    match ureq::get(&url).call() {
+        Ok(response) => {
+            let mut out_file = fs::File::create(&target)?;
+
+            std::io::copy(&mut response.into_reader(), &mut out_file)?;
+        }
+        Err(e) => panic!("Unable to retrieve remote proto file: {e}"),
+    }
+
+    // Compile protos
+    let mut builder = tonic_build::configure();
+
+    for (msg, attr) in message_attributes {
+        builder = builder.message_attribute(msg, attr);
+    }
+
+    builder.compile(&[target], &[proto_dir])?;
+
+    Ok(())
 }

@@ -24,11 +24,22 @@ For more information on Freyja's design and how it works, see [the design docume
 
 This guide uses `apt` as the package manager in the examples. You may need to substitute your own package manager in place of `apt` when going through these steps.
 
-1. Install git and rust:
+1. Install required packages. These packages are necessary to clone the repo, install the Rust toolchain, and build Freyja's dependencies:
 
     ```shell
     sudo apt update
-    sudo apt install -y git snapd
+    sudo apt install -y \
+        git \
+        snapd \
+        gcc \
+        protobuf-compiler \
+        pkg-config libssl-dev \
+        cmake
+    ```
+
+1. Install the Rust Toolchain:
+
+    ```shell
     sudo snap install rustup --classic
     ```
 
