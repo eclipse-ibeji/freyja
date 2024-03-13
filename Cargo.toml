@@ -25,6 +25,7 @@ members = [
   "mocks/mock_mapping_service",
   "proc_macros",
   "proto/cloud_connector",
+  "proto/core-protobuf-data-access",
   "proto/mapping_service",
   "test_common",
 ]
@@ -52,7 +53,8 @@ proc-macros = { path = "proc_macros" }
 sample-grpc-data-adapter = { path = "adapters/data/sample_grpc_data_adapter" }
 
 # Other SDV projects. Versioning is handled by the Cargo.lock file
-core-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji" }
+#core-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji" }
+core-protobuf-data-access = { path = "proto/core-protobuf-data-access" }
 samples-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji" }
 service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott" }
 
@@ -82,3 +84,4 @@ tonic = "0.11.0"
 tonic-build = "0.11.0"
 tower = { version = "0.4", features = ["util"] }
 uuid = "1.7.0"
+ureq = "2.9.6"

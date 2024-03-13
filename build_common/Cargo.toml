@@ -9,3 +9,5 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
+tonic-build = { workspace = true }
+ureq = { workspace = true }

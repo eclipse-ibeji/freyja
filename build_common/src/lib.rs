@@ -49,3 +49,44 @@ pub fn copy_config(config_file_stem: &str) {
     // Set the CONFIG_FILE_STEM environment variable for compilation
     println!("cargo:rustc-env={}={}", CONFIG_FILE_STEM, config_file_stem);
 }
+
+/// Compiles proto files from a remote source, such as an external repo.
+///
+/// # Arguments
+/// - `url`: the url for retrieving the proto files
+/// - `serializable_messages`: a list of message names to mark with `serde` derive attributes to enable serialization and deserialization.
+/// Note that passing values here will add an implicit dependency on `serde` to the crate that exposes these interfaces.
+pub fn compile_remote_proto(url: String, serializable_messages: &[&str]) -> Result<(), Box<dyn std::error::Error>> {
+    // Retrieve file and write to OUT_DIR
+    let out_dir = env::var(OUT_DIR).unwrap();
+    let filename = url.rsplit('/').next().unwrap_or_default();
+    let proto_dir = Path::new(&out_dir)
+        .join("proto");
+
+    std::fs::create_dir_all(proto_dir.clone())?;
+
+    let target = proto_dir.join(filename);
+
+    match ureq::get(&url).call() {
+        Ok(response) => {
+            let mut out_file = fs::File::create(target.clone())?;
+
+            std::io::copy(&mut response.into_reader(), &mut out_file)?;
+        },
+        Err(e) => panic!("Unable to retrieve remote proto file: {e}"),
+    }
+
+    // Compile protos
+    let mut builder = tonic_build::configure();
+
+    for m in serializable_messages {
+        builder = builder.message_attribute(m, "#[derive(serde::Deserialize, serde::Serialize)]");
+    }
+
+    builder.compile(
+        &[target],
+        &[proto_dir],
+    )?;
+
+    Ok(())
+}
