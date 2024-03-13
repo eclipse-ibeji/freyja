@@ -9,6 +9,8 @@ const CONFIG_FILE_STEM: &str = "CONFIG_FILE_STEM";
 const RES_DIR: &str = "res";
 const DEFAULT_CONFIG_EXT: &str = ".default.json";
 
+pub const SERDE_DERIVE_ATTRIBUTE: &str = "#[derive(serde::Deserialize, serde::Serialize)]";
+
 /// Expands to `env!("CONFIG_FILE_STEM")`.
 /// Since we cannot use a constant in the `env!` macro,
 /// this is the next best option to avoid duplicating the `"CONFIG_FILE_STEM"` literal.
@@ -53,10 +55,10 @@ pub fn copy_config(config_file_stem: &str) {
 /// Compiles proto files from a remote source, such as an external repo.
 ///
 /// # Arguments
-/// - `url`: the url for retrieving the proto files
-/// - `serializable_messages`: a list of message names to mark with `serde` derive attributes to enable serialization and deserialization.
-/// Note that passing values here will add an implicit dependency on `serde` to the crate that exposes these interfaces.
-pub fn compile_remote_proto(url: String, serializable_messages: &[&str]) -> Result<(), Box<dyn std::error::Error>> {
+/// - `url`: the url for retrieving the proto file
+/// - `message_attributes`: a list of message attributes to add.
+/// Note that passing values here typically adds implicit dependencies to the crate that exposes these interfaces.
+pub fn compile_remote_proto(url: String, message_attributes: &[(&str, &str)]) -> Result<(), Box<dyn std::error::Error>> {
     // Retrieve file and write to OUT_DIR
     let out_dir = env::var(OUT_DIR).unwrap();
     let filename = url.rsplit('/').next().unwrap_or_default();
@@ -79,8 +81,8 @@ pub fn compile_remote_proto(url: String, serializable_messages: &[&str]) -> Resu
     // Compile protos
     let mut builder = tonic_build::configure();
 
-    for m in serializable_messages {
-        builder = builder.message_attribute(m, "#[derive(serde::Deserialize, serde::Serialize)]");
+    for (msg, attr) in message_attributes {
+        builder = builder.message_attribute(msg, attr);
     }
 
     builder.compile(

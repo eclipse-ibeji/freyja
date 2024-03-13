@@ -25,14 +25,17 @@ members = [
   "mocks/mock_mapping_service",
   "proc_macros",
   "proto/cloud_connector",
-  "proto/core-protobuf-data-access",
+  "proto/core_protobuf_data_access",
   "proto/mapping_service",
+  "proto/samples_protobuf_data_access",
+  "proto/service_discovery_proto",
   "test_common",
 ]
 
 [workspace.dependencies]
 # Freyja libraries from this workspace
 cloud-connector-proto = { path = "proto/cloud_connector" }
+core-protobuf-data-access = { path = "proto/core_protobuf_data_access" }
 file-service-discovery-adapter = { path = "adapters/service_discovery/file_service_discovery_adapter" }
 freyja-build-common = { path = "build_common" }
 freyja-common = { path = "common" }
@@ -51,12 +54,8 @@ mock-digital-twin = { path = "mocks/mock_digital_twin" }
 mqtt-data-adapter = { path = "adapters/data/mqtt_data_adapter" }
 proc-macros = { path = "proc_macros" }
 sample-grpc-data-adapter = { path = "adapters/data/sample_grpc_data_adapter" }
-
-# Other SDV projects. Versioning is handled by the Cargo.lock file
-#core-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji" }
-core-protobuf-data-access = { path = "proto/core-protobuf-data-access" }
-samples-protobuf-data-access = { git = "https://github.com/eclipse-ibeji/ibeji" }
-service_discovery_proto = { git = "https://github.com/eclipse-chariott/chariott" }
+samples-protobuf-data-access = { path = "proto/samples_protobuf_data_access" }
+service_discovery_proto = { path = "proto/service_discovery_proto" }
 
 # crates.io dependencies
 async-trait = "0.1.77"

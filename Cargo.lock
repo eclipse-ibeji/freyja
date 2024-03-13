@@ -249,7 +249,7 @@ dependencies = [
  "prost-types",
  "time",
  "tonic",
- "tonic-build 0.11.0",
+ "tonic-build",
 ]
 
 [[package]]
@@ -553,7 +553,7 @@ dependencies = [
 name = "freyja-build-common"
 version = "0.1.0"
 dependencies = [
- "tonic-build 0.11.0",
+ "tonic-build",
  "ureq",
 ]
 
@@ -1068,7 +1068,7 @@ dependencies = [
  "prost",
  "prost-types",
  "tonic",
- "tonic-build 0.11.0",
+ "tonic-build",
 ]
 
 [[package]]
@@ -1696,15 +1696,12 @@ dependencies = [
 
 [[package]]
 name = "samples-protobuf-data-access"
-version = "1.0.0"
-source = "git+https://github.com/eclipse-ibeji/ibeji#1ac110a11a7586b0f4d9b22f554da67a6369e792"
+version = "0.1.0"
 dependencies = [
+ "freyja-build-common",
  "prost",
  "prost-types",
- "serde",
- "tokio",
  "tonic",
- "tonic-build 0.11.0",
 ]
 
 [[package]]
@@ -1750,12 +1747,11 @@ dependencies = [
 [[package]]
 name = "service_discovery_proto"
 version = "0.1.0"
-source = "git+https://github.com/eclipse-chariott/chariott#8b3789bb4c377569df730c851928dd56d0123ec5"
 dependencies = [
+ "freyja-build-common",
  "prost",
- "tokio",
+ "prost-types",
  "tonic",
- "tonic-build 0.10.2",
 ]
 
 [[package]]
@@ -2033,19 +2029,6 @@ dependencies = [
  "tower-layer",
  "tower-service",
  "tracing",
-]
-
-[[package]]
-name = "tonic-build"
-version = "0.10.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d021fc044c18582b9a2408cd0dd05b1596e3ecdb5c4df822bb0183545683889"
-dependencies = [
- "prettyplease",
- "proc-macro2",
- "prost-build",
- "quote",
- "syn",
 ]
 
 [[package]]
