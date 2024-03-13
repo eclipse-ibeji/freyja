@@ -4,7 +4,8 @@
 
 use freyja_build_common::compile_remote_proto;
 
-const IBEJI_SAMPLE_INTERFACES_BASE_URI: &str = "https://raw.githubusercontent.com/eclipse-ibeji/ibeji/main/samples/interfaces";
+const IBEJI_SAMPLE_INTERFACES_BASE_URI: &str =
+    "https://raw.githubusercontent.com/eclipse-ibeji/ibeji/main/samples/interfaces";
 const SAMPLE_GRPC_INTERFACE_PATH: &str = "sample_grpc/v1";
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

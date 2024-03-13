@@ -58,12 +58,14 @@ pub fn copy_config(config_file_stem: &str) {
 /// - `url`: the url for retrieving the proto file
 /// - `message_attributes`: a list of message attributes to add.
 /// Note that passing values here typically adds implicit dependencies to the crate that exposes these interfaces.
-pub fn compile_remote_proto(url: String, message_attributes: &[(&str, &str)]) -> Result<(), Box<dyn std::error::Error>> {
+pub fn compile_remote_proto(
+    url: String,
+    message_attributes: &[(&str, &str)],
+) -> Result<(), Box<dyn std::error::Error>> {
     // Retrieve file and write to OUT_DIR
     let out_dir = env::var(OUT_DIR).unwrap();
     let filename = url.rsplit('/').next().unwrap_or_default();
-    let proto_dir = Path::new(&out_dir)
-        .join("proto");
+    let proto_dir = Path::new(&out_dir).join("proto");
 
     std::fs::create_dir_all(proto_dir.clone())?;
 
@@ -74,7 +76,7 @@ pub fn compile_remote_proto(url: String, message_attributes: &[(&str, &str)]) ->
             let mut out_file = fs::File::create(target.clone())?;
 
             std::io::copy(&mut response.into_reader(), &mut out_file)?;
-        },
+        }
         Err(e) => panic!("Unable to retrieve remote proto file: {e}"),
     }
 
@@ -85,10 +87,7 @@ pub fn compile_remote_proto(url: String, message_attributes: &[(&str, &str)]) ->
         builder = builder.message_attribute(msg, attr);
     }
 
-    builder.compile(
-        &[target],
-        &[proto_dir],
-    )?;
+    builder.compile(&[target], &[proto_dir])?;
 
     Ok(())
 }
