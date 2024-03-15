@@ -332,6 +332,7 @@ dependencies = [
  "freyja-build-common",
  "prost",
  "prost-types",
+ "proto-common",
  "serde",
  "tonic",
 ]
@@ -1510,6 +1511,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "proto-common"
+version = "0.1.0"
+
+[[package]]
 name = "quote"
 version = "1.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1701,6 +1706,7 @@ dependencies = [
  "freyja-build-common",
  "prost",
  "prost-types",
+ "proto-common",
  "tonic",
 ]
 
@@ -1751,6 +1757,7 @@ dependencies = [
  "freyja-build-common",
  "prost",
  "prost-types",
+ "proto-common",
  "tonic",
 ]
 

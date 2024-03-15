@@ -25,6 +25,7 @@ members = [
   "mocks/mock_mapping_service",
   "proc_macros",
   "proto/cloud_connector",
+  "proto/common",
   "proto/core_protobuf_data_access",
   "proto/mapping_service",
   "proto/samples_protobuf_data_access",
@@ -53,6 +54,7 @@ mapping-service-proto = { path = "proto/mapping_service" }
 mock-digital-twin = { path = "mocks/mock_digital_twin" }
 mqtt-data-adapter = { path = "adapters/data/mqtt_data_adapter" }
 proc-macros = { path = "proc_macros" }
+proto-common = { path = "proto/common" }
 sample-grpc-data-adapter = { path = "adapters/data/sample_grpc_data_adapter" }
 samples-protobuf-data-access = { path = "proto/samples_protobuf_data_access" }
 service_discovery_proto = { path = "proto/service_discovery_proto" }

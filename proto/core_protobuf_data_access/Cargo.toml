@@ -16,3 +16,4 @@ tonic = { workspace = true }
 
 [build-dependencies]
 freyja-build-common = { workspace = true }
+proto-common = { workspace = true }
