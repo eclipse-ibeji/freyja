@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: MIT
 
 // This module contains constants related to remote protobuf files as well as helpers for referencing them.
-// This also help manage interface versions in a central location, which is particularly helpful for Ibeji since
-// the referenced interfaces are split across two different crates.
+// This also helps manage interface versions from a central location, which is particularly helpful for Ibeji since
+// the interfaces are referenced in two different crates.
 
 pub const GITHUB_BASE_URL: &str = "https://raw.githubusercontent.com";
 
