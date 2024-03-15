@@ -36,7 +36,7 @@ pub mod chariott {
 ///
 /// # Arguments
 /// - `service`: the service name. Corresponds to one of the submodules of `proto_common`.
-/// - `interface`: the interface name. Corresponds to one of the contants in the `interfaces` sub-module of the `service` module.
+/// - `interface`: the interface name. Corresponds to one of the constants in the `interfaces` sub-module of the `service` module.
 #[macro_export]
 macro_rules! interface_url {
     ($service:ident, $interface:ident) => {
