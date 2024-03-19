@@ -36,31 +36,40 @@ fn main() {
         match file {
             Err(e) => error!("Unable to read file: {e}"),
             Ok(path) => {
-                info!("Updating {:?}...", path.display());
-                if !dry_run {
-                    let contents = match fs::read_to_string(&path) {
-                        Ok(s) => s,
-                        Err(e) => {
-                            error!("\tError reading file: {e}");
-                            continue;
-                        }
-                    };
+                info!("Checking {:?}...", path.display());
 
-                    let mut toml = match contents.parse::<DocumentMut>() {
-                        Ok(d) => d,
-                        Err(e) => {
-                            error!("\tError parsing file: {e}");
-                            continue;
-                        }
-                    };
-
-                    toml["package"]["version"] = value(version);
-
-                    match fs::write(&path, toml.to_string()) {
-                        Ok(_) => info!("\tUpdate successful!"),
-                        Err(e) => error!("\tError writing file: {e}"),
+                let contents = match fs::read_to_string(&path) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        error!("\tError reading file: {e}");
+                        continue;
                     }
-                }
+                };
+
+                let mut toml = match contents.parse::<DocumentMut>() {
+                    Ok(d) => d,
+                    Err(e) => {
+                        error!("\tError parsing file: {e}");
+                        continue;
+                    }
+                };
+
+                // This check prevents the app from updating workspaces which don't have a version configured
+                if toml.contains_table("package")
+                    && toml["package"].as_table().unwrap().contains_key("version") {
+                        let current_version = &toml["package"]["version"];
+
+                        if dry_run {
+                            info!("\t Would update version: {current_version} -> {version}");
+                        } else {
+                            toml["package"]["version"] = value(version);
+            
+                            match fs::write(&path, toml.to_string()) {
+                                Ok(_) => info!("\tUpdate successful!"),
+                                Err(e) => error!("\tError writing file: {e}"),
+                            }
+                        }
+                    }
             },
         }
     }
