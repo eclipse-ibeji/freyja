@@ -4,14 +4,20 @@
 
 use std::{env, fs};
 
+use env_logger::Target;
 use glob::glob;
 
 use freyja_common::cmd_utils::parse_args;
-use log::{error, info};
+use log::{error, info, LevelFilter};
 use toml_edit::{value, DocumentMut};
 
 fn main() {
     let args = parse_args(env::args()).expect("Failed to parse args");
+
+    env_logger::Builder::new()
+        .filter(None, LevelFilter::Info)
+        .target(Target::Stdout)
+        .init();
 
     let dir = match args.get("dir") {
         Some(Some(d)) => d,

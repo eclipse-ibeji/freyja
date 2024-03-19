@@ -9,6 +9,7 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
+env_logger = { workspace = true }
 freyja-common = { workspace = true }
 glob = { workspace = true }
 log = { workspace = true }
