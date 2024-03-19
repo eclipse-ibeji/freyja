@@ -1,0 +1,15 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "update-versions"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+freyja-common = { workspace = true }
+glob = { workspace = true }
+log = { workspace = true }
+toml_edit = { workspace = true }
