@@ -47,7 +47,7 @@ fn main() {
                     }
                 };
 
-                // This check prevents the app from updating workspaces which don't have a version configured
+                // This check prevents the app from updating workspaces, which don't have a version configured
                 if toml.contains_table("package")
                     && toml["package"].as_table().unwrap().contains_key("version")
                     && toml["package"]["version"].is_str()
@@ -55,7 +55,7 @@ fn main() {
                     let current_version = &toml["package"]["version"].as_str().unwrap();
 
                     if dry_run {
-                        println!("\t Would update version: {current_version} -> {version}");
+                        println!("\tWould update version: {current_version} -> {version}");
                     } else {
                         toml["package"]["version"] = value(version);
         
