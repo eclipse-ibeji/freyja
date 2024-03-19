@@ -52,7 +52,7 @@ fn main() {
                     && toml["package"].as_table().unwrap().contains_key("version")
                     && toml["package"]["version"].is_str()
                 {
-                    let current_version = &toml["package"]["version"].as_str().unwrap();
+                    let current_version: String = toml["package"]["version"].as_str().unwrap().into();
 
                     if dry_run {
                         println!("\tWould update version: {current_version} -> {version}");
@@ -60,7 +60,7 @@ fn main() {
                         toml["package"]["version"] = value(version);
 
                         match fs::write(&path, toml.to_string()) {
-                            Ok(_) => println!("\tUpdate successful!"),
+                            Ok(_) => println!("\tUpdated version: {current_version} -> {version}"),
                             Err(e) => println!("\tError writing file: {e}"),
                         }
                     }
