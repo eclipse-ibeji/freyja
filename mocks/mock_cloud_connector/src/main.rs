@@ -12,10 +12,7 @@ use env_logger::Target;
 use log::{info, LevelFilter};
 use tonic::transport::Server;
 
-use crate::{
-    config::Config,
-    mock_cloud_connector_impl::MockCloudConnectorImpl,
-};
+use crate::{config::Config, mock_cloud_connector_impl::MockCloudConnectorImpl};
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     cmd_utils::{get_log_level, parse_args},
@@ -58,7 +55,7 @@ async fn main() {
         .parse()
         .expect("Unable to parse server address");
 
-    let mock_cloud_connector = MockCloudConnectorImpl { };
+    let mock_cloud_connector = MockCloudConnectorImpl {};
 
     Server::builder()
         .add_service(CloudConnectorServer::new(mock_cloud_connector))

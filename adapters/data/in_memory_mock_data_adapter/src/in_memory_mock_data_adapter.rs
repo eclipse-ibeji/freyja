@@ -138,7 +138,8 @@ impl DataAdapter for InMemoryMockDataAdapter {
                 {
                     let data = data.lock().await;
                     for entity_id in entities_with_subscribe {
-                        if let Err(e) = Self::generate_signal_value(&entity_id, signals.clone(), &data)
+                        if let Err(e) =
+                            Self::generate_signal_value(&entity_id, signals.clone(), &data)
                         {
                             warn!("Attempt to set value for non-existent entity {entity_id}: {e}");
                         }

@@ -3,21 +3,22 @@
 // SPDX-License-Identifier: MIT
 
 use async_trait::async_trait;
-use cloud_connector_proto::v1::{cloud_connector_server::CloudConnector, UpdateDigitalTwinRequest, UpdateDigitalTwinResponse};
+use cloud_connector_proto::v1::{
+    cloud_connector_server::CloudConnector, UpdateDigitalTwinRequest, UpdateDigitalTwinResponse,
+};
 use log::info;
 use tonic::{Request, Response, Status};
 
-/// Implements an In-Vehicle Digital Twin Server
-pub struct MockCloudConnectorImpl {
-}
+/// Implements a Mock Cloud Connector
+pub struct MockCloudConnectorImpl {}
 
 #[async_trait]
 impl CloudConnector for MockCloudConnectorImpl {
     /// Update the digital twin
-    /// 
+    ///
     /// # Arguments
     /// - `request`: the update request+
-    async fn update_digital_twin (
+    async fn update_digital_twin(
         &self,
         request: Request<UpdateDigitalTwinRequest>,
     ) -> Result<Response<UpdateDigitalTwinResponse>, Status> {

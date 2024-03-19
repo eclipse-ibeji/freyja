@@ -2,15 +2,17 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
-use std::time::Duration;
 use std::sync::Arc;
+use std::time::Duration;
 
 use async_trait::async_trait;
 use log::debug;
 use tokio::sync::Mutex;
 use tonic::transport::Channel;
 
-use cloud_connector_proto::v1::{cloud_connector_client::CloudConnectorClient, UpdateDigitalTwinRequestBuilder};
+use cloud_connector_proto::v1::{
+    cloud_connector_client::CloudConnectorClient, UpdateDigitalTwinRequestBuilder,
+};
 use freyja_build_common::config_file_stem;
 use freyja_common::{
     cloud_adapter::{CloudAdapter, CloudAdapterError, CloudMessageRequest, CloudMessageResponse},
