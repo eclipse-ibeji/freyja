@@ -134,9 +134,11 @@ pub mod v1 {
             self
         }
 
-        /// Set the request timestamp to the current time
-        pub fn timestamp_now(mut self) -> Self {
-            let timestamp = OffsetDateTime::now_utc();
+        /// Set the request timestamp to an `OffsetDateTime`
+        /// 
+        /// # Arguments
+        /// - `timestamp`: the timestamp to set
+        pub fn timestamp_offset(mut self, timestamp: OffsetDateTime) -> Self {
             self.request.timestamp = Some(
                 Timestamp::date_time(
                     timestamp.year().into(),
@@ -148,6 +150,14 @@ pub mod v1 {
                 )
                 .unwrap(),
             );
+
+            self
+        }
+
+        /// Set the request timestamp to the current time
+        pub fn timestamp_now(mut self) -> Self {
+            let timestamp = OffsetDateTime::now_utc();
+            self = self.timestamp_offset(timestamp);
 
             self
         }

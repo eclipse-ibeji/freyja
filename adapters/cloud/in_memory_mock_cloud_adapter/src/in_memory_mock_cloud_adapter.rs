@@ -75,7 +75,7 @@ mod in_memory_mock_cloud_adapter_tests {
         let cloud_message = CloudMessageRequest {
             metadata: HashMap::new(),
             signal_value: String::from("72"),
-            signal_timestamp: OffsetDateTime::now_utc().to_string(),
+            signal_timestamp: OffsetDateTime::now_utc(),
         };
 
         assert!(cloud_adapter.send_to_cloud(cloud_message).await.is_ok());
