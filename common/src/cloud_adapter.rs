@@ -6,6 +6,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
+use time::OffsetDateTime;
 use tokio::sync::Mutex;
 
 use crate::service_discovery_adapter_selector::ServiceDiscoveryAdapterSelector;
@@ -42,7 +43,7 @@ pub struct CloudMessageRequest {
     pub signal_value: String,
 
     // Timestamp of when the signal was emitted
-    pub signal_timestamp: String,
+    pub signal_timestamp: OffsetDateTime,
 }
 
 /// Represents a response to a message sent to the cloud digital twin

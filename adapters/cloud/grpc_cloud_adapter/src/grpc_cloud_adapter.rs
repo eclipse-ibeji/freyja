@@ -2,17 +2,16 @@
 // Licensed under the MIT license.
 // SPDX-License-Identifier: MIT
 
+use std::sync::Arc;
 use std::time::Duration;
-use std::{str::FromStr, sync::Arc};
 
 use async_trait::async_trait;
 use log::debug;
 use tokio::sync::Mutex;
 use tonic::transport::Channel;
 
-use cloud_connector_proto::{
-    prost_types::Timestamp,
-    v1::{cloud_connector_client::CloudConnectorClient, UpdateDigitalTwinRequestBuilder},
+use cloud_connector_proto::v1::{
+    cloud_connector_client::CloudConnectorClient, UpdateDigitalTwinRequestBuilder,
 };
 use freyja_build_common::config_file_stem;
 use freyja_common::{
@@ -81,12 +80,9 @@ impl CloudAdapter for GRPCCloudAdapter {
     ) -> Result<CloudMessageResponse, CloudAdapterError> {
         debug!("Received a request to send to the cloud");
 
-        let timestamp = Timestamp::from_str(cloud_message.signal_timestamp.as_str())
-            .map_err(CloudAdapterError::deserialize)?;
-
         let request = UpdateDigitalTwinRequestBuilder::new()
             .string_value(cloud_message.signal_value)
-            .timestamp(timestamp)
+            .timestamp_offset(cloud_message.signal_timestamp)
             .metadata(cloud_message.metadata)
             .build();
 

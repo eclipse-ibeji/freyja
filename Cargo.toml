@@ -21,6 +21,7 @@ members = [
   "build_common",
   "common",
   "freyja",
+  "mocks/mock_cloud_connector",
   "mocks/mock_digital_twin",
   "mocks/mock_mapping_service",
   "proc_macros",

@@ -2,19 +2,19 @@
     "signal_update_frequency_ms": 1000,
     "entities": [
         {
-            "entity_id": "dtmi:sdv:Vehicle:Cabin:HVAC:AmbientAirTemperature;1",
+            "entity_id": "dtmi:sdv:HVAC:AmbientAirTemperature;1",
             "values": {
                 "Static": 42.0
             }
         },
         {
-            "entity_id": "dtmi:sdv:Vehicle:Cabin:HVAC:IsAirConditioningActive;1",
+            "entity_id": "dtmi:sdv:HVAC:IsAirConditioningActive;1",
             "values": {
                 "Static": 0.0
             }
         },
         {
-            "entity_id": "dtmi:sdv:Vehicle:OBD:HybridBatteryRemaining;1",
+            "entity_id": "dtmi:sdv:OBD:HybridBatteryRemaining;1",
             "values": {
                 "Stepwise": {
                     "start": 77.7,
