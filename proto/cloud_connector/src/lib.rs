@@ -188,11 +188,7 @@ pub mod v1 {
 mod cloud_connector_tests {
     use serde_json::{json, Map, Value};
 
-    use self::v1::UpdateDigitalTwinRequestBuilder;
-
-    use super::*;
-
-    use crate::v1::UpdateDigitalTwinRequest;
+    use crate::v1::{UpdateDigitalTwinRequest, UpdateDigitalTwinRequestBuilder};
 
     fn serialize_round_trip(request: &UpdateDigitalTwinRequest) -> Value {
         let serialize_result = serde_json::to_string(&request);

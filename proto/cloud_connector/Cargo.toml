@@ -18,4 +18,3 @@ tonic = { workspace = true }
 
 [build-dependencies]
 tonic-build = { workspace = true }
-freyja-build-common = { workspace = true }

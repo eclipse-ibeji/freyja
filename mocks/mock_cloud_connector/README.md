@@ -1,6 +1,6 @@
 # Mock Cloud Connector
 
-The Mock Cloud Connector mocks the behavior of a Cloud Connector. This enables functionality similar to the [In-Memory Mock Cloud Adapter](../../adapters/cloud/in_memory_mock_cloud_adapter/README.md).
+The Mock Cloud Connector mocks the behavior of a Cloud Connector. This enables functionality similar to the [In-Memory Mock Cloud Adapter](../../adapters/cloud/in_memory_mock_cloud_adapter/README.md) while also utilizing the standard Freyja application.
 
 The Mock Cloud Connector implements the [Cloud Connector API](../../interfaces/cloud_connector/v1/cloud_connector.proto), making it compatible with the [gRPC Cloud Adapter](../../adapters/cloud/grpc_cloud_adapter/README.md).
 
