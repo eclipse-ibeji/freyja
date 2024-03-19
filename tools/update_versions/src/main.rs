@@ -58,7 +58,7 @@ fn main() {
                         println!("\tWould update version: {current_version} -> {version}");
                     } else {
                         toml["package"]["version"] = value(version);
-        
+
                         match fs::write(&path, toml.to_string()) {
                             Ok(_) => println!("\tUpdate successful!"),
                             Err(e) => println!("\tError writing file: {e}"),
@@ -67,7 +67,7 @@ fn main() {
                 } else {
                     println!("\tNo package version to update");
                 }
-            },
+            }
         }
 
         // Helps with readability
