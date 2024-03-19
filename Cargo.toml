@@ -32,7 +32,7 @@ members = [
   "proto/samples_protobuf_data_access",
   "proto/service_discovery_proto",
   "test_common",
-  "tools/update_versions",
+  "tools/version_update",
 ]
 
 [workspace.dependencies]

@@ -2205,15 +2205,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1"
 
 [[package]]
-name = "update-versions"
-version = "0.1.0"
-dependencies = [
- "freyja-common",
- "glob",
- "toml_edit",
-]
-
-[[package]]
 name = "ureq"
 version = "2.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2261,6 +2252,15 @@ name = "vcpkg"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
+
+[[package]]
+name = "version-update"
+version = "0.1.0"
+dependencies = [
+ "freyja-common",
+ "glob",
+ "toml_edit",
+]
 
 [[package]]
 name = "version_check"
