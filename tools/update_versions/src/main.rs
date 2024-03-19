@@ -4,20 +4,13 @@
 
 use std::{env, fs};
 
-use env_logger::Target;
 use glob::glob;
 
 use freyja_common::cmd_utils::parse_args;
-use log::{error, info, LevelFilter};
 use toml_edit::{value, DocumentMut};
 
 fn main() {
     let args = parse_args(env::args()).expect("Failed to parse args");
-
-    env_logger::Builder::new()
-        .filter(None, LevelFilter::Info)
-        .target(Target::Stdout)
-        .init();
 
     let dir = match args.get("dir") {
         Some(Some(d)) => d,
@@ -34,14 +27,14 @@ fn main() {
 
     for file in glob(&format!("{}/**/Cargo.toml", dir)).expect("Failed to read glob pattern") {
         match file {
-            Err(e) => error!("Unable to read file: {e}"),
+            Err(e) => println!("Unable to read file: {e}"),
             Ok(path) => {
-                info!("Checking {:?}...", path.display());
+                println!("Checking {:?}...", path.display());
 
                 let contents = match fs::read_to_string(&path) {
                     Ok(s) => s,
                     Err(e) => {
-                        error!("\tError reading file: {e}");
+                        println!("\tError reading file: {e}");
                         continue;
                     }
                 };
@@ -49,28 +42,35 @@ fn main() {
                 let mut toml = match contents.parse::<DocumentMut>() {
                     Ok(d) => d,
                     Err(e) => {
-                        error!("\tError parsing file: {e}");
+                        println!("\tError parsing file: {e}");
                         continue;
                     }
                 };
 
                 // This check prevents the app from updating workspaces which don't have a version configured
                 if toml.contains_table("package")
-                    && toml["package"].as_table().unwrap().contains_key("version") {
-                        let current_version = &toml["package"]["version"];
+                    && toml["package"].as_table().unwrap().contains_key("version")
+                    && toml["package"]["version"].is_str()
+                {
+                    let current_version = &toml["package"]["version"].as_str().unwrap();
 
-                        if dry_run {
-                            info!("\t Would update version: {current_version} -> {version}");
-                        } else {
-                            toml["package"]["version"] = value(version);
-            
-                            match fs::write(&path, toml.to_string()) {
-                                Ok(_) => info!("\tUpdate successful!"),
-                                Err(e) => error!("\tError writing file: {e}"),
-                            }
+                    if dry_run {
+                        println!("\t Would update version: {current_version} -> {version}");
+                    } else {
+                        toml["package"]["version"] = value(version);
+        
+                        match fs::write(&path, toml.to_string()) {
+                            Ok(_) => println!("\tUpdate successful!"),
+                            Err(e) => println!("\tError writing file: {e}"),
                         }
                     }
+                } else {
+                    println!("\tNo package version to update");
+                }
             },
         }
+
+        // Helps with readability
+        println!();
     }
 }
