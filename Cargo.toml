@@ -61,7 +61,7 @@ samples-protobuf-data-access = { path = "proto/samples_protobuf_data_access" }
 service_discovery_proto = { path = "proto/service_discovery_proto" }
 
 # crates.io dependencies
-async-trait = "0.1.78"
+async-trait = "0.1.79"
 config = "0.14.0"
 convert_case = "0.6.0"
 env_logger = "0.11.3"
@@ -78,12 +78,12 @@ serde = { version = "1.0.196", features = ["derive"] }
 serde_json = "1.0.113"
 strum = "0.26.1"
 strum_macros = "0.26.2"
-syn = { version = "2.0.53", features = ["extra-traits", "full"] }
+syn = { version = "2.0.55", features = ["extra-traits", "full"] }
 time = "0.3.34"
 tokio = { version = "1.36", features = ["macros", "rt-multi-thread", "time", "sync", "test-util"] }
 tokio-stream = { version = "0.1.15", features = ["net"] }
 tonic = "0.11.0"
 tonic-build = "0.11.0"
 tower = { version = "0.4", features = ["util"] }
-uuid = "1.7.0"
+uuid = "1.8.0"
 ureq = "2.9.6"
