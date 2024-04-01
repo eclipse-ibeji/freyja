@@ -75,12 +75,12 @@ prost = "0.12"
 prost-types = "0.12"
 quote = "1.0.23"
 serde = { version = "1.0.196", features = ["derive"] }
-serde_json = "1.0.113"
+serde_json = "1.0.115"
 strum = "0.26.1"
 strum_macros = "0.26.2"
-syn = { version = "2.0.55", features = ["extra-traits", "full"] }
+syn = { version = "2.0.57", features = ["extra-traits", "full"] }
 time = "0.3.34"
-tokio = { version = "1.36", features = ["macros", "rt-multi-thread", "time", "sync", "test-util"] }
+tokio = { version = "1.37", features = ["macros", "rt-multi-thread", "time", "sync", "test-util"] }
 tokio-stream = { version = "0.1.15", features = ["net"] }
 tonic = "0.11.0"
 tonic-build = "0.11.0"
