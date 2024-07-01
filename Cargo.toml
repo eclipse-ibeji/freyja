@@ -70,20 +70,20 @@ home = "0.5.9"
 log = "^0.4"
 mockall = "0.12.1"
 paho-mqtt = "0.12"
-proc-macro2 = "1.0.85"
+proc-macro2 = "1.0.86"
 prost = "0.12"
 prost-types = "0.12"
 quote = "1.0.36"
 serde = { version = "1.0.203", features = ["derive"] }
-serde_json = "1.0.117"
+serde_json = "1.0.119"
 strum = "0.26.1"
 strum_macros = "0.26.4"
-syn = { version = "2.0.66", features = ["extra-traits", "full"] }
+syn = { version = "2.0.68", features = ["extra-traits", "full"] }
 time = "0.3.36"
 tokio = { version = "1.38", features = ["macros", "rt-multi-thread", "time", "sync", "test-util"] }
 tokio-stream = { version = "0.1.15", features = ["net"] }
 tonic = "0.11.0"
 tonic-build = "0.11.0"
 tower = { version = "0.4", features = ["util"] }
-uuid = "1.8.0"
+uuid = "1.9.1"
 ureq = "2.9.7"
